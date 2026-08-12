@@ -1,0 +1,283 @@
+# Strings from the Library of Babel: Random Sampling as a Strong Baseline for Prompt Optimisation
+
+Yao Lu† Jiayi Wang† Raphael Tang‡ Sebastian Riedel† Pontus Stenetorp† †University College London ‡Comcast AI Technologies {yao.lu,s.riedel,p.stenetorp}@cs.ucl.ac.uk ucabj45@ucl.ac.uk raphael\_tang@comcast.com
+
+## Abstract
+
+Recent prompt optimisation approaches use the generative nature of language models to produce prompts – even rivalling the performance of human-curated prompts. In this paper, we demonstrate that randomly sampling tokens from the model vocabulary as “separators” can be as effective as language models for prompt-style text classification. Our experi ments show that random separators are competitive baselines, having less than a 1% difference compared to previous self-optimisation methods and showing a 12% average relative improvement over strong human baselines across nine text classification tasks and eight language models. We further analyse this phenomenon in detail using three different random generation strategies, establishing that the language space is rich with potentially good separators, with a greater than 40% average chance that a randomly drawn separator performs better than human-curated separators. These observations challenge the common assumption that an effective prompt should be human readable or task relevant and establishes a strong baseline for prompt optimisation research.<sup>1</sup>
+
+## 1 Introduction
+
+Pre-trained large language models (PLMs, Peters et al., 2018; Devlin et al., 2019; Liu et al., 2019; Radford et al., 2019; Touvron et al., 2023a,b; Jiang et al., 2023) have demonstrated remarkable performance when conditioned with appropriate context (Petroni et al., 2019, 2020; Jiang et al., 2020; Shin et al., 2020; Davison et al., 2019). For instance, when given a query along with the phrase “Let’s think step by step,” such models are capable of solving reasoning tasks (Kojima et al., 2022; Wei et al., 2022). These special tokens, often called “separators”, are usually placed at the end of the input data or at the beginning of the output (Table 1).
+
+![](images/46fbe14ce421025401a3240602fcfca38962614c2834dcc42200b42ac3cae032.jpg)  
+Figure 1: Illustration of our approach when searching for good separators for a sentiment classification task. Unlike relying on human knowledge or using external large language models to suggest alternatives, we find that randomly selected separators from the vocabulary can also yield good performance.
+
+Recent work found that including thinking-style separators such as "take a deep breath" can significantly enhance reasoning performance (Yang et al., 2023). Similarly, another study discovered that simply using “SOLUTION:” is even more effective (Fernando et al., 2023). These findings suggest that the language space for separators might still be under-explored, with many effective options yet to be identified. A common framework employed in this line of research involves starting with thinking-style separators, using a language model to generate alternatives, and then selecting effective separators based on certain criteria (Zhou et al., 2022; Yang et al., 2023; Fernando et al., 2023; Guo et al., 2023). This optimisation-style framework has shown promise in automating the exploration of the language space, which addresses the challenge of relying on human expertise to develop task-specific separators.
+
+Most existing methods, particularly those applied to reasoning tasks, assume that effective separators should be closely related to the task or context (Fernando et al., 2023; Guo et al., 2023; Shi et al., 2022). However, perhaps counter-intuitively, we find that a performant separator does not necessarily have to be task-relevant or even coherent. Sometimes, even tokens chosen at random from the vocabulary can improve performance as much as semantically meaningful phrases.
+
+<table><tr><td>PROMPT EXAMPLES</td></tr><tr><td>HUMAN This is a good movie.</td><td>Answer: positive</td></tr><tr><td>RANDOM</td><td>This is a good movie.!@#?&amp; positive</td></tr></table>
+
+Table 1: Examples of prompts used in our evaluation, where the highlighted text are the separators.
+
+As shown in Figure 1 and Table 1, we can achieve similar performance to that of humanoptimised prompts by randomly selecting separators from the vocabulary. This suggests that random separators can serve as a competitive baseline, sometimes even matching the performance of previous methods (Zhou et al., 2022; Kojima et al., 2022; Yang et al., 2023; Guo et al., 2023) for prompt-style text classification tasks. Our exploration across seven different models further shows that this behaviour is universal across both pretrained and instruction-tuned language models (Table 6), and seems to be a fundamental characteristic of in-context learning (Brown et al., 2020).
+
+We further analyse this phenomenon with three random separator generation strategies, revealing that there are many performant separators in the language space, suggesting that previous research underestimated the effectiveness of randomised prompts outside of reasoning tasks. This observation breaks common assumptions such as that good separators need to be task relevant, coherent, and context dependent (Shin et al., 2020; Shi et al., 2022). Experimental results show that using random separators attains a 12% average relative improvement across nine classification tasks on eight language models, compared to human-curated separators. To summarise, our contributions are as follows:
+
+1. We show that random separators can be as effective as human-curated prompts for promptstyle text classification.
+
+2. We analyse three randomised separator generation strategies, which do not require an instruction-following language model, and show on-average a 12% relative improvement over human baselines.
+
+3. We find that random separators are as competitive as previously proposed language model approaches to generate alternative prompts, suggesting that their effectiveness appear greater than what it would have appeared given this strong random baseline.
+
+## 2 Random Separator Optimisation
+
+We propose a random separator optimisation framework (Figure 2) to find effective separators based on random sampling. The framework consists of three components: 1) random separator generation, 2) separator evaluation, and 3) separator selection.
+
+## 2.1 Definition of Separator
+
+The term “separators” is inspired by the wellknown BERT [SEP] token in order to differentiate from general wordings such as “suffix” or “prefix”. We use this term to provide readers with better semantics and also to avoid ambiguity.
+
+## 2.2 Random Separator Generation
+
+In this work, we seek to answer the following questions which relate to common assumptions adopted in prompt optimisation research:
+
+• Should effective separators be task-relevant, or should they be closely tied to the existing context information?
+
+• To what degree are language models needed for prompt optimisation?
+
+To answer these questions, we propose three strategies for generating random separators from language model free and context-free, to language model dependent and context relevant. The core difference between these three random strategies are summarised in Table 2, with a more detailed illustration provided in Table 3.
+
+<table><tr><td></td><td>Language Model Task Relevant</td><td></td></tr><tr><td>Random Vocabulary</td><td>X</td><td>x</td></tr><tr><td>Random w/o Context</td><td>√</td><td>x</td></tr><tr><td>Random with Context</td><td>L</td><td>¬</td></tr></table>
+
+Table 2: Random generation methods
+
+![](images/e001cc1bef4e177d07d24e5a8d370946148b4cdd3792109c8337b033ca56928d.jpg)  
+Figure 2: Our random separator optimisation procedure.
+
+Sampling randomly across the vocabulary. AutoPrompt (Shin et al., 2020) suggests that effective separators may appear to be random strings, showing the potential of identifying a good separator within the random space. To investigate this, we design an approach to generate random separators that are context-free, task-agnostic, and do not rely on any language model for their generation. Essentially, we select random tokens from the vocabulary until a predetermined string length limit is reached.
+
+Sampling from a language model without context. This method involves drawing samples from the language model’s prior distribution, a process that is both context-free and task-agnostic. We employ this random generation method to evaluate whether separator coherence contributes to performance, especially when compared to random samples at the vocabulary level.
+
+Sampling from a language model with context. The creation of task-relevant separators may enhance performance. For instance, incorporating thinking-style phrases in a reasoning task has proven highly effective. In OPRO (Yang et al., 2023), the authors highlight that including samples from the training data in the meta-prompt leads to consistent improvements. Thus, to assess the impact of task relevance on separator generation, we integrate a few training samples from the training corpus into the meta-prompt to refine the semantic space of the separator.
+
+## 2.3 Separator Evaluation
+
+We demonstrate the evaluation process in Figure 2. In line with prior work (Fernando et al., 2023; Yang et al., 2023), a small set of labelled data, denoted as the training corpus $T = \{ ( x _ { i } , y _ { i } ) \} , i = 1 , . . . , n .$ is available. Here, $x _ { i }$ and $y _ { i }$ represent the sentence and label of the $i ^ { \mathrm { t h } }$ sample, respectively. We also define a transformation , which maps label y to text. In contrast to supervised learning settings that require a large volume of data for training, we only need a limited set of examples.<sup>2</sup> To evaluate a given separator s, we perform string concatenation ( ) of the each input sentence from the training corpus T with the separator. As part of in-context learning settings, where demonstrations may be necessary for some tasks, we also take into account a context c, which has identical structure to the linearised sequence. For each data point $( x _ { i } , y _ { i } )$ in $T _ { \cdot }$ , we prompt the pretrained language model to generate the predicted label $\begin{array} { r } { \hat { y } _ { i } = \operatorname * { a r g m a x } _ { v \in V } P ( v | c \oplus x _ { i } \oplus s ; \theta ) } \end{array}$ , where θ represents the parameters of the pretrained language model and V denotes the vocabulary space. For a classification task, we compute the classification accuracy as the corresponding separator score, denoted by m. It is worth noting that the metric does not necessarily need to be differentiable, allowing for the direct optimisation of discrete metrics such as word overlap ratio, etc.
+
+## 2.4 Separator Selection
+
+Despite the random separator generation steps being independent, we retain the term “iteration” in our methodology. This allows for a consistent comparison with other methods that use an iterationsensitive meta-prompt. During the iteration process, we evaluate the generated prompt and keep track of the most effective separators at each step. The sampling continues until we reach a predefined sampling budget limit, denoted as k. By the end of the training process, we accumulate a set of separators<sup>3</sup> and their corresponding scores, represented as $S = \{ ( s _ { i } , m _ { i } ) \} , i = 1 , . . . , k$ . The separator that yields the highest score in this set is then selected for evaluation on the test set.
+
+## 3 Experimental Setup
+
+## 3.1 Datasets and Models
+
+In line with previous studies (Gao et al., 2020; Zhao et al., 2021; Lu et al., 2022), we use nine text classification datasets (Table 4). For training we use 64 samples per dataset and for evaluation we use the sub-sampled test set from Lu et al. (2022).
+
+In contrast to previous work, our random separator optimisation methods do not require an instruction-tuned language model. This allows us to test our methods using both standard pre-trained language models and instruction-tuned language models. As detailed in Table 5, our experiment uses four pre-trained language models and four instruction-tuned language models, in total eight models with varying structure and training data.
+
+## 3.2 Optimisation Settings
+
+Separator generation methods. As detailed in Section 2, we have proposed three different random separator generation approaches. For comparative analysis, we include the OPRO (Yang et al., 2023) method in our study. We also adapt OPRO’s metaprompt by omitting the instructional text, creating an in-context learning variant (OPRO-ICL). This allows fair comparison between random generation and other methods on non-instructionally tuned models. We also compare our methods against two human-level prompt optimisation methods, MI (Zhang et al., 2023) and NI (Mishra et al., 2021), as well as two automatic prompt optimisation methods, APE (Zhou et al., 2022) and EvoPrompt (Guo et al., 2023), under our experimental settings<sup>4</sup> described in Guo et al. (2023). In total, we employ nine distinct separator generation methods as baselines in our main experiment (Tables 6 and 7).
+
+Baseline separators. To better understand how much improvement separator optimisation can achieve, we use the human curated separator “Answer:” and random strings such as “Foo Bar”<sup>5</sup> and zero-shot chain-of-thoughts (ZS-CoT) (Kojima et al., 2022), “Let’s think step by step”, as baseline separators.
+
+Initialisation. The choice of a starting point does not affect random methods. In cases where a metaprompt requires a starting point, such as in OPRO, we use “Answer:” as the starting point.
+
+Prompting settings. We use one-shot examples as context to prompt language models during both training and test stages. When context is necessary for separator generation, we provide three randomly chosen training examples. We set the generation temperature to 1.0 and use a temperature of 0.0 for prompt-based text classification. For training of OPRO and OPRO-ICL, we set a maximum of 40 optimisation steps and generate four candidate separators each step. For our random methods, we generate 160 candidate separators and select the best one for evaluation.
+
+## 4 Results and Discussion
+
+We report our results in Table 6 and demonstrate the effectiveness of randomly sampled separators across all tasks. In addition, we compare four additional baseline methods in Table 7 using the experimental settings described by Guo et al. (2023).
+
+## 4.1 Random Separators are Strong Baselines
+
+Unnatural separators are effective. To our surprise, we find that even separators chosen at random from the vocabulary can substantially improve performance. Table 6 shows that the Random Vocabulary method yields, on average, a 10% relative improvement across nine benchmark datasets compared to human-curated separators. Random Vocabulary shows only marginal differences (less than 1% difference) compared to self-optimisation style methods (Yang et al., 2023; Zhou et al., 2022). For evolutionary methods (Guo et al., 2023), Random Vocabulary shows a 3.4% difference from the best EvoPrompt result (Table 7), with the most significant drop (2.1%) occurring on the SubJ dataset.
+
+Since our goal is not to produce a state-of-the-art method, but rather to establish a strong baseline, the performance of Random Vocabulary suggests that previous progress and the weight of contributions in prompt optimisation might be overestimated. Notably, our method does not depend on a language model for generation (Table 2). This result challenges the common practice in prompt optimisation where large language models are used for creating alternative prompts.
+
+<table><tr><td></td><td>Description</td><td>Prompt for Generating New Separators</td></tr><tr><td>Random Baseline Human Baseline (Lu et al., 2022) ZS-CoT (Kojima et al., 2022)</td><td>Random string without optimisation steps Use “Answer:&quot; as it is widely used Think-style phrase</td><td></td></tr><tr><td>OPRO (Yang et al., 2023)</td><td>The meta-prompt in OPRO consists of a natural language problem description and instructions to generate new solutions based on previously found solutions.</td><td>[Instructions] I have some texts along with their ... [Historical Solutions] text: think stepwise score: 55 . [Instructions] The following exemplars show .. [Context] should not be missed &lt;INS&gt;positive ... [Instructions] Write your new text that is different ... text: [to be prompted]</td></tr><tr><td>OPRO-ICL</td><td>We remove all instructions from OPRO to create an in-context learning variant.</td><td>[Historical Solutions] text: think stepwise score: 55 ... [Context] should not be missed &lt;INS&gt;positive ... text: [to be prompted]</td></tr><tr><td>Random Vocabulary</td><td>Randomly sample tokens across vocabulary to generate separators.</td><td>[to be sampled] [such as &quot;!@#$%^&amp;*&quot;]</td></tr><tr><td>Random w/o Context</td><td>Draw samples from LLM&#x27;s prior distribution. Prompting language model with few examples</td><td>[to be prompted] [Context]</td></tr><tr><td>Random with Context</td><td>as context. Similar to OPRO (Yang et al., 2023), we use three randomly sampled examples from training data as context.</td><td>should not be missed &lt;INS&gt;positive curiously depressing &lt;INS&gt;negative text: [to be prompted]</td></tr></table>
+
+Table 3: Separator generation methods used for our main experiment. Text wrapped with square brackets are not included in prompt.
+
+<table><tr><td>Dataset</td><td># of Classes</td><td>Avg. Len.</td><td>Balanced</td></tr><tr><td>SST-2 (Socher et al., 2013)</td><td>2</td><td>12.4</td><td></td></tr><tr><td>SST-5 (Socher et al., 2013)</td><td>5</td><td>23.1</td><td>X</td></tr><tr><td>MR (Pang and Lee, 2005)</td><td>2</td><td>25.7</td><td></td></tr><tr><td>CR (Hu and Liu, 2004)</td><td>2</td><td>22.1</td><td></td></tr><tr><td>MPQA (Wiebe et al., 2005)</td><td>2</td><td>3.9</td><td></td></tr><tr><td>Subj (Pang and Lee, 2004)</td><td>2</td><td>28.9</td><td></td></tr><tr><td>TREC (Voorhees and Tice, 2000)</td><td>6</td><td>11.6</td><td>x</td></tr><tr><td>AGNews (Zhang et al., 2015)</td><td>4</td><td>53.8</td><td></td></tr><tr><td>DBPedia (Zhang et al., 2015)</td><td>14</td><td>65.5</td><td></td></tr></table>
+
+Table 4: Statistics of evaluation datasets, average length is calculated based on GPT-2 sentence-piece length.
+<table><tr><td>Model</td><td># of Parameters</td><td>Instruction Tuned</td></tr><tr><td>GPT2 Large (Radford et al., 2019)</td><td>0.8B</td><td>x</td></tr><tr><td>GPT2 XL (Radford et al., 2019)</td><td>1.5B</td><td>x</td></tr><tr><td>Mistral 7B (Jiang et al., 2023)</td><td>7B</td><td>x</td></tr><tr><td>Mistral 7B Instruct (Jiang et al., 2023)</td><td>7B</td><td>√</td></tr><tr><td>Llama-Alpaca 7B (Taori et al., 2023)</td><td>6.7B</td><td>√</td></tr><tr><td>Llama2 7B (Touvron et al., 2023b)</td><td>6.7B</td><td>x</td></tr><tr><td>Llama2 7B Chat (Touvron et al., 2023b)</td><td>6.7B</td><td>√</td></tr><tr><td>ChatGPT (GPT-3.5 Turbo, 0613 version)</td><td></td><td>√</td></tr></table>
+
+Table 5: Language models used in experiments.
+
+Natural language separators are effective, but may not be essential. Human creation of separators often takes coherence into account. For instance, in sentiment classification, a model might struggle to predict “positive” or “negative” due to high sequence perplexity, but introducing a separator like “It is positive” can align predictions with the model’s pre-training objective. Given the surprisingly competitive quality of Random Vocabulary, we further explore the potential benefits of coherence towards prompt optimisation. We design another simple strategy, Random w/o Context, which samples from the language model’s prior to generate natural language phrases as separators. The key difference between Random w/o Context and Random Vocabulary is that the former consists of natural language phrases, whereas the latter may not. Both methods generate separators that are statistically unlikely to be relevant to the task and context.
+
+Experimental results show that the Random w/o Context is significantly better than human baselines (12% relative improvement) and nearly on par with previous state-of-the-art prompt optimisation methods (less than a 1% difference). This suggests that Random w/o Context is also a simple but strong baseline for prompt optimisation. When comparing the natural and unnatural separators, our analysis shows a mere 0.5% relative difference between Random Vocabulary and Random w/o Context. Such a small margin suggests that, while the Random w/o Context approach is competitive, coherence does not appear to be a critical factor.
+
+Task information in separator generation provides slight improvements. Random with Context imposes task-relevance constraints by sampling from a language model conditioned on training samples. We observe, though marginal, consistent improvements of including context information for prompt optimisation. Specifically, the Random with Context method achieves a relative improvement of 0.3% over Random w/o Context and 0.9% over Random Vocabulary. Nevertheless, given the significant gains that Random Vocabulary achieves over human baseline (10%), the incremental gains from adding task information are relatively minor.
+
+<table><tr><td rowspan="2"></td><td rowspan="2">SST-2</td><td rowspan="2">SST-5</td><td rowspan="2">DBPedia</td><td rowspan="2">MR</td><td rowspan="2">CR</td><td rowspan="2">MPQA</td><td rowspan="2">Subj</td><td rowspan="2">TREC</td><td rowspan="2">AGNews</td><td rowspan="2">Avg. (Rel. Δ%)</td></tr><tr><td></td></tr><tr><td>Finetuning (Full)</td><td>95.0</td><td>58.7</td><td>99.3</td><td>90.8</td><td>89.4</td><td>87.8</td><td>97.0</td><td>97.4</td><td>94.7</td><td>90.0</td></tr><tr><td>GPT2-LARGE 0.8B</td><td></td><td></td><td>37.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Answer:</td><td>74.8 57.0</td><td>27.0 36.8</td><td>34.5</td><td>54.5</td><td>69.8</td><td>63.0 51.6</td><td>65.9</td><td>9.5 21.0</td><td>52.9 51.2</td><td>50.5 (0.0)</td></tr><tr><td>Foo Bar</td><td>61.5</td><td>26.6</td><td>37.3</td><td>53.3</td><td>63.5</td><td></td><td>53.4</td><td></td><td>63.7</td><td>46.9 (−7.1)</td></tr><tr><td>ZS-CoT</td><td>77.1</td><td>43.1</td><td>44.4</td><td>59.1 81.0</td><td>52.8</td><td>32.8</td><td>51.3</td><td>15.6</td><td></td><td>44.5 (−11.9)</td></tr><tr><td>OPRO</td><td>81.6</td><td></td><td>43.8</td><td></td><td>75.5</td><td>64.8</td><td>73.1</td><td>36.5</td><td>62.7</td><td>62.0 (22.8)</td></tr><tr><td>OPRO-ICL</td><td></td><td>44.1</td><td></td><td>68.8</td><td>74.5</td><td>65.9</td><td>73.0</td><td>36.6</td><td>70.8</td><td>62.1 (23.0)</td></tr><tr><td>Random Vocabulary</td><td>80.6</td><td>43.4</td><td>40.2</td><td>77.0</td><td>76.8</td><td>62.7</td><td>73.0</td><td>34.5</td><td>72.2</td><td>62.3 (23.4)</td></tr><tr><td>Random w/o Context</td><td>77.2</td><td>41.9</td><td>45.7</td><td>75.5</td><td>78.6</td><td>67.2</td><td>72.4</td><td>39.5</td><td>66.8</td><td>62.8 (24.4)</td></tr><tr><td>Random with Context</td><td>82.0</td><td>43.9</td><td>42.9</td><td>81.6</td><td>73.9</td><td>69.5</td><td>71.4</td><td>35.8</td><td>71.2</td><td>63.6 (25.9)</td></tr><tr><td>GPT2-XL 1.5B</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Answer:</td><td>72.3</td><td>37.7</td><td>38.3</td><td>69.5</td><td>60.8</td><td>59.2</td><td>61.2</td><td>7.2</td><td>46.5</td><td>50.3 (0.0)</td></tr><tr><td>Foo Bar</td><td>40.3</td><td>40.5</td><td>40.4</td><td>49.5</td><td>56.4</td><td>47.7</td><td>56.6</td><td>17.1</td><td>57.0</td><td>45.1 (−10.3)</td></tr><tr><td>ZS-CoT</td><td>39.8</td><td>27.7</td><td>41.5</td><td>42.6</td><td>43.7</td><td>49.4</td><td>55.2</td><td>16.6</td><td>56.3</td><td>41.4 (−17.7)</td></tr><tr><td>OPRO</td><td>80.0</td><td>44.6</td><td>47.0</td><td>79.3</td><td>78.0</td><td>68.6</td><td>75.6</td><td>29.8</td><td>72.0</td><td>63.9 (27.0)</td></tr><tr><td>OPRO-ICL</td><td>82.9</td><td>45.2</td><td>47.4</td><td>81.0</td><td>78.0</td><td>69.9</td><td>78.8</td><td>26.1</td><td>69.6</td><td>64.3 (27.8)</td></tr><tr><td>Random Vocabulary</td><td>73.1</td><td>45.9</td><td>47.6</td><td>71.4</td><td>78.4</td><td>65.5</td><td>77.1</td><td>25.5</td><td>69.3</td><td>61.5 (22.3)</td></tr><tr><td>Random w/o Context</td><td>72.0</td><td>40.5</td><td>44.6</td><td>75.0</td><td>79.3</td><td>70.8</td><td>72.8</td><td>35.6</td><td>68.1</td><td>62.1 (23.5)</td></tr><tr><td>Random with Context</td><td>82.1</td><td>41.7</td><td>44.2</td><td>81.8</td><td>78.5</td><td>64.3</td><td>73.4</td><td>32.9</td><td>74.5</td><td>63.7 (26.6)</td></tr><tr><td>MISTRAL 7B</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Answer:</td><td>85.5</td><td>46.6</td><td>63.7</td><td>89.0</td><td>92.2</td><td>61.6</td><td>69.7</td><td>34.3</td><td>82.1</td><td>69.4 (0.0)</td></tr><tr><td>Foo Bar</td><td>61.0</td><td>44.0</td><td>63.7</td><td>72.7</td><td>87.1</td><td>48.2</td><td>55.9</td><td>34.8</td><td>79.5</td><td>60.8 (−12.4)</td></tr><tr><td>ZS-CoT</td><td>52.6</td><td>44.5</td><td>66.7</td><td>56.9</td><td>80.3</td><td>48.5</td><td>54.5</td><td>36.3</td><td>76.3</td><td>57.4 (−17.3)</td></tr><tr><td>OPRO</td><td>86.3</td><td>46.8</td><td>71.9</td><td>92.7</td><td>87.4</td><td>79.5</td><td>82.7</td><td>60.8</td><td>83.1</td><td>76.8 (10.7)</td></tr><tr><td>OPRO-ICL</td><td>91.0</td><td>48.2</td><td>72.7</td><td>93.5</td><td>90.6</td><td>76.2</td><td>86.3</td><td>59.9</td><td>82.9</td><td>77.9 (12.2)</td></tr><tr><td>Random Vocabulary</td><td>87.3</td><td>49.4</td><td>70.1</td><td>93.1</td><td>85.8</td><td>76.2</td><td>80.7</td><td>55.7</td><td>81.6</td><td>75.5 (8.8)</td></tr><tr><td>Random w/o Context</td><td>91.4</td><td>48.7</td><td>73.8</td><td>91.6</td><td>86.3</td><td>74.4</td><td>79.8</td><td>60.5</td><td>80.9</td><td>76.4 (10.1)</td></tr><tr><td>Random with Context</td><td>92.7</td><td>47.9</td><td>74.1</td><td>92.9</td><td>87.8</td><td>67.0</td><td>84.4</td><td>59.9</td><td>82.9</td><td>76.6 (10.4)</td></tr><tr><td>MISTRAL 7B INSTRUCT</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Answer:</td><td>86.5</td><td>38.8</td><td>83.9</td><td>86.0</td><td>86.4</td><td>75.1</td><td>66.6</td><td>63.0</td><td>79.8</td><td>74.0 (0.0)</td></tr><tr><td>Foo Bar</td><td>85.1 83.8</td><td>39.7</td><td>82.3</td><td>85.3</td><td>85.7</td><td>75.5</td><td>63.8</td><td>63.8</td><td>78.8</td><td>73.3 (−0.1)</td></tr><tr><td>ZS-CoT</td><td>89.0</td><td>39.8</td><td>79.4</td><td>83.9</td><td>87.3</td><td>75.5</td><td>66.6</td><td>67.2</td><td>79.3</td><td>73.6 (0.0)</td></tr><tr><td>OPRO</td><td></td><td>40.2</td><td>82.8</td><td>88.0</td><td>84.3</td><td>81.3</td><td>68.3</td><td>67.3</td><td>81.6</td><td>75.9 (2.6)</td></tr><tr><td>OPRO-ICL</td><td>89.1</td><td>41.7</td><td>83.7</td><td>90.2</td><td>87.7</td><td>79.6</td><td>72.7</td><td>66.3</td><td>82.3 79.1</td><td>77.0 (4.1) 75.3 (1.8)</td></tr><tr><td>Random Vocabulary</td><td>87.0 89.5</td><td>40.6 40.9</td><td>84.0 82.4</td><td>87.2 88.2</td><td>87.6 88.5</td><td>78.8 80.7</td><td>66.6 65.8</td><td>66.5 65.0 80.3</td></table>
+
+Table 6: Our main results on the evaluation set. We use one-shot context for all experiments, and use the same model for separator generation and evaluation. The relative improvement scores are computed using the “Answer:” as baseline. All the results except ChatGPT are calculated based on five different random seeds. For ChatGPT, we use two different random seeds. Results are colored blue when our random separators achieve the best performance.
+
+<table><tr><td></td><td>MI</td><td>NI</td><td>APE</td><td>Evo Prompt-DE</td><td>Evo Prompt-GA</td><td>Random Vocabulary</td><td>Random w/o Context</td><td>Random w/Context</td></tr><tr><td>SST-2</td><td></td><td>93.7 92.9</td><td>94.0</td><td>94.8</td><td>94.8</td><td>93.7</td><td>94.2</td><td>94.4</td></tr><tr><td>CR</td><td></td><td>91.4 90.9</td><td>90.5</td><td>91.4</td><td>91.2</td><td>91.1</td><td>90.2</td><td>91.0</td></tr><tr><td>MR</td><td></td><td>88.8 89.6 90.9</td><td></td><td>90.2</td><td>90.4</td><td>89.4</td><td>89.6</td><td>90.3</td></tr><tr><td>SST-5</td><td></td><td>42.948.647.0</td><td></td><td>48.2</td><td>49.4</td><td>41.0</td><td>37.1</td><td>45.5</td></tr><tr><td></td><td></td><td>AGNews 70.6 48.9 71.2</td><td></td><td>73.3</td><td>73.4</td><td>76.5</td><td>80.6</td><td>79.5</td></tr><tr><td>TREC</td><td></td><td>50.6 55.059.6</td><td></td><td>64.4</td><td>63.8</td><td>61.4</td><td>57.6</td><td>66.8</td></tr><tr><td>SubJ</td><td></td><td>49.852.6</td><td>63.3</td><td>77.6</td><td>67.9</td><td>62.6</td><td>69.0</td><td>64.7</td></tr><tr><td>AVG.</td><td>71.1 68.2 73.8</td><td></td><td></td><td>77.1</td><td>75.9</td><td>73.7</td><td>74.0</td><td>76.0</td></tr></table>
+
+Table 7: Prompt performance on the Alpaca-tuned LLaMA model. We compare with two human-level prompt optimisation methods, MI (Zhang et al., 2023) and NI (Mishra et al., 2021), and two automatic prompt optimisation methods, APE (Zhou et al., 2022) and Evo-Prompt (Guo et al., 2023).
+
+## 4.2 Random Sampling is a Strong Prompt Optimiser
+
+Random separator generation methods are comparable to instruction-based approaches. OPRO and its in-context learning variant achieve the top average performance for four out of seven models. However, the advantage is minimal, with a 0.1% average performance difference compared to random methods. It appears that instruction-based methods might be randomly encountering good separators throughout the optimisation process.
+
+Instruction-tuned models are not essential for proposing separators. Previous prompt optimisation work heavily rely on a language model to suggest alternatives, and they make a strong assumption that only instruction-tuned models are able to differentiate good and bad prompts. However, our observation indicates that instructiontuned models are not essential for proposing the separators. As shown in Table 6, OPRO is able to achieve reasonable performance, even for the smaller GPT2 family models. It is worth noting that, given the linguistic complexity of the OPROstyle meta prompt, a GPT2 model is unlikely to
+
+“understand” it (Ouyang et al., 2022). Furthermore, we do not observe a significant increase when using instruction-based model for proposing separators.
+<table><tr><td>Strategy</td><td>Separator</td><td>Score</td></tr><tr><td>OPRO</td><td>The new text is the following:</td><td>92.2</td></tr><tr><td>OPRO-ICL</td><td>00:57</td><td>92.2</td></tr><tr><td>Random Vocabulary</td><td>obliged\u0442\u0438\u0435Circ song</td><td>92.2</td></tr><tr><td></td><td>Random w/o Context Home Business New \u2018</td><td>92.2</td></tr><tr><td></td><td>Random with Context **GW - The Wall Street</td><td>92.2</td></tr></table>
+
+Table 8: Performant separators discovered in the training process on AGNews using LLAMA2 7B, we report the accuracy score over the training set.
+
+<table><tr><td></td><td>Random Vocabulary</td><td>Random w/o Context</td><td>Random with Context</td></tr><tr><td>GPT2-LARGE</td><td>37.1%</td><td>20.4%</td><td>51.2%</td></tr><tr><td>GPT2-XL</td><td>70.6%</td><td>42.6%</td><td>48.3%</td></tr><tr><td>LLAMA2 7B</td><td>66.1%</td><td>47.2%</td><td>49.6%</td></tr><tr><td>LLAMA2 CHAT</td><td>21.4%</td><td>14.6%</td><td>13.9%</td></tr></table>
+
+Table 9: Chance of random separators outperforming the human baseline “Answer:” on the AGNews dataset.
+
+## 5 Analyses
+
+## 5.1 Language Space is Rich with Potentially Good Separators.
+
+We find that different approaches can discover distinct separators while yielding similar performance, as shown in Table 8. This prompts a natural question: how many effective separators exist? For simplicity, we deem any separator effective if it outperforms a human-curated separator such as “Answer:”. To investigate this question, we calculate the percentage of effective random separators based on all data points<sup>6</sup> from the main experiment. Table 9 shows that our random baseline has on average a 40% chance to draw a separator that is better than the human baseline. This suggests that in the language space, there are more performant separators than we previously expected.
+
+## 5.2 Are Performant Random Separators Transferable?
+
+In this section, we study whether performant separators discovered by random approaches are transferable across different tasks and contexts.
+
+<table><tr><td></td><td>SST-2 SST-5 DBPedia MR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>CR MPQA Subj TREC AGNews Avg.</td></tr><tr><td colspan="9">BEST HUMAN-LEVEL PROMPT</td><td></td><td></td><td></td></tr><tr><td>Answer:</td><td>81.2</td><td>40.6</td><td>40.6</td><td></td><td>82.8 81.2</td><td>76.6</td><td>79.7</td><td>4.7</td><td>43.8</td><td>59.0</td></tr><tr><td colspan="9">BEST SEPARATOR, RANDOM VOCABULARY</td><td></td><td></td></tr><tr><td>SST2</td><td>85.9</td><td>39.1</td><td>42.2</td><td>43.8 81.2</td><td></td><td>84.4</td><td>65.6</td><td>26.6</td><td>65.6</td><td>59.4</td></tr><tr><td>SST5</td><td>57.8</td><td>45.3</td><td>31.2</td><td>73.4 81.2</td><td></td><td>48.4</td><td>51.6</td><td>7.8</td><td>56.2</td><td>50.3</td></tr><tr><td>DBPedia</td><td>50.0</td><td>39.1</td><td>56.2</td><td></td><td>64.1 81.2</td><td>79.7</td><td>42.2</td><td>29.7</td><td>56.2</td><td>55.4</td></tr><tr><td>MR</td><td>75.0</td><td>34.4</td><td>39.1</td><td>82.8</td><td>82.8</td><td>60.9</td><td>42.2</td><td>21.9</td><td>48.4</td><td>54.2</td></tr><tr><td>CR</td><td>48.4</td><td>29.7</td><td>37.5</td><td></td><td>43.893.8</td><td>62.5</td><td>42.2</td><td>28.1</td><td>57.8</td><td>49.3</td></tr><tr><td>MPQA SubJ</td><td>85.9</td><td>39.1</td><td>42.2 46.9</td><td></td><td>43.8 81.2</td><td>84.4 73.4</td><td>65.6</td><td>26.6</td><td>65.6 48.4</td><td>59.4</td></tr><tr><td>TREC</td><td>57.8</td><td>25.0</td><td></td><td></td><td>76.6 87.5</td><td></td><td>76.6</td><td>28.1</td><td></td><td>57.8</td></tr><tr><td>AGNews</td><td>57.8</td><td>23.4 32.8</td><td>39.1 31.2</td><td>79.7</td><td>76.6 81.2 79.7</td><td>76.6 76.6</td><td>42.2 42.2</td><td>43.8 25.0</td><td>60.9</td><td>55.7</td></tr><tr><td></td><td>50.0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>79.7</td><td>55.2</td></tr><tr><td colspan="9">BEST SEPARATOR, RANDOM W/O CONTEXT</td><td></td><td></td></tr><tr><td>SST2</td><td>76.6</td><td>18.8</td><td>40.6</td><td>57.8 93.8</td><td></td><td>59.4</td><td>56.2</td><td>34.4</td><td>59.4</td><td>55.2</td></tr><tr><td>SST5</td><td>51.6</td><td>43.8</td><td>31.2</td><td>62.5</td><td>85.9</td><td>75.0</td><td>67.2</td><td>37.5</td><td>29.7</td><td>53.8</td></tr><tr><td>DBPedia</td><td>51.6</td><td>29.7</td><td>54.7</td><td>54.7 70.3</td><td></td><td>60.9</td><td>60.9</td><td>43.8</td><td>71.9</td><td>55.4</td></tr><tr><td>MR</td><td>60.9</td><td>35.9</td><td>43.8</td><td>84.4 81.2</td><td></td><td>76.6</td><td>48.4</td><td>31.2</td><td>45.3</td><td>56.4</td></tr><tr><td>CR</td><td>76.6</td><td>18.8</td><td>40.6</td><td>57.8 93.8</td><td></td><td>59.4</td><td>56.2</td><td>34.4</td><td>59.4</td><td>55.2</td></tr><tr><td>MPQA</td><td>56.2</td><td>23.4</td><td>50.0</td><td>43.879.7</td><td></td><td>81.2</td><td>42.2</td><td>37.5</td><td>46.9</td><td>51.2</td></tr><tr><td>SubJ</td><td>50.0</td><td>18.8</td><td>48.4</td><td>59.4 89.1</td><td></td><td>68.8</td><td>81.2</td><td>17.2</td><td>23.4</td><td>50.7</td></tr><tr><td>TREC</td><td>50.0</td><td>20.3</td><td>48.4</td><td>57.8 79.7</td><td></td><td>73.4</td><td>42.2</td><td>45.3</td><td>54.7</td><td>52.4</td></tr><tr><td>AGNews</td><td>48.4</td><td>25.0</td><td>42.2</td><td>60.979.7</td><td></td><td>68.8</td><td>42.2</td><td>28.1</td><td>79.7</td><td>52.8</td></tr></table>
+
+Table 10: Random separator transferability test on GPT2-XL. We transfer the best random separator from each task (the columns) to the others (the rows), then colour the results according to their relative accuracy on the training set. Brightness denotes high transferability, with thresholds at 80% and 90%.
+
+Cross-task transferability. We use separators with the highest accuracy from each task (Table 11) and apply them to different tasks. According to Table 10, we do not observe high transferability across tasks; for example, a performant prompt for SST2 has almost random-guessing performance on SST5, and vice versa. This is within our expectations, as these random prompts are optimised and selected for a particular task. Notably, even widely used human-curated separators exhibit similar transferability scores (59.0% versus 59.4% in average score) across tasks to random methods.
+
+<table><tr><td>Task</td><td>Random Vocabulary</td><td>Random w/o Context</td></tr><tr><td>SST2</td><td>&quot;cancell BlakesteamappsGr&quot;</td><td>&quot;In December, I&quot;</td></tr><tr><td>SST5</td><td>&quot;biblical namely&#x27;</td><td>“C”</td></tr><tr><td>DBPedia</td><td>&quot;download pitch Par&quot;</td><td>&quot;To view this&quot;</td></tr><tr><td>MR</td><td>&quot;GAME paced&quot;</td><td>“1”</td></tr><tr><td>CR</td><td>“learnt”</td><td>&quot;In December, I&quot;</td></tr><tr><td>MPQA</td><td>&quot;cancell BlakesteamappsGr&quot;</td><td>&quot;LONDON&quot;</td></tr><tr><td>SubJ</td><td>“pubfile Favor”</td><td>&quot;A small&quot;</td></tr><tr><td>TREC</td><td>&quot;wasSIZE Armageddon&quot;</td><td>&quot;Image&quot;</td></tr><tr><td>AGNews</td><td>&quot;Alc messenger SYSTEM precipitation&quot;</td><td>&quot;Weird Al&quot;</td></tr></table>
+
+Table 11: Best-discovered random separators used in the transferability test.
+
+Cross-context transferability. Given the limited cross-task transferability of separators, we further study whether performant random separators are transferable when the context changes<sup>7</sup> within a fixed task. We discover that random separators exhibit a degree of transferability and are significantly better than human-curated ones (73.4% versus 50.6%). Surprisingly, for this task, humancurated prompts perform even worse than the average random prompt, which matches with our observations in Section 5.1. Overall, our random strategies offer considerable flexibility in discovering task-wide performant separators.
+
+<table><tr><td></td><td>#1 #2</td><td>#3</td><td></td><td>#4</td><td>#5</td><td>Avg.</td></tr><tr><td>BEST HUMAN-LEVEL PROMPT Answer:</td><td>43.8</td><td>54.7</td><td>57.8</td><td>43.8</td><td>53.1</td><td>50.6</td></tr><tr><td>AVERAGE SEPARATORS, RANDOM VOCABULARY AVG. Foo Bar</td><td>55.7</td><td>55.6</td><td>63.2</td><td>61.9</td><td>53.3</td><td>57.9</td></tr><tr><td colspan="7">BEST SEPARATOR, RANDOM VOCABULARY</td></tr><tr><td>#1 Best Sep.</td><td>79.7</td><td>81.3</td><td>81.3</td><td>68.8</td><td>53.2</td><td>72.9</td></tr><tr><td>#2 Best Sep.</td><td>71.9</td><td>78.1</td><td>79.7</td><td>64.1</td><td>73.4</td><td>73.4</td></tr><tr><td>#3 Best Sep.</td><td>71.9</td><td>60.9</td><td>82.8</td><td>70.3</td><td>76.6</td><td>72.5</td></tr><tr><td>#4 Best Sep.</td><td>76.6</td><td>73.4</td><td>67.2</td><td>82.8</td><td>57.8</td><td>71.6</td></tr><tr><td>#5 Best Sep.</td><td>71.9</td><td>67.2</td><td>71.9</td><td>70.3</td><td>79.7</td><td>72.2</td></tr></table>
+
+Table 12: Random separator context transferability test on GPT2-XL. We choose the best separator from different contexts of the AGNews dataset; then compute its accuracy across other contexts for the same AGNews training set. AVG. Foo Bar represents the average performance of 160 randomly sampled separators.
+
+## 5.3 Beyond Text Classification Tasks
+
+In previous sections, we have mainly showed that random sampling is a strong baseline for classification tasks across nine classification datasets over eight different models, revealing that the oversensitivity of LLMs is still a notable issue, and it is a fundamental characteristic of in-context learning.
+
+To verify whether such random methods have similar patterns, and are strong baselines for generative reasoning tasks, we apply our “random sampling over vocabulary” method to GSM8K (Cobbe et al., 2021), a mathematical reasoning dataset.
+
+<table><tr><td>SEED</td><td>HUMAN CoT</td><td>AVG. RANDOM VOCABULARY</td><td>BEST RANDOM VOCABULARY (REL. ∆%)</td></tr><tr><td>#1</td><td>35.9</td><td>36.3</td><td>46.9 (30.6)</td></tr><tr><td>#2</td><td>42.2</td><td>39.3</td><td>50.0 (18.5)</td></tr><tr><td>#3</td><td>35.9</td><td>37.7</td><td>46.9 (30.6)</td></tr><tr><td>#4</td><td>39.1</td><td>38.0</td><td>45.3 (15.9)</td></tr><tr><td>AVG.</td><td>38.3</td><td>37.8</td><td>47.3</td></tr></table>
+
+Table 13: Comparing best random separators performance with Chain-of-Thoughts prompting on GSM8K.
+
+Similar to the previous experimental setup, we sample up to 160 different random separators, and then perform selection and evaluate their performance over the subset of test data. For this taskspecific setup, we use 5-shot and majority voting@1 on the Mistral 7B model (Jiang et al., 2023), and report results on four different random seeds<sup>8</sup>, as shown in Table 13.
+
+CoT is only slightly better than average random separators. Surprisingly, for the few-shot mathematical reasoning task, thinking-style phrases could only be slightly better than random separators. On average, CoT attains an accuracy of 38.3 and the average of random separators is 37.8. This suggests that the gains of manual prompt optimisation are sub-optimal.
+
+CoT shows high variance in quality across different examples. As shown in Table 13, we observe that the language model is sensitive to different sets of demonstrations across all methods. The most widely used human-derived chain-of-thought prompt (“let’s think step by step”) results in the highest variance, with over a 17% relative performance gap between the best and worst set of demonstrations. On the other hand, our random sampling approach yields a 9% relative difference, suggesting better robustness.
+
+Random separators are still a strong baseline for generative reasoning tasks. Our best random separators reach an average accuracy of 47.3, a 23% relative increase in accuracy over the CoT baseline. This aligns with our main findings derived from the classification tasks (Table 6). It is conceivable that for complex generative tasks, the language space is abundant with potentially good separators.
+
+## 6 Related Work
+
+Automatically discovering effective prompts remains a challenging research problem because of the complexity of the search space. One direction is continuous prompt tuning (Qin and Eisner, 2021; Lester et al., 2021; Liu et al., 2023), which involves adding a set of smaller tunable parameters to pretrained language models. An alternative approach is to optimise discrete token spaces. Shin et al. (2020) showed that gradient information at the embedding layer can guide the discovery of more effective prompts. According to their research, unnatural prompts can also result in good performance, which matches our observations. In spite of the efficiency of using gradient information, such a method, which heavily relies on the availability of language models, imposes some restrictions on certain types of models. An alternative direction is black box search. To simplify language space optimisation, Prasad et al. (2023) introduced a set of operations, such as add/delete/replace tokens. APE (Zhou et al., 2022) showed that generating some alternatives and then selecting and rephrasing them could also provide effective solutions. Similarly, Xu et al. (2022) used evolutionary methods to optimise the search process. Recently, Yang et al. (2023) demonstrated that we can teach language models to learn the pattern of good prompts using human-written meta prompts. EvoPrompt (Guo et al., 2023) showed how we can formulate the evolutionary process in meta-prompt. Fernando et al. (2023) further demonstrated how we can improve the meta-prompt using language models, making the whole framework completely automatic without relying on the internal state of language models.
+
+## 7 Conclusion
+
+We find that random separators, even those selected at random from vocabulary, could be as effective as previously discovered state-of-the-art prompts. In addition, we conduct research on three different types of random separators, which demonstrated that these random separators do not require instruction-tuned models, could provide a 12% relative improvement as compared to human baselines, and are on par with a self-optimising approach involving complex meta-prompt engineering.
+
+## Limitations
+
+While we have done our utmost to explore randomly generated prompts, a limitation of this work is that we mainly evaluate our approaches on text classification tasks. However, based on our experimental results in the mathematical generative task (Section 5.3), our findings are still empirically sound. We will leave a more comprehensive evaluation of generative tasks as future work.
+
+## Acknowledgements
+
+We thank Jean Kaddour for his valuable feedback. Pontus Stenetorp would like to acknowledge the helpful proofing feedback from several viewers while finalising the submission. This work is supported by Microsoft Research via Accelerate Foundation Models Research Grant.
+
+## References
+
+Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. 2020. Language models are few-shot learners. arXiv preprint arXiv:2005.14165.
+
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, et al. 2021. Training verifiers to solve math word problems. arXiv preprint arXiv:2110.14168.
+
+Joe Davison, Joshua Feldman, and Alexander M. Rush. 2019. Commonsense knowledge mining from pretrained models. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pages 1173–1178.
+
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. Bert: Pre-training of deep bidirectional transformers for language understanding. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers), pages 4171– 4186.
+
+Chrisantha Fernando, Dylan Banarse, Henryk Michalewski, Simon Osindero, and Tim Rocktäschel. 2023. Promptbreeder: Self-referential self-improvement via prompt evolution. arXiv preprint arXiv:2309.16797.
+
+Tianyu Gao, Adam Fisch, and Danqi Chen. 2020. Making pre-trained language models better few-shot learners. arXiv preprint arXiv:2012.15723.
+
+Qingyan Guo, Rui Wang, Junliang Guo, Bei Li, Kaitao Song, Xu Tan, Guoqing Liu, Jiang Bian, and Yujiu Yang. 2023. Connecting large language models with evolutionary algorithms yields powerful prompt optimizers. arXiv preprint arXiv:2309.08532.
+
+Minqing Hu and Bing Liu. 2004. Mining and summarizing customer reviews. In Proceedings ofthe tenth ACM SIGKDD international conference on Knowledge discovery and data mining, pages 168–177.
+
+Albert Q. Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford, Devendra Singh Chaplot, Diego de las Casas, Florian Bressand, Gianna Lengyel, Guillaume Lample, Lucile Saulnier, et al. 2023. Mistral 7B. arXiv preprint arXiv:2310.06825.
+
+Zhengbao Jiang, Frank F. Xu, Jun Araki, and Graham Neubig. 2020. How can we know what language models know? Transactions ofthe Associationfor Computational Linguistics, 8:423–438.
+
+Takeshi Kojima, Shixiang Shane Gu, Machel Reid, Yutaka Matsuo, and Yusuke Iwasawa. 2022. Large language models are zero-shot reasoners. Advances in
+
+neural information processing systems, 35:22199– 22213.
+
+Brian Lester, Rami Al-Rfou, and Noah Constant. 2021. The power of scale for parameter-efficient prompt tuning. arXiv preprint arXiv:2104.08691.
+
+Xiao Liu, Yanan Zheng, Zhengxiao Du, Ming Ding, Yujie Qian, Zhilin Yang, and Jie Tang. 2023. Gpt understands, too. AI Open.
+
+Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692.
+
+Yao Lu, Max Bartolo, Alastair Moore, Sebastian Riedel, and Pontus Stenetorp. 2022. Fantastically ordered prompts and where to find them: Overcoming fewshot prompt order sensitivity. In Proceedings of the 60th Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), pages 8086–8098, Dublin, Ireland. Association for Computational Linguistics.
+
+Swaroop Mishra, Daniel Khashabi, Chitta Baral, and Hannaneh Hajishirzi. 2021. Cross-task generalization via natural language crowdsourcing instructions. arXiv preprint arXiv:2104.08773.
+
+Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et al. 2022. Training language models to follow instructions with human feedback. Advances in Neural Information Processing Systems, 35:27730–27744.
+
+Bo Pang and Lillian Lee. 2004. A sentimental education: Sentiment analysis using subjectivity summarization based on minimum cuts. In Proceedings of the 42nd Annual Meeting of the Association for Computational Linguistics (ACL-04), pages 271–278.
+
+Bo Pang and Lillian Lee. 2005. Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales. In Proceedings of the 43rd Annual Meeting ofthe Associationfor Computational Linguistics (ACL’05), pages 115–124.
+
+Matthew Peters, Mark Neumann, Mohit Iyyer, Matt Gardner, Christopher Clark, Kenton Lee, and Luke Zettlemoyer. 2018. Deep contextualized word representations. In Proceedings ofthe 2018 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers), pages 2227–2237.
+
+Fabio Petroni, Patrick Lewis, Aleksandra Piktus, Tim Rocktäschel, Yuxiang Wu, Alexander H. Miller, and Sebastian Riedel. 2020. How context affects language models’ factual predictions. In Automated Knowledge Base Construction.
+
+Fabio Petroni, Tim Rocktäschel, Sebastian Riedel, Patrick Lewis, Anton Bakhtin, Yuxiang Wu, and Alexander Miller. 2019. Language models as knowledge bases? In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pages 2463–2473, Hong Kong, China. Association for Computational Linguistics.
+
+Archiki Prasad, Peter Hase, Xiang Zhou, and Mohit Bansal. 2023. GrIPS: Gradient-free, edit-based instruction search for prompting large language models. In Proceedings ofthe 17th Conference ofthe European Chapter ofthe Associationfor Computational Linguistics, pages 3845–3864, Dubrovnik, Croatia. Association for Computational Linguistics.
+
+Guanghui Qin and Jason Eisner. 2021. Learning how to ask: Querying lms with mixtures of soft prompts. arXiv preprint arXiv:2104.06599.
+
+Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners. In OpenAI Blog.
+
+Weijia Shi, Xiaochuang Han, Hila Gonen, Ari Holtzman, Yulia Tsvetkov, and Luke Zettlemoyer. 2022. Toward human readable prompt tuning: Kubrick’s The Shining is a good movie, and a good prompt too? arXiv preprint arXiv:2212.10539.
+
+Taylor Shin, Yasaman Razeghi, Robert L Logan IV, Eric Wallace, and Sameer Singh. 2020. Autoprompt: Eliciting knowledge from language models with automatically generated prompts. arXiv preprint arXiv:2010.15980.
+
+Richard Socher, Alex Perelygin, Jean Wu, Jason Chuang, Christopher D. Manning, Andrew Y. Ng, and Christopher Potts. 2013. Recursive deep models for semantic compositionality over a sentiment treebank. In Proceedings of the 2013 conference on empirical methods in natural language processing, pages 1631–1642.
+
+Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann Dubois, Xuechen Li, Carlos Guestrin, Percy Liang, and Tatsunori B. Hashimoto. 2023. Stanford alpaca: An instruction-following llama model. https:// github.com/tatsu-lab/stanford\_alpaca.
+
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al. 2023a. Llama: Open and efficient foundation language models. arXiv preprint arXiv:2302.13971.
+
+Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, et al. 2023b. Llama 2: Open foundation and fine-tuned chat models. arXiv preprint arXiv:2307.09288.
+
+Ellen M Voorhees and Dawn M Tice. 2000. Building a question answering test collection. In Proceedings ofthe 23rd annual international ACM SIGIR conference on Research and development in information retrieval, pages 200–207.
+
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V. Le, Denny Zhou, et al. 2022. Chain-of-thought prompting elicits reasoning in large language models. Advances in Neural Information Processing Systems, 35:24824–24837.
+
+Janyce Wiebe, Theresa Wilson, and Claire Cardie. 2005. Annotating expressions of opinions and emotions in language. Language resources and evaluation, 39(2):165–210.
+
+Hanwei Xu, Yujun Chen, Yulun Du, Nan Shao, Wang Yanggang, Haiyu Li, and Zhilin Yang. 2022. GPS: Genetic prompt search for efficient few-shot learning. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, pages 8162–8171, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.
+
+Chengrun Yang, Xuezhi Wang, Yifeng Lu, Hanxiao Liu, Quoc V. Le, Denny Zhou, and Xinyun Chen. 2023. Large language models as optimizers. arXiv preprint arXiv:2309.03409.
+
+Wenxuan Zhang, Yue Deng, Bing Liu, Sinno Jialin Pan, and Lidong Bing. 2023. Sentiment analysis in the era of large language models: A reality check. arXiv preprint arXiv:2305.15005.
+
+Xiang Zhang, Junbo Zhao, and Yann Lecun. 2015. Character-level convolutional networks for text classification. Advances in Neural Information Processing Systems, 2015:649–657.
+
+Tony Z. Zhao, Eric Wallace, Shi Feng, Dan Klein, and Sameer Singh. 2021. Calibrate before use: Improving few-shot performance of language models. arXiv preprint arXiv:2102.09690.
+
+Yongchao Zhou, Andrei Ioan Muresanu, Ziwen Han, Keiran Paster, Silviu Pitis, Harris Chan, and Jimmy Ba. 2022. Large language models are human-level prompt engineers. arXiv preprint arXiv:2211.01910.
