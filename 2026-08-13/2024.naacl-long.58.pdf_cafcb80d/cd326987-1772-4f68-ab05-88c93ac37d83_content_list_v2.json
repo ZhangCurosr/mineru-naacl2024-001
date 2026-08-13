@@ -1,0 +1,3109 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "In-context Learning and Gradient Descent Revisited"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                228,
+                90,
+                771,
+                110
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Gilad Deutch∗"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                140,
+                265,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Nadav Magar∗"
+                    }
+                ]
+            },
+            "bbox": [
+                332,
+                140,
+                463,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Tomer Bar Natan"
+                    }
+                ]
+            },
+            "bbox": [
+                521,
+                140,
+                677,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Guy Dar"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                140,
+                842,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The Blavatnik School of Computer Science Tel Aviv University"
+                    }
+                ]
+            },
+            "bbox": [
+                321,
+                172,
+                677,
+                206
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                262,
+                260,
+                342,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In-context learning (ICL) has shown impressive results in few-shot learning tasks, yet its underlying mechanism is still not fully understood. A recent line of work suggests that ICL performs gradient descent (GD)-based optimization implicitly. While appealing, much of the research focuses on simplified settings, where the parameters of a shallow model are opti mized. In this work, we revisit evidence for ICL-GD correspondence on realistic NLP tasks and models. We find gaps in evaluation, both in terms of problematic metrics and insufficient baselines. We show that surprisingly, even untrained models achieve comparable ICL-GD similarity scores despite not exhibiting ICL. Next, we explore a major discrepancy in the flow of information throughout the model between ICL and GD, which we term Layer Causality. We propose a simple GD-based optimization procedure that respects layer causality, and show it improves similarity scores significantly. Our code implementation is available at: https://github.com/GiilDe/ft-vs-icl."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                290,
+                462,
+                618
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                631,
+                260,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In recent years, large language models have shown strong emergent in-context learning abilities (Brown et al., 2020; Wei et al., 2022) – where a pretrained model’s performance significantly improves on a task by conditioning the language model on a small set of input-label pairs (demonstrations). Despite substantial research, the inner workings of ICL remain elusive. At face value, in-context learning and gradient descent-based finetuning have very little in common. Nevertheless, a series of recent studies discuss apparent similarities between ICL and gradient descent-based optimization, mostly in synthetic scenarios (von Oswald et al., 2023a,b; Akyürek et al., 2023; Ahn et al., 2023, inter alia). The claim this body of research aims to make is that"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                657,
+                490,
+                898
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "ICL can implement implicit GD, using in-context demonstrations as training examples. While most of the synthetic setups concern: (1) restricted transformers, (2) simplified regression tasks, and (3) direct training for ICL – the work of Dai et al. (2023) stands out in its ability to demonstrate an ostensible similarity between ICL and GD optimization in (1) full-fledged transformers, (2) for realistic NLP tasks, (3) naturally occurring in models trained only on causal text generation. We call the hypothesis that ICL mimics finetuning on the model itself – as is analyzed in Dai et al. (2023) – the strong ICL-GD correspondence. We will later discuss how this diverges from the ICL-GD correspondence other works consider."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                261,
+                887,
+                504
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we make two main complementary contributions. We perform a careful re-analysis of the work of Dai et al. (2023) and show how seemingly mild problems in evaluation lead to a significant overestimation of similarity between the two procedures. Surprisingly, we find that untrained models achieve similarity scores at least as good as trained ones. This result provides strong evidence against the strong ICL-GD correspondence.<sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                504,
+                887,
+                650
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Secondly, in an attempt to relax the strong ICL-GD correspondence hypothesis, we suggest a rectified version of GD that we show aligns better with ICL. To do this, we first identify a core discrepancy in the flow of information throughout the model between in-context learning and vanilla gradient descent, which we call Layer Causality. In ICL, the information that influences the hidden state comes from the output of shallow layers (“earlier layers”) alone. In GD, however, the update to the weights of a layer depends on gradients, which come from all of the model layers including deeper (“later layers”). We showcase the importance of this simple observation by suggesting a simple variant of GD that incorporates layer causality. This simple modification, Layer Causal Gradient Descent (LCGD), consistently improves upon vanilla gradient descent on the similarity metrics. Notably, it outperforms the trained transformer significantly in terms of both similarity metrics. In comparison to the untrained baselines, it significantly surpasses them in attention map similarity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathrm { { S i m A M } _ { \\Delta } ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and is consistently on the high end in terms of hidden state similarity (SimAOU). In spite of that, the scores are still low. This can be due to a suboptimal choice of hyperparameters but likely has to do with inherent problems in the strong ICL-GD correspondence hypothesis, even with the layer causal version we propose. We leave this for future work to explore."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                650,
+                887,
+                860
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "Equal contribution"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                907,
+                260,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>However, it should be noted that the similarity metrics assume a certain correspondence holds in every layer in a specific way. It does not preclude the possibility of a relaxed correspondence."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                871,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1017"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 1017–1028 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                946,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lastly, we dedicate a short discussion to the line of work on synthetic settings that builds on insights from von Oswald et al. (2023a). We observe terminology differences with Dai et al. (2023) that might cause confusion. “Gradient Descent” is used differently in both cases. While synthetic settings usually consider gradients of shallow implicit functions, Dai et al. (2023) consider complex gradients with respect to the model itself. In the synthetic setting, layer causality is often trivially satisfied."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                343,
+                489,
+                504
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our contributions are the following:"
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                504,
+                405,
+                519
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▶ We discuss issues in the evaluation process of Dai et al. (2023) in terms of baselines and evaluation metrics. Notably, we demonstrate that untrained transformers perform as well as pretrained models."
+                    }
+                ]
+            },
+            "bbox": [
+                127,
+                526,
+                489,
+                607
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▶ We highlight core problems with the hypothesis that GD approximates ICL in the naive sense. We study a layer-causal GD variant and demonstrate empirically that it is better at simulating ICL."
+                    }
+                ]
+            },
+            "bbox": [
+                127,
+                617,
+                489,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▶ Finally, we briefly survey works in synthetic settings and find that their ICL-GD correspondence is significantly different from the strong ICL-GD correspondence which we try to refute."
+                    }
+                ]
+            },
+            "bbox": [
+                127,
+                706,
+                489,
+                787
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In summary, our work shows there’s little evidence for the strong ICL-GD correspondence in its current form. We show a non-trivial increase in the similarity metrics (especially in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M } _ { \\Delta } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with a layer-causal variant. This might suggest that a weaker, more nuanced hypothesis might hold. However, we acknowledge there may be irrelevant causes for the increase."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                794,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "All code for replicating our work is publicly available at: https://github.com/GiilDe/ft-vs-icl."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                85,
+                884,
+                117
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Preliminaries"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                139,
+                662,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this work, we build on the benchmark proposed by Dai et al. (2023). We focus on its setting using the same datasets and examine the same similarity metrics to compare the behavior of ICL and finetuning. This section provides details on the benchmark they use. In the next section, we will address problems in the metrics described below."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                173,
+                885,
+                286
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.1 Datasets"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                307,
+                625,
+                323
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following Dai et al. (2023), we use six datasets for our experiment: SST2 (Socher et al., 2013), SST5 (Socher et al., 2013), MR (Pang and Lee, 2005) and Subj (Pang and Lee, 2004) are four datasets for sentiment classification; AGNews (Zhang et al., 2015) is a topic classification dataset; and CB (de Marneffe et al., 2019) is used for natural language inference. Data statistics are provided in Table 3 (Appendix A)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                334,
+                887,
+                481
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.2 Metric I: SimAOU Normalized"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                501,
+                796,
+                517
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first metric quantifies the similarity of two setups (finetuning and in-context learning) in terms of the attention output (AO) vector of each layer. More precisely, we quantify the similarity between the changes to the AO vector (changes being the difference from the AO vector in the zero-shot setup). Given a test prompt, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { S } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the output representation of the last token at the l-th attention layer in setting S where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in \\{ \\mathrm { Z S L } , \\mathrm { I C L } , \\mathrm { F T } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "– zero-shot learning, in-context learning, and finetuning. The updates induced by ICL and finetuning are given by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { \\mathrm { I C L } } ^ { ( l ) } - h _ { \\mathrm { Z S I } } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { \\mathrm { F T } } ^ { ( l ) } - h _ { \\mathrm { Z S I } } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "<sub>L</sub>, respectively. The attention output update similarity (SimAOU) is defined as the cosine similarity between these updates, averaged across all layers. A high SimAOU score indicates that ICL adjusts the attention output in the same direction as finetuning. As a baseline, they compare with random attention output updates: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { \\mathrm { r a n d } } ^ { ( l ) } \\mathrm { ~ - ~ } \\dot { h } _ { \\mathrm { Z S L } } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { \\mathrm { r a n d } } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is sampled uniformly. We note that the authors used a slight variation of this, where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { S } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is normalized before computing the difference. We call this metric "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { S i m A O U } _ { \\mathrm { n o r m } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and would later show that this normalization can cause misleading results."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                527,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1018"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/dd6714f27773cef02e63a9cfc51b2c1fdd33fba6d056d6ed2956e8efdaf45843.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: SimAOU and SimAM comparison of vanilla GD for trained and untrained transformers. When the difference between the highest and second-highest score in a column "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i s } \\leq 0 . 0 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we underline both scores."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td colspan=\"2\"></td><td>SST2</td><td>SST5</td><td>MR</td><td>Subj</td><td>CB</td></tr><tr><td>SimAOU</td><td>Trained Trained Embeddings No Training</td><td> $0 . 0 5 \\pm 0 . 0 1$   ${ \\bf 0 . 1 1 } \\pm 0 . 0 2$   $0 . 0 9 \\pm 0 . 0 0$ </td><td> $0 . 0 4 \\pm 0 . 0 2$   $\\underline { { 0 . 0 6 } } \\pm 0 . 0 0$   $\\underline { { \\mathbf { 0 . 0 7 } } } \\pm 0 . 0 3$ </td><td> $0 . 1 7 \\pm 0 . 0 3$   ${ \\bf 0 . 2 4 } _ { \\pm 0 . 0 0 }$   $0 . 1 8 \\pm 0 . 0 3$ </td><td> $0 . 0 6 \\pm 0 . 0 1$   $\\mathbf { 0 . 2 0 } \\pm 0 . 0 0$   $0 . 0 6 \\pm 0 . 0 1$ </td><td> ${ \\bf 0 . 1 1 } \\pm 0 . 0 1$   $0 . 0 1 \\pm 0 . 0 0$ </td></tr><tr><td>SimAM∆</td><td>Trained Trained Embeddings No Training</td><td> $\\mathbf { 0 . 1 5 \\bot } 0 . 0 2$   $0 . 0 9 \\pm 0 . 0 2$   $0 . 1 1 \\pm 0 . 0 4$ </td><td> ${ \\bf 0 . 3 1 } \\pm \\mathrm { 0 . 0 2 }$   $0 . 0 3 { \\scriptstyle \\pm 0 . 0 0 }$   $0 . 0 5 \\pm 0 . 0 3$ </td><td> $0 . 1 4 \\pm 0 . 0 5$   $\\mathbf { 0 . 1 8 } \\pm 0 . 0 2$   $0 . 1 6 \\pm 0 . 0 3$ </td><td> $\\mathbf { 0 . 2 5 } \\pm 0 . 0 7$   $0 . 1 6 \\pm 0 . 0 2$   $0 . 1 7 \\pm 0 . 0 3$ </td><td> $0 . 0 4 \\pm 0 . 0 1$   $0 . 2 5 \\pm 0 . 0 1$   $0 . 0 5 \\pm 0 . 1 0$   $\\underline { { \\mathbf { 0 . 2 6 } } } \\pm 0 . 0 5$ </td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                142,
+                82,
+                848,
+                216
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.3 Metric II: SimAM"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                279,
+                305,
+                294
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SimAM is used to measure the similarity between attention maps of ICL and finetuning. Given a test example, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m _ { S } ^ { ( l , h ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "represent the attention weights before softmax in the h-th head of the l-th layer for setting S. In ICL, we focus solely on the test examples’ token attention weights, excluding demonstration tokens so that the shapes of FT and ICL attention weights will be compatible. We calculate the cosine similarity between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m _ { \\mathrm { I C L } } ^ { ( l , h ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m _ { \\mathrm { F T } } ^ { ( l , h ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to obtain SimAM. Notice here we do not measure the similarity between updates but rather between the raw attention weights themselves. We will return to this shortly when we analyze the metric choices and biases they introduce into the benchmark."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                306,
+                489,
+                537
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7268f94f5d9358e82696e28ca916417dcee22e096ee0705aba6bddefe8755b53.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                542,
+                299,
+                850,
+                438
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Rethinking the Benchmark"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                558,
+                383,
+                575
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 SimAOU"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                592,
+                231,
+                607
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the original setting, Dai et al. (2023) have shown that random noise gets a minuscule score on this metric. However, we show that even two random update vectors of sufficient norm can achieve a high SimAOU score. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ \\textbf { z } = h _ { \\mathrm { Z S I } } ^ { ( l ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the unnormalized attention output in zero-shot. Assume "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { r } , \\mathbf { r } ^ { \\prime } \\sim \\mathcal { N } \\left( 0 , \\sigma I \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are random gaussian noise vectors with variance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, choose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\| \\mathbf { r } \\| ^ { 2 } = \\| \\mathbf { r } ^ { \\prime } \\| ^ { 2 } = 3 \\| \\mathbf { z } \\| ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "hol "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { d } \\mathrm { s } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { z } _ { \\mathrm { I C L } } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { z } + \\mathbf { r } , \\mathbf { z } _ { \\mathrm { F T } } = \\mathbf { z } + \\mathbf { r } ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The random vectors are approximately uncorrelated with each other and with z, that is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { z } ^ { T } \\mathbf { r } \\ : = \\ : \\mathbf { r } ^ { T } \\mathbf { r } ^ { \\prime } \\ : = \\ : \\mathbf { z } ^ { T } \\mathbf { r } ^ { \\prime } \\ : = \\ : 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By the Pythagorean theorem, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\| \\mathbf { z } _ { \\mathrm { I C L } } \\| ^ { 2 } = \\| \\mathbf { z } + \\mathbf { r } \\| ^ { 2 } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\| \\mathbf { z } \\| ^ { 2 } + \\| \\mathbf { \\dot { r } } \\| ^ { 2 } = 4 \\| \\mathbf { z } \\| ^ { 2 } = \\| \\mathbf { z } + \\mathbf { r } ^ { \\prime } \\| ^ { 2 } = \\| \\mathbf { z } _ { \\mathrm { F T } } \\| ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "So, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\| \\mathbf { z } _ { \\mathrm { F T } } \\| ~ = ~ \\| \\mathbf { z } _ { \\mathrm { I C L } } \\| ~ = ~ 2 \\| \\mathbf { z } \\|"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We get that"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                619,
+                489,
+                864
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The problem our computation reveals is the fact that after normalization, z terms don’t cancel out completely and interact with each other. This is a general problem not limited to random noise. We compare unnormalized SimAOU with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { S i m A O U } _ { \\mathrm { n o r m } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in Table 2 and show it has a substantial impact on the similarity scores."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                442,
+                887,
+                555
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 SimAM<sub>∆</sub>"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                564,
+                630,
+                580
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To better measure the similarity between the updates to the attention maps induced by ICL and FT, we suggest a modified metric, SimAM<sub>∆</sub>. Specifically we compute the cosine similarity between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m _ { \\mathrm { I C L } } ^ { ( l , \\bar { h } ) } - m _ { \\mathrm { Z S } } ^ { ( l , h ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m _ { \\mathrm { F T } } ^ { ( l , h ) } - m _ { \\mathrm { Z S } } ^ { ( l , h ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the update vectors. The new metric is no longer sensitive to the magnitude of the update vector. In the original setting, the cosine similarity might be dominated by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m _ { \\mathrm { Z S } } ^ { ( { \\bar { l } } , h ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so a model drifting further during FT from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m _ { \\mathrm { Z S } } ^ { \\overline { { ( l , h ) } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be penalized even if the update direction is more similar to ICL’s. Update size in general can be manipulated by adjusting the learning rate,<sup>3</sup> and so should not be a core feature of the similarity metric."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                586,
+                887,
+                818
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Untrained Transformer Baseline"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                827,
+                813,
+                843
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We have discussed problems with metrics. We now turn to baselines. We use untrained models as our baseline. In-context learning is an emergent property attained through pretraining (Brown et al., 2020), therefore any similarity between the “ICL”<sup>4</sup> setup and the finetuning setup on untrained models cannot be attributed to a learned form of mesaoptimization (Hubinger et al., 2021). In Table 1, we compare the original model with two baselines: a completely untrained model (No Training) and a model where we kept the input and output embeddings (including positional embeddings) and layer norms (Trained Embeddings). We find that in terms of SimAOU the untrained baselines slightly exceed vanilla GD."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                847,
+                884,
+                881
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>This will make the computation cleaner, but other options such as z = r = r′ are just as good, leading to slightly different similarity scores."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                884,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>Though effects are not guaranteed to change linearly with the change learning rate, as learning rate change can often have unpredictable effects."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                884,
+                884,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1019"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                294
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/0b2ac8d37e96b408863fdf5b1eba3f2420d35daa445ee110fda772d81a989693.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: Layer-causal GD: The output of each layer is projected to the label space and used as an intermediate prediction. We compute the prediction loss of each intermediate layer sequentially."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                115,
+                307,
+                480,
+                582
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Investigation into Layer Causality"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                684,
+                442,
+                702
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Layer Causality"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                709,
+                289,
+                726
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We characterize a core problem with the strong ICL-GD correspondence in the following statement."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                731,
+                489,
+                764
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Layer Causality. In ICL, the update to the output of the l-th attention layer is dependent only on the output of previous (lower) layers. In contrast, the update to the l-th attention output induced by finetuning is determined by the gradient ofthe entire model’s trainable parameters."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                780,
+                489,
+                877
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Design Choices"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                84,
+                677,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Motivated by this observation, we propose to use a layer causality-compatible finetuning method, where each layer is updated individually, instead of propagating information back to earlier layers. Then, we will explore how a layer-causal variant fares compared to full-blown vanilla gradient descent. There are many possible ways to design such an algorithm. In this work, we will define an instantiation of layer causality-compatible optimization, that we call Layer-causal Gradient Descent (LCGD). We make the decision based on the following guiding principles:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                105,
+                887,
+                300
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▷ Minimal Changes: We want to leave the procedure as close as possible to vanilla GD. The goal is to isolate the effect of layer causality on the modification we make as much as possible. Otherwise, other design decisions might come into play."
+                    }
+                ]
+            },
+            "bbox": [
+                527,
+                310,
+                887,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▷ Simplicity: We want the procedure to be interpretable and easy to reason about."
+                    }
+                ]
+            },
+            "bbox": [
+                529,
+                418,
+                887,
+                450
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▷ Plausibility (Occam’s razor): We want to design a “plausible” procedure. A major part of what we call plausibility is layer causality. Plausibility in a broader sense may include any other aspect that one cannot expect a forward pass of the model to easily implement using a clear and simple mechanism."
+                    }
+                ]
+            },
+            "bbox": [
+                527,
+                461,
+                887,
+                575
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These principles might conflict. We prioritize them in the following way: we want the procedure to be layer-causal (a special case of plausibility), but other than that, we will always favor the first and second principles. One example of where we favor simplicity over plausibility is when we choose to take the derivative of the entire layer on every step of the procedure (see below), including the softmax operation. This goes against plausibility because the derivative of softmax cannot be plausibly computed with a single attention layer."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                585,
+                887,
+                763
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Motivation: Short-circuited Transformers"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                772,
+                884,
+                789
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A simple finetuning method that respects layer causality is by short-circuiting a model at any layer l, i.e. by removing all layers from l + 1 onwards. In a normal (not short-circuited) forward pass, the model outputs the next-token prediction by taking the final hidden state, applying a final layer norm operation to it, and multiplying by the output embedding matrix (a.k.a. the unembedding matrix)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                794,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>Formally speaking, it shouldn’t really qualify as ICL, as the model hasn’t attained this capability yet."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                895,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1020"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/aa14d6ed615a882b514ace720c15b54208df24c2c29a7fafa8ab4fa8057e1e60.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: SimAOU and SimAM comparison of vanilla GD and layer-causal GD across six classification datasets. Layer causal GD achieves higher SimAOU across all tasks, yet its SimAM is significantly lower. Sim "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { A M } _ { \\Delta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is higher for layer causal GD, except for AGNews."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>SST2</td><td>SST5</td><td>MR</td><td>Subj</td><td>AGNews</td><td>CB</td><td>Average</td></tr><tr><td> $\\mathrm { S i m A O U _ { n o r m } \\ ( G D ) }$ </td><td> $0 . 1 1 \\pm 0 . 0 0$ </td><td> $0 . 0 9 \\pm 0 . 0 1$ </td><td> $0 . 2 2 \\pm 0 . 0 1$ </td><td> $0 . 1 8 \\pm 0 . 0 2$ </td><td> $0 . 3 1 \\pm 0 . 0 4$ </td><td> $0 . 2 1 \\pm 0 . 0 1$ </td><td>0.187</td></tr><tr><td> $\\mathrm { S i m A O U _ { n o r m } \\ ( L C G D ) }$ </td><td> ${ \\bf 0 . 2 2 } \\pm 0 . 0 1$ </td><td> ${ \\bf 0 . 1 1 } \\pm 0 . 0 0$ </td><td> $\\mathbf { 0 . 3 3 \\bot 0 . 0 1 }$ </td><td> $\\mathbf { 0 . 3 5 \\bot 0 . 0 1 }$ </td><td> $\\mathbf { 0 . 3 3 \\bot 0 . 0 1 }$ </td><td> ${ \\bf 0 . 3 4 } _ { \\pm 0 . 0 0 }$ </td><td>0.279</td></tr><tr><td>SimAOU (GD)</td><td> $0 . 0 5 \\pm 0 . 0 1$ </td><td> $0 . 0 4 \\pm 0 . 0 2$ </td><td> $0 . 1 7 \\pm 0 . 0 3$ </td><td> $0 . 0 6 \\pm 0 . 0 1$ </td><td> ${ \\bf 0 . 1 8 } \\pm 0 . 0 3$ </td><td> $0 . 1 1 \\pm 0 . 0 1$ </td><td>0.102</td></tr><tr><td>SimAOU (LCGD)</td><td> ${ \\bf 0 . 1 3 } \\pm 0 . 0 1$ </td><td> ${ \\bf 0 . 1 1 } \\pm 0 . 0 1$ </td><td> $\\mathbf { 0 . 2 1 } \\pm 0 . 0 3$ </td><td> $\\mathbf { 0 . 1 8 \\bot } 0 . 0 0$ </td><td> $0 . 1 3 { \\scriptstyle \\pm 0 . 0 1 }$ </td><td> ${ \\bf 0 . 2 4 } _ { \\pm 0 . 0 1 }$ </td><td>0.167</td></tr><tr><td>SimAM (GD)</td><td> ${ \\bf 0 . 5 9 } \\pm 0 . 0 1$ </td><td> ${ \\bf 0 . 4 0 } \\pm 0 . 0 3$ </td><td> $\\mathbf { 0 . 4 9 } \\pm 0 . 0 1$ </td><td> $\\mathbf { 0 . 4 5 } \\pm 0 . 0 6$ </td><td> $\\mathbf { 0 . 4 8 } \\pm 0 . 0 4$ </td><td> $\\mathbf { 0 . 2 0 } \\pm 0 . 0 3$ </td><td>0.435</td></tr><tr><td>SimAM (LCGD)</td><td> $0 . 5 8 \\pm 0 . 0 1$ </td><td> $0 . 3 9 { \\scriptstyle \\pm 0 . 0 3 }$ </td><td> $0 . 3 0 { \\scriptstyle \\pm 0 . 0 0 }$ </td><td> $0 . 2 7 \\pm 0 . 0 1$ </td><td> $0 . 1 2 \\pm 0 . 0 0$ </td><td> $0 . 0 4 \\pm 0 . 0 1$ </td><td>0.283</td></tr><tr><td> $\\mathrm { S i m A M } _ { \\Delta } \\left( \\mathrm { G D } \\right)$ </td><td> $0 . 1 5 { \\scriptstyle \\pm 0 . 0 2 }$ </td><td> $0 . 3 1 \\pm 0 . 0 2$ </td><td> $0 . 1 4 \\pm 0 . 0 5$ </td><td> $0 . 2 5 \\pm 0 . 0 7$ </td><td> ${ \\bf 0 . 5 0 } \\pm 0 . 0 5$ </td><td> $0 . 2 5 \\pm 0 . 0 1$ </td><td>0.267</td></tr><tr><td> $\\mathrm { S i m A M } _ { \\Delta }$  (LCGD)</td><td> ${ \\bf 0 . 3 0 \\mathrm { _ { \\pm 0 . 0 2 } } }$ </td><td> $\\mathbf { 0 . 3 3 \\bot 0 . 0 1 }$ </td><td> $\\mathbf { 0 . 2 6 } \\pm 0 . 0 0$ </td><td> ${ \\bf 0 . 3 2 \\pm 0 . 0 1 }$ </td><td> $0 . 4 3 { \\scriptstyle \\pm 0 . 0 2 }$ </td><td> $\\mathbf { 0 . 3 8 } \\pm 0 . 0 1$ </td><td>0.336</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                100,
+                82,
+                890,
+                262
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Analogously, in a model short-circuited at layer l, the next-token prediction is obtained by projecting the l-th hidden state on the unembedding matrix, after applying the final layer norm. This is justified by the early exit approach (Teerapittayanon et al., 2017; Din et al., 2023), where it has been observed that a short-circuited model is often sufficiently good at predicting the next token. Early exit is closely related to the residual stream hypothesis (nostalgebraist, 2020; Elhage et al., 2021; Geva et al., 2022; Dar et al., 2023), which stipulates that language models refine the next-token prediction throughout the layers – and so projecting internal layers into the vocabulary space gives the current prediction in every layer. We will refer to the combination of the final layer norm and the unembedding matrix as the unembedding projection head and denote it by the function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ( \\cdot )"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                340,
+                492,
+                631
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                659,
+                243,
+                676
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "tention layer at token i be denoted:"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                340,
+                773,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We now describe the LCGD finetuning procedure. In LCGD we project the output of each layer onto logits in the vocabulary space using the unembedding head "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ( \\cdot )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and compute the cross-entropy loss of this prediction with respect to the one-hot embedding of the next token. Unlike vanilla finetuning, it does not violate the causal structure of the network, as it depends only on data available at this layer. To reiterate, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ( \\cdot )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "normally takes the final hidden state of the model and projects it onto the logits over the vocabulary. We follow the early exit/residual stream approach and apply it on internal hidden states."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                692,
+                490,
+                901
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let the detached hidden states after the ℓ-th at-"
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                906,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\hat { h } _ { i } ^ { \\ell } = \\mathrm { A t t n } \\left( W _ { V } \\mathbf { S } \\mathbf { G } ( X ^ { \\ell } ) , W _ { K } \\mathbf { S } \\mathbf { G } ( X ^ { \\ell } ) , \\mathbf { S } \\mathbf { G } ( \\mathbf { q } _ { i } ^ { \\ell } ) \\right)",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3abfe23b1ad6b7a97224d6c4aeda814fa13233fc59221682dc653869413e0619.jpg"
+                }
+            },
+            "bbox": [
+                509,
+                366,
+                880,
+                391
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { S G } ( \\cdot )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "stands for the “stop gradient” operation (also called .detach() in PyTorch) which does not affect the forward pass, but in the backward pass it does not back-propagate the gradient to its input, meaning it is treated as a constant. Let the tokens of the model be represented by a list of one-hot vectors "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { e } _ { 1 } , \\mathbf { e } _ { 2 } , . . . , \\mathbf { e } _ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For each token, we define the objective function:<sup>5</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                401,
+                887,
+                531
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathcal { L } = \\sum _ { \\ell = 1 } ^ { L } \\mathbf { C E } \\left( U ( \\hat { h } _ { i } ^ { \\ell } ) , \\mathbf { e } _ { i + 1 } \\right)",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/023690556b324559af9a6ef07eb0912a7e73d111f29353e4695f96aa03e5f84b.jpg"
+                }
+            },
+            "bbox": [
+                583,
+                542,
+                791,
+                586
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "U is taken to be frozen as well. CE is cross-entropy loss. We optimize by taking steps with respect to the gradient "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\nabla _ { \\boldsymbol { W } } \\mathcal { L }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", one token at a time, where the “stop gradient” operator makes sure each layer is updated independently."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                594,
+                885,
+                676
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.5 Experimental Setup"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                686,
+                715,
+                701
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use the same GPT-like pre-trained language models used by Dai et al. (2023) with 1.3B implemented in fairseq.<sup>6</sup> We test vanilla and layercausal GD in terms of their similarity to ICL with the four variants we discussed above (SimAOU, Sim "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { \\ A O U _ { n o r m } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", SimAM, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M } _ { \\Delta } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For reliable results, we average across 3 different seeds. This whole project’s computation took the equivalent of 12 hours on a single Tesla V100 GPU. Table 2 shows both variants of SimAOU and SimAM for both methods."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                706,
+                887,
+                852
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>5</sup>Notice that we are allowed to take the sum of the crossentropies across all layers in parallel, as the updates to the weight matrices will take effect only when processing the next token."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                858,
+                885,
+                908
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>6</sup>https://github.com/facebookresearch/fairseq"
+                    }
+                ]
+            },
+            "bbox": [
+                529,
+                907,
+                870,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1021"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                84,
+                489,
+                116
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Overall, with the exception of AGNews, layercausal GD is significantly more aligned with ICL in terms of the modified similarity metrics and the normalized variant of SimAOU. However, it is important to note that the modified metrics are low for both variants. In comparison to untrained transformers, LCGD is much better in terms of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M } _ { \\Delta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and is mostly better by some small margin in terms of SimAOU."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                117,
+                489,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Comparison with Untrained Baselines Combining Tables 1 & 2, we see that LCGD is competitive with respect to all three contenders, showing high-end scores consistently across the board, while it is not always the highest in terms of SimAOU. In terms of SimAM<sub>∆</sub> is significantly better than any of the other baselines across all datasets explored. There remains work to be done to show this advantage is indeed due to structural superiority and not rudimentary features, such as its ability to impact layers more strongly (as the gradient norm of updates in LCGD is larger – see Appendix C), which could have accumulating effects across layers and timesteps. Even if this is the case, it is important to understand the implications of this observation on other variants as well. We leave it for future research to work out the correct interpretation of the results in this section."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                274,
+                490,
+                565
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.6 Additional Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                577,
+                351,
+                594
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Appendix B, we perform a more fine-grained comparison of LCGD and vanilla GD. First, we try to assess how similar the two variants are in the latent space, the intuition being that the layer-causal variant can be a simple approximation to vanilla GD. We find that this similarity is in fact relatively low, around 0.1 more or less in terms of cosine similarity, across datasets (this is shown in Figure 2). Then, we perform a layerwise analysis of the way the similarity scores change. The results are shown in Figure 3. We see a non-trivial variability in the similarity across layers, which seems to suggest a non-uniform behavior across layers. Curiously, we see that LCGD is not better in all layers. In the case of SimAOU, we see a small advantage for LCGD across virtually all layers, but the dynamics of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M } _ { \\Delta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are more complicated, suggesting deeper analysis is required to fully understand the advantage of LCGD over GD (see Appendix for more details on the additional experiments)."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                600,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Conflation of Terms in ICL-GD Correspondence"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                83,
+                816,
+                117
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Works rooted in the work of von Oswald et al. (2023a) usually have a common structure: The model is given training examples of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left\\{ ( \\mathbf { x } _ { 1 } , y _ { 1 } ) , ( \\mathbf { x } _ { 2 } , y _ { 2 } ) , . . . , ( \\mathbf { x } _ { n } , y _ { n } ) \\right\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where it holds that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } = f _ { \\theta } ( \\mathbf { x } _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for some latent parameter vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta . ^ { 7 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The model is also fed a test query "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { x } _ { \\mathrm { t e s t } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "It is trained to output the value "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { \\mathrm { t e s t } } = f _ { \\theta } ( \\mathbf { x } _ { \\mathrm { t e s t } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\theta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is always a shallow function, usually a linear model "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\boldsymbol { \\theta } } ( \\mathbf { x } ) = \\boldsymbol { \\theta } ^ { \\top } \\mathbf { x }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", or a kernel regression problem. This distinction is important since the gradient of such functions has a simple closed form. This is in stark contrast to Dai et al. (2023), where the gradient is unwieldily complicated. Another difference is that the gradient in Dai et al. (2023) is computed with respect to the transformer itself, not a subsidiary function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\theta } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In these crucial aspects, the gradients discussed are extremely different. The strong ICL-GD correspondence explored in Dai et al. (2023) is different than the one that the ICL-shallow GD correspondence von Oswald et al. (2023a) considered – the use of the term “Gradient Descent” in these two cases is incompatible. In Appendix D, we go over a subset of these works to demonstrate what kinds of shallow GD they rely on."
+                    }
+                ]
+            },
+            "bbox": [
+                505,
+                128,
+                887,
+                532
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Discussion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                546,
+                636,
+                563
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this work, we provide different perspectives on the ICL-GD correspondence. We show evidence against it but also show that it might be fixed. We find that previous work does not justify the strong ICL-GD correspondence, and instead discusses a weaker notion of a shallow GD. This should also apply to layer-causal GD, as it is designed as a modification of the strong ICL-GD correspondence. Still, we see it outperforms untrained transformers in terms of attention map similarity (and fares well in terms of hidden state similarity). This can be due to irrelevant causes (see limitations below). However, it is worth noting that the layer-causal variant can be justified by its similarity to the kernel regression and functional GD variants that have been addressed in the literature on synthetic settings (Cheng et al., 2024). Future work can use the (corrected) similarity metrics suggested in Dai et al. (2023) to gauge the similarity of shallow GD methods to ICL."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                575,
+                887,
+                898
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>7</sup>f<sub>θ</sub> can be stochastic."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                907,
+                667,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1022"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6c55eb8a31c8c3a9413f493eb0268333261d230869523a9d3af9c4e72521cac1.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: α averaged over all layers for each task. Computed for one seed per task."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                319,
+                139,
+                668,
+                323
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/ca4ff213076780e4f47bc7c3ba28a117caf6a201cefa7ed87f2a679658053d38.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                159,
+                436,
+                836,
+                623
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d83e458267ed0d3948ceaaa2e107893dc9eeff4f7d216dce4250540e6c0c5ac0.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: Similarity computed per layer aggregated across tasks and seeds. Error bar is presented. Blue bars represent layer causal GD and orange is used for vanilla GD. Top: SimAOU of each layer’s update vector. Bottom: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M } _ { \\Delta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of each layer’s update vector."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                161,
+                639,
+                836,
+                825
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1023"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▷ Similarity Metrics: The similarity metrics we use only consider a very specific correspondence between ICL and GD, where each layer applies GD to the model. However, it is possible that the exact mechanism is different (e.g. not all layers do GD)."
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                109,
+                490,
+                206
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▷ Datasets: We use the same datasets used in the original paper by Dai et al. (2023) to make sure we do not introduce factors that benefit our method inadvertently. The dataset collection needs to be diversified. Four out of six datasets are sentiment classification datasets. One of the other tasks, CB, is very small, contributing to instability. Similarly, we consider a specific model in all our experiments. To make a more general claim, other models should be tested too."
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                216,
+                490,
+                393
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "▷ LCGD: We propose a specific instantiation of layer-causal gradient descent. Better instances may exist. While the results for LCGD are (mildly) encouraging, we were unable to rule out the intervention of different secondary effects in score improvement. Despite our best efforts, we suspect such effects might have taken place. One immediate direction for future work is doing hyperparameter search to understand whether there’s an impact of different learning rates on the similarity scores."
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                403,
+                490,
+                582
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                590,
+                270,
+                606
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Many works consider synthetic settings (Akyürek et al., 2023; von Oswald et al., 2023a,b; Ahn et al., 2023; Cheng et al., 2024). They are mostly concerned with ICL implementing GD of a shallow model, mostly variants of linear models or kernel regression."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                617,
+                489,
+                713
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Unlike these works, Dai et al. (2023), which we are heavily influenced by, study large GPT transformers on structured language classification tasks. Gradient Descent in Dai et al. (2023) is with respect to the transformer itself, which is also a significant departure. Panigrahi et al. (2023) show how a transformer can implement the backward pass of another (smaller) transformer in its forward pass. As far as we know, there is no indication that this process is happening in real-world models."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                713,
+                490,
+                873
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recently, new works have emerged (Todd et al., 2023; Hendel et al., 2023) suggesting a different approach to interpreting ICL as an algorithm that compresses training demonstrations into a function/task vector that steers the model to perform the task. Other perspectives of ICL include induction heads (Olsson et al., 2022) and Bayesian inference (Xie et al., 2022)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                875,
+                489,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                164
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The work of Shen et al. (2023) points to another discrepancy betweenfull-batch GD and ICL. They show that vanilla full-batch GD and ICL cannot be reconciled due to ICL’s sensitivity to the order of the demonstrations, while full-batch GD is invariant to it. However, this discrepancy can be mitigated easily by applying GD sequentially, as was done in the work of Dai et al. (2023) that we compare to."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                165,
+                885,
+                310
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Layer causal GD is similar to Bengio et al. (2006), where a similar idea was proposed to accelerate training by finding a good starting point using a greedy layer-wise approach."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                310,
+                887,
+                375
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "9 Conclusions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                386,
+                652,
+                401
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Inspired by recent work, we explore the relationship between in-context learning and gradient descent-based finetuning in practical settings. We show problems with the strong version of the ICL-GD correspondence. We correct the similarity metrics used in prior work and propose alternatives. Furthermore, we show that a simple baseline of untrained models has higher similarity scores compared to trained models. Our work suggests considering the possibility that only a weak version of ICL-GD holds. We rely on layer causality to further justify this view. We study a potential workaround to this problem (LCGD) that does not violate layer causality and get mixed results. The study of LCGD is not comprehensive enough to make a definite statement for or against layercausal GD mesa-optimizers. We note a potential connection to kernel regression and functional GD, that come up in works on synthetic setups that uphold the weak ICL-GD correspondence. We leave for future work to elucidate the nature of these connections, as well as propose better layer-causal variants."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                412,
+                889,
+                783
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                808,
+                610,
+                825
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Kwangjun Ahn, Xiang Cheng, Hadi Daneshmand, and Suvrit Sra. 2023. Transformers learn to implement preconditioned gradient descent for in-context learning."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ekin Akyürek, Dale Schuurmans, Jacob Andreas, Tengyu Ma, and Denny Zhou. 2023. What learn-"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                831,
+                884,
+                885
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1024"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "ing algorithm is in-context learning? investigations with linear models."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yoshua Bengio, Pascal Lamblin, Dan Popovici, and Hugo Larochelle. 2006. Greedy layer-wise training of deep networks. Advances in neural information processing systems, 19."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel Ziegler, Jeffrey Wu, Clemens Winter, Chris Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners. In Advances in Neural Information Processing Systems, volume 33, pages 1877–1901. Curran Associates, Inc."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xiang Cheng, Yuxin Chen, and Suvrit Sra. 2024. Transformers implement functional gradient descent to learn non-linear functions in context."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Damai Dai, Yutao Sun, Li Dong, Yaru Hao, Shuming Ma, Zhifang Sui, and Furu Wei. 2023. Why can gpt learn in-context? language models implicitly perform gradient descent as meta-optimizers."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Guy Dar, Mor Geva, Ankit Gupta, and Jonathan Berant. 2023. Analyzing transformers in embedding space."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Marie-Catherine de Marneffe, Mandy Simons, and Judith Tonhauser. 2019. The commitmentbank: Investigating projection in naturally occurring discourse."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alexander Yom Din, Taelin Karidi, Leshem Choshen, and Mor Geva. 2023. Jump to conclusions: Shortcutting transformers with linear transformations."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Nelson Elhage, Neel Nanda, Catherine Olsson, Tom Henighan, Nicholas Joseph, Ben Mann, Amanda Askell, Yuntao Bai, Anna Chen, Tom Conerly, Nova DasSarma, Dawn Drain, Deep Ganguli, Zac Hatfield-Dodds, Danny Hernandez, Andy Jones, Jackson Kernion, Liane Lovitt, Kamal Ndousse, Dario Amodei, Tom Brown, Jack Clark, Jared Kaplan, Sam McCandlish, and Chris Olah. 2021. A mathematical framework for transformer circuits. Transformer Circuits Thread. Https://transformercircuits.pub/2021/framework/index.html."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Mor Geva, Avi Caciularu, Kevin Ro Wang, and Yoav Goldberg. 2022. Transformer feed-forward layers build predictions by promoting concepts in the vocabulary space."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Roee Hendel, Mor Geva, and Amir Globerson. 2023. In-context learning creates task vectors."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Evan Hubinger, Chris van Merwijk, Vladimir Mikulik, Joar Skalse, and Scott Garrabrant. 2021. Risks from learned optimization in advanced machine learning systems."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "nostalgebraist. 2020. interpreting gpt: the logit lens. https://www.lesswrong. com/posts/AcKRB8wDpdaN6v6ru/ interpreting-gpt-the-logit-lens."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Catherine Olsson, Nelson Elhage, Neel Nanda, Nicholas Joseph, Nova DasSarma, T. J. Henighan, Benjamin Mann, Amanda Askell, Yuntao Bai, Anna Chen, Tom Conerly, Dawn Drain, Deep Ganguli, Zac Hatfield-Dodds, Danny Hernandez, Scott Johnston, Andy Jones, John Kernion, Liane Lovitt, Kamal Ndousse, Dario Amodei, Tom B. Brown, Jack Clark, Jared Kaplan, Sam McCandlish, and Christopher Olah. 2022. In-context learning and induction heads. ArXiv, abs/2209.11895."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Bo Pang and Lillian Lee. 2004. A sentimental education: Sentiment analysis using subjectivity summarization based on minimum cuts. In Proceedings of the 42nd Annual Meeting on Association for Computational Linguistics, ACL ’04, page 271–es, USA. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Bo Pang and Lillian Lee. 2005. Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales. In Proceedings of the 43rd Annual Meeting on Association for Computational Linguistics, ACL ’05, page 115–124, USA. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Abhishek Panigrahi, Sadhika Malladi, Mengzhou Xia, and Sanjeev Arora. 2023. Trainable transformer in transformer. ArXiv, abs/2307.01189."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Lingfeng Shen, Aayush Mishra, and Daniel Khashabi. 2023. Do pretrained transformers really learn incontext by gradient descent?"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Richard Socher, Alex Perelygin, Jean Wu, Jason Chuang, Christopher D. Manning, Andrew Ng, and Christopher Potts. 2013. Recursive deep models for semantic compositionality over a sentiment treebank. In Proceedings of the 2013 Conference on Empirical Methods in Natural Language Processing, pages 1631–1642, Seattle, Washington, USA. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Surat Teerapittayanon, Bradley McDanel, and H. T. Kung. 2017. Branchynet: Fast inference via early exiting from deep neural networks."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Eric Todd, Millicent L. Li, Arnab Sen Sharma, Aaron Mueller, Byron C. Wallace, and David Bau. 2023. Function vectors in large language models."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Johannes von Oswald, Eyvind Niklasson, Ettore Randazzo, Joao Sacramento, Alexander Mordvintsev, Andrey Zhmoginov, and Max Vladymyrov. 2023a. Transformers learn in-context by gradient descent. In Proceedings ofthe 40th International Conference on Machine Learning, volume 202 of Proceedings of Machine Learning Research, pages 35151–35174. PMLR."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                85,
+                487,
+                114
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1025"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Johannes von Oswald, Eyvind Niklasson, Maximilian Schlegel, Seijin Kobayashi, Nicolas Zucchet, Nino Scherrer, Nolan Miller, Mark Sandler, Blaise Agüera y Arcas, Max Vladymyrov, Razvan Pascanu, and João Sacramento. 2023b. Uncovering mesa-optimization algorithms in transformers."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, Ed H. Chi, Tatsunori Hashimoto, Oriol Vinyals, Percy Liang, Jeff Dean, and William Fedus. 2022. Emergent abilities of large language models."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sang Michael Xie, Aditi Raghunathan, Percy Liang, and Tengyu Ma. 2022. An explanation of in-context learning as implicit bayesian inference."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xiang Zhang, Junbo Zhao, and Yann LeCun. 2015. Character-level convolutional networks for text classification. In Advances in Neural Information Processing Systems, volume 28. Curran Associates, Inc."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                166
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1026"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/48ea156a1a0d39d389ec1d8a8088fbff142e33d000e02a0b571163dba582fe5a.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Data statistics of all the datasets in the benchmark"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1># Train</td><td rowspan=1 colspan=1># Validation</td><td rowspan=1 colspan=1>Avg. # of Tokens</td></tr><tr><td rowspan=1 colspan=1>SST2</td><td rowspan=1 colspan=1>67,349</td><td rowspan=1 colspan=1>1,821</td><td rowspan=1 colspan=1>55.43</td></tr><tr><td rowspan=1 colspan=1>SST5</td><td rowspan=1 colspan=1>8,544</td><td rowspan=1 colspan=1>2,210</td><td rowspan=1 colspan=1>102.95</td></tr><tr><td rowspan=1 colspan=1>MR</td><td rowspan=1 colspan=1>8,530</td><td rowspan=1 colspan=1>1,066</td><td rowspan=1 colspan=1>113.39</td></tr><tr><td rowspan=1 colspan=1>Subj</td><td rowspan=1 colspan=1>8,000</td><td rowspan=1 colspan=1>2,000</td><td rowspan=1 colspan=1>129.23</td></tr><tr><td rowspan=1 colspan=1>AGNews</td><td rowspan=1 colspan=1>120,000</td><td rowspan=1 colspan=1>7,600</td><td rowspan=1 colspan=1>237.72</td></tr><tr><td rowspan=1 colspan=1>CB</td><td rowspan=1 colspan=1>250</td><td rowspan=1 colspan=1>250</td><td rowspan=1 colspan=1>295.80</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                278,
+                128,
+                719,
+                254
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B Deeper Analysis of Layer Causality"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                306,
+                458,
+                323
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B.1 Does Layer Causal Gradient Descent Approximate Gradient Descent?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                338,
+                712,
+                354
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A natural question that might arise is how similar GD is to the suggested layer causal method. Due to their relatively similar scores, one might conjecture that layer causal GD is a low-resource approximation for GD. We can gauge how similar the two update vectors are to each other using a variant of the attention map metric: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M _ { \\Delta } ^ { G D , L C G D } } = \\mathrm { C o s S i m } \\left( m _ { \\mathrm { L C G D } } ^ { ( l , h ) } - m _ { Z S } ^ { ( l , h ) } , m _ { \\mathrm { G D } } ^ { ( l , h ) } - m _ { Z S } ^ { ( l , h ) } \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This way we can measure how much of the score is attributable to the similarity between the update vectors. We will denote the metric by α."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                365,
+                885,
+                467
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We take one seed per task and compute the average α over the layers, for each task. Counter to our expectations, Figure 2 shows that for most datasets, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\approx 0 . 1 - 0 . 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is very low. This shows that the updates are not very correlated, and most of the score of either of the procedures cannot be attributed to a common direction in space."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                469,
+                885,
+                533
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B.2 Layerwise Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                552,
+                317,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Until now, the metrics reported are averaged across all layers. However, it is interesting to look at similarity patterns across layers. In Figure 3, we show the SimAOU and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M } _ { \\Delta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "scores averaged across all tasks and seeds for each layer. Interesting patterns emerge in the plots. First, we notice that LCGD outperforms vanilla GD in terms of SimAOU (except for layers 1, 3, and the last layer). In the second plot, we have a more complicated case. In the first half of the model, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S i m A M } _ { \\Delta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is greater for the causal variant (except for layer 9). However, for all layers 12-17, vanilla GD is substantially greater than layer causal. Beginning from layer 18, both scores decrease more or less together."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                580,
+                885,
+                693
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "With this discrepancy between the metrics, it is worth discussing their different roles. SimAOU captures the similarity to ICL’s hidden states. They have a direct effect on the model’s prediction. Attention logits on the other hand only modulate the coefficients that determine the hidden state. The hidden state mediates their interactions with the rest of the model. They have no direct effect on the prediction, conditioned on the hidden state. On the other hand, attention maps can provide us insight into the way attention has shifted as a response to the parameter update. The higher this metric is, the better it replicates the way ICL attends to its input. While not directly affecting the output, it focuses on what “interests” ICL."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                695,
+                885,
+                808
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, it is important to remember that our GD variant was selected intentionally due to its simplicity. Mild modifications might make it a better contender. Moreover, the setting we consider is limited to the one chosen by Dai et al. (2023), including reusing the same hyperparameters for both methods. It is possible that tuning the hyperparameters for our variant would have yielded better results. All in all, we can state rather confidently that even this simple baseline performs on par with vanilla GD across multiple benchmarks, and in some cases outperforms it. Furthermore, it has appealing features, such as being low resource, simple, and causally plausible."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                809,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "A Data Statistics"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                84,
+                278,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1027"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C Gradient Norm in LCGD"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                83,
+                373,
+                99
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/da9c7e7ac94bdf583b36f471782d2da7e5e08ff80fcb33cbc4607c796ce70501.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                122,
+                124,
+                494,
+                331
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/478af099574745125ef0e5da348105ec18d15a0bc30998e3f3dc0dacb4954c29.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 4: Heatmap of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "norms of the gradients computed during finetuning on the Subj task. Note the different scales of magnitude. Horizontal Axis: Training demonstration index. Vertical Axis: Layer index in ascending order (from input to network output). Left: Vanilla GD. Right: LCGD (norm magnitude in logarithmic scale)."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                504,
+                121,
+                877,
+                331
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "D Overview of Select Works in the Synthetic Line of Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                406,
+                635,
+                423
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "von Oswald et al. (2023a) study linear transformers with data of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\boldsymbol { \\theta } } ( \\mathbf { x } ) = { \\boldsymbol { \\theta } } ^ { \\top } \\mathbf { x } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". They found a variant of GD (w.r.t. f ) that they called "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { G D ^ { + + } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that seems to be implemented by ICL."
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                431,
+                882,
+                466
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Ahn et al. (2023) discuss the same linear data scenario. They conclude the optimality of a preconditioned variant of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { { G D / G D ^ { + + } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "under different assumptions."
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                475,
+                885,
+                508
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "von Oswald et al. (2023b) study auto-regressive linear transformers. The function under consideration adds stochasticity to the model: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { W } ( \\mathbf { x } ) = W \\mathbf { x } + \\epsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with W being a matrix instead of a vector, and the input of each demonstration being the previous demonstration. They uncover an intriguing algorithm performed by the transformer, combining preconditioning and GD."
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                518,
+                884,
+                583
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Cheng et al. (2024) discuss transformers with non-linear attention of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\kappa ( \\mathbf { u } , \\mathbf { v } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\kappa"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a kernel function. The data in their case comes from a generalized Gaussian process. They consider the empirical quadratic loss objective:"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                593,
+                885,
+                642
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathcal { L } ( f ) = \\sum _ { i = 1 } ^ { N } ( f _ { \\theta } ( \\mathbf { x } _ { i } ) - y _ { i } ) ^ { 2 }",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/85824c6c7af7b2fb9143296f2be0cde57b5cf5d133f8f19946b024a146643c58.jpg"
+                }
+            },
+            "bbox": [
+                415,
+                652,
+                620,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This objective function is more complicated than in other cases described here, as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\theta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is no longer linear. However, they show optimality of gradient descent in function space, which turns out to take on a simple form: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\nabla _ { f } \\mathcal { L } ( f ) = \\sum _ { i = 1 } ^ { N } ( y _ { i } - f ( \\mathbf { x } _ { i } ) ) \\mathcal { K } ( \\mathbf { x } _ { i } , \\cdot ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This is in line with the intuition that detached forms of GD are the ones that we should consider, the same intuition as in the construction of layer-causal GD."
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                707,
+                885,
+                788
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1028"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ]
+]

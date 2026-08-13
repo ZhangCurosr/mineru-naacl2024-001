@@ -1,0 +1,1934 @@
+[
+    {
+        "type": "text",
+        "text": "KDMCSE: Knowledge Distillation Multimodal Sentence Embeddings with Adaptive Angular margin Contrastive Learning",
+        "text_level": 1,
+        "bbox": [
+            115,
+            89,
+            882,
+            130
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Cong-Duy Nguyen<sup>1</sup>, Thong Nguyen<sup>2</sup>, Xiaobao Wu<sup>1</sup>, Luu Anh Tuan<sup>1</sup> <sup>1</sup>Nanyang Technological University, Singapore <sup>2</sup>National University of Singapore, Singapore",
+        "bbox": [
+            200,
+            154,
+            801,
+            206
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            260,
+            252,
+            342,
+            268
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Previous work on multimodal sentence embedding has proposed multimodal contrastive learning and achieved promising results. However, by taking the rest of the batch as negative samples without reviewing when forming contrastive pairs, those studies encountered many suspicious and noisy negative examples, significantly affecting the methods overall performance. In this work, we propose KDMCSE (Knowledge Distillation Multimodal contrastive learning of Sentence Embeddings), a novel approach that enhances the discrimination and generalizability of multimodal representation and inherits the knowledge from the teacher model to learn the difference between positive and negative instances and via that, can detect noisy and wrong negative samples effectively before they are calculated in the contrastive objective. Furthermore, to overcome the limitation of modeling the variation within negative pairs, we introduce a new contrastive objective, AdapACSE (Adaptive Angular Margin Supervised Contrastive Learning for Multimodal sentence embeddings), that enhances the discriminative representation by strengthening the margin within the angular space while capturing varying semantics within the negative. Experimental results on widely used Semantic Textual Similarity (STS) benchmarks demonstrate the effectiveness of our approach. The source code is available at https://github.com/ duyngtr16061999/KDMCSE.",
+        "bbox": [
+            141,
+            281,
+            462,
+            752
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            114,
+            765,
+            260,
+            781
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Learning sentence embeddings, which involves translating sentences into consistent-length vectors that capture their semantic connections, remains a pivotal task in the NLP field. While pretrained language models like BERT (Devlin et al., 2019) and RoBERTa (Liu et al., 2019) have witnessed immense success, studies indicate that the default sentence embeddings from these PLMs, without specific fine-tuning, may not perform as well as simply averaging Glove vectors (Pennington et al., 2014) in capturing semantic similarity (Reimers and Gurevych, 2019). Consequently, recent works (Li et al., 2020; Zhang et al., 2020; Su et al., 2021) are geared towards refining sentence embeddings from PLMs without supervision.",
+        "bbox": [
+            112,
+            791,
+            490,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/2d2e69a8fba0f42c0be623020bf782aca91956454b2f16dbac2f0ee1f4f44568.jpg",
+        "image_caption": [
+            "A.1 Four people are jumping from the top of a flight of stairs A.2 Three young men and a young woman wearing sneakers are leaping in midair at the top of a flight of concrete stairs B.1 A small crowd of people jumping into the air B.2 A group of people are jumping in sync",
+            "Figure 1: Example image-caption pairs in Flickr. Solid lines of the same color talk about the same instance, and a dot line means the additional information that does not occur in the other caption."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            514,
+            249,
+            878,
+            348
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            498,
+            885,
+            612
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "While text-centric models have made significant strides, their depth of understanding of sentence semantics remains a point of contention. True semantic understanding often stems from associations in the real world rather than mere textual statistics (Wang et al., 2019; Bender and Koller, 2020; Bisk et al., 2020; Wei et al., 2022). Numerous recent studies have explored the enhancement of language representations through visual information (Tan and Bansal, 2020b; Tang et al., 2021; Nguyen et al., 2023b). The recent multimodal contrast in sentence embedding learning (Zhang et al., 2022a) offers an encouraging direction. This method augments SimCSE with a multimodal contrastive objective, which seeks congruence between sentences and their associated images within a unified space. However, samples drawn randomly from grounded datasets during training can present semantic differences, subtle similarities, or overlapping attributes. For example, in Figure 1, two captions B.1 and B.2 describe the second image B, but also correctly represent the first image A. Due to their inherent noise, such samples can hinder the learning process. Mitigating this issue requires preemptively filtering out these semantically similar samples before loss calculation, ensuring a noise-reduced training environment. In addition, comparing two captions, A.1 and A.2, for the left image reveals that the latter offers a more comprehensive description, detailing aspects such as the individual’s gender, attire, sneakers, and even the material of the stairs (concrete). Thus, using only visual images cannot capture the depth of language representations.",
+        "bbox": [
+            507,
+            613,
+            887,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "733",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 733–749 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            945,
+            857,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/eb22b855b17d47e52011b78150f9dad9fd86790fccf9ef3fc6f9b0aaea82cb08.jpg",
+        "image_caption": [
+            "Figure 2: Example image-caption pairs in Flickr. The green caption is a true annotation of the image while 4 red captions is randomly picked from the dataset. The scores on the right are the cosine similarity between its caption representation and image representation extracted from CLIP model."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            151,
+            84,
+            450,
+            279
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            400,
+            489,
+            643
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Furthermore, MCSE did not consider the distinctions between negative sample pairs while focusing on constructing pairs of positive and negative representations. As shown in Figure 2, although none of the captions perfectly describes the image, their levels of discrimination vary between pairs. On the contrary, the caption c registers a score of 0.49, hinting at its partial relevance to the image. Caption d, with a very weak score of 0.03, is completely unrelated. Consequently, within the feature space, both captions c and d should be substantially distanced from the accurate depiction. Furthermore, the gap between the true caption and caption d should considerably exceed that between the true caption and the caption c.",
+        "bbox": [
+            112,
+            644,
+            490,
+            887
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "To address the aforementioned limitation of noisy negative sampling and complexity of linguistic representation, we present KDMCSE: a Knowledge Distillation Multimodal Contrastive Learning framework for Sentence Embeddings that utilizes CLIP (Radford et al., 2021) as the teacher model for both image and text modalities. Our approach harnesses images for multimodal objectives and textual representations derived from the CLIP text encoder. Relying solely on images falls short of capturing the nuances in sentence representation. Emulating the representation of the CLIP’s textual encoder - especially when paired with image matching - can augment the richness of linguistic representations, transcending a mere alignment with visual features.",
+        "bbox": [
+            112,
+            888,
+            490,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            310
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Moreover, in response to the identified challenge of diversity among negative pairs, we introduce AdapACSE: Adaptive Angular Margin Contrastive Learning. This method bolsters discriminative representation by amplifying the margin within the angular space, specifically accounting for the various semantics present in negative samples. Leveraging the teacher model, CLIP, we produce soft labels that signify the similarity between samples. Instead of merely utilizing feature representations as positive or negative samples during the multimodal objective, we employ CLIP’s soft labels to intensely penalize samples exhibiting low similarity and provide leniency to pairs exhibiting certain resemblances.",
+        "bbox": [
+            507,
+            310,
+            887,
+            551
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Our contributions can be summarized as follows.",
+        "bbox": [
+            527,
+            552,
+            885,
+            568
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• We propose a novel multimodal framework for sentence embedding KDMCSE: Knowledge Distillation Multimodal Contrastive learning for Sentence Embedding. The knowledge of the teacher model is transferred to the student model through multimodal contrastive learning, spanning both text and visual modalities.",
+        "bbox": [
+            531,
+            577,
+            885,
+            692
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• We introduce self-supervised contrastive learning: AdapACSE that improves the discriminative representation of samples with varying degrees of similarity.",
+        "bbox": [
+            531,
+            699,
+            885,
+            765
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• We evaluate our approach using standard semantic textual similarity (STS) benchmarks and SentEval transfer tasks. Our method outperforms the performance of earlier state-ofthe-art approaches.",
+        "bbox": [
+            531,
+            774,
+            887,
+            854
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work",
+        "text_level": 2,
+        "bbox": [
+            509,
+            863,
+            667,
+            879
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Sentence Representation Learning In previous research, sentence representations were typically learned by extending the principles of word2vec (Mikolov et al., 2013), predicting neighboring sentences (Kiros et al., 2015a; Hill et al., 2016; Logeswaran and Lee, 2018) or aggregating n-gram embeddings (Pagliardini et al., 2018), the pre-trained transformer-based model BERT (Li et al., 2020; Reimers and Gurevych, 2019) and its enhancements BERT-Flow (Li et al., 2020) and BERT-Whitening (Su et al., 2021). More recently, various studies have embraced the contrastive learning framework for learning sentence representation. These studies have proposed different methods to form contrastive pairs, either through various data transformation techniques (Yan et al., 2021; Zhang et al., 2020; Giorgi et al., 2021) or through encoders with distinct structures or parameters (Carlsson et al., 2021; Kim et al., 2021). A notable example is SimCSE (Gao et al., 2021), which employs dropout as a data augmentation strategy. Many studies in the field of sentence contrastive learning have made a significant contribution by focusing on the mining of challenging negative samples (Wang et al., 2022b; Zhou et al., 2022; Zhang et al., 2022b; Wang et al., 2022a; Wei et al., 2023; He et al., 2023).",
+        "bbox": [
+            507,
+            888,
+            887,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "734",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            84,
+            490,
+            488
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Deep Metric Learning Objectives Contrastive learning (Chopra et al., 2005) has gained traction across multiple domains (Nguyen and Luu, 2021; Nguyen et al., 2022, 2024, 2023a; Wu et al., 2020, 2022, 2023a,b, 2024; Wei et al., 2024). Renowned training objectives such as N-Pair Loss (Sohn, 2016), Triplet Margin Loss (Balntas et al., 2016), and ArcCon (Zhang et al., 2022c) are deeply rooted in metric learning principles. In supervised tasks, objectives that leverage softmax have shown efficacy, especially when they integrate class centers and impose penalties on the distances between deep features and their corresponding centers. Among these, Center loss (Wen et al., 2016), SphereFace (Liu et al., 2017), CosFace (Wang et al., 2018), and ArcFace (Deng et al., 2018) stand out and are frequently used in computer vision and natural language processing applications. Nonetheless, these loss functions primarily aim at classification tasks, rendering them unsuitable for regression labels. ArcCSE (Zhang et al., 2022c) presents training objectives using additional margin tailored to enhance the discriminative prowess in pairwise relations and capture the entailment dynamics within triplet sentence structures.",
+        "bbox": [
+            110,
+            517,
+            490,
+            921
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Visually Grounded Representation Learning Numerous studies have underscored the advantages of integrating NLP models with visual insights to improve textual representation learning (Lazaridou et al. (2015); Kiela et al. (2018)). Based on the Skip-Thought model of Kiros et al. (2015b), Bordes et al. (2019) created a unified space that harmoniously accommodates both visual and textual dimensions. Recent pioneering efforts by Tan and Bansal (2020a), Tang et al. (2021) and (Nguyen et al., 2023b) have laid the foundation for vast language models using multimodal guidance, aiming to improve language understanding. Similarly, MCSE by Zhang et al. (2022a) suggested sentence embedding learning using a multimodal contrastive objective to align sentences with their respective images coherently. Distinguishing our work from Zhang et al. (2022a), we present an innovative angular margin contrastive learning framework, building upon the cutting-edge multimodal contrastive learning proposed by Zhang et al. (2022a). By weaving in this new contrastive technique, our goal is to push the envelope in STS by leveraging multimodal semantic data.",
+        "bbox": [
+            507,
+            84,
+            887,
+            472
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3 Method",
+        "text_level": 2,
+        "bbox": [
+            509,
+            483,
+            615,
+            500
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 Background: Unsupervised SimCSE and Multimodal Contrastive Learning MCSE",
+        "text_level": 2,
+        "bbox": [
+            509,
+            511,
+            880,
+            544
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The idea of unsupervised SimCSE is to use dropout noise as a simple, yet effective, data augmentation strategy. Given a collection of sentences $\\{ x _ { i } \\} _ { i = 1 } ^ { m }$ we construct a positive pair for each input $x _ { i }$ by encoding it twice using different dropout masks: ${ \\pmb h } _ { i } ^ { z } ~ = ~ g _ { \\phi } ( f _ { \\theta } ( x _ { i } , z ) )$ and ${ \\pmb h } _ { i } ^ { z ^ { \\prime } } ~ = ~ g _ { \\phi } ( f _ { \\theta } ( x _ { i } , z ^ { \\prime } ) )$ where $z$ and $z ^ { \\prime }$ denote different dropout masks<sup>1</sup>, $f _ { \\theta } ( \\cdot )$ is a pre-trained language encoder such as BERT, and $g _ { \\phi } ( \\cdot )$ is a projection head<sup>2</sup> on top of the [CLS] token. The training objective is:",
+        "bbox": [
+            507,
+            549,
+            885,
+            712
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/5049ae5850c810417a891ab4f4f0117b3d2eaeefb565a273dd8c2ac32aac474a.jpg",
+        "text": "$$\n\\ell _ { i } ^ { \\mathrm { S } } = - \\log \\frac { e ^ { \\sin ( \\pmb { h } _ { i } ^ { z _ { i } } , \\pmb { h } _ { i } ^ { z _ { i } ^ { \\prime } } ) / \\tau } } { \\sum _ { j = 1 } ^ { N } e ^ { \\sin ( \\pmb { h } _ { i } ^ { z _ { i } } , \\pmb { h } _ { j } ^ { z _ { j } ^ { \\prime } } ) / \\tau } } ,\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            566,
+            725,
+            826,
+            780
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where $N$ is the size of the mini-batch, $\\tau$ is a temperature parameter, and sim $( h _ { 1 } , h _ { 2 } )$ is the cosine similarity $\\frac { h _ { 1 } ^ { T } h _ { 2 } } { \\| h _ { 1 } \\| . \\| h _ { 2 } \\| }$ . After training, the [CLS] token outputs of the language encoder are taken as the sentence embeddings.",
+        "bbox": [
+            507,
+            787,
+            887,
+            871
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>The standard dropout masks in Transformers are used.",
+        "bbox": [
+            529,
+            879,
+            872,
+            895
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup>There is a MLP pooler layer over [CLS] in BERT’s implementation. Gao et al. (2021) use it with reinitialization.",
+        "bbox": [
+            509,
+            894,
+            884,
+            920
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "735",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/b2ad06707236749315370a9ef11ca570b15c56efbd13b698c6ce33073cd864e2.jpg",
+        "image_caption": [
+            "Figure 3: The overall architecture of KDMCSE. The upper part is the original SimCSE, the below part is the multimodal contrastive learning approach with knowledge distillation from CLIP model."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            146,
+            82,
+            826,
+            331
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "To take advantage of visual and textual information, MCSE (Zhang et al., 2022a) adopt SimCSE as the textual baseline and extend it with a multimodal contrastive learning objective:",
+        "bbox": [
+            112,
+            386,
+            489,
+            450
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/192f5551e59ed2f73f1628e698d314719ba86d4759f99dbddae35d1bd4a5eef3.jpg",
+        "text": "$$\n\\begin{array} { r } { s _ { i } ^ { z } = g _ { \\phi _ { 1 } } ( f _ { \\theta } ( x _ { i } , z ) ) , v _ { i } = g _ { \\phi _ { 2 } } ( f ^ { v } ( y _ { i } ) ) , } \\end{array}\\tag{2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            139,
+            462,
+            442,
+            480
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where $f ^ { v } ( \\cdot )$ is a pre-trained image encoder. $g _ { \\phi _ { 1 } } ( \\cdot )$ and $g _ { \\phi _ { 2 } } ( \\cdot )$ are two projection heads for text and image modalities. They define the multimodal contrastive learning objective as:",
+        "bbox": [
+            112,
+            489,
+            489,
+            555
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/dda29247872deca7cdab6e5430d4a2a6eaeeb3ebd16ea0144389264997959c76.jpg",
+        "text": "$$\n\\ell _ { i } ^ { \\mathrm { M } } = - \\sum _ { z \\in \\{ z _ { i } , z _ { i } ^ { \\prime } \\} } \\log \\frac { e ^ { \\sin ( s _ { i } ^ { z } , { \\pmb v } _ { i } ) / \\tau ^ { \\prime } } } { \\sum _ { j = 1 } ^ { N } e ^ { \\sin ( s _ { i } ^ { z } , { \\pmb v } _ { j } ) / \\tau ^ { \\prime } } } ,\\tag{3}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            132,
+            564,
+            448,
+            607
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.2 Knowledge Distillation Multimodal Contrastive learning for Sentence Embedding",
+        "text_level": 2,
+        "bbox": [
+            114,
+            618,
+            438,
+            667
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In addition to the multimodal objective, we present a Knowledge Distillation framework designed to harness both visual and textual insights from the vision-language model CLIP. An overview of our KDMCSE model can be found in Figure 3. Given a set of sentence-image pairs represented as $D =$ $\\{ x _ { i } , y _ { i } \\} _ { i = 1 } ^ { m }$ , we initially project the sentence $x _ { i }$ and the image $y _ { i }$ into a shared or grounded space.",
+        "bbox": [
+            112,
+            673,
+            489,
+            802
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/5c56d6308cb43917d8926aa41751619efd0c95379f895c87a7656339d44ef84a.jpg",
+        "text": "$$\n\\begin{array} { r } { \\pmb { s } _ { i } ^ { z } = g _ { \\phi _ { g } } ( f _ { \\theta } ( x _ { i } , z ) ) , } \\end{array}\\tag{4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            221,
+            816,
+            379,
+            834
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/e27e7bf4197487d76b27eb65fc1d9be174fdcc10b26dd2409ce244f330a8c0e3.jpg",
+        "text": "$$\n{ \\bf \\delta t } _ { i } = g _ { \\phi _ { t } } ( \\hat { t _ { i } } ) , \\hat { t _ { i } } = C L I P _ { t e x t } ( x _ { i } ) ,\\tag{5}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            169,
+            840,
+            430,
+            859
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/dc549bd779ed334ccc83c19d361762c42bacef502dc759fafe3f2a48799f560d.jpg",
+        "text": "$$\n{ \\pmb v } _ { i } = g _ { \\phi _ { v } } ( \\hat { \\pmb v _ { i } } ) , \\hat { \\pmb v _ { i } } = C L I P _ { v i s u a l } ( y _ { i } ) ,\\tag{6}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            159,
+            864,
+            442,
+            882
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where $C L I P _ { t e x t } , C L I P _ { v i s u a l }$ are a pre-trained text and image CLIP encoder, $\\hat { v _ { i } }$ and $\\hat { \\mathbf { \\ b { t } } _ { i } }$ are the visual and text representation extracted from CLIP, $g _ { \\phi _ { g } } ( \\cdot )$ is the projection heads for the language student model to project the sentence representation into grounded space, $g _ { \\phi _ { t } } ( \\cdot )$ and $g _ { \\phi _ { v } } ( \\cdot )$ are distinct projection heads of the teacher model for the text and image modality, respectively. During training, we freeze the pre-trained CLIP model.",
+        "bbox": [
+            112,
+            888,
+            489,
+            920
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            386,
+            885,
+            498
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Threshold Filtering During training, negative samples were randomly taken from data in Eq.3. We not only transfer CLIP’s knowledge of the text and visual representation of each sample, but also leverage the similarity within samples in a batch. We calculate the cosine similarity:",
+        "bbox": [
+            507,
+            499,
+            885,
+            595
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/8ef7bc0da3866d76a366924d128957d8ce0a794de8f3e322bfebb351b90421e0.jpg",
+        "text": "$$\n\\alpha _ { i , j } ^ { m , n } = \\frac { m _ { i } \\cdot n _ { j } } { \\left\\| m _ { i } \\right\\| _ { 2 } \\left\\| n _ { j } \\right\\| _ { 2 } } , m , n \\in \\{ \\hat { v } , \\hat { t } \\}\\tag{7}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            554,
+            618,
+            835,
+            650
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where m, n are the defined modality (text or visual). Thus, as shown in Figure 4, we can generate four similarity mappings: text-text, visual-visual, text-visual, and visual-text. As we strive to align the sentence representation generated by the language encoder (text) with the information gleaned from the teacher model encompassing both sentence (text) and image (visual) data, we exclusively employ ’text-text’ and ’text-visual’ pairings for our soft labels. We define a threshold filter function to remove noisy negative samples:",
+        "bbox": [
+            507,
+            659,
+            887,
+            837
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/be2cc110e5bad7931b0de6672302a9486865b4aa92e71fc54316c5157e2c32f8.jpg",
+        "text": "$$\n\\varphi _ { i , j } ^ { m , n } = \\left\\{ \\begin{array} { c c c } { 0 } & { i f } & { \\alpha _ { i , j } ^ { m , n } < t h r e s h o l d } \\\\ { 1 } & { e l s e } & { } \\end{array} \\right.\\tag{8}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            536,
+            858,
+            835,
+            894
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where threshold is a fixed hyperparameter during",
+        "bbox": [
+            509,
+            904,
+            884,
+            921
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "736",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/355f21f0889271e433306444cff4f7d9f4c8666c6862e863bb2854ae1e7e1acf.jpg",
+        "image_caption": [
+            "Figure 4: The overall framework of knowledge distillation with Adaptive Angular margin contrastive learning. The pipeline first calculates the soft-label similarity scores between text and visual representation, then we apply threshold filtering to remove the noisy negative pairs, and finally, we transfer the soft-label matrices into our proposed AdapACSE to flexibly find the margin. $s _ { \\hat { a } }$ is the positive sample for $s _ { a }$ , $v _ { b }$ and $v _ { c }$ are its negative counterparts. In particular, the difference in pairs $s _ { a } - v _ { c }$ is more pronounced than in $s _ { a } - v _ { b }$ . As a result, the margin (depicted as a dashed line) for c (in orange) is greater than for b (in cyan)."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            146,
+            82,
+            831,
+            249
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "training. The proposed contrastive objective with Threshold Filtering is defined as follows:",
+        "bbox": [
+            112,
+            361,
+            489,
+            393
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/d2315d304018ced87803953a507bfc2c5a6f9bb58fb3f361dcac01a23615ead5.jpg",
+        "text": "$$\n\\ell _ { i } ^ { \\mathrm { m } } = - \\sum _ { z \\in \\{ z _ { i } , z _ { i } ^ { \\prime } \\} } \\log \\frac { e ^ { \\sin ( s _ { i } ^ { z } , m _ { i } ) / \\tau ^ { \\prime } } } { \\sum _ { j = 1 } ^ { N } \\varphi _ { i , j } ^ { t , m } e ^ { \\sin ( s _ { i } ^ { z } , m _ { j } ) / \\tau ^ { \\prime } } } ,\\tag{9}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            122,
+            420,
+            477,
+            464
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $m$ is the modality (text or visual), m $\\in$ $\\{ t , v \\} , m _ { i }$ is the projected representation of CLIP model, $m _ { i } \\in \\{ v _ { i } , t _ { i } \\}$",
+        "bbox": [
+            112,
+            480,
+            487,
+            530
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.3 Adaptive Angular margin Contrastive learning",
+        "text_level": 2,
+        "bbox": [
+            114,
+            543,
+            460,
+            575
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Previous studies (Zhang et al., 2022c) introduced the ArcCSE objective. This was designed to increase the discriminative capacity between pairs and encapsulate the entailment relationship among triplet sentences. ArcCSE adds an additive angu lar margin $m _ { c }$ between positive pairs $h _ { i } ^ { z }$ and $h _ { i } ^ { z ^ { \\prime } }$ Compared to $\\operatorname { E q . l }$ , it further pushed $h _ { i }$ towards the area where $\\theta _ { i , i ^ { \\prime } }$ becomes smaller and $\\theta _ { j , i }$ becomes larger, increasing the compactness of sentence representations with the same semantics and enlarging the discrepancy of different semantic representations. ArcCSE is defined as:",
+        "bbox": [
+            112,
+            581,
+            490,
+            776
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/5b6ae2132f4984e4d3d030e9e765061dcc122dde95f1bfb6afbf7a7d592c632a.jpg",
+        "text": "$$\n\\ell _ { i } ^ { \\mathrm { A r c C S E } } = - \\log \\frac { e ^ { \\phi \\left( \\theta _ { i , i ^ { ' } } + m _ { c } \\right) / \\tau } } { e ^ { \\phi \\left( \\theta _ { i , i ^ { ' } } + m \\right) / \\tau } + \\sum _ { j \\neq i } ^ { n } e ^ { \\phi \\left( \\theta _ { j , i } \\right) / \\tau } }\\tag{10}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            117,
+            802,
+            480,
+            858
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $\\phi$ is the cos function, angular $\\theta _ { i , j }$ is denoted as follows:",
+        "bbox": [
+            112,
+            888,
+            487,
+            920
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/68b42c11acc9d64902334c93496a266eddae025896be495e00f015ea8f2de969.jpg",
+        "text": "$$\n\\theta _ { i , j } = \\operatorname { a r c c o s } \\bigg ( \\frac { h _ { i } ^ { T } h _ { j } } { \\| h _ { i } \\| * \\| h _ { j } \\| } \\bigg )\\tag{11}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            581,
+            388,
+            806,
+            425
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $h _ { i }$ is the vector representation, in this work, $h _ { i } \\in \\{ v _ { i } , t _ { i } , s _ { i } ^ { z } \\}$",
+        "bbox": [
+            509,
+            439,
+            884,
+            473
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "There are distinct differences among the negative pairs, especially when we observe that the examples marked in red in Figure 2 serve as negative samples for the green caption. In this grounded space, the distance between the samples becomes crucial. We have refined the contrastive objective to harness the knowledge from the teacher model and to capture the magnitude of the differences between negative pairs. To address this challenge, we introduce a novel training objective, Adaptive Angular margin Contrastive Loss, AdapACSE, which is an adaptation of Eq.10. Instead of fixing margin $m _ { c }$ for all samples in the data, we adapt it to be flexible depending on its negative samples. This new objective improves sentence representation learning by an adaptive margin, $m _ { c } \\Delta _ { i , j } .$ , between negative pairs $h _ { i }$ and $h _ { j }$ . Thus, if the $\\Delta _ { i , j }$ is large and the two samples $i , j$ are much different, the margin is also large to push the representation away, and vice versa. Our approach is illustrated in the right part of Figure 4, we formalize this objective function as AdapACSE:",
+        "bbox": [
+            507,
+            473,
+            885,
+            828
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/31dadea8bfc2526f19228510cee46dfa340e509c327ac61a52a2664d7f47c911.jpg",
+        "text": "$$\n\\begin{array} { r } { \\ell _ { i } ^ { \\mathrm { A d a p A C S E } } = \\qquad } \\\\ { - \\log \\frac { e ^ { \\phi \\left( \\theta _ { i , i ^ { * } } \\right) / \\tau } } { e ^ { \\phi \\left( \\theta _ { i , i ^ { * } } \\right) / \\tau } + \\sum _ { j \\neq i } ^ { n } e ^ { \\phi \\left( \\theta _ { i , j } - m _ { c } \\Delta _ { i , j } \\right) / \\tau } } } \\end{array}\\tag{12}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            526,
+            854,
+            836,
+            922
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "737",
+        "bbox": [
+            485,
+            928,
+            515,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $\\Delta _ { i , j } = | 1 - \\alpha _ { i , j } |$ is the cosine distance between two samples i and $j .$ . Together with the threshold filtering contrastive learning, we rewrite the AdapACSE objective to be:",
+        "bbox": [
+            110,
+            84,
+            489,
+            149
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/6c7cc637752af6249c702402ad976c57d83561f2ef9eba78f27ddcfbd2d6e318.jpg",
+        "text": "$$\n\\begin{array} { r l } & { \\ell _ { i } ^ { \\mathrm { A d a p A C S E ^ { \\prime } } } = \\ell _ { i } ^ { m ^ { \\prime } } = } \\\\ & { - \\log \\frac { e ^ { \\phi \\left( \\theta _ { i , i ^ { * } } \\right) / \\tau } } { e ^ { \\phi \\left( \\theta _ { i , i ^ { * } } \\right) / \\tau } + \\sum _ { j \\neq i } ^ { n } \\varphi _ { i , j } ^ { t , m } e ^ { \\phi \\left( \\theta _ { i , j } - m _ { c } \\Delta _ { i , j } \\right) / \\tau } } } \\end{array}\\tag{13}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            126,
+            171,
+            473,
+            240
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Finally, we define our KDMCSE objective as follows:",
+        "bbox": [
+            112,
+            266,
+            487,
+            298
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/3da0e028cdf19c615df6a8a0eeb27f25abd23b390b5bea582342a9c298b19f5b.jpg",
+        "text": "$$\n\\ell _ { i } ^ { \\mathrm { K D M C S E } } = \\frac { \\ell _ { i } ^ { \\mathrm { v } ^ { \\prime } } + \\ell _ { i } ^ { \\mathrm { t } ^ { \\prime } } } { 2 }\\tag{14}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            216,
+            309,
+            384,
+            343
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "where $\\ell _ { i } ^ { \\mathrm { v } ^ { \\prime } }$ and $\\ell _ { i } ^ { \\mathrm { v } ^ { \\prime } }$ are AdapACSE Eq. 13 with $t ,$ v are text and visual modalities, respectively.",
+        "bbox": [
+            112,
+            348,
+            489,
+            382
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4 Experiments Setup",
+        "text_level": 2,
+        "bbox": [
+            112,
+            393,
+            315,
+            410
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.1 Dataset",
+        "text_level": 2,
+        "bbox": [
+            112,
+            418,
+            223,
+            434
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We employ Flickr30k (Young et al., 2014) and MS-COCO (Lin et al., 2014) as our multimodal datasets. Flickr30k contains 29, 783 training images and MS-COCO has 82, 783 training images. Every image in these collections comes with multiple captions, usually five captions. As in Gao et al. (2021), we utilize Wiki1M for our text-based dataset, consisting of $1 0 ^ { 6 }$ sentences extracted randomly from English Wikipedia.",
+        "bbox": [
+            110,
+            438,
+            490,
+            585
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.2 Implementation",
+        "text_level": 2,
+        "bbox": [
+            112,
+            594,
+            289,
+            611
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Language Encoder - Student model We have implemented our work in the Hugging Face Transformers library<sup>3</sup> as described by (Wolf et al., 2020). We load our language encoder from the checkpoints of bert-base-uncased and roberta-base. Then, we fine-tune these foundation models with our introduced contrastive objective. To evaluate sentence embeddings, we use the 768-dimensional outputs of the [CLS] token preceding the MLP pooler layer from the transformer-based models.",
+        "bbox": [
+            110,
+            615,
+            490,
+            794
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Multimodal encoder - Teacher model Our teacher model is CLIP (Radford et al., 2021), the model’s weights are initialized with pretrained clip-vit-base-patch32, where ViT-B/32 Transformer architecture is built as an image encoder and the patch size P is 32.",
+        "bbox": [
+            110,
+            801,
+            490,
+            900
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Because during training, the teacher model will not be fine-tuned, we will pre-extract image and text features vˆ, tˆ to reduce the computation cost during the training phase.",
+        "bbox": [
+            507,
+            84,
+            885,
+            149
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "MLP Projection Heads We use 4 different MLP modules $\\boldsymbol { \\mathcal { I } } \\{ \\boldsymbol { \\theta } _ { 1 } , \\boldsymbol { \\theta } _ { 2 } , \\boldsymbol { \\theta } _ { t } , \\boldsymbol { \\theta } _ { v } \\}$ to project different modalities and objectives. For the pure textual objective using the Wiki1M dataset, sentence embeddings are projected into a 768-dimensional space. For CLIP projection, both the sentence embeddings (student and teacher models) and the image feature vectors are projected into a shared 256-dimensional space.",
+        "bbox": [
+            507,
+            170,
+            885,
+            316
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Parameter Settings In line with the experimental setup described by Zhang et al. (2022a), we explored two primary training scenarios: wiki+flickr and wiki+coco. Mini-batches were drawn either from the Wiki1M corpus or from the respective caption datasets, with proportions reflecting their relative sizes. Our parameter choices were largely inspired by the guidelines provided by Gao et al. (2021). Specifically, we set the temperature parameters τ and $\\tau ^ { \\prime } { \\mathrm { . } }$ , to 0.05. For model assessment, we performed evaluations on the STS-B dev set after every 125 training iteration, preserving the best performing checkpoint for our final evaluation. Regarding the BERT encoder, we adopted a learning rate of 3e 5 and a batch size of 64. For RoBERTa, these parameters were adjusted to 1e  5 and 128, respectively. Our training was executed on an A6000 GPU, with each experimental run spanning roughly 5-6 hours and equivalent to MCSE training time.",
+        "bbox": [
+            505,
+            336,
+            922,
+            661
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.3 Evaluation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            682,
+            645,
+            699
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We evaluate our trained models on seven STS (Semantic Textual Similarity) tasks, including STS 2012-2016 (Agirre et al., 2012, 2013, 2014, 2015, 2016), the STS Benchmark (Cer et al., 2017), and SICK-Relatedness (Marelli et al., 2014). Each dataset is made up of pairs of sentences with the aim of assigning a similarity score to each pair. In alignment with Gao et al. (2021), we present the Spearman correlation (multiplied by 100) between the official annotations and our predicted scores in an \"all\" context. This means that we merge all subsets for each task and then provide a comprehensive Spearman correlation.",
+        "bbox": [
+            505,
+            709,
+            887,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>3</sup>https://github.com/huggingface/transformers",
+        "bbox": [
+            134,
+            904,
+            418,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "738",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/a97e2b0070c164b3ac8589691c4ec14c68c0e03454e1b776aa886a7dd918a532.jpg",
+        "table_caption": [
+            "Table 1: Performance comparison on STS tasks. STS-B: STS Benchmark, SICK-R: SICK-Relatedness, Avg.: average across 7 tasks. ♢ : results from (Zhang et al., 2022a). We train the models using a random seed of $5 ,$ presenting the average and standard deviations of our findings. : difference between MCSE and KDMCSE is significant at $\\alpha = 0 . 0 5$ according to an independent t-test."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td>Model</td><td>STS12</td><td>STS13</td><td>STS14</td><td>STS15</td><td>STS16</td><td>STS-B</td><td>SICK-R</td><td> $\\mathbf { A v g . } \\uparrow$ </td></tr><tr><td>wik</td><td> $\\mathrm { S i m C S E - B E R T } ^ { \\diamond }$   $\\mathrm { S i m C S E - R o B E R T a } \\mathcal { O }$ </td><td> $6 7 . 8 { \\scriptstyle \\pm 1 . 6 }$   $6 8 . 7 _ { \\pm 1 . 0 }$ </td><td> $8 0 . 0 { \\scriptstyle \\pm 2 . 1 }$   $8 2 . 0 { \\scriptstyle \\pm 0 . 5 }$ </td><td> $7 2 . 5 { \\scriptstyle \\pm 1 . 7 }$   $7 4 . 0 { \\scriptstyle \\pm 1 . 0 }$ </td><td> $8 0 . 1 { \\scriptstyle \\pm 0 . 8 }$   $8 2 . 1 { \\scriptstyle \\pm 0 . 4 }$ </td><td> $7 7 . 6 { \\scriptstyle \\pm 0 . 8 }$   $8 1 . 1 { \\scriptstyle \\pm 0 . 4 }$ </td><td>76  $. 5 { \\scriptstyle \\pm 0 . 8 }$   $8 0 . 6 { \\scriptstyle \\pm 0 . 3 }$ </td><td> $7 0 . 1 { \\scriptstyle \\pm 0 . 9 }$   $6 9 . 2 { \\scriptstyle \\pm 0 . 2 }$ </td><td> $7 4 . 9 { \\scriptstyle \\pm 1 . 1 }$   $7 6 . 8 { \\scriptstyle \\pm 0 . 5 }$ </td></tr><tr><td></td><td> $\\mathrm { S i m C S E - B E R T } ^ { \\diamond }$ </td><td> $6 9 . 9 { \\scriptstyle \\pm 1 . 7 }$ </td><td> $7 9 . 8 { \\scriptstyle \\pm 1 . 5 }$ </td><td> $7 2 . 9 { \\scriptstyle \\pm 0 . 9 }$ </td><td> $8 1 . 9 { \\scriptstyle \\pm 0 . 8 }$ </td><td> $7 7 . 8 { \\scriptstyle \\pm 0 . 9 }$ </td><td>76  $. 6 { \\scriptstyle \\pm 1 . 1 }$ </td><td> $6 8 . 4 { \\scriptstyle \\pm 0 . 8 }$ </td><td> $7 5 . 3 { \\scriptstyle \\pm 0 . 9 }$ </td></tr><tr><td>wi+ickr</td><td> $\\mathbf { M C S E - B E R T } { \\boldsymbol { \\diamond } }$  KDMCSE-BERT</td><td> $7 1 . 4 _ { \\pm 0 . 9 }$   $7 4 . 4 _ { \\pm 1 . 4 } ^ { * }$ </td><td> $8 1 . 8 { \\scriptstyle \\pm 1 . 3 }$ </td><td> $7 4 . 8 { \\scriptstyle \\pm 0 . 9 }$ </td><td> $8 3 . 6 { \\scriptstyle \\pm 0 . 9 }$ </td><td> $7 7 . 5 { \\scriptstyle \\pm 0 . 8 }$ </td><td> $7 9 . 5 { \\scriptstyle \\pm 0 . 5 }$ </td><td> $7 2 . 6 { \\scriptstyle \\pm 1 . 4 }$ </td><td> $7 7 . 3 { \\scriptstyle \\pm 0 . 5 }$ </td></tr><tr><td></td><td></td><td></td><td> ${ \\bf 8 3 . 1 _ { \\pm 0 . 9 } ^ { * } }$ </td><td> $7 6 . 3 _ { \\pm 1 . 1 } ^ { \\ast }$ </td><td> ${ \\bf 8 3 . 7 _ { \\pm 0 . 8 } }$ </td><td> $7 8 . 8 _ { \\pm 0 . 9 } ^ { * }$ </td><td> ${ \\bf 8 1 . 3 _ { \\pm 0 . 9 } ^ { * } }$ </td><td> $7 3 . 0 _ { \\pm 0 . 9 } ^ { * }$ </td><td> $7 8 . 6 _ { \\pm 0 . 8 } ^ { * }$ </td></tr><tr><td></td><td>SimCSE-RoBERTa</td><td> $6 9 . 5 _ { \\pm 0 . 9 }$ </td><td> $8 1 . 6 _ { \\pm 0 . 5 }$ </td><td> $7 4 . 1 _ { \\pm 0 . 6 }$ </td><td> $8 2 . 4 _ { \\pm 0 . 3 }$ </td><td> $8 0 . 9 _ { \\pm 0 . 5 }$ </td><td> $7 9 . 9 _ { \\pm 0 . 3 }$ </td><td> $6 7 . 3 _ { \\pm 0 . 5 }$ </td><td> $7 6 . 5 _ { \\pm 0 . 4 }$ </td></tr><tr><td></td><td>MCSE-RoBERTa</td><td> $7 1 . 7 { \\scriptstyle \\pm 0 . 2 }$ </td><td> $8 2 . 7 _ { \\pm 0 . 4 }$ </td><td> $7 5 . 9 { \\scriptstyle \\pm 0 . 3 }$ </td><td> ${ \\bf 8 4 . 0 _ { \\pm 0 . 4 } }$ </td><td> $8 1 . 3 { \\scriptstyle \\pm 0 . 3 }$ </td><td> $\\mathbf { 8 } 2 . 3 _ { \\pm 0 . 5 }$ </td><td> $7 0 . 3 { \\scriptstyle \\pm 1 . 3 }$ </td><td> $7 8 . 3 { \\scriptstyle \\pm 0 . 1 }$ </td></tr><tr><td></td><td>KDMCSE-RoBERTa</td><td> $7 3 . 6 _ { \\pm 0 . 7 } ^ { * }$ </td><td> ${ \\bf 8 3 . 8 _ { \\pm 0 . 6 } ^ { * } }$ </td><td> $7 7 . 4 _ { \\pm 0 . 4 } ^ { * }$ </td><td> ${ \\bf 8 4 . 0 _ { \\pm 0 . 3 } }$ </td><td> ${ \\bf 8 1 . 5 _ { \\pm 0 . 7 } }$ </td><td> $\\mathbf { 8 } 2 . 3 _ { \\pm 0 . 6 }$ </td><td> $7 1 . 2 _ { \\pm 0 . 4 } ^ { \\ast }$ </td><td> $\\mathbf { 7 9 . 1 _ { \\pm 0 . 3 } ^ { * } }$ </td></tr><tr><td></td><td> $\\mathrm { S i m C S E - B E R T } ^ { \\diamond }$ </td><td> $6 9 . 1 _ { \\pm 1 . 0 }$ </td><td> $8 0 . 4 _ { \\pm 0 . 9 }$ </td><td> $7 2 . 7 _ { \\pm 0 . 7 }$ </td><td> $8 1 . 1 { \\scriptstyle \\pm 0 . 3 }$ </td><td> $7 8 . 2 { \\scriptstyle \\pm 0 . 9 }$ </td><td> $7 3 . 9 { \\scriptstyle \\pm 0 . 6 }$ </td><td> $6 6 . 6 { \\scriptstyle \\pm 1 . 2 }$ </td><td></td></tr><tr><td>wikkcoco</td><td> $\\mathbf { M C S E - B E R T } { \\boldsymbol { \\diamond } }$ </td><td> $7 1 . 2 { \\scriptstyle \\pm 1 . 3 }$ </td><td> $7 9 . 7 _ { \\pm 0 . 9 }$ </td><td> $7 3 . 8 { \\scriptstyle \\pm 0 . 9 }$ </td><td> $8 3 . 0 { \\scriptstyle \\pm 0 . 4 }$ </td><td> $7 7 . 8 _ { \\pm 0 . 9 }$ </td><td> $7 8 . 5 { \\scriptstyle \\pm 0 . 4 }$ </td><td> $7 2 . 1 { \\scriptstyle \\pm 1 . 4 }$ </td><td> $7 4 . 6 { \\scriptstyle \\pm 0 . 2 }$ </td></tr><tr><td></td><td>KDMCSE-BERT</td><td> $7 3 . 2 _ { \\pm 1 . 2 } ^ { \\ast }$ </td><td> ${ \\bf 8 0 . 5 _ { \\pm 1 . 0 } ^ { * } }$ </td><td> $7 5 . 4 _ { \\pm 0 . 9 } ^ { * }$ </td><td> ${ \\bf 8 3 . 2 _ { \\pm 0 . 3 } }$ </td><td> $7 9 . 7 _ { \\pm 0 . 8 } ^ { * }$ </td><td> ${ \\bf 7 9 . 7 _ { \\pm 0 . 7 } ^ { * } }$ </td><td> $7 3 . 7 _ { \\pm 1 . 4 } ^ { * }$ </td><td> $7 6 . 6 { \\scriptstyle \\pm 0 . 5 }$ </td></tr><tr><td></td><td> $\\mathrm { S i m C S E - R o B E R T a } \\mathcal { O }$ </td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td> $7 7 . 9 _ { \\pm 1 . 2 } ^ { * }$ </td></tr><tr><td></td><td> $\\mathbf { M C S E - R o B E R T a } \\mathcal { O }$ </td><td> $6 6 . 4 _ { \\pm 0 . 9 }$ </td><td> $8 0 . 7 _ { \\pm 0 . 7 }$ </td><td> $7 2 . 7 _ { \\pm 1 . 1 }$ </td><td> $8 1 . 3 _ { \\pm 0 . 9 }$ </td><td> $8 0 . 2 _ { \\pm 0 . 8 }$ </td><td> $7 6 . 8 _ { \\pm 0 . 6 }$ </td><td> $6 5 . 7 _ { \\pm 0 . 7 }$ </td><td> $7 4 . 8 _ { \\pm 0 . 5 }$ </td></tr><tr><td></td><td></td><td> $7 0 . 2 _ { \\pm 1 . 7 }$ </td><td> $\\mathbf { 8 2 . 0 } _ { \\pm 0 . 7 }$ </td><td> $7 5 . 5 _ { \\pm 1 . 2 }$ </td><td> $8 3 . 0 { \\scriptstyle \\pm 0 . 6 }$ </td><td> ${ \\bf 8 1 . 5 _ { \\pm 0 . 7 } }$ </td><td> ${ \\bf 8 0 . 8 _ { \\pm 1 . 0 } }$ </td><td> ${ \\bf 6 9 . 9 { \\scriptstyle \\pm 0 . 6 } }$ </td><td> $7 7 . 6 _ { \\pm 0 . 8 }$ </td></tr><tr><td></td><td> $\\mathrm { \\ K D M C S E { \\mathrm { - } } R o B E R T a }$ </td><td> ${ 7 2 . 8 _ { \\pm 1 . 5 } ^ { * } }$ </td><td> $8 1 . 7 _ { \\pm 0 . 9 }$ </td><td> $\\mathbf { 7 6 . 1 } _ { \\pm 1 . 1 } ^ { * }$ </td><td> ${ \\bf 8 3 . 4 } _ { \\pm 1 . 0 } ^ { * }$ </td><td> ${ \\bf 8 1 . 5 _ { \\pm 0 . 6 } }$ </td><td> $8 0 . 7 _ { \\pm 0 . 8 }$ </td><td> ${ \\bf 6 9 . 9 2 0 . 6 }$ </td><td> ${ \\bf 7 8 . 0 _ { \\pm 0 . 7 } ^ { * } }$ </td></tr></table>",
+        "bbox": [
+            171,
+            82,
+            828,
+            299
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/8b6283ac7cbf60a4af158d4d808976af97bce2b22deca4fde14e7cecf2540418.jpg",
+        "table_caption": [
+            "Table 2: The alignment uniformity results of the models when using the BERT and RoBERTa encoder. All models are trained in the wiki-flickr setting."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"2\">alignment↓</td><td colspan=\"2\">uniformity↓</td></tr><tr><td>flickr</td><td>coco</td><td>flickr</td><td>cOcO</td></tr><tr><td>MCSE-BERT KDMCSE-BERT</td><td>0.293 0.245</td><td>0.267 0.261</td><td>-2.491 -2.387</td><td>-2.350 -2.383</td></tr><tr><td>MCSE-RoBERTa KDMCSE-RoBERTa</td><td>0.209 0.174</td><td>0.195 0.149</td><td>-1.721 -1.952</td><td>-1.418</td></tr></table>",
+        "bbox": [
+            136,
+            388,
+            465,
+            481
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5 Experiments Results",
+        "text_level": 2,
+        "bbox": [
+            114,
+            563,
+            327,
+            580
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.1 Main Results",
+        "text_level": 2,
+        "bbox": [
+            114,
+            590,
+            265,
+            606
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "passes other methods across most tasks, with scores rising from 76.6 to 77.9 (STS15 being the exception with a modest increase). Our RoBERTa encoder, when trained with the KDMCSE framework, showed higher average results (an increase from 77.6 to 78.0), where tasks such as STS12, STS14, and STS15 registered significant improvements, while others retained or slightly underperformed in comparison.",
+        "bbox": [
+            507,
+            391,
+            887,
+            536
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Following the methodology of previous studies, we conducted our model five times using the same hyperparameter settings. Averaged results are delineated in Table 1. A collective overview of our results reveals that our model consistently matches or exceeds the benchmarks set by baseline approaches. MCSE advances beyond SimCSE in the majority of STS evaluations. By integrating auxiliary visual and textual insights derived from the CLIP teacher model, our KDMCSE model showcases pronounced improvements in various downstream tasks. Specifically, when trained on Wiki1M and Flickr30k datasets, KDMCSE increases the performance metrics for BERT (from 77.3 to 78.6) and RoBERTa (from 78.3 to 79.1). Compared to MCSE-RoBERTa, our model exhibits comparable metrics on STS15 and STS-B, with a slight advancement on STS16. In the context of the wiki+coco dataset, KDMCSE-BERT notably sur-",
+        "bbox": [
+            110,
+            614,
+            490,
+            921
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.2 Alignment and Uniformity",
+        "text_level": 2,
+        "bbox": [
+            509,
+            545,
+            766,
+            562
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "The concepts of alignment and uniformity are closely linked to contrastive learning, serving as potential metrics to evaluate the quality of the representations derived (Wang and Isola, 2020). Alignment is a property that encourages encoders to produce analogous representations for instances that are alike. This can be quantified using the expected distance between the embeddings of positively paired instances.",
+        "bbox": [
+            507,
+            567,
+            887,
+            712
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "img_path": "images/52931ee28de28df7ef045d71ea0544f1c91607b925d56e00d89e0653ba357447.jpg",
+        "text": "$$\n\\mathcal { L } _ { a l i g n } \\triangleq \\underset { ( x , x ^ { + } ) \\sim p _ { \\mathrm { p o s } } } { \\underline { { \\mathbb { E } } } } \\left. \\boldsymbol { f } ( \\boldsymbol { x } ) - \\boldsymbol { f } ( \\boldsymbol { x } ^ { + } ) \\right. _ { 2 } ^ { 2 } .\\tag{15}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            524,
+            730,
+            836,
+            762
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "And the uniformity loss prefers a uniform distribution in the hypersphere:",
+        "bbox": [
+            509,
+            774,
+            885,
+            807
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "img_path": "images/591406c1961b1a406cb91fa2c35f8f5e121e7953bb38d7d4ace1edb7af33fe1b.jpg",
+        "text": "$$\n\\mathcal { L } _ { u n i f o r m } \\triangleq \\log \\underset { x , y \\overset { i . i . d . } { \\sim } p _ { \\mathrm { d a t a } } } { \\mathbb { E } } e ^ { - 2 \\| f ( x ) - f ( y ) \\| _ { 2 } ^ { 2 } } .\\tag{16}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            519,
+            825,
+            840,
+            860
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "To delve deeper into the mechanics of our methodology, we assess alignment and uniformity metrics using the STS-B development set. In our comparison with MCSE, the results are presented in Table 2. Evidently, when compared to MCSE for both BERT and RoBERTa-based encoders, KDM-CSE shows superior performance in both alignment and uniformity metrics. This not only reaffirms the foundational rationale of our method, but also suggests that AdapACSE can effectively enhance the caliber of sentence embeddings.",
+        "bbox": [
+            507,
+            872,
+            885,
+            921
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "739",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "chart",
+        "img_path": "images/7ac896fcf21272529f01677a77cf746cb4d139882eeb06886ffc7d0bfdeabc72.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            517,
+            85,
+            887,
+            281
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/d1e2e9440a4d6068420f7e7d94ca6b411bd18922b6aadd42dac61ffe835ff909.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 5: Statistic of the maximum index of true captions when sorting the similarity score between image and text of Flickr dataset."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            126,
+            95,
+            463,
+            219
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            292,
+            490,
+            423
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6 Analysis",
+        "text_level": 2,
+        "bbox": [
+            114,
+            435,
+            223,
+            451
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.1 Exploring the Impact of Angular Margin",
+        "text_level": 2,
+        "bbox": [
+            114,
+            461,
+            484,
+            478
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In our AdapACSE loss function, the angular margin, represented as $m ,$ is critical to determining the discriminative capability. We conducted an experiment to better understand the impact of m by varying it in steps of 0.025 radians from 0.025 radians to 0.225 radians. The performance metrics averaged on all tasks are depicted in Figure 7. From the data, we discern an optimal performance when m is set to 0.125. Any deviation from this optimal point, be it an increase or decrease, results in a performance drop. This aligns with our preliminary hypotheses: A smaller value of m could have a negligible effect, whereas an overly large m could negatively skew the representations within the fusion space.",
+        "bbox": [
+            112,
+            483,
+            489,
+            726
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.2 Threshold Filtering selection",
+        "text_level": 2,
+        "bbox": [
+            114,
+            737,
+            388,
+            752
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In this section, we will show how to define the threshold hyperparameter during training. We make statistics based on text-text and text-visual similarity scores in the Flickr set, and select based on that statistic. We perform two calculations: (1) the histogram for the similarity threshold and (2) the position of the largest true captions (the annotation captions of that image) that align with the image when sorted with all captions in the dataset with that image. Looking at Figure 5, we see that most of the true captions of an image are in the top 100 (out of about 150,000 captions). However, there are still quite a few captions that, even though they accurately describe that image when sorted, can still be pushed to very far indexes (>200). This may be because there are still many similar images in the dataset, leading to captions that describe another image, but are still correct for this image. The image 6 shows that the scores are in a normal distribution. We focus more clearly on samples with high similarity and see that there are only a few pairs with similarity higher than 0.8. and decreases rapidly as it approaches 1.0. Based on the above statistics, we have chosen a threshold of about 0.85-0.9 to eliminate pairs in the contrastive learning objective.",
+        "bbox": [
+            112,
+            759,
+            490,
+            921
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/cb9401fe634cc6a84afc7c1fffe3039461e42595d20d3478b8bbc46e38d3198f.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 6: Statistic of the similarity score between image and text of Flickr dataset.",
+            "Figure 7: Impact of angular margin m in AdapACSE. The results are reported on average across 7 tasks, and our experiments are conducted on BERT encoder and in wiki-flickr setting."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            522,
+            334,
+            862,
+            406
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            493,
+            887,
+            751
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "7 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            763,
+            643,
+            780
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we introduce KDMCSE, a novel approach to sentence embedding learning that transfers knowledge from a vision and language model with a multimodal contrastive objective to not only align sentences and the corresponding image and text representations of the teacher model but also avoid noisy negative samples. Additionally, our innovative contrastive objective, AdapACSE, addresses the challenges associated with capturing nuanced differences within negative pairs, strengthening discriminative representation. Our framework lays the groundwork for continued exploration in this domain, fostering advancements in vision and language applications.",
+        "bbox": [
+            507,
+            791,
+            887,
+            921
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "740",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            490,
+            183
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "8 Limitations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            193,
+            252,
+            209
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "In this study, we shed light on the promising enhancements of KDMCSE in STS benchmarks. However, it is imperative to acknowledge its limitations. In particular, there is a pronounced disparity in both the distribution and volume of word tokens when visual datasets are compared to traditional language corpora. Taking the Book Corpus and Wikipedia as instances, these standard language repositories house billions of words, spanning millions of unique tokens. In contrast, MS COCO, a frequently cited visual-grounded dataset, encompasses merely a million words and about a thousand unique tokens. Another challenge encountered in our methodology is the intricate correlation of the hyperparameter in our contrastive objective, which remains elusive. Its optimal configuration was determined not through systematic understanding, but rather through exhaustive fine-tuning across many experiments. Furthermore, the characterization of \"semantic similarity\" is highly dependent on the specific task at hand. Although we have seen significant advancements in STS benchmarks, there remains a need to evaluate the disparity in performance between text-only models and their multimodal counterparts across diverse benchmarks. This would provide a more holistic understanding of the efficacy of sentence representations in varied contexts.",
+        "bbox": [
+            110,
+            221,
+            490,
+            670
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgement",
+        "text_level": 2,
+        "bbox": [
+            114,
+            683,
+            280,
+            700
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We thank all anonymous reviewers for their helpful comments. This research/project is supported by the National Research Foundation, Singapore under its AI Singapore Programme, AISG Award No: AISG2-TC-2022-005.",
+        "bbox": [
+            112,
+            708,
+            489,
+            789
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            114,
+            816,
+            215,
+            832
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Eneko Agirre, Carmen Banea, Claire Cardie, Daniel Cer, Mona Diab, Aitor Gonzalez-Agirre, Weiwei Guo, Inigo Lopez-Gazpio, Montse Maritxalar, Rada Mihalcea, et al. 2015. Semeval-2015 task 2: Semantic textual similarity, english, spanish and pilot on interpretability. In Proceedings of the 9th international",
+            "workshop on semantic evaluation (SemEval 2015), pages 252–263.",
+            "Eneko Agirre, Carmen Banea, Claire Cardie, Daniel Cer, Mona Diab, Aitor Gonzalez-Agirre, Weiwei Guo, Rada Mihalcea, German Rigau, and Janyce Wiebe. 2014. Semeval-2014 task 10: Multilingual semantic textual similarity. In Proceedings ofthe 8th international workshop on semantic evaluation (SemEval 2014), pages 81–91.",
+            "Eneko Agirre, Carmen Banea, Daniel Cer, Mona Diab, Aitor Gonzalez Agirre, Rada Mihalcea, German Rigau Claramunt, and Janyce Wiebe. 2016. Semeval-2016 task 1: Semantic textual similarity, monolingual and cross-lingual evaluation. In Proceedings of the 10th International Workshop on Semantic Evaluation (SemEval 2016), pages 497–511.",
+            "Eneko Agirre, Daniel Cer, Mona Diab, and Aitor Gonzalez-Agirre. 2012. Semeval-2012 task 6: A pilot on semantic textual similarity. In \\* SEM 2012: The First Joint Conference on Lexical and Computational Semantics–Volume 1: Proceedings of the main conference and the shared task, and Volume 2: Proceedings ofthe Sixth International Workshop on Semantic Evaluation (SemEval 2012), pages 385– 393.",
+            "Eneko Agirre, Daniel Cer, Mona Diab, Aitor Gonzalez-Agirre, and Weiwei Guo. 2013. \\* SEM 2013 shared task: Semantic textual similarity. In Second joint conference on lexical and computational semantics (\\* SEM), volume 1: proceedings ofthe Main conference and the shared task: semantic textual similarity, pages 32–43.",
+            "Vassileios Balntas, Edgar Riba, Daniel Ponsa, and Krystian Mikolajczyk. 2016. Learning local feature descriptors with triplets and shallow convolutional neural networks. In British Machine Vision Conference.",
+            "Emily M. Bender and Alexander Koller. 2020. Climbing towards NLU: On meaning, form, and understanding in the age of data. In Proceedings of the 58th Annual Meeting ofthe Associationfor Computational Linguistics (ACL), pages 5185–5198.",
+            "Yonatan Bisk, Ari Holtzman, Jesse Thomason, Jacob Andreas, Yoshua Bengio, Joyce Chai, Mirella Lapata, Angeliki Lazaridou, Jonathan May, Aleksandr Nisnevich, Nicolas Pinto, and Joseph Turian. 2020. Experience grounds language. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 8718–8735.",
+            "Patrick Bordes, Eloi Zablocki, Laure Soulier, Benjamin Piwowarski, and Patrick Gallinari. 2019. Incorporating visual semantics into sentence representations within a grounded space. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pages 696–707."
+        ],
+        "bbox": [
+            115,
+            840,
+            489,
+            920
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "741",
+        "bbox": [
+            485,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Fredrik Carlsson, Amaru Cuba Gyllensten, Evangelia Gogoulou, Erik Ylipää Hellqvist, and Magnus Sahlgren. 2021. Semantic re-tuning with contrastive tension. In International Conference on Learning Representations.",
+            "Daniel Cer, Mona Diab, Eneko Agirre, Inigo Lopez-Gazpio, and Lucia Specia. 2017. Semeval-2017 task 1: Semantic textual similarity-multilingual and crosslingual focused evaluation. In Proceedings of the 11th International Workshop on Semantic Evaluation (SemEval 2017), pages 1–14.",
+            "S. Chopra, R. Hadsell, and Y. LeCun. 2005. Learning a similarity metric discriminatively, with application to face verification. In 2005 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR’05), volume 1, pages 539–546 vol. 1.",
+            "Jiankang Deng, Jia Guo, and Stefanos Zafeiriou. 2018. Arcface: Additive angular margin loss for deep face recognition. CoRR, abs/1801.07698.",
+            "Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT: Pre-training of deep bidirectional transformers for language understanding. In North American Chapter of the Association for Computational Linguistics: Human Language Technologies (NAACL-HIT), pages 4171– 4186.",
+            "Tianyu Gao, Xingcheng Yao, and Danqi Chen. 2021. SimCSE: Simple contrastive learning of sentence embeddings. In Proceedings ofthe 2021 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 6894–6910.",
+            "John Giorgi, Osvald Nitski, Bo Wang, and Gary Bader. 2021. DeCLUTR: Deep contrastive learning for unsupervised textual representations. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers), pages 879–895, Online. Association for Computational Linguistics.",
+            "Hongliang He, Junlei Zhang, Zhenzhong Lan, and Yue Zhang. 2023. Instance smoothed contrastive learning for unsupervised sentence embedding.",
+            "Felix Hill, Kyunghyun Cho, and Anna Korhonen. 2016. Learning distributed representations of sentences from unlabelled data.",
+            "Douwe Kiela, Alexis Conneau, Allan Jabri, and Maximilian Nickel. 2018. Learning visually grounded sentence representations. In Proceedings ofthe 2018 Conference of the North American Chapter of the Associationfor Computational Linguistics: Human Language Technologies (NAACL-HIT), pages 408– 418.",
+            "Taeuk Kim, Kang Min Yoo, and Sang-goo Lee. 2021. Self-guided contrastive learning for BERT sentence representations. In Proceedings ofthe 59th Annual",
+            "Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (ACL-IJCNLP), pages 2528–2540.",
+            "Ryan Kiros, Yukun Zhu, Ruslan Salakhutdinov, Richard S. Zemel, Antonio Torralba, Raquel Urtasun, and Sanja Fidler. 2015a. Skip-thought vectors. CoRR, abs/1506.06726.",
+            "Ryan Kiros, Yukun Zhu, Russ R Salakhutdinov, Richard Zemel, Raquel Urtasun, Antonio Torralba, and Sanja Fidler. 2015b. Skip-thought vectors. In Advances in neural information processing systems (NeurIPS), pages 3294–3302.",
+            "Angeliki Lazaridou, Marco Baroni, et al. 2015. Combining language and vision with a multimodal skip-gram model. In Proceedings of the 2015 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies (NAACL-HLT), pages 153–163.",
+            "Bohan Li, Hao Zhou, Junxian He, Mingxuan Wang, Yiming Yang, and Lei Li. 2020. On the sentence embeddings from pre-trained language models. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 9119–9130.",
+            "Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Dollár, and C. Lawrence Zitnick. 2014. Microsoft coco: Common objects in context. In Proceedings of the European Conference on Computer Vision (ECCV), pages 740–755.",
+            "Weiyang Liu, Yandong Wen, Zhiding Yu, Ming Li, Bhiksha Raj, and Le Song. 2017. Sphereface: Deep hypersphere embedding for face recognition. In 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pages 6738–6746.",
+            "Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692.",
+            "Lajanugen Logeswaran and Honglak Lee. 2018. An efficient framework for learning sentence representations.",
+            "Marco Marelli, Stefano Menini, Marco Baroni, Luisa Bentivogli, Raffaella Bernardi, Roberto Zamparelli, et al. 2014. A sick cure for the evaluation of compositional distributional semantic models. In International Conference on Language Resources and Evaluation (LREC), pages 216–223.",
+            "Tomás Mikolov, Ilya Sutskever, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013. Distributed representations of words and phrases and their compositionality. CoRR, abs/1310.4546."
+        ],
+        "bbox": [
+            114,
+            85,
+            489,
+            152
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "742",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Cong-Duy Nguyen, Thong Nguyen, Duc Anh Vu, and Luu Anh Tuan. 2023a. Improving multimodal sentiment analysis: Supervised angular margin-based contrastive learning for enhanced fusion representation.",
+            "Cong-Duy Nguyen, The-Anh Vu-Le, Thong Nguyen, Tho Quan, and Anh-Tuan Luu. 2023b. Expand bert representation with visual information via grounded language learning with multimodal partial alignment. In Proceedings ofthe 31st ACM International Conference on Multimedia, MM ’23, page 5665–5673, New York, NY, USA. Association for Computing Machinery.",
+            "Thong Nguyen and Anh Tuan Luu. 2021. Contrastive learning for neural topic model. Advances in Neural Information Processing Systems, 34.",
+            "Thong Nguyen, Xiaobao Wu, Anh Tuan Luu, Zhen Hai, and Lidong Bing. 2022. Adaptive contrastive learning on multimodal transformer for review helpfulness prediction. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, pages 10085–10096.",
+            "Thong Thanh Nguyen, Xiaobao Wu, Xinshuai Dong, Cong-Duy T Nguyen, See-Kiong Ng, and Anh Tuan Luu. 2024. Topic modeling as multi-objective optimization with setwise contrastive learning. In The Twelfth International Conference on Learning Representations.",
+            "Matteo Pagliardini, Prakhar Gupta, and Martin Jaggi. 2018. Unsupervised learning of sentence embeddings using compositional n-gram features. In Proceedings ofthe 2018 Conference ofthe North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers). Association for Computational Linguistics.",
+            "Jeffrey Pennington, Richard Socher, and Christopher D Manning. 2014. Glove: Global vectors for word representation. In Proceedings ofthe 2014 conference on empirical methods in natural language processing (EMNLP), pages 1532–1543.",
+            "Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, and Ilya Sutskever. 2021. Learning transferable visual models from natural language supervision. In Proceedings ofthe 38th International Conference on Machine Learning (ICML), pages 8748–8763.",
+            "Nils Reimers and Iryna Gurevych. 2019. Sentence-BERT: Sentence embeddings using Siamese BERTnetworks. In Proceedings ofthe 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pages 3982–3992.",
+            "Kihyuk Sohn. 2016. Improved deep metric learning with multi-class n-pair loss objective. In Advances in Neural Information Processing Systems, volume 29. Curran Associates, Inc.",
+            "Jianlin Su, Jiarun Cao, Weijie Liu, and Yangyiwen Ou. 2021. Whitening sentence representations for better semantics and faster retrieval. arXiv preprint arXiv:2103.15316.",
+            "Hao Tan and Mohit Bansal. 2020a. Vokenization: Improving language understanding via contextualized, visually-grounded supervision. In Proceedings ofthe 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 2066–2080.",
+            "Hao Tan and Mohit Bansal. 2020b. Vokenization: Improving language understanding with contextualized, visual-grounded supervision. CoRR, abs/2010.06775.",
+            "Zineng Tang, Jaemin Cho, Hao Tan, and Mohit Bansal. 2021. Vidlankd: Improving language understanding via video-distilled knowledge transfer. In Advances in Neural Information Processing Systems (NeurIPS), pages 24468–24481.",
+            "Anran Wang, Anh Tuan Luu, Chuan-Sheng Foo, Hongyuan Zhu, Yi Tay, and Vijay Chandrasekhar. 2019. Holistic multi-modal memory network for movie question answering. IEEE Transactions on Image Processing, 29:489–499.",
+            "Hao Wang, Yangguang Li, Zhen Huang, Yong Dou, Lingpeng Kong, and Jing Shao. 2022a. Sncse: Contrastive learning for unsupervised sentence embedding with soft negative samples.",
+            "Hao Wang, Yitong Wang, Zheng Zhou, Xing Ji, Zhifeng Li, Dihong Gong, Jingchao Zhou, and Wei Liu. 2018. Cosface: Large margin cosine loss for deep face recognition. CoRR, abs/1801.09414.",
+            "Tongzhou Wang and Phillip Isola. 2020. Understanding contrastive representation learning through alignment and uniformity on the hypersphere. In Proceedings of the 37th International Conference on Machine Learning (ICML), pages 9929–9939.",
+            "Wei Wang, Liangzhu Ge, Jingqiao Zhang, and Cheng Yang. 2022b. Improving contrastive learning of sentence embeddings with case-augmented positives and retrieved negatives. In Proceedings ofthe 45th International ACM SIGIR Conference on Research and Development in Information Retrieval, SIGIR ’22. ACM.",
+            "Jie Wei, Guanyu Hu, Luu Anh Tuan, Xinyu Yang, and Wenjing Zhu. 2023. Multi-scale receptive field graph model for emotion recognition in conversations. In ICASSP 2023-2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), pages 1–5. IEEE."
+        ],
+        "bbox": [
+            115,
+            85,
+            489,
+            152
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "743",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Jie Wei, Guanyu Hu, Xinyu Yang, Anh Tuan Luu, and Yizhuo Dong. 2022. Audio-visual domain adaptation feature fusion for speech emotion recognition. In INTERSPEECH, pages 1988–1992.",
+            "Jie Wei, Guanyu Hu, Xinyu Yang, Anh Tuan Luu, and Yizhuo Dong. 2024. Learning facial expression and body gesture visual information for video emotion recognition. Expert Systems with Applications, 237:121419.",
+            "Yandong Wen, Kaipeng Zhang, Zhifeng Li, and Yu Qiao. 2016. A discriminative feature learning approach for deep face recognition. In Computer Vision – ECCV 2016, pages 499–515, Cham. Springer International Publishing.",
+            "Thomas Wolf, Lysandre Debut, Victor Sanh, Julien Chaumond, Clement Delangue, Anthony Moi, Pierric Cistac, Tim Rault, Rémi Louf, Morgan Funtowicz, Joe Davison, Sam Shleifer, Patrick von Platen, Clara Ma, Yacine Jernite, Julien Plu, Canwen Xu, Teven Le Scao, Sylvain Gugger, Mariama Drame, Quentin Lhoest, and Alexander M. Rush. 2020. Transformers: State-of-the-art natural language processing. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 38–45.",
+            "Xiaobao Wu, Xinshuai Dong, Thong Nguyen, Chaoqun Liu, Liang-Ming Pan, and Anh Tuan Luu. 2023a. Infoctm: A mutual information maximization perspective of cross-lingual topic modeling. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 37, pages 13763–13771.",
+            "Xiaobao Wu, Xinshuai Dong, Thong Nguyen, and Anh Tuan Luu. 2023b. Effective neural topic modeling with embedding clustering regularization. In International Conference on Machine Learning. PMLR.",
+            "Xiaobao Wu, Chunping Li, Yan Zhu, and Yishu Miao. 2020. Short text topic modeling with topic distribution quantization and negative sampling decoder. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 1772–1782, Online.",
+            "Xiaobao Wu, Anh Tuan Luu, and Xinshuai Dong. 2022. Mitigating data sparsity for short text topic modeling by topic-semantic contrastive learning. In Proceedings ofthe 2022 Conference on Empirical Methods in Natural Language Processing, pages 2748–2760, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.",
+            "Xiaobao Wu, Fengjun Pan, Thong Nguyen, Yichao Feng, Chaoqun Liu, Cong-Duy Nguyen, and Anh Tuan Luu. 2024. On the affinity, rationality, and diversity of hierarchical topic modeling. In Proceedings of the AAAI Conference on Artificial Intelligence.",
+            "Yuanmeng Yan, Rumei Li, Sirui Wang, Fuzheng Zhang, Wei Wu, and Weiran Xu. 2021. ConSERT: A contrastive framework for self-supervised sentence representation transfer. In Proceedings ofthe 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pages 5065–5075.",
+            "Peter Young, Alice Lai, Micah Hodosh, and Julia Hockenmaier. 2014. From image descriptions to visual denotations: New similarity metrics for semantic inference over event descriptions. Transactions ofthe Association for Computational Linguistics (TACL), pages 67–78.",
+            "Miaoran Zhang, Marius Mosbach, David Ifeoluwa Adelani, Michael A. Hedderich, and Dietrich Klakow. 2022a. Mcse: Multimodal contrastive learning of sentence embeddings.",
+            "Yan Zhang, Ruidan He, Zuozhu Liu, Kwan Hui Lim, and Lidong Bing. 2020. An unsupervised sentence embedding method by mutual information maximization. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 1601–1610.",
+            "Yanzhao Zhang, Richong Zhang, Samuel Mensah, Xudong Liu, and Yongyi Mao. 2022b. Unsupervised sentence representation via contrastive learning with mixing negatives.",
+            "Yuhao Zhang, Hongji Zhu, Yongliang Wang, Nan Xu, Xiaobo Li, and Binqiang Zhao. 2022c. A contrastive framework for learning sentence representations from pairwise and triple-wise perspective in angular space. In Proceedings of the 60th Annual Meeting of the Associationfor Computational Linguistics (Volume 1: Long Papers), pages 4892–4903, Dublin, Ireland. Association for Computational Linguistics.",
+            "Kun Zhou, Beichen Zhang, Wayne Xin Zhao, and Ji-Rong Wen. 2022. Debiased contrastive learning of unsupervised sentence representations."
+        ],
+        "bbox": [
+            115,
+            85,
+            487,
+            139
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "744",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "table",
+        "img_path": "images/3e3ed0ea3f8a851629f55ef68a3f41e63e432ce27a54755ec386e2f034cecf21.jpg",
+        "table_caption": [
+            "Table 3: Ablation results on STS tasks. STS-B: STS Benchmark, SICK-R: SICK-Relatedness, Avg.: average across 7 tasks. The models are trained with the BERT encoder and in wiki-flickr setting."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>STS12</td><td>STS13</td><td>STS14</td><td>STS15</td><td>STS16</td><td>STS-B</td><td>SICK-R</td><td>Avg.↑</td></tr><tr><td>KDMCSE-BERT</td><td>74.4</td><td>83.1</td><td>76.3</td><td>83.7</td><td>78.8</td><td>81.3</td><td>73.0</td><td>78.6</td></tr><tr><td>KDMCSE without AdapACSE</td><td>73.8</td><td>81.3</td><td>75.4</td><td>83.2</td><td>79.0</td><td>80.5</td><td>74.1</td><td>78.2</td></tr><tr><td>KDMCSE without Threshold Filtering</td><td>73.4</td><td>82.7</td><td>76.6</td><td>83.9</td><td>78.8</td><td>80.8</td><td>72.9</td><td>78.4</td></tr></table>",
+        "bbox": [
+            169,
+            82,
+            831,
+            145
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/5ba8d67f1288fa876ae45915b8104b5db94652d738f560473f35f1b48fa4e02e.jpg",
+        "table_caption": [
+            "Table 4: Ablation results on STS tasks. STS-B: STS Benchmark, SICK-R: SICK-Relatedness, Avg.: average across 7 tasks. The models are trained with the BERT encoder and in 1M image-text pairs subsets of the CC12 dataset."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>STS12</td><td>STS13</td><td>STS14</td><td>STS15</td><td>STS16</td><td>STS-B</td><td>SICK-R</td><td>Avg.↑</td></tr><tr><td colspan=\"9\">Subset 1</td></tr><tr><td>MCSE</td><td>71.54</td><td>77.9</td><td>73.6</td><td>80.83</td><td>78.38</td><td>79.73</td><td>74.66</td><td>76.66</td></tr><tr><td>KDMCSE</td><td>73.00</td><td>78.53</td><td>74.93</td><td>82.14</td><td>79.88</td><td>81.37</td><td>74.08</td><td>77.7</td></tr><tr><td colspan=\"9\">Subset 2</td></tr><tr><td>MCSE</td><td>71.67</td><td>78.56</td><td>74.02</td><td>81.19</td><td>78.54</td><td>80.29</td><td>73.87</td><td>76.88</td></tr><tr><td>KDMCSE</td><td>73.35</td><td>79.51</td><td>75.58</td><td>83.43</td><td>80.07</td><td>81.89</td><td>73.78</td><td>78.23</td></tr></table>",
+        "bbox": [
+            247,
+            217,
+            752,
+            325
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/0eeb0dc52ce587744dcd6e27d16c47a66c82d19a0f1162a779ca7f5154c53075.jpg",
+        "table_caption": [
+            "Table 5: Ablation study on STS tasks. STS-B: STS Benchmark, SICK-R: SICK-Relatedness, Avg.: average across 7 tasks.. We train the MCSE models using additional CLIP text embeddings."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>STS12</td><td>STS13</td><td>STS14</td><td>STS15</td><td>STS16</td><td>STS-B</td><td>SICK-R</td><td>Avg.↑</td></tr><tr><td>MCSE-BERTCLIPText</td><td>72.60</td><td>81.86</td><td>75.28</td><td>83.28</td><td>78.74</td><td>80.77</td><td>72.78</td><td>77.90</td></tr><tr><td>KDMCSE-BERT</td><td>74.40</td><td>83.10</td><td>76.26</td><td>83.68</td><td>78.79</td><td>81.25</td><td>73.03</td><td>78.64</td></tr><tr><td>MCSE-BERTCLIPText</td><td>71.39</td><td>79.25</td><td>73.84</td><td>82.65</td><td>77.96</td><td>78.85</td><td>71.74</td><td>76.53</td></tr><tr><td>KDMCSE-BERT</td><td>73.38</td><td>80.71</td><td>75.55</td><td>83.36</td><td>79.91</td><td>79.85</td><td>73.92</td><td>78.10</td></tr></table>",
+        "bbox": [
+            211,
+            400,
+            789,
+            476
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A Regularization",
+        "text_level": 2,
+        "bbox": [
+            114,
+            549,
+            284,
+            567
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "To validate the significance of our objectives, we select the best-performing models for each dataset and gradually run with three settings: our KDMCSE, KDMCSE without AdapACSE, and KDMCSE without threshold filtering. The results are presented in Table 3, indicating that the incorporation of all the proposed approaches leads to the best performance in all tasks. The second line shows that not applying threshold filtering can marginally harm performance. This result can be attributed to the fact that, during training, noisy negative samples do not often appear in the batch. In the last row of the table, we show that the removal of AdapACSE significantly affects the performance of both BERT and RoBERTa.",
+        "bbox": [
+            110,
+            574,
+            885,
+            688
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "B Larger experiments on image-text paired data",
+        "text_level": 2,
+        "bbox": [
+            112,
+            699,
+            551,
+            715
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "To mitigate scalability and generalization concerns, we conducted extensive experiments using a significantly larger dataset containing one million image-text pairs sourced from the CC12 dataset, equivalent in sample size to Wiki1M. In Table 4, we present the results of these experiments. Our findings consistently demonstrate that our KDMCSE model surpasses MCSE in terms of average performance (Avg) across STS, across various subtasks within CC12M subsets.",
+        "bbox": [
+            110,
+            722,
+            887,
+            804
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "C Impact of Adaptive Angular Margin Contrastive objective",
+        "text_level": 2,
+        "bbox": [
+            114,
+            814,
+            655,
+            832
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "To substantiate the significance of our objectives and ensure fairness in our comparisons, we carried out experiments involving MCSE with the inclusion of additional text embeddings from the CLIP text encoder. The results of these experiments are presented in Table 5. Our findings unequivocally indicate that our proposed contrastive objectives have a positive impact on the model’s performance, thereby strengthening our core objectives.",
+        "bbox": [
+            110,
+            840,
+            887,
+            920
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "745",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "D KDMCSE algorithm",
+        "text_level": 2,
+        "bbox": [
+            114,
+            83,
+            334,
+            101
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "To enhance the presentation of our method, we provide a detailed description of our implementation, adhering to the pseudo code outlined in Algorithm 1.",
+        "bbox": [
+            112,
+            109,
+            885,
+            142
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "Algorithm 1 Our KDMCSE algorithm   \nInput:   \nCollection of sentences (text-only dataset) $D = \\{ x _ { i } \\} _ { i = 1 } ^ { n }$   \nCollection of image-text pairs (multimodal dataset) $\\mathbf { \\bar { \\cal D } } ^ { \\bar { M } } = \\{ x _ { i } , y _ { i } \\} _ { i = 1 } ^ { n _ { m } }$   \nPaired sample step $p = \\left\\lceil { \\frac { | D | } { | D ^ { M } | } } \\right\\rceil$   \nfor $t = 1 , 2 , 3 , \\ldots , i t e r$ do   \nif not $t | p$ then   \nSample batch $\\{ x _ { i } \\} _ { b s }$ from D   \n// Forward through language model and projection   \n$h _ { i } ^ { z } , h _ { i } ^ { z ^ { \\prime } } = g _ { \\phi } ( f _ { \\theta } ( x _ { i } ) )$   \n// Calculate loss   \n$\\frac { 1 } { b s } \\sum _ { i } ^ { b s } \\ell _ { i } ^ { \\mathrm { S } }$   \nelse   \nSample batch $\\{ x _ { i } , y _ { i } \\} _ { b s }$ from $D ^ { M }$   \n$\\pmb { s } _ { i } ^ { z } \\hat { = } g _ { \\phi _ { g } } ( f _ { \\theta } ( \\hat { x } _ { i } , z ) )$   \n$\\pmb { t } _ { i } = g _ { \\phi _ { t } } ( \\hat { t _ { i } } ) , \\hat { t _ { i } } = C L I P _ { t e x t } ( x _ { i } )$   \n$\\pmb { v } _ { i } = g _ { \\phi _ { v } } ( \\hat { \\pmb { v _ { i } } } ) , \\hat { \\pmb { v _ { i } } } = C L I P _ { v i s u a l } ( y _ { i } )$   \n// Calculate cosine similarity   \n$\\alpha _ { i , j } ^ { t , t } = \\frac { \\pmb { s } _ { i } \\cdot \\pmb { t } _ { j } } { \\left\\| \\pmb { s } _ { i } \\right\\| _ { 2 } \\left\\| \\pmb { t } _ { j } \\right\\| _ { 2 } }$   \n$\\alpha _ { i , j } ^ { t , v } = \\frac { \\pmb { s } _ { i } \\cdot \\pmb { v } _ { j } } { \\| \\pmb { s } _ { i } \\| _ { 2 } \\| \\pmb { v } _ { j } \\| _ { 2 } }$   \n// Calculate soft-label (text-text, text-visual)   \nf   \n$t t _ { s c o r e } = \\frac { \\pmb { \\imath } _ { i } \\cdot \\pmb { \\imath } _ { j } } { \\left\\| \\hat { \\pmb { t } _ { i } } \\right\\| _ { 2 } \\left\\| \\hat { \\pmb { t } _ { j } } \\right\\| _ { 2 } }$   \n$\\hat { \\pmb { t } _ { i } } \\cdot \\hat { \\pmb { v } _ { j } }$   \ntv<sub>score</sub> =   \n$\\overline { { \\left\\| \\hat { \\mathbf { t } _ { i } } \\right\\| _ { 2 } \\left\\| \\hat { \\mathbf { v } _ { j } } \\right\\| _ { 2 } } }$   \n// $\\mathrm { A p p l y } _ { \\mathrm { \\ell } _ { \\mathrm { \\ell } } }$ threshold filtering TF based on soft-label   \n$T \\check { F ( \\alpha _ { i , j } ^ { t , t } ) }$   \n$T F ( \\alpha _ { i , j } ^ { t , v } )$   \n// Calculate AdapACSE loss   \n$\\frac { 1 } { b s } \\sum _ { i } ^ { b s } \\ell _ { i } ^ { \\mathrm { K } }$ DMCSE   \nend if   \nend for",
+        "bbox": [
+            115,
+            153,
+            878,
+            633
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "E Sentence embedding visualization",
+        "text_level": 2,
+        "bbox": [
+            114,
+            659,
+            443,
+            677
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In this appendix, we provide visualization of sentence embedding of our KDMCSE and MCSE models, illustrated in Figures 8, 9, 10, 11 and 12. We visualize sentence representations by repeatedly processing three closely related sentences through the MCSE and KDMCSE models, employing various dropout masks to produce diverse representations for each sentence. Subsequently, we normalize the embeddings and apply t-SNE for dimensionality reduction, facilitating a clearer visualization of the data. For each example, we take three captions: two captions are almost similar in semantics (labeled with orange and blue), and the remaining caption (labeled with green) is different from the other two captions.",
+        "bbox": [
+            110,
+            686,
+            885,
+            801
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "746",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "chart",
+        "img_path": "images/5226ca467a8485aaea109516d4bce0a3221faed85d23d56069dfc3ab43cf0975.jpg",
+        "content": "",
+        "chart_caption": [
+            "(a) KDMCSE"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            191,
+            159,
+            468,
+            353
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/03ed06c9cdaa698ed48d708bbdfc5c853d739e1447b996321d1cb3f56388dec4.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) MCSE",
+            "Figure 8: Sentence 1: A white and black dog and a brown dog in sandy terrain. Sentence 2: Brown , black and white dog standing on a sandy slope. Sentence 3: Two girls stand up against a red wall."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            539,
+            159,
+            813,
+            353
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/f5376693fc8f02c4d515828be3b0a0edaa2b8ff6e9863357d21517dd44bcda6d.jpg",
+        "content": "",
+        "chart_caption": [
+            "(a) KDMCSE"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            193,
+            574,
+            467,
+            765
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/f3b1ab05b1552599d050c09099839dbfc416ea9380fee662837b217b83332124.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) MCSE",
+            "Figure 9: Sentence 1: An elderly man holding a pitchfork and doing some yard work. Sentence 2: An old bearded man is tilling the soil with a simple wooden plow , with a wooden fence and an old barn in the background. Sentence 3: A man in a red shirt is performing an aerial trick with a skateboard on a sidewalk."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            541,
+            574,
+            813,
+            766
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "747",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/28d7d160d8adb826ae3a2c6f32fc954e197e902d9dc3fea340c08a467df6db55.jpg",
+        "content": "",
+        "chart_caption": [
+            "(a) KDMCSE"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            191,
+            159,
+            467,
+            353
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "chart",
+        "img_path": "images/6a7714bdaefc3e196a841b753e69b07c1fcd50ba4833f53edbeba245fcfe0d12.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) MCSE",
+            "Figure 10: Sentence 1: A person wearing a blue shirt , rides a white horse along a dusty country road. Sentence 2: A man in a blue tee-shirt , wearing a cap , is riding a white horse down a dirt road , in a rural setting of grass and hills. Sentence 3: A man climbing a mountain."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            541,
+            159,
+            813,
+            351
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "chart",
+        "img_path": "images/ebcd0203c9c724de08e67850e18e6993486d3f5b392f7237752bb252e3d2db2d.jpg",
+        "content": "",
+        "chart_caption": [
+            "(a) KDMCSE"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            191,
+            588,
+            467,
+            782
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "chart",
+        "img_path": "images/ac15f7d6fa841ce41f118a1fd606490d7fe8073477104c996b2ecc4303eb1a7f.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) MCSE",
+            "Figure 11: Sentence 1: A dog is jumping into a swimming pool after a duck. Sentence 2: A dog is jumping into a pool to get a duck floating there. Sentence 3: A white curly-haired dog runs with a stick in its mouth."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            539,
+            588,
+            813,
+            782
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "748",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "chart",
+        "img_path": "images/9f5719cce6556eaa08daeb2818420f31e785404c004e4a547e9deebbb04b930a.jpg",
+        "content": "",
+        "chart_caption": [
+            "(a) KDMCSE"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            193,
+            367,
+            465,
+            560
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "chart",
+        "img_path": "images/ed4a0f173431e5efa7955cad7718600bc755f7adaa4002b69c432d9c16f7833f.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) MCSE",
+            "Figure 12: Sentence 1: A tattooed woman in a black dress holds a drink while sitting at a table in a dimly-lit room. Sentence 2: Scantily clad woman in black waits in a restaurant with other patrons. Sentence 3: Woman bending down to pick up a tennis ball outside in front of a wall with graffiti on it."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            541,
+            367,
+            811,
+            560
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "749",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 16
+    }
+]

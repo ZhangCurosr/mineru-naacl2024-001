@@ -1,0 +1,1924 @@
+[
+    {
+        "type": "text",
+        "text": "A Closer Look at the Self-Verification Abilities of Large Language Models in Logical Reasoning",
+        "text_level": 1,
+        "bbox": [
+            243,
+            82,
+            754,
+            123
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Ruixin Hong<sup>1,2</sup>∗, Hongming Zhang<sup>2</sup>, Xinyu Pang<sup>1</sup>, Dong Yu<sup>2</sup>, Changshui Zhang<sup>1</sup> <sup>1</sup>Institute for Artificial Intelligence, Tsinghua University (THUAI);",
+        "bbox": [
+            157,
+            130,
+            843,
+            165
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>1</sup>Beijing National Research Center for Information Science and Technology (BNRist);",
+        "bbox": [
+            152,
+            164,
+            850,
+            183
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>1</sup>Department of Automation, Tsinghua University, Beijing, P.R.China",
+        "bbox": [
+            220,
+            181,
+            786,
+            198
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>2</sup>Tencent AI Lab, Seattle",
+        "bbox": [
+            398,
+            198,
+            606,
+            214
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "hrx20@mails.tsinghua.edu.cn, hongmzhang@tencent.com,",
+        "bbox": [
+            238,
+            215,
+            761,
+            231
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            260,
+            252,
+            342,
+            268
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Logical reasoning has been an ongoing pursuit in the field of AI. Despite significant advancements made by large language models (LLMs), they still struggle with complex logical reasoning problems. To enhance reasoning performance, one promising direction is scalable oversight, which requires LLMs to identify their own errors and then improve by themselves. Various self-verification methods have been proposed in pursuit of this goal. Nevertheless, whether existing models understand their own errors well is still under investigation. In this paper, we take a closer look at the self-verification abilities of LLMs in the context of logical reasoning, focusing on their ability to identify logical fallacies accurately. We introduce a dataset, FALLACIES, containing 232 types of reasoning fallacies categorized in a hierarchical taxonomy. By conducting exhaustive experiments on FALLACIES, we obtain comprehensive and detailed analyses of a series of models on their verification abilities. Our main findings suggest that existing LLMs could struggle to identify fallacious reasoning steps accurately and may fall short of guaranteeing the validity of self-verification methods. Drawing from these observations, we offer suggestions for future research and practical applications of self-verification methods.<sup>1</sup>",
+        "bbox": [
+            141,
+            274,
+            462,
+            689
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            114,
+            706,
+            260,
+            722
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Logical reasoning is not only a crucial aspect of human intelligence but also one of the longterm pursuits of artificial intelligence (McCarthy, 1989). It is indispensable in intelligent systems, enabling problem-solving, decision-making, and critical thinking. Large language models (LLMs) have recently achieved remarkable advancements in a wide range of tasks (OpenAI, 2023). Being prompted appropriately, LLMs exhibit the emergent ability to “reason” step by step like humans (Wei et al., 2022a,b). Nonetheless, increasing research suggests that LLMs struggle with intricate logical reasoning problems, occasionally producing unfaithful reasoning steps fraught with logical fallacies (Arkoudas, 2023; Liu et al., 2023a; Pan et al., 2023; Hong et al., 2023).",
+        "bbox": [
+            112,
+            731,
+            490,
+            877
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/7db467c9a8c024b95f2dc3780286e5b3c03d6c8a86352899c79849c02bf1c3e3.jpg",
+        "image_caption": [
+            "Figure 1: The self-verification approach requires LLMs to identify the fallacious steps in their own reasoning process. However, LLMs might be susceptible to certain types of fallacies and fail to identify them, leading to the potential failure of self-verification."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            515,
+            256,
+            878,
+            463
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            565,
+            887,
+            677
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "To tackle this issue, a prevalent and promising approach is scalable oversight (Bowman et al., 2022), where the LLMs could be boosted based on their own evaluation signals (Leike and Sutskever, 2023). In this regard, various strategies of selfverification using LLMs are proposed to enhance reasoning performance (Ling et al., 2023; Weng et al., 2022; Xie et al., 2023; Madaan et al., 2023; Miao et al., 2023). As shown in Figure 1, the LLMs first generate the reasoning process and then selfverify their own output. The verification results are then used to refine the output or further improve the models. Their assumption is that LLMs can reliably identify fallacious reasoning steps.",
+        "bbox": [
+            507,
+            678,
+            887,
+            904
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Though empirical evidence demonstrates their preliminary success, a thorough and comprehensive evaluation of the underlying assumption remains unexplored. First, these efforts typically use the performance of the final task (e.g., answer accuracy) to illustrate their effectiveness. However, this is a proxy metric that does not directly reflect the ability of LLMs to identify logical fallacies. LLMs might possibly arrive at the correct answer despite the existence of fallacious intermediate steps (Wei et al., 2022b; Creswell et al., 2023; Lanham et al., 2023). Second, they are usually only concerned with whether or not the reasoning step is fallacious, rather than what type of fallacy exists in the step, which could be informative for the selfimprovement of LLMs. Such an oversimplification precludes a definitive analysis of the LLMs’ ability to identify different types of fallacies.",
+        "bbox": [
+            527,
+            904,
+            885,
+            920
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "Work done during the internship at Tencent AI Lab.",
+        "bbox": [
+            137,
+            881,
+            472,
+            894
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>Data is available at https://github.com/ Raising-hrx/FALLACIES.",
+        "bbox": [
+            114,
+            894,
+            489,
+            920
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "900",
+        "bbox": [
+            485,
+            928,
+            517,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 900–925 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            945,
+            857,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            490,
+            360
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we provide a comprehensive evaluation of the verification abilities of LLMs in logical reasoning. Specifically, we collect a dataset, FAL-LACIES, containing 4,640 reasoning steps for 232 types of fallacies. We evaluate whether LLMs can distinguish between correct and fallacious reasoning steps. Such directed evaluation can provide a more accurate reflection of the verification abilities of LLMs, as it steers away from proxy metrics and delves straight into the actual performance in identifying fallacious steps. Compared to previous datasets, our dataset features more types of fallacies, a larger scale, more fine-grained reasoning, and explicit premises and conclusions. Furthermore, we adopt a hierarchical taxonomy of fallacies, which divides fallacies into two main categories and nine subcategories, allowing for a more systematic approach toward analyzing the verification abilities of LLMs across varying aspects.",
+        "bbox": [
+            112,
+            366,
+            490,
+            673
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We conduct exhaustive experiments on a range of LLMs. First, experimental results show that most LLMs struggle with accurately identifying the fallacious steps. Most LLMs only achieved an overall accuracy rate of less than 80%, suggesting that LLMs could lack sufficient logical verification abilities. Thus, we should be more cautious about the self-verification methods of LLMs. Second, the performance of LLMs can be remarkably imbalanced in different types of fallacies. Most LLMs perform much worse at identifying fallacies related to logical structure than those related to content, pointing toward key directions for improving LLMs’ verification and reasoning abilities. Third, we also find that LLMs encounter challenges when it comes to classifying different types of fallacies. Presenting LLMs with the definitions of fallacies does not appear to improve their ability to recognize fallacies. This raises a call for further research to delve into the underlying mechanisms through which LLMs understand reasoning and fallacies. In summary, we present a comprehensive evaluation of the verification abilities of LLMs and highlight their limitations in identifying fallacies, urging the community to apply the self-verification methods with caution.",
+        "bbox": [
+            110,
+            678,
+            490,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            262
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work",
+        "text_level": 2,
+        "bbox": [
+            509,
+            274,
+            665,
+            291
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2.1 Language Models for Logical Reasoning",
+        "text_level": 2,
+        "bbox": [
+            509,
+            302,
+            875,
+            318
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Compared with traditional symbol-based logic reasoning systems, using language models to directly reason over natural language is a more flexible and popular approach (Yu et al., 2023; Yang et al., 2023b). Many efforts have been devoted to improving the logical reasoning abilities of language models from different perspectives, including finetuning methods (Clark et al., 2020; Dalvi et al., 2021), pre-training methods (Pi et al., 2022; Jiao et al., 2022), and modular methods (Hong et al., 2022; Yang et al., 2022). As the model scale increases, specially designed prompts (e.g., Chain-of-Thought prompts (Wei et al., 2022b)) can elicit the step-by-step reasoning abilities of LLMs, achieving remarkable improvement in multiple reasoning tasks (Chu et al., 2023). However, some studies find that LLMs still struggle with complex logical reasoning problems (Arkoudas, 2023) and could be susceptible to logical fallacies (Payandeh et al., 2023). There is still a lack of comprehensive research to investigate the understanding of LLMs on different logical fallacies.",
+        "bbox": [
+            507,
+            322,
+            887,
+            677
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2.2 Self-Verification with Large Language Models",
+        "text_level": 2,
+        "bbox": [
+            509,
+            689,
+            857,
+            720
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "A prevalent method to enhance the capacity of LLMs is through learning and correction via highquality verification feedback. This feedback proves instrumental in various aspects of model optimization. For instance, it can be used to fine-tune the models (Ouyang et al., 2022; Scheurer et al., 2023; Chen et al., 2023a; Zelikman et al., 2022; Wang et al., 2023; Bai et al., 2022; Huang et al., 2022). In addition, verification feedback can be utilized to re-rank the model outputs (Lightman et al., 2023; Weng et al., 2022; He et al., 2023; Ni et al., 2023; Ling et al., 2023). It can also be employed to refine the outputs (Madaan et al., 2023; Shinn et al., 2023; Chen et al., 2023b) and guide the generation process of the models (Yao et al., 2023; Xie et al., 2023). A straightforward approach to collecting feedback is to collect directly from humans (Ouyang et al., 2022; Fernandes et al., 2023), but this could prove to be costly and unable to provide instant feedback. Alternatively, collecting feedback from external tools (Gou et al., 2023; Chern et al., 2023) or metrics (Jung et al., 2022) could be more feasible but limited to specific tasks. Thus, some researchers turn to use large language models themselves to provide verification feedback (Ling et al., 2023; Weng et al., 2022; Xie et al., 2023; Madaan et al., 2023; Miao et al., 2023), which is more scalable. Nonetheless, recent papers (Huang et al., 2023; Valmeekam et al., 2023) have raised doubts about the self-verification abilities of the LLMs. For instance, Huang et al. (2023) find that LLMs struggle to self-correct their responses without external feedback. However, they still leave some open questions for subsequent research, such as what exactly the performance of LLMs is to verify a single reasoning step. In this paper, we delve deeply into this subject, critically examining the verification abilities of LLMs from the perspective of logical reasoning.",
+        "bbox": [
+            507,
+            727,
+            887,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "901",
+        "bbox": [
+            485,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "images/9ca2bce686089f876bf3237b7c99cb50b901e1c0f7172aae7db85da308389f6b.jpg",
+        "table_caption": [
+            "Figure 2: The hierarchical taxonomy of fallacies. For each sub-category, we present its definition and an example of a fallacy within the sub-category. We use square brackets to indicate the premises and conclusions."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=10 colspan=1>FormalFallacyInformal</td><td></td><td></td></tr><tr><td rowspan=1 colspan=1>Proposition</td><td rowspan=1 colspan=1>Errors in dealing with the logical relations holding between propositions.e.g., Since [if it is sunny today, then I&#x27;ll go to hike] and [I go to hike], therefore, [theweather must be sunny today]. (Affirming the Consequent)</td></tr><tr><td rowspan=1 colspan=1>Quantification</td><td rowspan=1 colspan=1>Errors in dealing with the quantifiers. e.g., Since [all pigeons are birds],therefore, [all birds are pigeons]. (False Conversion)</td></tr><tr><td rowspan=1 colspan=1>Syllogism</td><td rowspan=1 colspan=1>Errors in the syllogisms of deductive reasoning. e.g., Since [all moviesdirected by Tom are great] and [all great movies are popular], therefore, [allpopular movies are directed by Tom]. (Illicit Minor)</td></tr><tr><td rowspan=1 colspan=1>Probability</td><td rowspan=1 colspan=1>Errors in dealing with probability. e.g., Since [red kangaroos are the largestmarsupials] and [they are native to Australia], therefore, [you’re more likelyto see a red kangaroo in Australia than a marsupial]. (Conjunction fallacy)</td></tr><tr><td rowspan=1 colspan=1>Ambiguity</td><td rowspan=1 colspan=1>Errors due to linguistic ambiguity or vagueness of terms. e.g., Since [afeather is light] and [what is light cannot be dark], therefore, [a feather cannotbe dark]. (Equivocation)</td></tr><tr><td rowspan=1 colspan=1>Inconsistency</td><td rowspan=1 colspan=1>Self-contradiction and inconsistency occurs. e.g., Since [A is bigger than B]and [B is the biggest], therefore, [A is bigger than the biggest thing].(Conflicting Conditions)</td></tr><tr><td rowspan=1 colspan=1>Irrelevance</td><td rowspan=1 colspan=1>The premises are irrelevant to the conclusion. e.g., Since [Buddy Burgerhas the greatest food in town], therefore, [the owner of Buddy Burger shouldrun for president]. (Non Sequitur)</td></tr><tr><td rowspan=1 colspan=1>Insufficiency</td><td rowspan=1 colspan=1>The premises are insufficient or weak to support the conclusion. e.g.Since [I had a bruised banana last week], and [my friend had a mushy bananayesterday], therefore, [all bananas are of poor quality]. (Hasty Generalization)</td></tr><tr><td rowspan=1 colspan=1>InappropriatePresumption</td><td rowspan=1 colspan=1>An inappropriate presumption is explicitly or implicitly introduced. e.g.,Since [you’re not with us], therefore, [you must be against us]. (FalseDilemma)</td></tr></table>",
+        "bbox": [
+            115,
+            84,
+            877,
+            435
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            512,
+            492,
+            916
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "images/5f80e37cfb33fc3353084c121b842b0eeea5208612feb2be5898f346ff9fc07d.jpg",
+        "table_caption": [
+            "Table 1: Distribution of 232 fallacies in FALLACIES."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Category</td><td># Fallacy</td></tr><tr><td>Formal</td><td>24</td></tr><tr><td>proposition (prop.)</td><td>6</td></tr><tr><td>quantification (quant.)</td><td>6</td></tr><tr><td>syllogism (syl.)</td><td>8</td></tr><tr><td>probability (prob.)</td><td>4</td></tr><tr><td>Informal</td><td>208</td></tr><tr><td>ambiguity (amb.)</td><td>15</td></tr><tr><td>inconsistency (incon.)</td><td>3</td></tr><tr><td>irrelevance (irrel.)</td><td>78</td></tr><tr><td>insufficiency (insuf.)</td><td>58</td></tr><tr><td>inappropriate presumption (inappr.)</td><td>54</td></tr></table>",
+        "bbox": [
+            539,
+            508,
+            852,
+            674
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            724,
+            884,
+            757
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3 FALLACIES",
+        "text_level": 2,
+        "bbox": [
+            509,
+            766,
+            648,
+            783
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "This section outlines the design principles and process of constructing our dataset FALLACIES.",
+        "bbox": [
+            507,
+            793,
+            887,
+            825
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 Design Principles",
+        "text_level": 2,
+        "bbox": [
+            509,
+            834,
+            695,
+            851
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Covering more comprehensive error types: We propose to evaluate the verification abilities of LLMs on a wider range of types of errors. Relying solely on a single existing dataset of logical reasoning might pose a challenge in drawing comprehensive conclusions, as it may struggle to cover the types of errors that can occur in realistic scenarios. For example, synthetic datasets (e.g., ProofWriter (Tafjord et al., 2021)) are generated from fixed logic templates and vocabularies, which could leave out the reasoning errors caused by verbal ambiguity.",
+        "bbox": [
+            507,
+            856,
+            887,
+            921
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "902",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            490,
+            214
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Hierarchical fallacy taxonomy: We propose to categorize reasoning errors at a fine-grained, hierarchical level. This approach enables a more thorough assessment of the performance of LLMs across various types of fallacies and offers a more comprehensive perspective on their effectiveness. Meanwhile, we ensure that each reasoning step exclusively pertains to a single type of fallacy to prevent different types of fallacies from potentially confounding one another.",
+        "bbox": [
+            112,
+            215,
+            489,
+            376
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Clarifying the premises and conclusions: The third principle is to indicate the premises and conclusions of the reasoning step explicitly. Reasoning is the process of concluding based on known information, and the validity of reasoning cannot be properly judged without providing premise information. Factors like linguistic omissions and implied background knowledge can complicate reasoning in natural language. Consequently, in our dataset, we strive to ensure that each step is a complete unit of reasoning that contains enough information to verify its correctness.",
+        "bbox": [
+            112,
+            378,
+            490,
+            573
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.2 Taxonomy of Fallacy",
+        "text_level": 2,
+        "bbox": [
+            114,
+            588,
+            326,
+            604
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "A fallacy is an error in reasoning (Bennett, 2012; Jevons, 1872). It focuses more on whether the conclusion of an argument can be logically deduced from the premises rather than on factual errors or other aspects (Lau, 2011). Identifying logical fallacies is essential for a judicious reasoning system. Without the ability to identify logical fallacies, a reasoning system may lack essential critical thinking skills, leaving it susceptible to illogical arguments and deliberate manipulation.",
+        "bbox": [
+            112,
+            612,
+            490,
+            774
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Fallacies can be classified into two primary categories: Formal Fallacies, errors due to invalid logical structures or inference patterns, and Informal Fallacies, errors due to the content of premises and conclusions. Based on specific causes of error, we divide each main category into several subcategories. Each subcategory contains several finest-grained fallacies, divided based on more detailed causes of errors. Figure 2 demonstrates our hierarchical taxonomy of fallacies. We derive this taxonomy by integrating multiple scholarly resources (Fieser and Dowden, 2011; Magnus, 2005; Rescher and Schagrin, 2023).",
+        "bbox": [
+            112,
+            776,
+            490,
+            921
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            149
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.3 Data Collection",
+        "text_level": 2,
+        "bbox": [
+            509,
+            166,
+            680,
+            181
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We first collect 232 types of fallacies from classic academic books (Bennett, 2012; Fieser and Dowden, 2011). The authors of these books carefully collect these fallacies from many available academic resources (including peer-reviewed journals, encyclopedias, and books), covering a substantial portion of common errors in logical reasoning. We collect the definition of each fallacy, i.e., an article containing the description and examples of that fallacy. These definitions are used in academic books to help humans understand the meaning of fallacies. Figure 3 in the Appendix shows an example of the definition. We then assign these 232 fallacies to appropriate categories according to the taxonomy in Sec. 3.2. Table 1 shows the distribution of fallacies. Detailed categorizations and descriptions of these fallacies are in Appendix Table 11.",
+        "bbox": [
+            507,
+            191,
+            887,
+            466
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Then, we collect fallacious and correct reasoning steps. Considering that directly creating fallacious steps from scratch can be challenging, we adopt a strategy in which powerful LLMs first generate candidates, and then we let human experts revise them. Specifically, we ask GPT-4 (OpenAI, 2023) to generate fallacious steps based on the collected definitions of fallacies. To generate diverse steps covering a wider range of domains, we explicitly require the model to generate around a theme, a randomly sampled noun from ConceptNet (Speer et al., 2017). Detailed prompt can be found in Appendix A. Subsequently, human experts carefully proofread and refine these candidates to ensure they fall within the corresponding fallacies. Meanwhile, we require experts to make each step a single inference (Dagan et al., 2013), rather than complex reasoning that involves multiple intermediate steps.",
+        "bbox": [
+            507,
+            467,
+            887,
+            758
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We require the experts to fix the fallacious steps to collect the correct contrastive steps. The experts make as few modifications as possible to turn the fallacious steps into correct ones, which do not contain any reasoning errors. For instance, the fallacious step of the fallacy of Affirming the Consequent in Figure 2 can be fixed into “Since [ifit is sunny today, then I’ll go to hike] and [It is sunny today], therefore, [I’ll go to hike today].” More contrastive samples can be found in Table 4.",
+        "bbox": [
+            507,
+            759,
+            887,
+            921
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "903",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "table",
+        "img_path": "images/f87e4ee509c067669e40806539312bc88de75de5899c45db9da940335b73b7cc.jpg",
+        "table_caption": [
+            "Table 2: Comparison of FALLACIES with existing fallacy-related datasets."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Dataset</td><td>Number of Fallacies</td><td>Number of Steps</td><td>Taxonomy of Fallacy</td><td>Granularity of Reasoning</td><td>Explicit Premises and Conclusions</td><td>Identifying Fallacy from Correct Reasoning</td></tr><tr><td>Stab and Gurevych (2017)</td><td>1</td><td>1,029</td><td>No</td><td>Coarse</td><td>No</td><td>Yes</td></tr><tr><td>Habernal et al. (2018)</td><td>1</td><td>2,085</td><td>No</td><td>Coarse</td><td>No</td><td>Yes</td></tr><tr><td>Jin et al. (2022)</td><td>13</td><td>2,449</td><td>Coarse</td><td>Coarse</td><td>No</td><td>No</td></tr><tr><td>FALLACIES (Ours)</td><td>232</td><td>4,640</td><td>Fine &amp; Hierarchical</td><td>Fine</td><td>Yes</td><td>Yes</td></tr></table>",
+        "bbox": [
+            114,
+            82,
+            878,
+            168
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "In this way, we obtain ten fallacious and ten correct steps for each of the 232 types of fallacies. To check data quality, we ask three additional experts to re-annotate 50 randomly sampled steps. They annotate each step as a correct step, a fallacious step that belongs to the corresponding fallacy, or a fallacious step that does not belong to the corresponding fallacy. Their average agreement with the labels achieves 0.856 (Cohen’s Kappa), indicating the high quality of our data.",
+        "bbox": [
+            112,
+            219,
+            490,
+            382
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.4 Comparison with Existing Dataset",
+        "text_level": 2,
+        "bbox": [
+            114,
+            393,
+            431,
+            410
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We compare our dataset and existing fallacy-related datasets in Table 2. FALLACIES holds significant advantages across multiple dimensions. It encompasses a broader spectrum of fallacy types, presenting a fine-grained and hierarchical taxonomy of fallacies. Additionally, FALLACIES stands out for its clarity and subtlety, avoiding ambiguous judgments about the correctness of reasoning. We make explicit the premises and conclusions of each reasoning step and the granularity of reasoning in FALLACIES is finer. In contrast to the most recent dataset (Jin et al., 2022), which contained only fallacious reasoning, our dataset includes both correct and fallacious reasoning steps.",
+        "bbox": [
+            110,
+            417,
+            490,
+            643
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4 Experiments",
+        "text_level": 2,
+        "bbox": [
+            114,
+            656,
+            262,
+            673
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.1 Models and Prompts",
+        "text_level": 2,
+        "bbox": [
+            114,
+            683,
+            326,
+            699
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We test a range of common LLMs, including GPT-4 (OpenAI, 2023), GPT-3.5 (Peng et al., 2023), Llama2 (Touvron et al., 2023), Vicuna (Zheng et al., 2023), WizardLM (Xu et al., 2023), Flan-T5 (Chung et al., 2022), Falcon (Almazrouei et al., 2023), Baichuan2 (Yang et al., 2023a), Chat-GLM (Du et al., 2022), and InternLM (Team, 2023). We use the default generation parameters in the models’ configuration files.<sup>2</sup> Details about the models (e.g., the version numbers) can be found in Table 7 in the Appendix. We evaluate the models using the same simple prompt in the zero-shot setting. For the prompt selection, we followed the experience of previous work (Liu et al., 2023b) and carefully designed and experimented with several different styles of prompts. In the end, we chose a prompt that worked well for all models as our prompt. Appendix B presents a detailed ablation analysis of prompt selection, as well as experiments under few-shot setting.",
+        "bbox": [
+            110,
+            706,
+            490,
+            883
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            302,
+            887,
+            447
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.2 Metrics",
+        "text_level": 2,
+        "bbox": [
+            509,
+            458,
+            620,
+            474
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We evaluate LLMs on 4,640 steps in FALLACIES. We calculate the accuracy for each type of fallacy separately. The accuracy of a higher-level category is the (macro) average of the accuracies of its subcategories. Ultimately, we take the average accuracy on formal and informal categories as the overall accuracy.",
+        "bbox": [
+            507,
+            481,
+            887,
+            595
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.3 Can LLMs accurately identify fallacious steps?",
+        "text_level": 2,
+        "bbox": [
+            509,
+            606,
+            873,
+            639
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Table 3 shows the accuracies of the different models for identifying fallacious steps on FALLACIES. Based on the experimental results, we have the following observations.",
+        "bbox": [
+            507,
+            645,
+            887,
+            709
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Identifying fallacious steps is still challenging for LLMs. Most LLMs struggle with accurately identifying the fallacious steps. As shown in Table 3, the performance of most LLMs in this binary classification task ranges from 60% to 80%, indicating the complexity of this task. The best result is achieved by GPT-4, which reaches an overall average accuracy of 87.7%. However, this may still fall short of guaranteeing the validity of the self-verification approach since it is only the performance of identifying single-step fallacies. For a long argument comprising multiple reasoning steps, the overall verification performance for the entire argument could be the product of the verification performances of each individual step. Consequently, the overall verification performance of the argument might decrease exponentially with the number of steps in it. These results suggest that we need further research on existing self-verification methods to understand how they work and under what situations they can provide correct verification feedback.",
+        "bbox": [
+            507,
+            711,
+            887,
+            921
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup>For GPT-4 and GPT-3.5, we set the temperature parameter to 0. Experiments were conducted mainly in Nov. 2023.",
+        "bbox": [
+            112,
+            894,
+            489,
+            920
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "904",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "table",
+        "img_path": "images/033ab398131e2579eef45080cc04c2f80642f9184d094aefdf6b7557326dd04a.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"4\">Formal</td><td rowspan=\"2\"></td><td colspan=\"6\">Informal</td><td rowspan=\"2\">Avg.</td></tr><tr><td>prop.</td><td>quant.</td><td>syl.</td><td>prob.</td><td>Avg. amb.</td><td>incon.</td><td>irrel.</td><td>insuf.</td><td>inappr.</td><td>Avg.</td></tr><tr><td>Random</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td></tr><tr><td>Flan-T5-Large</td><td>49.2</td><td>59.2</td><td>78.1</td><td>57.5</td><td>61.0</td><td>64.3</td><td>86.7</td><td>72.8</td><td>74.8</td><td>69.5</td><td>73.6</td><td>67.3</td></tr><tr><td>Flan-T5-xl</td><td>48.3</td><td>78.3</td><td>78.8</td><td>66.3</td><td>67.9</td><td>67.7</td><td>83.3</td><td>72.8</td><td>74.5</td><td>72.1</td><td>74.1</td><td>71.0</td></tr><tr><td>Flan-T5-xxl</td><td>46.7</td><td>70.8</td><td>80.6</td><td>57.5</td><td>63.9</td><td>67.0</td><td>78.3</td><td>72.6</td><td>75.7</td><td>71.2</td><td>73.0</td><td>68.4</td></tr><tr><td>Llama2-7B</td><td>59.2</td><td>63.3</td><td>58.8</td><td>63.7</td><td>61.3</td><td>67.7</td><td>70.0</td><td>72.7</td><td>75.3</td><td>73.4</td><td>71.8</td><td>66.5</td></tr><tr><td>Llama2-13B</td><td>55.8</td><td>62.5</td><td>56.2</td><td>65.0</td><td>59.9</td><td>58.3</td><td>58.3</td><td>66.9</td><td>65.1</td><td>67.4</td><td>63.2</td><td>61.5</td></tr><tr><td>Llama2-70B</td><td>58.3</td><td>79.2</td><td>79.4</td><td>76.2</td><td>73.3</td><td>82.0</td><td>90.0</td><td>90.3</td><td>90.4</td><td>88.2</td><td>88.2</td><td>80.7</td></tr><tr><td>Baichuan2-7B</td><td>55.8</td><td>52.5</td><td>52.5</td><td>50.0</td><td>52.7</td><td>53.3</td><td>51.7</td><td>51.7</td><td>51.9</td><td>52.9</td><td>52.3</td><td>52.5</td></tr><tr><td>Baichuan2-13B</td><td>59.2</td><td>75.8</td><td>79.4</td><td>57.5</td><td>68.0</td><td>77.0</td><td>78.3</td><td>83.1</td><td>85.8</td><td>80.2</td><td>80.9</td><td>74.4</td></tr><tr><td>ChatGLM-6B</td><td>60.0</td><td>52.5</td><td>60.6</td><td>50.0</td><td>55.8</td><td>52.3</td><td>56.7</td><td>54.7</td><td>53.0</td><td>55.5</td><td>54.4</td><td>55.1</td></tr><tr><td>ChatGLM2-6B</td><td>60.8</td><td>61.7</td><td>69.4</td><td>55.0</td><td>61.7</td><td>65.3</td><td>83.3</td><td>76.7</td><td>77.9</td><td>72.5</td><td>75.2</td><td>68.4</td></tr><tr><td>InternLM-7B</td><td>51.7</td><td>70.0</td><td>71.9</td><td>48.8</td><td>60.6</td><td>70.7</td><td>83.3</td><td>74.9</td><td>75.9</td><td>72.2</td><td>75.4</td><td>68.0</td></tr><tr><td>InternLM-20B</td><td>57.5</td><td>67.5</td><td>74.4</td><td>55.0</td><td>63.6</td><td>73.0</td><td>85.0</td><td>77.0</td><td>77.8</td><td>74.9</td><td>77.5</td><td>70.6</td></tr><tr><td>Falcon-7B</td><td>31.7</td><td>45.8</td><td>41.9</td><td>52.5</td><td>43.0</td><td>64.7</td><td>66.7</td><td>72.9</td><td>75.3</td><td>71.2</td><td>70.2</td><td>56.6</td></tr><tr><td>WizardLM-13B</td><td>63.3</td><td>66.7</td><td>70.0</td><td>70.0</td><td>67.5</td><td>82.0</td><td>86.7</td><td>87.6</td><td>91.8</td><td>84.4</td><td>86.5</td><td>77.0</td></tr><tr><td>Vicuna-7B</td><td>65.0</td><td>75.0</td><td>73.8</td><td>60.0</td><td>68.4</td><td>77.0</td><td>83.3</td><td>84.0</td><td>85.3</td><td>81.7</td><td>82.2</td><td>75.3</td></tr><tr><td>Vicuna-13B</td><td>75.0</td><td>69.2</td><td>72.5</td><td>62.5</td><td>69.8</td><td>81.0</td><td>83.3</td><td>88.9</td><td>91.5</td><td>87.3</td><td>86.4</td><td>78.1</td></tr><tr><td>Qwen-14B</td><td>70.0</td><td>78.3</td><td>83.1</td><td>67.5</td><td>74.7</td><td>83.0</td><td>91.7</td><td>88.4</td><td>91.4</td><td>86.6</td><td>88.2</td><td>81.5</td></tr><tr><td>GPT-3.5</td><td>73.3</td><td>72.5</td><td>74.4</td><td>76.2</td><td>74.1</td><td>84.3</td><td>90.0</td><td>90.6</td><td>90.0</td><td>84.5</td><td>87.9</td><td>81.0</td></tr><tr><td>GPT-4</td><td>92.5</td><td>84.2</td><td>87.5</td><td>88.8</td><td>88.2</td><td>83.0</td><td>86.7</td><td>88.8</td><td>92.1</td><td>85.2</td><td>87.2</td><td>87.7</td></tr></table>",
+        "bbox": [
+            117,
+            82,
+            875,
+            363
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/b85999bccec070fd9d12d3b91e6f2574ea953babdefe07c1a60ae99f4f5fd15d.jpg",
+        "table_caption": [
+            "Table 3: Accuracy results (%) of identifying fallacious steps on FALLACIES.",
+            "Table 4: Contrastive reasoning steps in FALLACIES and verification predictions of GPT-4. Fallacious steps (the first sentence of each cell) are in red and correct ones (the second sentence of each cell) in green. \"and %indicates whether the prediction matches the label or not."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Formal → Proposition → Denying the Antecedent • Since [if you have a pinna, then you can hear] and [you do not have a pinna], therefore, [you cannot hear]. Prediction: Yes. X • Since [if you do not have a pinna, then you cannot hear] and [you do not have a pinna], therefore, [you cannot hear].] Prediction: Yes.√</td></tr><tr><td>Formal → Syllogism → Exclusive Premises • Since [no psychologists are proponents of shock therapy] and [some proponents of shock therapy are not doctors], therefore, [some doctors are not psychologists]. Prediction: Yes. X • Since [no psychologists are proponents of shock therapy] and [some doctors are proponents of shock therapy], therefore, [some doctors are not psychologists]. Prediction: Yes.√</td></tr><tr><td>Informal → Irrelevance → Appeal to Pity • Since [my horse&#x27;s stirrups are broken] and [I thus had to make a pitiful 10-mile walk in the pouring rain to get home], therefore, [the broken stirrups should be replaced by the store for free]. Prediction: No. • Since [my horse&#x27;s stirrups are broken] and [the stirrups were under warranty], therefore, [the broken stirrups should be replaced by the store for free]. Prediction: Yes.√</td></tr><tr><td>Informal → Insufficiency → Questionable Cause • Since [grebos are often seen during rainstorms] and [rainstorms cause floods], therefore, [grebos cause floods]. Prediction: No.√ • Since [grebos are often seen during rainstorms] and [rainstorms cause floods],therefore, [grebos can be seen during floods]. Prediction:No. X</td></tr></table>",
+        "bbox": [
+            112,
+            405,
+            489,
+            692
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            807,
+            490,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            406,
+            884,
+            438
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Formal fallacy is more difficult than informal fallacy for LLMs. The performance of most LLMs on formal fallacies is much lower than on informal fallacies. For example, GPT-3.5 achieves 87.9% accuracy on formal fallacies, while it achieves only 74.1% accuracy on informal fallacies. As stated in Sec. 3.2, formal fallacies are more related to the logical structure of reasoning and require a greater emphasis on the understanding and utilization of formal logic. On the other hand, informal fallacies focus more on the content and semantics of the reasoning and may involve factors such as linguistic expression, semantic understanding, and semantic relevance. Therefore, the differences in the performance of LLMs across different types of fallacies may stem from their ability to understand logical structures and semantic meanings, i.e., the models present some challenges in dealing with the logical structures under the natural language, whereas they perform better in dealing with issues related to content and semantics. Taking a more fine-grained view, among formal fallacies, most models typically perform well on syllogism fallacies and poorly on proposition and probability fallacies. For informal fallacies, most models perform worse on ambiguity fallacies and have closer performance on the remaining four sub-categories.",
+        "bbox": [
+            507,
+            445,
+            887,
+            883
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The performance of the same model on different types of fallacies can be remarkably imbalanced. For example, the model Qwen-14B achieves an impressive 91.7% accuracy on the inconsistency fallacies but drops to a mere 67.5% on probability fallacies. This highlights a key observation that models may have superior verification abilities on some types of fallacy but are not necessarily equally well adapted to other types of fallacy. Such imbalance performance could be particularly important for practical applications, as different types of fallacies are not always evenly distributed in a given dataset or scenario, and certain types of fallacies might be more frequent. Therefore, we should not rely on a particular dataset when using or researching self-verification methods. Instead, we need to comprehensively consider the performance of the methods in dealing with different fallacies and scenarios.",
+        "bbox": [
+            507,
+            888,
+            887,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "905",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/44297386eecde4b24d039c772d66333b0449ee370c1638f765542321efcfa2ab.jpg",
+        "table_caption": [
+            "Table 5: Accuracy results (%) on classifying the fallacy types of fallacious steps."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"5\">Formal</td><td colspan=\"5\">Informal</td><td rowspan=\"2\">Avg.</td><td rowspan=\"2\">Avg.</td></tr><tr><td>prop.</td><td>quant.</td><td>syl.</td><td>prob.</td><td>Avg.</td><td>amb.</td><td>incon.</td><td>irrel.</td><td>insuf.</td><td>inappr.</td></tr><tr><td>Random</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td><td>0.4</td></tr><tr><td>Flan-T5-Large</td><td>15.0</td><td>1.7</td><td>0.0</td><td>0.0</td><td>4.2</td><td>0.0</td><td>0.0</td><td>7.7</td><td>4.7</td><td>3.9</td><td>3.2</td><td>3.7</td></tr><tr><td>Flan-T5-xl</td><td>21.7</td><td>0.0</td><td>0.0</td><td>5.0</td><td>6.7</td><td>0.0</td><td>0.0</td><td>16.4</td><td>10.7</td><td>7.8</td><td>7.0</td><td>6.8</td></tr><tr><td>Flan-T5-xxl</td><td>28.3</td><td>26.7</td><td>0.0</td><td>22.5</td><td>19.4</td><td>2.7</td><td>16.7</td><td>8.5</td><td>9.5</td><td>7.4</td><td>8.9</td><td>14.2</td></tr><tr><td>Llama2-7B</td><td>16.7</td><td>0.0</td><td>0.0</td><td>0.0</td><td>4.2</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.0</td><td>0.0</td><td>0.2</td><td>2.2</td></tr><tr><td>Llama2-13B</td><td>8.3</td><td>0.0</td><td>0.0</td><td>0.0</td><td>2.1</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.2</td><td>0.0</td><td>1.1</td></tr><tr><td>Llama2-70B</td><td>30.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>7.5</td><td>4.7</td><td>0.0</td><td>14.6</td><td>8.1</td><td>10.0</td><td>7.5</td><td>7.5</td></tr><tr><td>S Baichuan2-7B</td><td>0.0</td><td>0.0</td><td>1.2</td><td>0.0</td><td>0.3</td><td>0.0</td><td>0.0</td><td>3.5</td><td>0.9</td><td>3.0</td><td>1.5</td><td>0.9</td></tr><tr><td>Baichuan2-13B</td><td>0.0</td><td>0.0</td><td>0.0</td><td>2.5</td><td>0.6</td><td>0.0</td><td>0.0</td><td>13.7</td><td>3.1</td><td>4.6</td><td>4.3</td><td>2.5</td></tr><tr><td>ChatGLM-6B</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr><tr><td>ChatGLM2-6B</td><td>0.0</td><td>0.0</td><td>0.0</td><td>2.5</td><td>0.6</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.0</td><td>0.0</td><td>0.2</td><td>0.4</td></tr><tr><td>InternLM-7B</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.3</td><td>0.0</td><td>0.4</td><td>0.1</td><td>0.1</td></tr><tr><td>InternLM-20B</td><td>3.3</td><td>1.7</td><td>2.5</td><td>12.5</td><td>5.0</td><td>0.7</td><td>0.0</td><td>4.9</td><td>1.0</td><td>2.2</td><td>1.8</td><td>3.4</td></tr><tr><td>Falcon-7B</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.1</td><td>1.0</td><td>0.0</td><td>0.2</td><td>0.1</td></tr><tr><td>WizardLM-13B</td><td>15.0</td><td>0.0</td><td>0.0</td><td>7.5</td><td>5.6</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.5</td><td>0.2</td><td>0.3</td><td>3.0</td></tr><tr><td>Vicuna-7B</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.5</td><td>0.0</td><td>0.0</td><td>0.1</td><td>0.1</td></tr><tr><td>Vicuna-13B</td><td>31.7</td><td>0.0</td><td>0.0</td><td>0.0</td><td>7.9</td><td>0.0</td><td>0.0</td><td>2.2</td><td>0.0</td><td>0.6</td><td>0.5</td><td>4.2</td></tr><tr><td>Qwen-14B</td><td>10.0</td><td>0.0</td><td>0.0</td><td>20.0</td><td>7.5</td><td>0.0</td><td>0.0</td><td>5.5</td><td>2.1</td><td>0.6</td><td>1.6</td><td>4.6</td></tr><tr><td>GPT-3.5</td><td>40.0</td><td>20.0</td><td>3.8</td><td>22.5</td><td>21.6</td><td>16.0</td><td>0.0</td><td>22.7</td><td>16.4</td><td>9.6</td><td>12.9</td><td>17.3</td></tr><tr><td>GPT-4</td><td>58.3</td><td>31.7</td><td>20.0</td><td>55.0</td><td>41.2</td><td>40.0</td><td>16.7</td><td>31.9</td><td>27.2</td><td>27.8</td><td>28.7</td><td>35.0</td></tr></table>",
+        "bbox": [
+            115,
+            82,
+            877,
+            363
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            406,
+            490,
+            681
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "GPT-4 achieves superior performance, particularly in identifying formal fallacies. Compared to the other models, GPT-4 achieves the best results in overall average accuracy. This gap is insignificant on informal fallacies, where models such as WizardLM-13B, Vicuna-13B, and Qwen-14B have comparable or even better average accuracies than GPT-4 on informal fallacies. However, on formal fallacies, GPT-4’s accuracy is 13.5% higher than the second-best model (88.2% for GPT-4 compared to 74.7% for the second-best model Qwen-14B). The results suggest that GPT-4 demonstrates superior abilities in identifying fallacies related to logical structures than other LLMs. However, there is still room to improve the performance of GPT-4. Table 4 demonstrates the prediction results of GPT-4 in some cases. It can be seen that GPT-4 can also fail on some challenging samples.",
+        "bbox": [
+            110,
+            694,
+            490,
+            921
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "Prompt for Classifying Fallacy Types   \nYou are a logical fallacy classifier. Given an incorrect   \nreasoning step, your task is to identify its type of fallacy.   \nAnswer by choosing one of these fallacies:   \n{(1) Affirming the Consequent   \n(2) Denying the Antecedent   \n(232) Alleged Certainty}   \nYou should only answer the name of the fallacy.   \nWhat type of fallacy does the following reasoning step   \nbelong to?   \n{reasoning step}",
+        "bbox": [
+            524,
+            404,
+            880,
+            563
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            581,
+            885,
+            646
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "4.4 Can LLMs distinguish types of logical fallacies?",
+        "text_level": 2,
+        "bbox": [
+            509,
+            656,
+            855,
+            688
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "In addition to whether LLMs can identify between correct and incorrect, we are also interested in whether LLMs can distinguish between different types of fallacies. Classifying types of fallacies requires the model to understand not only the pattern of errors in reasoning but also where the errors occur and why they may occur, which requires a higher level of reasoning ability. Given an error reasoning step, we require the model to recognize the error pattern within it and classify it as one of the 232 fallacies. We conduct experiments on the 2,320 fallacy steps in FALLACIES and calculate the macro average accuracy. Previous work has also explored this task and named it “logical fallacy detection” (Jin et al., 2022). However, they only classify over 13 types of fallacies, whereas our task requires classifying over 232 types. Our task is more challenging and allows for fine-grained and hierarchical analysis. We evaluate the model using the same prompt in a zero-shot setting.",
+        "bbox": [
+            507,
+            695,
+            885,
+            921
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "906",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/a4fd37e768bdafe1bd3a0fdf41504ec4a475842ce32e7ce9a2c2f3436f1f4ffb.jpg",
+        "table_caption": [
+            "Table 6: Accuracy results (%) of identifying fallacious steps given the definitions of corresponding fallacies. We present the performance variations in the case with the definitions in parentheses compared to the case without definitions."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=1>Model</td><td rowspan=1 colspan=2>Formal    Informal</td><td rowspan=1 colspan=1>Avg.</td></tr><tr><td rowspan=1 colspan=1>Flan-T5-Large</td><td rowspan=1 colspan=2>62.3 (+1.3)  65.5 (-8.1)</td><td rowspan=1 colspan=1>63.9 (-3.4)</td></tr><tr><td rowspan=1 colspan=1>Flan-T5-xl</td><td rowspan=1 colspan=2>56.6 (-11.3)  67.1 (-7.0)</td><td rowspan=1 colspan=1>61.8 (-9.2)</td></tr><tr><td rowspan=1 colspan=1>Flan-T5-xxl</td><td rowspan=1 colspan=2>66.2 (+2.3)  73.1 (+0.1)</td><td rowspan=1 colspan=1>69.7 (+1.3)</td></tr><tr><td rowspan=1 colspan=1>Llama2-7B</td><td rowspan=1 colspan=2>50.9 (-10.4) 52.0 (-19.8)</td><td rowspan=1 colspan=1>51.5 (-15.0)</td></tr><tr><td rowspan=1 colspan=1>Llama2-13B</td><td rowspan=1 colspan=2>57.9 (-2.0)  53.2 (-10.0)</td><td rowspan=1 colspan=1>55.6 (-5.9)</td></tr><tr><td rowspan=1 colspan=1>Llama2-70B</td><td rowspan=1 colspan=2>54.0 (-19.3) 56.9 (-31.3)</td><td rowspan=1 colspan=1>55.4 (-25.3)</td></tr><tr><td rowspan=1 colspan=1>Baichuan2-7B</td><td rowspan=1 colspan=2>52.8 (+0.1) 58.0 (+5.7)</td><td rowspan=1 colspan=1>55.4 (+2.9)</td></tr><tr><td rowspan=1 colspan=1>Baichuan2-13B</td><td rowspan=1 colspan=2>50.1 (-17.9) 52.7 (-28.2)</td><td rowspan=1 colspan=1>51.4 (-23.0)</td></tr><tr><td rowspan=1 colspan=1>ChatGLM-6B</td><td rowspan=1 colspan=1>54.6 (-1.2)</td><td rowspan=1 colspan=1>58.0 (+3.6)</td><td rowspan=1 colspan=1>56.3 (+1.2)</td></tr><tr><td rowspan=1 colspan=1>ChatGLM2-6B</td><td rowspan=1 colspan=1>58.0 (-3.7)</td><td rowspan=1 colspan=1>61.9 (-13.3)</td><td rowspan=1 colspan=1>60.0 (-8.4)</td></tr><tr><td rowspan=1 colspan=1>InternLM-7B</td><td rowspan=1 colspan=1>55.1 (-5.5)</td><td rowspan=1 colspan=1>59.4 (-16.0)</td><td rowspan=1 colspan=1>57.2 (-10.8)</td></tr><tr><td rowspan=1 colspan=1>InternLM-20B</td><td rowspan=1 colspan=1>59.2 (-4.4)</td><td rowspan=1 colspan=1>68.6 (-8.9)</td><td rowspan=1 colspan=1>63.9 (-6.7)</td></tr><tr><td rowspan=1 colspan=1>Falcon-7B</td><td rowspan=1 colspan=1>40.2 (-2.8)</td><td rowspan=1 colspan=1>46.9 (-23.3)</td><td rowspan=1 colspan=1>43.5 (-13.1)</td></tr><tr><td rowspan=1 colspan=1>WizardLM-13B</td><td rowspan=1 colspan=1>74.2 (+6.7)</td><td rowspan=1 colspan=1>82.9 (-3.6)</td><td rowspan=1 colspan=1>78.5 (+1.5)</td></tr><tr><td rowspan=1 colspan=1>Vicuna-7B</td><td rowspan=1 colspan=1>70.4 (+2.0)</td><td rowspan=1 colspan=1>78.0 (-4.2)</td><td rowspan=1 colspan=1>74.2 (-1.1)</td></tr><tr><td rowspan=1 colspan=1>Vicuna-13B</td><td rowspan=1 colspan=1>61.6 (-8.2)</td><td rowspan=1 colspan=1>67.7 (-18.7)</td><td rowspan=1 colspan=1>64.6 (-13.5)</td></tr><tr><td rowspan=1 colspan=1>Qwen-14B</td><td rowspan=1 colspan=1>71.1 (-3.6)</td><td rowspan=1 colspan=1>79.2 (-9.0)</td><td rowspan=1 colspan=1>75.2 (-6.3)</td></tr><tr><td rowspan=1 colspan=1>GPT-3.5</td><td rowspan=1 colspan=1>75.1 (+1.0)</td><td rowspan=1 colspan=1>75.7 (-12.2)</td><td rowspan=1 colspan=1>75.4 (-5.6)</td></tr><tr><td rowspan=1 colspan=1>GPT-4</td><td rowspan=1 colspan=1>91.2 (+3.0)</td><td rowspan=1 colspan=1>84.9 (-2.3)</td><td rowspan=1 colspan=1>88.0 (+0.3)</td></tr></table>",
+        "bbox": [
+            122,
+            82,
+            475,
+            343
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            453,
+            489,
+            549
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Table 5 shows the results. First, this task is very challenging for the existing LLMs. The models performances are poor, with less than 10% overall accuracy, except for three models, GPT-4, GPT-3.5, and Flan-T5-xxl. For example, Vicuna-13B can achieve 78.1% accuracy on identifying fallacious steps, but only 4.2% accuracy on this task. Among all the models, GPT-4 performs the best, achieving an overall accuracy of 35.0%. This indicates that GPT-4 can recognize and classify the reasoning error patterns to a certain degree, showing a stronger reasoning ability than other models. Nevertheless, there is still substantial room for improvement. Further research may be required to achieve higher accuracy and enhance reasoning ability.",
+        "bbox": [
+            112,
+            549,
+            490,
+            791
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "It is worth noting that on this task, the models typically perform better on formal than informal fallacies. This is inconsistent with the observation in identifying fallacious steps (Table 3). When identifying fallacious steps, models typically perform worse on formal fallacies and better on informal fallacies. There could be various reasons for this inconsistency. One possible explanation is that the models might just know the names of the fallacies rather than having an in-depth understanding of what these fallacies are. In determining whether there is an error in reasoning, the models might not be relying directly on their understanding of reasoning or fallacies but on some other abilities, which thus contributes to this inconsistency.",
+        "bbox": [
+            112,
+            793,
+            489,
+            921
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "Prompt for Identifying Fallacious Steps Given Fallacy   \nDefinition   \nYou are a trained model capable of identifying the logi  \ncal fallacy known as {fallacy}.   \nThis is the definition for {fallacy}: {fallacy definition}   \nIs the following reasoning step correct? You can only   \nanswer \"Yes\" or \"No.\"   \n{reasoning step}",
+        "bbox": [
+            514,
+            82,
+            882,
+            193
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            221,
+            885,
+            335
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "4.5 Can LLMs understand fallacies better from their definitions?",
+        "text_level": 2,
+        "bbox": [
+            509,
+            348,
+            858,
+            380
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We test whether LLMs can perform better in identifying fallacious steps given the fallacy definition. Specifically, for each step in FALLACIES, we add the name and definition of its corresponding fallacy to the prompt of LLMs in advance. We then ask the model to determine whether the reasoning step is correct as before. As stated in Sec. 3.3, the definitions of fallacies are gathered from academic sources. An example of the definition can be found in Figure 3 in the Appendix.",
+        "bbox": [
+            507,
+            386,
+            887,
+            548
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We can observe a surprising trend by analyzing the results in Table 6. When definitions of corresponding fallacies are provided in advance, most models’ performance decreases rather than improves. For instance, the overall accuracy of Vicuna-13B decreases from 78.1% to 64.6%, with a 13.5% decrease. These results suggest that providing definitions may hurt models’ performance.",
+        "bbox": [
+            507,
+            549,
+            887,
+            677
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "The reasons for this phenomenon deserve further exploration. One possible reason is that, in pre-trained data, the definitions and the fallacies themselves may not co-occur frequently, resulting in a mismatch with the current setting. Moreover, the mechanism by which the models judge fallacies has not yet been fully clarified. In this case, even if the definitions are provided, the models fail to improve performance. Instead, the prompt becomes complex with the addition of definitions, possibly interfering with their decision-making process. These observations inspire us that more intensive research is called to understand what are the mechanisms by which LLMs understand the reasoning and fallacies.",
+        "bbox": [
+            507,
+            678,
+            887,
+            921
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "907",
+        "bbox": [
+            485,
+            928,
+            515,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "5 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            247,
+            99
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we take a closer look at the verification abilities of LLMs in logical reasoning. We collect a dataset containing 232 fallacies and propose a hierarchical taxonomy of fallacies. Our main experimental finding is that most LLMs still struggle to identify fallacies in logical reasoning accurately. This implies that it may be overly optimistic to expect LLMs to be able to inherently identify errors and conduct self-verification reasoning, at least with respect to the current state of technology. Therefore, researchers and practitioners should be more cautious in using self-verification methods. We call for more research to explore the potentials and limitations of self-verification methods to steer LLMs towards improved accuracy and reliability.",
+        "bbox": [
+            112,
+            111,
+            490,
+            354
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgements",
+        "text_level": 2,
+        "bbox": [
+            114,
+            367,
+            287,
+            384
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We appreciate the anonymous reviewers for their insightful comments. This work is supported by the Natural Science Foundation of China (NSFC No. 62176132) and the Guoqiang Institute of Tsinghua University (2020GQG0005).",
+        "bbox": [
+            112,
+            393,
+            489,
+            475
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Limitations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            488,
+            220,
+            504
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we present an intensive investigation and evaluation of the verification abilities of Large Language Models (LLMs) for logical reasoning. Although we have reached some findings, we are also aware that there is still some room for improvement and future research areas worth exploring.",
+        "bbox": [
+            112,
+            516,
+            489,
+            612
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Firstly, we conduct experiments only on the most common LLMs. Such a limitation comes from two main reasons: one is due to the limitation of computational resources of our research team; and the other is the barrier of access to certain closed-source models. This results in our inability to perform detailed experiments on all types and all scales of models. Thus, our results may not fully reflect the abilities of all LLMs. In future studies, it is worthwhile to turn our attention to more types and scales of models to provide a more comprehensive evaluation of their abilities.",
+        "bbox": [
+            112,
+            614,
+            489,
+            806
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Second, our study focused mainly on the aspect of logical reasoning. Reasoning in real-world applications often encompasses other types of reasoning, such as numerical reasoning. It would be interesting to extend our research to more types of reasoning. By doing so, we can reveal the boundaries of the abilities of LLMs in these areas, which can enhance our deeper understanding of the performance of LLMs. Meanwhile, it would also help us to figure out how we can improve the accuracy and robustness of the reasoning of LLMs.",
+        "bbox": [
+            112,
+            807,
+            490,
+            920
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            148
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "This article follows the ACL Code of Ethics. To the best of our knowledge, our work is foundational research, and we do not find obvious risks related to malicious harmful effects, environmental impact, fairness considerations, or privacy considerations.",
+        "bbox": [
+            507,
+            149,
+            885,
+            230
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            510,
+            255,
+            610,
+            271
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Ebtesam Almazrouei, Hamza Alobeidli, Abdulaziz Alshamsi, Alessandro Cappelli, Ruxandra Cojocaru, Merouane Debbah, Etienne Goffinet, Daniel Heslow, Julien Launay, Quentin Malartic, Badreddine Noune, Baptiste Pannier, and Guilherme Penedo. 2023. Falcon-40B: an open large language model with state-of-the-art performance.",
+            "Konstantine Arkoudas. 2023. GPT-4 can’t reason. CoRR, abs/2308.03762.",
+            "Jinze Bai, Shuai Bai, Yunfei Chu, Zeyu Cui, Kai Dang, Xiaodong Deng, Yang Fan, Wenbin Ge, Yu Han, Fei Huang, Binyuan Hui, Luo Ji, Mei Li, Junyang Lin, Runji Lin, Dayiheng Liu, Gao Liu, Chengqiang Lu, Keming Lu, Jianxin Ma, Rui Men, Xingzhang Ren, Xuancheng Ren, Chuanqi Tan, Sinan Tan, Jianhong Tu, Peng Wang, Shijie Wang, Wei Wang, Shengguang Wu, Benfeng Xu, Jin Xu, An Yang, Hao Yang, Jian Yang, Shusheng Yang, Yang Yao, Bowen Yu, Hongyi Yuan, Zheng Yuan, Jianwei Zhang, Xingxuan Zhang, Yichang Zhang, Zhenru Zhang, Chang Zhou, Jingren Zhou, Xiaohuan Zhou, and Tianhang Zhu. 2023. Qwen technical report. CoRR, abs/2309.16609.",
+            "Yuntao Bai, Saurav Kadavath, Sandipan Kundu, Amanda Askell, Jackson Kernion, Andy Jones, Anna Chen, Anna Goldie, Azalia Mirhoseini, Cameron McKinnon, Carol Chen, Catherine Olsson, Christopher Olah, Danny Hernandez, Dawn Drain, Deep Ganguli, Dustin Li, Eli Tran-Johnson, Ethan Perez, Jamie Kerr, Jared Mueller, Jeffrey Ladish, Joshua Landau, Kamal Ndousse, Kamile Lukosiute, Liane Lovitt, Michael Sellitto, Nelson Elhage, Nicholas Schiefer, Noemí Mercado, Nova DasSarma, Robert Lasenby, Robin Larson, Sam Ringer, Scott Johnston, Shauna Kravec, Sheer El Showk, Stanislav Fort, Tamera Lanham, Timothy Telleen-Lawton, Tom Conerly, Tom Henighan, Tristan Hume, Samuel R. Bowman, Zac Hatfield-Dodds, Ben Mann, Dario Amodei, Nicholas Joseph, Sam McCandlish, Tom Brown, and Jared Kaplan. 2022. Constitutional AI: harmlessness from AI feedback. CoRR, abs/2212.08073.",
+            "Bo Bennett. 2012. Logically fallacious: the ultimate collection of over 300 logical fallacies (Academic Edition). eBookIt. com.",
+            "Samuel R. Bowman, Jeeyoon Hyun, Ethan Perez, Edwin Chen, Craig Pettit, Scott Heiner, Kamile Lukosiute, Amanda Askell, Andy Jones, Anna Chen,"
+        ],
+        "bbox": [
+            510,
+            277,
+            885,
+            368
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "908",
+        "bbox": [
+            485,
+            929,
+            517,
+            941
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Anna Goldie, Azalia Mirhoseini, Cameron McKinnon, Christopher Olah, Daniela Amodei, Dario Amodei, Dawn Drain, Dustin Li, Eli Tran-Johnson, Jackson Kernion, Jamie Kerr, Jared Mueller, Jeffrey Ladish, Joshua Landau, Kamal Ndousse, Liane Lovitt, Nelson Elhage, Nicholas Schiefer, Nicholas Joseph, Noemí Mercado, Nova DasSarma, Robin Larson, Sam McCandlish, Sandipan Kundu, Scott Johnston, Shauna Kravec, Sheer El Showk, Stanislav Fort, Timothy Telleen-Lawton, Tom Brown, Tom Henighan, Tristan Hume, Yuntao Bai, Zac Hatfield-Dodds, Ben Mann, and Jared Kaplan. 2022. Measuring progress on scalable oversight for large language models. CoRR, abs/2211.03540.",
+            "Angelica Chen, Jérémy Scheurer, Tomasz Korbak, Jon Ander Campos, Jun Shern Chan, Samuel R. Bowman, Kyunghyun Cho, and Ethan Perez. 2023a. Improving code generation by training with natural language feedback. CoRR, abs/2303.16749.",
+            "Pinzhen Chen, Zhicheng Guo, Barry Haddow, and Kenneth Heafield. 2023b. Iterative translation refinement with large language models. CoRR, abs/2306.03856.",
+            "I-Chun Chern, Steffi Chern, Shiqi Chen, Weizhe Yuan, Kehua Feng, Chunting Zhou, Junxian He, Graham Neubig, and Pengfei Liu. 2023. Factool: Factuality detection in generative AI - A tool augmented framework for multi-task and multi-domain scenarios. CoRR, abs/2307.13528.",
+            "Zheng Chu, Jingchang Chen, Qianglong Chen, Weijiang Yu, Tao He, Haotian Wang, Weihua Peng, Ming Liu, Bing Qin, and Ting Liu. 2023. A survey of chain of thought reasoning: Advances, frontiers and future. arXiv preprint arXiv:2309.15402.",
+            "Hyung Won Chung, Le Hou, Shayne Longpre, Barret Zoph, Yi Tay, William Fedus, Eric Li, Xuezhi Wang, Mostafa Dehghani, Siddhartha Brahma, Albert Webson, Shixiang Shane Gu, Zhuyun Dai, Mirac Suzgun, Xinyun Chen, Aakanksha Chowdhery, Sharan Narang, Gaurav Mishra, Adams Yu, Vincent Y. Zhao, Yanping Huang, Andrew M. Dai, Hongkun Yu, Slav Petrov, Ed H. Chi, Jeff Dean, Jacob Devlin, Adam Roberts, Denny Zhou, Quoc V. Le, and Jason Wei. 2022. Scaling instruction-finetuned language models. CoRR, abs/2210.11416.",
+            "Peter Clark, Oyvind Tafjord, and Kyle Richardson. 2020. Transformers as soft reasoners over language. In Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence, IJCAI 2020, pages 3882–3890. ijcai.org.",
+            "Antonia Creswell, Murray Shanahan, and Irina Higgins. 2023. Selection-inference: Exploiting large language models for interpretable logical reasoning. In The Eleventh International Conference on Learning Representations, ICLR 2023, Kigali, Rwanda, May 1-5, 2023. OpenReview.net.",
+            "Ido Dagan, Dan Roth, Mark Sammons, and Fabio Massimo Zanzotto. 2013. Recognizing Textual Entailment: Models and Applications. Synthesis Lectures",
+            "on Human Language Technologies. Morgan & Claypool Publishers.",
+            "Bhavana Dalvi, Peter Jansen, Oyvind Tafjord, Zhengnan Xie, Hannah Smith, Leighanna Pipatanangkura, and Peter Clark. 2021. Explaining answers with entailment trees. In Proceedings ofthe 2021 Conference on Empirical Methods in Natural Language Processing, EMNLP 2021, Virtual Event / Punta Cana, Dominican Republic, 7-11 November, 2021, pages 7358– 7370. Association for Computational Linguistics.",
+            "Zhengxiao Du, Yujie Qian, Xiao Liu, Ming Ding, Jiezhong Qiu, Zhilin Yang, and Jie Tang. 2022. GLM: general language model pretraining with autoregressive blank infilling. In Proceedings of the 60th Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), ACL 2022, Dublin, Ireland, May 22-27, 2022, pages 320–335. Association for Computational Linguistics.",
+            "Patrick Fernandes, Aman Madaan, Emmy Liu, António Farinhas, Pedro Henrique Martins, Amanda Bertsch, José G. C. de Souza, Shuyan Zhou, Tongshuang Wu, Graham Neubig, and André F. T. Martins. 2023. Bridging the gap: A survey on integrating (human) feedback for natural language generation. CoRR, abs/2305.00955.",
+            "James Fieser and Bradley Dowden. 2011. Internet encyclopedia of philosophy: Fallacies.",
+            "Zhibin Gou, Zhihong Shao, Yeyun Gong, Yelong Shen, Yujiu Yang, Nan Duan, and Weizhu Chen. 2023. CRITIC: large language models can self-correct with tool-interactive critiquing. CoRR, abs/2305.11738.",
+            "Ivan Habernal, Henning Wachsmuth, Iryna Gurevych, and Benno Stein. 2018. Before name-calling: Dynamics and triggers of ad hominem fallacies in web argumentation. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers), pages 386–396, New Orleans, Louisiana. Association for Computational Linguistics.",
+            "Hangfeng He, Hongming Zhang, and Dan Roth. 2023. Rethinking with retrieval: Faithful large language model inference. CoRR, abs/2301.00303.",
+            "Ruixin Hong, Hongming Zhang, Xintong Yu, and Changshui Zhang. 2022. METGEN: A modulebased entailment tree generation framework for answer explanation. In Findings ofthe Associationfor Computational Linguistics: NAACL 2022, Seattle, WA, United States, July 10-15, 2022, pages 1887– 1905. Association for Computational Linguistics.",
+            "Ruixin Hong, Hongming Zhang, Hong Zhao, Dong Yu, and Changshui Zhang. 2023. Faithful question answering with monte-carlo planning. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL 2023, Toronto, Canada, July 9-14, 2023, pages"
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            269
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "909",
+        "bbox": [
+            485,
+            928,
+            517,
+            941
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "3944–3965. Association for Computational Linguistics.",
+            "Jiaxin Huang, Shixiang Shane Gu, Le Hou, Yuexin Wu, Xuezhi Wang, Hongkun Yu, and Jiawei Han. 2022. Large language models can self-improve. CoRR, abs/2210.11610.",
+            "Jie Huang, Xinyun Chen, Swaroop Mishra, Huaixiu Steven Zheng, Adams Wei Yu, Xinying Song, and Denny Zhou. 2023. Large language models cannot self-correct reasoning yet. arXiv preprint arXiv:2310.01798.",
+            "William Stanley Jevons. 1872. Elementary lessons in logic: Deductive and inductive: With copious questions and examples, and a vocabulary of logical terms. Macmillan.",
+            "Fangkai Jiao, Yangyang Guo, Xuemeng Song, and Liqiang Nie. 2022. Merit: Meta-path guided contrastive learning for logical reasoning. In Findings of the Associationfor Computational Linguistics: ACL 2022, Dublin, Ireland, May 22-27, 2022, pages 3496– 3509. Association for Computational Linguistics.",
+            "Zhijing Jin, Abhinav Lalwani, Tejas Vaidhya, Xiaoyu Shen, Yiwen Ding, Zhiheng Lyu, Mrinmaya Sachan, Rada Mihalcea, and Bernhard Schoelkopf. 2022. Logical fallacy detection. In Findings of the Associationfor Computational Linguistics: EMNLP 2022, pages 7180–7198, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.",
+            "Jaehun Jung, Lianhui Qin, Sean Welleck, Faeze Brahman, Chandra Bhagavatula, Ronan Le Bras, and Yejin Choi. 2022. Maieutic prompting: Logically consistent reasoning with recursive explanations. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, EMNLP 2022, Abu Dhabi, United Arab Emirates, December 7-11, 2022, pages 1266–1279. Association for Computational Linguistics.",
+            "Takeshi Kojima, Shixiang Shane Gu, Machel Reid, Yutaka Matsuo, and Yusuke Iwasawa. 2022. Large language models are zero-shot reasoners. In NeurIPS.",
+            "Tamera Lanham, Anna Chen, Ansh Radhakrishnan, Benoit Steiner, Carson Denison, Danny Hernandez, Dustin Li, Esin Durmus, Evan Hubinger, Jackson Kernion, Kamile Lukosiute, Karina Nguyen, Newton Cheng, Nicholas Joseph, Nicholas Schiefer, Oliver Rausch, Robin Larson, Sam McCandlish, Sandipan Kundu, Saurav Kadavath, Shannon Yang, Thomas Henighan, Timothy Maxwell, Timothy Telleen-Lawton, Tristan Hume, Zac Hatfield-Dodds, Jared Kaplan, Jan Brauner, Samuel R. Bowman, and Ethan Perez. 2023. Measuring faithfulness in chainof-thought reasoning. CoRR, abs/2307.13702.",
+            "Joe YF Lau. 2011. An introduction to critical thinking and creativity: Think more, think better. John Wiley & Sons.",
+            "Jan Leike and Ilya Sutskever. 2023. Introducing superalignment. OpenAI.",
+            "Hunter Lightman, Vineet Kosaraju, Yura Burda, Harrison Edwards, Bowen Baker, Teddy Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe. 2023. Let’s verify step by step. CoRR, abs/2305.20050.",
+            "Zhan Ling, Yunhao Fang, Xuanlin Li, Zhiao Huang, Mingu Lee, Roland Memisevic, and Hao Su. 2023. Deductive verification of chain-of-thought reasoning. CoRR, abs/2306.03872.",
+            "Hanmeng Liu, Ruoxi Ning, Zhiyang Teng, Jian Liu, Qiji Zhou, and Yue Zhang. 2023a. Evaluating the logical reasoning ability of chatgpt and GPT-4. CoRR, abs/2304.03439.",
+            "Pengfei Liu, Weizhe Yuan, Jinlan Fu, Zhengbao Jiang, Hiroaki Hayashi, and Graham Neubig. 2023b. Pretrain, prompt, and predict: A systematic survey of prompting methods in natural language processing. ACM Comput. Surv., 55(9):195:1–195:35.",
+            "Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, Sean Welleck, Bodhisattwa Prasad Majumder, Shashank Gupta, Amir Yazdanbakhsh, and Peter Clark. 2023. Self-refine: Iterative refinement with self-feedback. CoRR, abs/2303.17651.",
+            "PD Magnus. 2005. forall x: An introduction to formal logic.",
+            "John McCarthy. 1989. Artificial intelligence, logic and formalizing common sense. Philosophical Logic and Artificial Intelligence, pages 161–190.",
+            "Ning Miao, Yee Whye Teh, and Tom Rainforth. 2023. Selfcheck: Using llms to zero-shot check their own step-by-step reasoning. CoRR, abs/2308.00436.",
+            "Ansong Ni, Srini Iyer, Dragomir Radev, Veselin Stoyanov, Wen-Tau Yih, Sida I. Wang, and Xi Victoria Lin. 2023. LEVER: learning to verify language-tocode generation with execution. In International Conference on Machine Learning, ICML 2023, 23- 29 July 2023, Honolulu, Hawaii, USA, volume 202 of Proceedings of Machine Learning Research, pages 26106–26128. PMLR.",
+            "OpenAI. 2023. GPT-4 technical report. CoRR, abs/2303.08774.",
+            "Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul F. Christiano, Jan Leike, and Ryan Lowe. 2022. Training language models to follow instructions with human feedback. In NeurIPS."
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            112
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "910",
+        "bbox": [
+            484,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Liangming Pan, Alon Albalak, Xinyi Wang, and William Yang Wang. 2023. Logic-lm: Empowering large language models with symbolic solvers for faithful logical reasoning. CoRR, abs/2305.12295.",
+            "Amirreza Payandeh, Dan Pluth, Jordan Hosier, Xuesu Xiao, and Vijay K. Gurbani. 2023. How susceptible are llms to logical fallacies? CoRR, abs/2308.09853.",
+            "Andrew Peng, Michael Wu, John Allard, Logan Kilpatrick, and Steven Heidel. 2023. Gpt-3.5 turbo fine-tuning and api updates. https://openai.com/blog/ gpt-3-5-turbo-fine-tuning-and-api-updates.",
+            "Xinyu Pi, Wanjun Zhong, Yan Gao, Nan Duan, and Jian-Guang Lou. 2022. Logigan: Learning logical reasoning via adversarial pre-training. In NeurIPS.",
+            "Nicholas Rescher and Morton L. Schagrin. 2023. Fallacy. Encyclopedia Britannica.",
+            "Jérémy Scheurer, Jon Ander Campos, Tomasz Korbak, Jun Shern Chan, Angelica Chen, Kyunghyun Cho, and Ethan Perez. 2023. Training language models with language feedback at scale. CoRR, abs/2303.16755.",
+            "Noah Shinn, Federico Cassano, Beck Labash, Ashwin Gopinath, Karthik Narasimhan, and Shunyu Yao. 2023. Reflexion: Language agents with verbal reinforcement learning.",
+            "Robyn Speer, Joshua Chin, and Catherine Havasi. 2017. Conceptnet 5.5: An open multilingual graph of general knowledge. In Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence, February 4-9, 2017, San Francisco, California, USA, pages 4444–4451. AAAI Press.",
+            "Christian Stab and Iryna Gurevych. 2017. Recognizing insufficiently supported arguments in argumentative essays. In Proceedings of the 15th Conference of the European Chapter ofthe Associationfor Computational Linguistics: Volume 1, Long Papers, pages 980–990, Valencia, Spain. Association for Computational Linguistics.",
+            "Oyvind Tafjord, Bhavana Dalvi, and Peter Clark. 2021. Proofwriter: Generating implications, proofs, and abductive statements over natural language. In Findings of the Association for Computational Linguistics: ACL/IJCNLP 2021, Online Event, August 1-6, 2021, volume ACL/IJCNLP 2021 of Findings ofACL, pages 3621–3634. Association for Computational Linguistics.",
+            "InternLM Team. 2023. Internlm: A multilingual language model with progressively enhanced capabilities. https://github.com/InternLM/InternLM.",
+            "Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Dan Bikel, Lukas Blecher, Cristian Canton-Ferrer, Moya Chen, Guillem Cucurull, David Esiobu,"
+        ],
+        "bbox": [
+            114,
+            85,
+            489,
+            140
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller, Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel Kloumann, Artem Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, Ranjan Subramanian, Xiaoqing Ellen Tan, Binh Tang, Ross Taylor, Adina Williams, Jian Xiang Kuan, Puxin Xu, Zheng Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melanie Kambadur, Sharan Narang, Aurélien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas Scialom. 2023. Llama 2: Open foundation and finetuned chat models. CoRR, abs/2307.09288.",
+        "bbox": [
+            526,
+            85,
+            887,
+            322
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Karthik Valmeekam, Matthew Marquez, and Subbarao Kambhampati. 2023. Can large language models really improve by self-critiquing their own plans? CoRR, abs/2310.08118.",
+            "Yizhong Wang, Yeganeh Kordi, Swaroop Mishra, Alisa Liu, Noah A. Smith, Daniel Khashabi, and Hannaneh Hajishirzi. 2023. Self-instruct: Aligning language models with self-generated instructions. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL 2023, Toronto, Canada, July 9-14, 2023, pages 13484–13508. Association for Computational Linguistics.",
+            "Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, Ed H. Chi, Tatsunori Hashimoto, Oriol Vinyals, Percy Liang, Jeff Dean, and William Fedus. 2022a. Emergent abilities of large language models. Trans. Mach. Learn. Res., 2022.",
+            "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed H. Chi, Quoc V. Le, and Denny Zhou. 2022b. Chain-of-thought prompting elicits reasoning in large language models. In NeurIPS.",
+            "Yixuan Weng, Minjun Zhu, Shizhu He, Kang Liu, and Jun Zhao. 2022. Large language models are reasoners with self-verification. CoRR, abs/2212.09561.",
+            "Yuxi Xie, Kenji Kawaguchi, Yiran Zhao, Xu Zhao, Min-Yen Kan, Junxian He, and Qizhe Xie. 2023. Decomposition enhances reasoning via self-evaluation guided decoding. CoRR, abs/2305.00633.",
+            "Can Xu, Qingfeng Sun, Kai Zheng, Xiubo Geng, Pu Zhao, Jiazhan Feng, Chongyang Tao, and Daxin Jiang. 2023. Wizardlm: Empowering large language models to follow complex instructions. CoRR, abs/2304.12244.",
+            "Aiyuan Yang, Bin Xiao, Bingning Wang, Borong Zhang, Ce Bian, Chao Yin, Chenxu Lv, Da Pan, Dian Wang,"
+        ],
+        "bbox": [
+            510,
+            331,
+            884,
+            385
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "911",
+        "bbox": [
+            485,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Dong Yan, Fan Yang, Fei Deng, Feng Wang, Feng Liu, Guangwei Ai, Guosheng Dong, Haizhou Zhao, Hang Xu, Haoze Sun, Hongda Zhang, Hui Liu, Jiaming Ji, Jian Xie, Juntao Dai, Kun Fang, Lei Su, Liang Song, Lifeng Liu, Liyun Ru, Luyao Ma, Mang Wang, Mickel Liu, MingAn Lin, Nuolan Nie, Peidong Guo, Ruiyang Sun, Tao Zhang, Tianpeng Li, Tianyu Li, Wei Cheng, Weipeng Chen, Xiangrong Zeng, Xiaochuan Wang, Xiaoxi Chen, Xin Men, Xin Yu, Xuehai Pan, Yanjun Shen, Yiding Wang, Yiyu Li, Youxin Jiang, Yuchen Gao, Yupeng Zhang, Zenan Zhou, and Zhiying Wu. 2023a. Baichuan 2: Open large-scale language models. CoRR, abs/2309.10305.",
+            "Kaiyu Yang, Jia Deng, and Danqi Chen. 2022. Generating natural language proofs with verifier-guided search. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, EMNLP 2022, Abu Dhabi, United Arab Emirates, December 7-11, 2022, pages 89–105. Association for Computational Linguistics.",
+            "Zonglin Yang, Xinya Du, Rui Mao, Jinjie Ni, and Erik Cambria. 2023b. Logical reasoning over natural language as knowledge representation: A survey. CoRR, abs/2303.12023.",
+            "Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas L. Griffiths, Yuan Cao, and Karthik Narasimhan. 2023. Tree of thoughts: Deliberate problem solving with large language models. CoRR, abs/2305.10601.",
+            "Fei Yu, Hongbo Zhang, and Benyou Wang. 2023. Nature language reasoning, A survey. CoRR, abs/2303.14725.",
+            "Eric Zelikman, Yuhuai Wu, Jesse Mu, and Noah D. Goodman. 2022. Star: Bootstrapping reasoning with reasoning. In NeurIPS.",
+            "Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica. 2023. Judging llm-as-a-judge with mt-bench and chatbot arena. CoRR, abs/2306.05685."
+        ],
+        "bbox": [
+            131,
+            85,
+            490,
+            268
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "912",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A Details of Data Collection",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            374,
+            99
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "To generate candidate fallacious steps, we prompt GPT-4 with the following content. Figure 3 shows an example of the fallacy definition. Note that the steps generated by GPT-4 are only used as candidates. We then have human experts proofread and revise them to ensure the quality of the data. We invited 10 well-trained graduate students from universities as human expert annotators. They have passed the graduate school entrance exam and have well logical reasoning skills. They have undergone rigorous training in areas including Mathematical Logic, Computer Science, Programming, and Statistics.",
+        "bbox": [
+            112,
+            109,
+            490,
+            318
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "code",
+        "sub_type": "code",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "```csv\nPrompt for Generating Candidate Fallacious Steps\nYou are a faulty reasoner. I will describe a logical fal\nlacy to you, and then you generate a reasoning step that\nbelongs to this logical fallacy.\nHere is the description: {fallacy definition}\nNow, generate a reasoning step that contains this type\nof logical fallacy. The generated step should be related\nto this element: {entity}\nUse square brackets [] to include propositions. The for\nmat of the output is \"Since [XXX] and [XXX], therefore,\n[XXX]\n```",
+        "bbox": [
+            117,
+            323,
+            484,
+            470
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In the end of the appendix, Table 11 shows the detailed categorizations and descriptions of the 232 fallacies in our dataset.",
+        "bbox": [
+            114,
+            479,
+            487,
+            526
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B Details of Experiments",
+        "text_level": 2,
+        "bbox": [
+            114,
+            538,
+            349,
+            554
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B.1 Models",
+        "text_level": 2,
+        "bbox": [
+            114,
+            562,
+            223,
+            577
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Table 7 shows the version and source URL of the LLMs used in our experiments. For all series of LLMs, we select their versions of instruction finetuned or chat fine-tuned, since these models are closest to realistic applications. We follow the licences of these models to use them.",
+        "bbox": [
+            112,
+            583,
+            490,
+            681
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B.2 Prompt Selection",
+        "text_level": 2,
+        "bbox": [
+            114,
+            690,
+            300,
+            706
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "To select suitable prompts and to explore the impact of prompts on model performance, we conduct an ablation study on the prompts. Table 8 demonstrates the prompts we used. Prompt 1 is the simplest prompt. The model is expected to answer “Yes” for the correct reasoning steps and “No” for the incorrect reasoning steps. Prompt 2, alternatively, replaces the response “Yes/No” with “True/False.” Prompt 3 adopts a Chain-of-Thoughtstyle prompt (Kojima et al., 2022) that allows the model to generate some relevant rationales before giving the prediction. Prompt 4 describes the task in more detail. Moreover, in contrast to Prompt 1,",
+        "bbox": [
+            110,
+            711,
+            490,
+            921
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Prompt 4 requires the model to answer “Yes” for incorrect reasoning steps (which contain logical fallacies) and “No” to correct reasoning steps (which do not contain logical fallacies).",
+        "bbox": [
+            507,
+            85,
+            885,
+            148
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Table 9 demonstrates the results. We can find that Prompt 1 works well for all models. For Prompt 2, some of the models show significant performance degradation after replacing the response words. Prompt 3 introduces chains of thought, but does not achieve significant performance gains on all models. For Prompt 4, although it describes the task in more detail, it does not seem to help improve the LLMs’ performance. Among all the models, GPT-4 exhibits the strongest robustness to prompts, achieving similar performance with different prompts. Comprehensively, we finally chose Prompt 1 as our prompt.",
+        "bbox": [
+            507,
+            149,
+            887,
+            360
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B.3 Few-shot Setting",
+        "text_level": 2,
+        "bbox": [
+            509,
+            369,
+            692,
+            385
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "We also conduct experiments under few-shot setting. We include four demonstrations in the prompt, covering the correct and fallacious steps related to formal and informal fallacies.",
+        "bbox": [
+            509,
+            390,
+            885,
+            454
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [
+            "Table 10 demonstrates the performance of identifying fallacious steps under few-shot setting. We can find that most of the LLMs achieve comparable performance under few-shot setting compared to that under zero-shot setting. Moreover, our findings in Sec 4.3 stand under the few-shot setting as well."
+        ],
+        "code_footnote": [],
+        "code_body": "Prompt for Identifying Fallacious Steps under Few-shot   \nSetting   \nIs the following reasoning step correct? You can only   \nanswer \"Yes\" or \"No.\"   \nSince [If it’s raining then the streets are wet] and [It’s   \nraining now], therefore, [The streets are wet].   \nYes.   \nSince [I found a shell on the beach] and [this shell was   \nbeautifully shaped and colored], therefore, [all shells   \nare beautifully shaped and colored].   \nNo.   \nSince [I am at home or I am in the city] and [I am at   \nhome], therefore, [I am not in the city].   \nNo.   \nSince [heavy snowfall often leads to traffic jams] and   \n[traffic jams cause delays], therefore, [heavy snowfall   \ncan lead to delays].   \nYes.   \n{reasoning step}",
+        "bbox": [
+            514,
+            458,
+            880,
+            702
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "913",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "image",
+        "img_path": "images/0266a248badb5c7339c6141489ce4d060d7da4b90260bbf8d7d6747f046ac2fd.jpg",
+        "image_caption": [
+            "Figure 3: The definition of the fallacy of “Affirming the Consequent”, one of 232 types of fallacies in our dataset."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            119,
+            108,
+            877,
+            412
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/9b40859d8b6dd127a030538eeed37bcbfb5700dbf8e753edc80a0cda81fd2f28.jpg",
+        "table_caption": [
+            "Table 7: Detailed information about the models we experiment with."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>Version</td><td>URL</td></tr><tr><td>Flan-T5-Large (Chung et al., 2022) Flan-T5-x1 (Chung et al., 2022)</td><td>google/flan-t5-large google/flan-t5-xl</td><td>https://huggingface.co/google/flan-t5-large https://huggingface.co/google/flan-t5-xl</td></tr><tr><td>Flan-T5-xxl (Chung et al., 2022) Llama2-7B (Touvron et al., 2023)</td><td>google/flan-t5-xxl meta-llama/Llama-2-7b-chat-hf</td><td>https://huggingface.co/google/flan-t5-xxl https://huggingface.co/meta-llama/Llama-2-7b-chat-hf</td></tr><tr><td>Llama2-13B (Touvron et al., 2023) Llama2-70B (Touvron et al., 2023)</td><td>meta-llama/Llama-2-13b-chat-hf meta-llama/Llama-2-70b-chat-hf</td><td>https://huggingface.co/meta-llama/Llama-2-13b-chat-hf https://huggingface.co/meta-llama/Llama-2-70b-chat-hf</td></tr><tr><td>Baichuan2-7B (Yang et al., 2023a) Baichuan2-13B (Yang et al., 2023a)</td><td>baichuan-inc/Baichuan2-7B-Chat baichuan-inc/Baichuan2-13B-Chat</td><td>https://huggingface.co/baichuan-inc/Baichuan2-7B-Chat https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat</td></tr><tr><td>ChatGLM-6B (Du et al., 2022)</td><td>THUDM/chatglm-6b</td><td>https://huggingface.co/THUDM/chatglm-6b</td></tr><tr><td>ChatGLM2-6B (Du et al., 2022)</td><td>THUDM/chatglm2-6b</td><td>https://huggingface.co/THUDM/chatglm2-6b</td></tr><tr><td></td><td></td><td></td></tr><tr><td>InternLM-7B (Team, 2023)</td><td>internlm/internlm-chat-7b-v1_1</td><td>https://huggingface.co/internlm/internlm-chat-7b-v1_1</td></tr><tr><td>InternLM-20B (Team, 2023)</td><td>internlm/internlm-chat-20b</td><td>https://huggingface.co/internlm/internlm-chat-20b</td></tr><tr><td></td><td></td><td></td></tr><tr><td>Falcon-7B (Almazrouei et al., 2023)</td><td>tiiuae/falcon-7b-instruct</td><td>https://huggingface.co/tiiuae/falcon-7b</td></tr><tr><td></td><td></td><td></td></tr><tr><td>WizardLM-13B (Xu et al., 2023)</td><td>WizardLM/WizardLM-13B-V1.2</td><td>https://huggingface.co/WizardLM/WizardLM-13B-V1.2</td></tr><tr><td>Vicuna-7B (Zheng et al., 2023)</td><td>lmsys/vicuna-7b-v1.5</td><td>https://huggingface.co/lmsys/vicuna-7b-v1.5</td></tr><tr><td>Vicuna-13B (Zheng et al., 2023)</td><td>lmsys/vicuna-13b-v1.5</td><td>https://huggingface.co/lmsys/vicuna-13b-v1.5</td></tr><tr><td></td><td></td><td></td></tr><tr><td>Qwen-14B (Bai et al., 2023)</td><td>Qwen/Qwen-14B-Chat</td><td>https://huggingface.co/Qwen/Qwen-14B-Chat</td></tr><tr><td></td><td></td><td></td></tr><tr><td>GPT-3.5 (Peng et al., 2023)</td><td>gpt-3.5-turbo</td><td>https://platform.openai.com/docs/models/gpt-3-5</td></tr><tr><td></td><td>gpt-4</td><td></td></tr><tr><td>GPT-4 (OpenAI, 2023)</td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></table>",
+        "bbox": [
+            114,
+            495,
+            878,
+            799
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "914",
+        "bbox": [
+            484,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/b30d22ec75772125e59600688e73e36fdf12b4e3c11c7547b42a634cf423ca39.jpg",
+        "table_caption": [
+            "Table 8: The different prompts used to prompt large language models to identify fallacious steps."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>No.</td><td>Content</td></tr><tr><td>Prompt 1</td><td>Is the following reasoning step correct? \\n You can only answer &quot;Yes&quot; or &quot;No&quot;.\\n {reasoning step}</td></tr><tr><td>Prompt 2</td><td>Is the following reasoning step correct? \\n You can only answer &quot;True&quot; or &quot;False&quot;.\\n {reasoning step}</td></tr><tr><td>Prompt 3</td><td>Is the following reasoning step correct? \\n Let&#x27;s think step by step and then answer &quot;Yes&quot; or &quot;No&quot;.\\n {reasoning step}</td></tr><tr><td>Prompt 4</td><td>You are a trained model capable of detecting reasoning errors and logical fallacies. \\n As a detector, your task is to analyze the given reasoning steps and determine whether they involve any logical fallacies. \\n If a logical fallacy is present, your response should be &quot;Yes&quot;. \\n If no logical fallacies are detected, your response should be &quot;No&quot;.\\n You can only answer &quot;Yes&quot; or &quot;No&quot;. \\n {reasoning step}</td></tr></table>",
+        "bbox": [
+            141,
+            95,
+            855,
+            239
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/53c53a3ce901ecf5be5a250d392ff7354f28e8f0613a312b7968f64df7f7daa8.jpg",
+        "table_caption": [
+            "Table 9: Accuracy results (%) on identifying fallacious steps using different prompts."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"3\">Prompt 1</td><td colspan=\"3\">Prompt 2</td><td colspan=\"3\">Prompt 3</td><td colspan=\"3\">Prompt 4</td></tr><tr><td>Formal</td><td>Informal</td><td>Avg.</td><td>Formal</td><td>Informal</td><td>Avg.</td><td>Formal</td><td>Informal</td><td>Avg.</td><td>Formal</td><td>Informal</td><td>Avg.</td></tr><tr><td>Flan-T5-Large</td><td>61.0</td><td>73.6</td><td>67.3</td><td>59.5</td><td>71.7</td><td>65.6</td><td>60.9</td><td>73.9</td><td>67.4</td><td>40.1</td><td>41.3</td><td>40.7</td></tr><tr><td>Flan-T5-xl</td><td>67.9</td><td>74.1</td><td>71.0</td><td>68.2</td><td>68.5</td><td>68.4</td><td>67.3</td><td>74.7</td><td>71.0</td><td>41.0</td><td>47.6</td><td>44.3</td></tr><tr><td>Flan-T5-xxl</td><td>63.9</td><td>73.0</td><td>68.4</td><td>65.1</td><td>74.2</td><td>69.6</td><td>63.4</td><td>73.6</td><td>68.5</td><td>43.1</td><td>59.1</td><td>51.1</td></tr><tr><td>Llama2-7B</td><td>61.3</td><td>71.8</td><td>66.5</td><td>50.7</td><td>53.3</td><td>52.0</td><td>49.8</td><td>52.2</td><td>51.0</td><td>50.0</td><td>49.9</td><td>50.0</td></tr><tr><td>Llama2-13B</td><td>59.9</td><td>63.2</td><td>61.5</td><td>57.5</td><td>67.3</td><td>62.4</td><td>49.8</td><td>51.0</td><td>50.4</td><td>50.2</td><td>51.1</td><td>50.7</td></tr><tr><td>Llama2-70B</td><td>73.3</td><td>88.2</td><td>80.7</td><td>72.3</td><td>87.8</td><td>80.1</td><td>63.8</td><td>67.7</td><td>65.7</td><td>54.7</td><td>59.1</td><td>56.9</td></tr><tr><td>Baichuan2-7B</td><td>52.7</td><td>52.3</td><td>52.5</td><td>60.6</td><td>75.0</td><td>67.8</td><td>54.4</td><td>71.1</td><td>62.7</td><td>45.3</td><td>46.5</td><td>45.9</td></tr><tr><td>Baichuan2-13B</td><td>68.0</td><td>80.9</td><td>74.4</td><td>61.7</td><td>82.2</td><td>72.0</td><td>65.9</td><td>75.9</td><td>70.9</td><td>50.9</td><td>49.9</td><td>50.4</td></tr><tr><td>ChatGLM-6B</td><td>55.8</td><td>54.4</td><td>55.1</td><td>42.9</td><td>48.1</td><td>45.5</td><td>53.3</td><td>61.3</td><td>57.3</td><td>48.2</td><td>46.3</td><td>47.3</td></tr><tr><td>ChatGLM2-6B</td><td>61.7</td><td>75.2</td><td>68.4</td><td>59.1</td><td>76.5</td><td>67.8</td><td>61.8</td><td>71.3</td><td>66.5</td><td>50.5</td><td>50.5</td><td>50.5</td></tr><tr><td>InternLM-7B</td><td>60.6</td><td>75.4</td><td>68.0</td><td>57.6</td><td>72.6</td><td>65.1</td><td>59.5</td><td>75.4</td><td>67.4</td><td>56.7</td><td>68.3</td><td>62.5</td></tr><tr><td>InternLM-20B</td><td>63.6</td><td>77.5</td><td>70.6</td><td>68.4</td><td>81.3</td><td>74.8</td><td>64.6</td><td>77.8</td><td>71.2</td><td>59.6</td><td>77.1</td><td>68.3</td></tr><tr><td>Falcon-7B</td><td>43.0</td><td>70.2</td><td>56.6</td><td>0.0</td><td>0.0</td><td>0.0</td><td>56.5</td><td>73.1</td><td>64.8</td><td>44.4</td><td>43.3</td><td>43.9</td></tr><tr><td>WizardLM-13B</td><td>67.5</td><td>86.5</td><td>77.0</td><td>44.1</td><td>73.5</td><td>58.8</td><td>68.5</td><td>85.9</td><td>77.2</td><td>56.6</td><td>76.2</td><td>66.4</td></tr><tr><td>Vicuna-7B</td><td>68.4</td><td>82.2</td><td>75.3</td><td>0.0</td><td>1.0</td><td>0.5</td><td>66.0</td><td>81.4</td><td>73.7</td><td>55.8</td><td>57.3</td><td>56.5</td></tr><tr><td>Vicuna-13B</td><td>69.8</td><td>86.4</td><td>78.1</td><td>74.2</td><td>85.0</td><td>79.6</td><td>60.6</td><td>81.4</td><td>71.0</td><td>55.7</td><td>67.6</td><td>61.7</td></tr><tr><td>Qwen-14B</td><td>74.7</td><td>88.2</td><td>81.5</td><td>64.1</td><td>67.9</td><td>66.0</td><td>60.2</td><td>79.3</td><td>69.7</td><td>57.8</td><td>72.3</td><td>65.1</td></tr><tr><td>GPT-3.5</td><td>74.1</td><td>87.9</td><td>81.0</td><td>80.9</td><td>88.2</td><td>84.6</td><td>78.6</td><td>88.8</td><td>83.7</td><td>53.1</td><td>57.7</td><td>55.4</td></tr><tr><td>GPT-4</td><td>88.2</td><td>87.2</td><td>87.7</td><td>89.8</td><td>87.4</td><td>88.6</td><td>89.0</td><td>87.0</td><td>88.0</td><td>82.3</td><td>90.8</td><td>86.6</td></tr></table>",
+        "bbox": [
+            114,
+            300,
+            880,
+            529
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/11c9583115b13a5871501baefbb3fa3a433a68ebcec29971b3ca9b25ac820291.jpg",
+        "table_caption": [
+            "Table 10: Accuracy results (%) of identifying fallacious steps under few-shot setting."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"5\">Formal</td><td colspan=\"6\">Informal</td><td rowspan=\"2\">Avg.</td></tr><tr><td>prop.</td><td>quant.</td><td>syl.</td><td>prob.</td><td>Avg.</td><td>amb.</td><td>incon.</td><td>irrel.</td><td>insuf.</td><td>inappr.</td><td>Avg.</td></tr><tr><td>Random</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td><td>50.0</td></tr><tr><td>Flan-T5-Large</td><td>58.3</td><td>64.2</td><td>71.9</td><td>62.5</td><td>64.2</td><td>62.3</td><td>85.0</td><td>73.8</td><td>73.3</td><td>69.7</td><td>72.8</td><td>68.5</td></tr><tr><td>Flan-T5-xl</td><td>47.5</td><td>74.2</td><td>81.9</td><td>68.8</td><td>68.1</td><td>65.3</td><td>85.0</td><td>70.0</td><td>70.3</td><td>70.6</td><td>72.3</td><td>70.2</td></tr><tr><td>Flan-T5-xxl</td><td>44.2</td><td>70.8</td><td>79.4</td><td>56.2</td><td>62.7</td><td>64.0</td><td>76.7</td><td>73.5</td><td>74.6</td><td>71.4</td><td>72.0</td><td>67.3</td></tr><tr><td>Llama2-7B</td><td>65.0</td><td>66.7</td><td>56.2</td><td>63.8</td><td>62.9</td><td>80.3</td><td>75.0</td><td>81.5</td><td>87.0</td><td>81.8</td><td>81.1</td><td>72.0</td></tr><tr><td>Llama2-13B</td><td>65.8</td><td>65.8</td><td>60.0</td><td>62.5</td><td>63.5</td><td>69.0</td><td>73.3</td><td>78.6</td><td>80.3</td><td>80.6</td><td>76.4</td><td>70.0</td></tr><tr><td>Llama2-70B</td><td>64.2</td><td>77.5</td><td>78.8</td><td>72.5</td><td>73.2</td><td>83.3</td><td>81.7</td><td>86.8</td><td>90.9</td><td>88.1</td><td>86.2</td><td>79.7</td></tr><tr><td>Baichuan2-7B</td><td>55.0</td><td>70.0</td><td>62.5</td><td>62.5</td><td>62.5</td><td>73.3</td><td>76.7</td><td>72.8</td><td>77.4</td><td>73.9</td><td>74.8</td><td>68.7</td></tr><tr><td>Baichuan2-13B</td><td>60.8</td><td>72.5</td><td>68.8</td><td>62.5</td><td>66.1</td><td>76.3</td><td>75.0</td><td>78.7</td><td>82.3</td><td>79.1</td><td>78.3</td><td>72.2</td></tr><tr><td>ChatGLM-6B</td><td>71.7</td><td>72.5</td><td>68.1</td><td>61.3</td><td>68.4</td><td>70.7</td><td>81.7</td><td>73.7</td><td>78.5</td><td>76.9</td><td>76.3</td><td>72.3</td></tr><tr><td>ChatGLM2-6B</td><td>64.2</td><td>65.8</td><td>78.8</td><td>57.5</td><td>66.6</td><td>74.0</td><td>83.3</td><td>79.7</td><td>81.6</td><td>76.2</td><td>79.0</td><td>72.8</td></tr><tr><td>InternLM-7B</td><td>60.0</td><td>68.3</td><td>76.9</td><td>47.5</td><td>63.2</td><td>69.3</td><td>80.0</td><td>74.1</td><td>75.6</td><td>71.8</td><td>74.2</td><td>68.7</td></tr><tr><td>InternLM-20B</td><td>58.3</td><td>69.2</td><td>78.8</td><td>60.0</td><td>66.6</td><td>69.3</td><td>80.0</td><td>74.9</td><td>77.6</td><td>75.8</td><td>75.5</td><td>71.1</td></tr><tr><td>Falcon-7B</td><td>56.7</td><td>58.3</td><td>55.0</td><td>53.8</td><td>55.9</td><td>70.0</td><td>71.7</td><td>74.0</td><td>73.0</td><td>72.5</td><td>72.2</td><td>64.1</td></tr><tr><td>WizardLM-13B</td><td>76.7</td><td>72.5</td><td>77.5</td><td>71.2</td><td>74.5</td><td>82.3</td><td>80.0</td><td>85.8</td><td>90.8</td><td>84.4</td><td>84.7</td><td>79.6</td></tr><tr><td>Vicuna-7B</td><td>59.2</td><td>72.5</td><td>73.1</td><td>60.0</td><td>66.2</td><td>76.7</td><td>81.7</td><td>84.2</td><td>87.2</td><td>83.5</td><td>82.6</td><td>74.4</td></tr><tr><td>Vicuna-13B</td><td>67.5</td><td>75.0</td><td>83.1</td><td>62.5</td><td>72.0</td><td>82.7</td><td>85.0</td><td>85.8</td><td>90.8</td><td>85.5</td><td>85.9</td><td>79.0</td></tr><tr><td>Qwen-14B</td><td>68.3</td><td>75.0</td><td>83.1</td><td>67.5</td><td>73.5</td><td>81.7</td><td>88.3</td><td>87.8</td><td>91.2</td><td>85.2</td><td>86.8</td><td>80.2</td></tr><tr><td>GPT-3.5</td><td>72.5</td><td>81.7</td><td>78.1</td><td>78.8</td><td>77.8</td><td>86.0</td><td>86.7</td><td>87.9</td><td>89.4</td><td>85.6</td><td>87.1</td><td>82.4</td></tr><tr><td>GPT-4</td><td>91.7</td><td>84.2</td><td>87.5</td><td>88.8</td><td>88.0</td><td>84.7</td><td>85.0</td><td>89.2</td><td>93.0</td><td>87.8</td><td>87.9</td><td>88.0</td></tr></table>",
+        "bbox": [
+            117,
+            592,
+            875,
+            875
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "915",
+        "bbox": [
+            484,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/1f01478836aafc76a0ea43b121689310a1a9df7dd2b4dbc5563cf16939c71792.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td colspan=\"1\" rowspan=\"1\">Category</td><td colspan=\"1\" rowspan=\"1\">Name of Fallacy</td><td colspan=\"1\" rowspan=\"1\">Description of Fallacy</td></tr><tr><td colspan=\"1\" rowspan=\"6\">Formal-Proposition</td><td colspan=\"1\" rowspan=\"1\">Affirming the Consequent</td><td colspan=\"1\" rowspan=\"1\">An error in formal logic where if the consequent is said to be true,the antecedent is said to be true, as a result.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Denying the Antecedent</td><td colspan=\"1\" rowspan=\"1\">It is a fallacy where in a standard if/then premise, the antecedent(what comes after the “if’) is made not true, then it is concluded thatthe consequent (what comes after the “then’) is not true.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Negating Antecedent andConsequent</td><td colspan=\"1\" rowspan=\"1\">The valid form of this argument is as follows: If P then Q. Therefore,if not-Q then not-P.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Commutation of Condition-als</td><td colspan=\"1\" rowspan=\"1\">Switching the antecedent and the consequent in a logical argument</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Affirming a Disjunct</td><td colspan=\"1\" rowspan=\"1\">Making the false assumption that when presented with an either/orpossibility, that if one of the options is true that the other one mustbe false.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Denying a Conjunct</td><td colspan=\"1\" rowspan=\"1\">A formal fallacy in which the first premise states that at least one ofthe two conjuncts (antecedent and consequent) is false and concludesthat the other conjunct must be true.</td></tr><tr><td colspan=\"1\" rowspan=\"6\">Formal-Quantification</td><td colspan=\"1\" rowspan=\"1\">False Conversion</td><td colspan=\"1\" rowspan=\"1\">The formal fallacy where the subject and the predicate terms of theproposition are switched (conversion) in the conclusion, in a propo-sition that uses “all\" in its premise (type “A” forms), or “some/not\"(type “O” forms).</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Unwarranted Contrast</td><td colspan=\"1\" rowspan=\"1\">Assuming that implicature means implication, when it logically doesnot.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Quantifier Shift Fallacy</td><td colspan=\"1\" rowspan=\"1\">A fallacy of reversing the order of two quantifiers.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Existential Fallacy</td><td colspan=\"1\" rowspan=\"1\">A formal logical fallacy, which is committed when a categoricalsyllogism employs two universal premises (“all\") to arrive at a par-ticular (“some\") conclusion.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Fallacy of Every and All</td><td colspan=\"1\" rowspan=\"1\">When an argument contains both universal quantifiers and existentialquantifiers (all, some, none, every) with different meanings, and theorder of the quantifiers is reversed.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Illicit Contraposition</td><td colspan=\"1\" rowspan=\"1\">A formal fallacy where switching the subject and predicate terms ofa categorical proposition, then negating each, results in an invalidargument form.</td></tr><tr><td colspan=\"1\" rowspan=\"8\">Formal-Syllogism</td><td colspan=\"1\" rowspan=\"1\">Fallacy of the UndistributedMiddle</td><td colspan=\"1\" rowspan=\"1\">A formal fallacy in a categorical syllogism where the middle term,or the term that does not appear in the conclusion, is not distributedto the other two terms.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Exclusive Premises</td><td colspan=\"1\" rowspan=\"1\">A standard form categorical syllogism that has two negative premiseseither in the form of “no X are Y” or “some X are not Y\"</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Fallacy of Four Terms</td><td colspan=\"1\" rowspan=\"1\">This fallacy occurs in a categorical syllogism when the syllogismhas four terms rather than the requisite three.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Illicit Substitution of Identi-cals</td><td colspan=\"1\" rowspan=\"1\">A fallacy due to confusing the knowing of a thing (extension) withthe knowing of it under all its various names or descriptions (inten-sion).</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Illicit Minor</td><td colspan=\"1\" rowspan=\"1\">Any form of a categorical syllogism in which the minor term isdistributed in the conclusion, but not in the minor premise.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Illicit Major</td><td colspan=\"1\" rowspan=\"1\">Any form of a categorical syllogism in which the major term isdistributed in the conclusion, but not in the major premise.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Negative Conclusion fromAffirmative Premises</td><td colspan=\"1\" rowspan=\"1\">The conclusion of a standard form categorical syllogism is negative,but both of the premises are positive.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Affirmative   Conclusionfrom a Negative Premise</td><td colspan=\"1\" rowspan=\"1\">The conclusion of a standard form categorical syllogism is affirma-tive, but at least one of the premises is negative.</td></tr><tr><td colspan=\"1\" rowspan=\"2\">Formal-Probability</td><td colspan=\"1\" rowspan=\"1\">Gamblers Fallacy</td><td colspan=\"1\" rowspan=\"1\">Reasoning that, in a situation that is pure random chance, the out-come can be affected by previous outcomes.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Hot Hand Fallacy</td><td colspan=\"1\" rowspan=\"1\">The irrational belief that if you win or lose several chance games ina row, you are either “hot\" or “cold,\" respectively, meaning that thestreak is likely to continue and has to do with something other thanpure probability.</td></tr><tr><td colspan=\"1\" rowspan=\"2\"></td><td colspan=\"1\" rowspan=\"1\">Conjunction Fallacy</td><td colspan=\"1\" rowspan=\"1\">This occurs when one estimates a conjunctive statement (this andthat) to be more probable than at least one of its component state-ments.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Disjunction Fallacy</td><td colspan=\"1\" rowspan=\"1\">It occurs when one estimates a disjunctive statement (this or that) tobe less probable than at least one of its component statements.</td></tr><tr><td colspan=\"1\" rowspan=\"15\">Informal-Ambiguity</td><td colspan=\"1\" rowspan=\"1\">Argument of the Beard</td><td colspan=\"1\" rowspan=\"1\">When one argues that no useful distinction can be made betweentwo extremes, just because there is no definable moment or point onthe spectrum where the two extremes meet.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Extremes</td><td colspan=\"1\" rowspan=\"1\">Erroneously attempting to make a reasonable argument into an ab-surd one, by taking the argument to the extremes.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Type Token Fallacy</td><td colspan=\"1\" rowspan=\"1\">The type-token fallacy is committed when a word can refer to eithera type (representing an abstract descriptive concept) or a token (rep-resenting an object that instantiates a concept) and is used in a waythat makes it unclear which it refers to.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Use Mention Error</td><td colspan=\"1\" rowspan=\"1\">Confusing the word used to describe a thing, with the thing itself.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Reification</td><td colspan=\"1\" rowspan=\"1\">When an abstraction is treated as if it were a concrete, real event orphysical entity – when an idea is treated as if had a real existence.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Fake Precision</td><td colspan=\"1\" rowspan=\"1\">Using implausibly precise statistics to give the appearance of truthand certainty, or using a negligible difference in data to draw incor-rect inferences.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">No True Scotsman</td><td colspan=\"1\" rowspan=\"1\">When a universal (“all\", “every\", etc.) claim is refuted, rather thanconceding the point or meaningfully revising the claim, the claim isaltered by going from universal to specific, and failing to give anyobjective criteria for the specificity.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Contextomy</td><td colspan=\"1\" rowspan=\"1\">Removing a passage from its surrounding matter in such a way as todistort its intended meaning.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Stolen Concept Fallacy</td><td colspan=\"1\" rowspan=\"1\">Requiring the truth of the something that you are simultaneouslytrying to disprove.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Anthropomorphism</td><td colspan=\"1\" rowspan=\"1\">The attributing of human characteristics and purposes to inanimateobjects, animals, plants, or other natural phenomena, or to gods.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Accent Fallacy</td><td colspan=\"1\" rowspan=\"1\">When the meaning of a word, sentence, or entire idea is interpreteddifferently by changing where the accent falls.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Ambiguity Fallacy</td><td colspan=\"1\" rowspan=\"1\">When an unclear phrase with multiple definitions is used within theargument; therefore, does not support the conclusion.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Alphabet Soup</td><td colspan=\"1\" rowspan=\"1\">The deliberate and excessive use of acronyms and abbreviations toappear more knowledgeable in the subject or confuse others.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Equivocation</td><td colspan=\"1\" rowspan=\"1\">Using an ambiguous term in more than one sense, thus making anargument misleading.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Modal Scope Fallacy</td><td colspan=\"1\" rowspan=\"1\">Making a formal argument invalid by confusing the scope of what isactually necessary or possible.</td></tr><tr><td colspan=\"1\" rowspan=\"3\">Informal-Inconsistency</td><td colspan=\"1\" rowspan=\"1\">Inconsistency</td><td colspan=\"1\" rowspan=\"1\">In terms of a fallacious argument, two or more propositions areasserted that cannot both possibly be true.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Conflicting Conditions</td><td colspan=\"1\" rowspan=\"1\">When the argument is self-contradictory and cannot possibly be true.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Kettle Logic</td><td colspan=\"1\" rowspan=\"1\">Making (usually) multiple, contradicting arguments, in an attempt tosupport a single point or idea.</td></tr><tr><td colspan=\"1\" rowspan=\"5\">Informal-Irrelevance</td><td colspan=\"1\" rowspan=\"1\">Political Correctness Fal-lacy</td><td colspan=\"1\" rowspan=\"1\">It is the assumption or admission that two or more groups, individu-als, or ideas of groups or individuals, are equal, of equal value, orboth true, based on the recent phenomenon of political correctness.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Complexity</td><td colspan=\"1\" rowspan=\"1\">Concluding that because you don't understand something, it mustnot be true, it's improbable, or the argument must be flawed.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Statement of Conversion</td><td colspan=\"1\" rowspan=\"1\">Accepting the truth of a claim based on a conversion story withoutconsidering any evidence for the truth of the claim.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to the Moon</td><td colspan=\"1\" rowspan=\"1\">Using the argument, “If we can put a man on the moon, we could...\"as evidence for the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Quantum Physics Fallacy</td><td colspan=\"1\" rowspan=\"1\">Using quantum physics in an attempt to support your claim, when inno way is your claim related to quantum physics.</td></tr></table>",
+        "bbox": [
+            131,
+            96,
+            865,
+            898
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "916",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "table",
+        "img_path": "",
+        "table_caption": [],
+        "table_footnote": [],
+        "bbox": [
+            132,
+            83,
+            865,
+            898
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "917",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "table",
+        "img_path": "images/5a2e96c60e973a3d32d7e809f4401177f8a4e7282e45d03ff0677dd11fc5f97f.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td colspan=\"1\" rowspan=\"1\">fact to fiction fallacy</td><td colspan=\"1\" rowspan=\"1\">Attempting to support a narrative or argument with facts that don'tsupport the narrative or argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Non Sequitur</td><td colspan=\"1\" rowspan=\"1\">Evidence or reason is irrelevant or adds very little support to theconclusion.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Inflation of Conflict</td><td colspan=\"1\" rowspan=\"1\">Reasoning that because authorities cannot agree precisely on anissue, no conclusions can be reached at all, and minimizing thecredibility of the authorities, as a result.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Argument by Fast Talking</td><td colspan=\"1\" rowspan=\"1\">When fast talking is seen as intelligence and/or confidence in thetruth of one's argument; therefore, seen as evidence of the truth ofthe argument itself.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Intuition</td><td colspan=\"1\" rowspan=\"1\">Evaluating an argument based on \"intuition\" or \"gut feeling\" that isunable to be articulated, rather than evaluating the argument usingreason.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Closure</td><td colspan=\"1\" rowspan=\"1\">Accepting evidence on the basis of wanting closure, or to be donewith the issue.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Definition</td><td colspan=\"1\" rowspan=\"1\">Using a dictionary's limited definition of a term as evidence that termcannot have another meaning, expanded meaning, or even conflictingmeaning.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Spiritual Fallacy</td><td colspan=\"1\" rowspan=\"1\">Insisting that something meant to be literal is actually “spiritual\" asan explanation or justification for something that otherwise wouldnot fit in an explanation.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">gish gallop</td><td colspan=\"1\" rowspan=\"1\">Overwhelming an interlocutor with as many arguments as possible,without regard for accuracy or strength of the arguments.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Denying the Correlative</td><td colspan=\"1\" rowspan=\"1\">Introducing alternatives when, in fact, there are none.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Red Herring</td><td colspan=\"1\" rowspan=\"1\">Attempting to redirect the argument to another issue to which theperson doing the redirecting can better respond.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Strawman Fallacy</td><td colspan=\"1\" rowspan=\"1\">Substituting a person's actual position or argument with a distorted,exaggerated, or misrepresented version of the position of the argu-ment.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Avoiding the Issue</td><td colspan=\"1\" rowspan=\"1\">When an arguer responds to an argument by not addressing the pointsof the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Logic Chopping</td><td colspan=\"1\" rowspan=\"1\">Using the technical tools of logic in an unhelpful and pedantic man-ner by focusing on trivial details instead of directly addressing themain issue in dispute.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Meaningless Question</td><td colspan=\"1\" rowspan=\"1\">Asking a question that cannot be answered with any sort of rationalmeaning.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Failure to Elucidate</td><td colspan=\"1\" rowspan=\"1\">When the definition is made more difficult to understand than theword or concept being defined.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Argument by Gibberish</td><td colspan=\"1\" rowspan=\"1\">When incomprehensible jargon or plain incoherent gibberish is usedto give the appearance of a strong argument, in place of evidence orvalid reasons to accept the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Hypnotic Bait and Switch</td><td colspan=\"1\" rowspan=\"1\">Stating several uncontroversially true statements in succession, fol-lowed by a claim that the arguer wants the audience to accept as true.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Traitorous Critic Fallacy</td><td colspan=\"1\" rowspan=\"1\">Responding to criticism by attacking a person's perceived favora-bility to an out-group or dislike to the in-group as the underlyingreason for the criticism rather than addressing the criticism itself,and suggesting that they stay away from the issue and/or leave thein-group.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Having Your Cake</td><td colspan=\"1\" rowspan=\"1\">Making an argument, or responding to one, in such a way that it doesnot make it at all clear what your position is.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Common Belief</td><td colspan=\"1\" rowspan=\"1\">When the claim that most or many people in general or of a particulargroup accept a belief as true is presented as evidence for the claim.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Popularity</td><td colspan=\"1\" rowspan=\"1\">Using the popularity of a premise or proposition as evidence for itstruthfulness.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Common Sense</td><td colspan=\"1\" rowspan=\"1\">Asserting that your conclusion or facts are just “common sense\"when, in fact, they are not.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Common Folk</td><td colspan=\"1\" rowspan=\"1\">In place of evidence, attempting to establish a connection to theaudience based on being a “regular person\" just like each of them.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Trust</td><td colspan=\"1\" rowspan=\"1\">The belief that if a source is considered trustworthy or untrustworthy,then any information from that source must be true or false, respec-tively.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Argument from Age</td><td colspan=\"1\" rowspan=\"1\">The misconception that previous generations had superior wisdomto modern man, thus conclusions that rely on this wisdom are seenaccepted as true or more true than they actually are.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Heaven</td><td colspan=\"1\" rowspan=\"1\">Asserting the conclusion must be accepted because it is the “will ofGod” or “the will of the gods\"”.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Tradition</td><td colspan=\"1\" rowspan=\"1\">Using historical preferences of the people (tradition), either in gen-eral or as specific as the historical preferences of a single individual,as evidence that the historical preference is correct.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Etymological Fallacy</td><td colspan=\"1\" rowspan=\"1\">The assumption that the present-day meaning of a word should be/issimilar to the historical meaning.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Genetic Fallacy</td><td colspan=\"1\" rowspan=\"1\">Basing the truth claim of an argument on the origin of its claims orpremises.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Celebrity</td><td colspan=\"1\" rowspan=\"1\">Accepting a claim of a celebrity based on his or her celebrity status,not on the strength of the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Authority</td><td colspan=\"1\" rowspan=\"1\">Insisting that a claim is true simply because a valid authority orexpert on the issue said it was true, without any other supportingevidence offered.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to False Authority</td><td colspan=\"1\" rowspan=\"1\">Using an alleged authority as evidence in your argument when theauthority is not really an authority on the facts relevant to the argu-ment.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Argument from False Au-thority</td><td colspan=\"1\" rowspan=\"1\">When a person making a claim is presented as an expert who shouldbe trusted when his or her expertise is not in the area being discussed.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Blind Authority Fallacy</td><td colspan=\"1\" rowspan=\"1\">Asserting that a proposition is true solely on the authority makingthe claim.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Argumentby PersonalCharm</td><td colspan=\"1\" rowspan=\"1\">When an argument is made stronger by the personal characteristicsof the person making the argument, often referred to as “charm\".</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Argument to the Purse</td><td colspan=\"1\" rowspan=\"1\">Concluding that the truth value of the argument is true or false basedon the financial status of the author of the argument or the moneyvalue associated with the truth.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Ad Hominem Circumstan-tial</td><td colspan=\"1\" rowspan=\"1\">Suggesting that the person who is making the argument is biased orpredisposed to take a particular stance, and therefore, the argumentis necessarily invalid.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Gadarene Swine Fallacy</td><td colspan=\"1\" rowspan=\"1\">The assumption that because an individual is not in formation withthe group, that the individual must be the one off course.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Ad Hominem Tu quoque</td><td colspan=\"1\" rowspan=\"1\">Claiming the argument is flawed by pointing out that the one makingthe argument is not acting consistently with the claims of the argu-ment.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Bulverism</td><td colspan=\"1\" rowspan=\"1\">It is the assumption and assertion that an argument is flawed or falsebecause of the arguer's characteristic associated with the arguer'sidentity.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Righteousness Fallacy</td><td colspan=\"1\" rowspan=\"1\">Assuming that just because a person's intentions are good, they havethe truth or facts on their side.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Self Righteousness Fallacy</td><td colspan=\"1\" rowspan=\"1\">Assuming that just because your intentions are good, you have thetruth or facts on your side.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Reductio ad Hitlerum</td><td colspan=\"1\" rowspan=\"1\">The attempt to make an argument analogous with Hitler or the Naziparty.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Ad Hominem Guilt by As-sociation</td><td colspan=\"1\" rowspan=\"1\">When the source is viewed negatively because of its association withanother person or group who is already viewed negatively.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Identity Fallacy</td><td colspan=\"1\" rowspan=\"1\">When one's argument is evaluated based on their physical or socialidentity when the strength of the argument is independent of identity.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Stupidity</td><td colspan=\"1\" rowspan=\"1\">Attempting to get the audience to devalue reason and intellectualdiscourse, or devaluing reason and intellectual discourse based onthe rhetoric of an arguer.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Ad Hominem Abusive</td><td colspan=\"1\" rowspan=\"1\">Attacking the person making the argument, rather than the argumentitself, when the attack on the person is completely irrelevant to theargument the person is making.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Ad Fidentia</td><td colspan=\"1\" rowspan=\"1\">Attacking the person's self-confidence in place of the argument orthe evidence.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">appeal to loyalty</td><td colspan=\"1\" rowspan=\"1\">When one is either implicitly or explicitly encouraged to considerloyalty when evaluating the argument when the truth of the argumentis independent of loyalty.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Accomplishment</td><td colspan=\"1\" rowspan=\"1\">When the argument being made is sheltered from criticism based onthe level of accomplishment of the one making the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Scapegoating</td><td colspan=\"1\" rowspan=\"1\">Unfairly blaming an unpopular person or group of people for aproblem or a person or group that is an easy target for such blame.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Fallacy of Opposition</td><td colspan=\"1\" rowspan=\"1\">Asserting that those who disagree with you must be wrong andnot thinking straight, primarily based on the fact that they are theopposition.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Proof by Intimidation</td><td colspan=\"1\" rowspan=\"1\">Making an argument purposely difficult to understand in an attemptto intimidate your audience into accepting it, or accepting an argu-ment without evidence or being intimidated to question the authorityor a priori assumptions of the one making the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Poisoning the Well</td><td colspan=\"1\" rowspan=\"1\">To prime the audience with adverse information about the opponentfrom the start, in an attempt to make your claim more acceptable ordiscount the credibility of your opponent's claim.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Wishful Thinking</td><td colspan=\"1\" rowspan=\"1\">When the desire for something to be true is used in place of/or asevidence for the truthfulness of the claim.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Faith</td><td colspan=\"1\" rowspan=\"1\">It is the assertion that one must have (the right kind of) faith in orderto understand the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Notable Effort</td><td colspan=\"1\" rowspan=\"1\">Accepting good effort as a valid reason to accept the truth of theconclusion, even though the effort is unrelated to the truth.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Prejudicial Language</td><td colspan=\"1\" rowspan=\"1\">Loaded or emotive terms used to attach value or moral goodness tobelieving the proposition.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Special Pleading</td><td colspan=\"1\" rowspan=\"1\">Applying standards, principles, and/or rules to other people or cir-cumstances, while making oneself or certain circumstances exemptfrom the same critical criteria, without providing adequate justifica-tion.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">If By Whiskey</td><td colspan=\"1\" rowspan=\"1\">A response to a question that is contingent on the questioner's opin-ions and makes use of words with strong connotations.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Overextended Outrage</td><td colspan=\"1\" rowspan=\"1\">One or more statistically rare cases are implied to be the norm or thetrend (without evidence) for the purpose of expressing or incitingoutrage toward an entire group.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Ridicule</td><td colspan=\"1\" rowspan=\"1\">Presenting the argument in such a way that makes the argument lookridiculous, usually by misrepresenting the argument or the use ofexaggeration.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Argument by Emotive Lan-guage</td><td colspan=\"1\" rowspan=\"1\">Substituting facts and evidence with words that stir up emotion,with the attempt to manipulate others into accepting the truth of theargument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Style Over Substance</td><td colspan=\"1\" rowspan=\"1\">When the arguer embellishes the argument with compelling languageor rhetoric, and/or visual aesthetics.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Anger</td><td colspan=\"1\" rowspan=\"1\">When the emotions of anger, hatred, or rage are substituted forevidence in an argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Pity</td><td colspan=\"1\" rowspan=\"1\">The attempt to distract from the truth of the conclusion by the use ofpity.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Emotion</td><td colspan=\"1\" rowspan=\"1\">This is the general category of many fallacies that use emotion inplace of reason in order to attempt to win the argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Flattery</td><td colspan=\"1\" rowspan=\"1\">When an attempt is made to win support for an argument, not by thestrength of the argument, but by using flattery on those whom youwant to accept your argument.</td></tr><tr><td colspan=\"1\" rowspan=\"1\">Appeal to Spite</td><td colspan=\"1\" rowspan=\"1\">Substituting spite (petty ill will or hatred with the disposition toirritate, annoy, or thwart) for evidence in an argument, or as a reasonto support or reject a claim.</td></tr></table>",
+        "bbox": [
+            247,
+            85,
+            863,
+            913
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "918",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "table",
+        "img_path": "",
+        "table_caption": [],
+        "table_footnote": [],
+        "bbox": [
+            247,
+            85,
+            863,
+            884
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_number",
+        "text": "919",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "table",
+        "img_path": "",
+        "table_caption": [],
+        "table_footnote": [],
+        "bbox": [
+            248,
+            85,
+            863,
+            920
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_number",
+        "text": "920",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "table",
+        "img_path": "images/81703f37a694c6b007da8c8bb4cfaf26f109435edaa8327ff337e31f3e47a23e.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=3 colspan=1></td><td rowspan=1 colspan=1>pragmatic fallacy</td><td rowspan=1 colspan=1>Claiming that something is true because the person making the claimhas experienced, or is referring to someone who has experienced,some practical benefit from believing the thing to be true.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Force</td><td rowspan=1 colspan=1>When force, coercion, or even a threat of force is used in place of areason in an attempt to justify a conclusion.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Fear</td><td rowspan=1 colspan=1>When fear, not based on evidence or reason, is being used as theprimary motivator to get others to accept an idea, proposition, orconclusion.</td></tr><tr><td rowspan=20 colspan=1>Informal-Insufficiency</td><td rowspan=1 colspan=1>Fallacy of Composition</td><td rowspan=1 colspan=1>Inferring that something is true of the whole from the fact that it istrue of some part of the whole.</td></tr><tr><td rowspan=1 colspan=1>Fallacy of Division</td><td rowspan=1 colspan=1>Inferring that something is true of one or more of the parts from thefact that it is true of the whole.</td></tr><tr><td rowspan=1 colspan=1>Stereotyping the fallacy</td><td rowspan=1 colspan=1>The general beliefs that we use to categorize people, objects, andevents while assuming those beliefs are accurate generalizations ofthe whole group.</td></tr><tr><td rowspan=1 colspan=1>Ecological Fallacy</td><td rowspan=1 colspan=1>The interpretation of statistical data where inferences about thenature of individuals are deduced from inference for the group towhich those individuals belong.</td></tr><tr><td rowspan=1 colspan=1>Oversimplified Cause Fal-lacy</td><td rowspan=1 colspan=1>When a contributing factor is assumed to be the cause, or when acomplex array of causal factors is reduced to a single cause.</td></tr><tr><td rowspan=1 colspan=1>Accident Fallacy</td><td rowspan=1 colspan=1>When an attempt is made to apply a general rule to all situationswhen clearly there are exceptions to the rule.</td></tr><tr><td rowspan=1 colspan=1>mcnamara fallacy</td><td rowspan=1 colspan=1>When a decision is based solely on quantitative observations (i.e.,metrics, hard data, statistics) and all qualitative factors are ignored.</td></tr><tr><td rowspan=1 colspan=1>Overwhelming Exception</td><td rowspan=1 colspan=1>A generalization that is technically accurate, but has one or morequalifications which eliminate so many cases that the resulting argu-ment is significantly weaker than the arguer implies.</td></tr><tr><td rowspan=1 colspan=1>Reductio ad Absurdum</td><td rowspan=1 colspan=1>A mode of argumentation or a form of argument in which a proposi-tion is disproven by following its implications logically to an absurdconclusion.</td></tr><tr><td rowspan=1 colspan=1>Nirvana Fallacy</td><td rowspan=1 colspan=1>Comparing a realistic solution with an idealized one, and discountingor even dismissing the realistic solution.</td></tr><tr><td rowspan=1 colspan=1>Relative Privation</td><td rowspan=1 colspan=1>Trying to make a scenario appear better or worse by comparing it tothe best or worst case scenario.</td></tr><tr><td rowspan=1 colspan=1>imposter fallacy</td><td rowspan=1 colspan=1>When one suggests or claims, with insufficient evidence, that thegroup outliers who are viewed as damaging to the group are primarilymade up of infiltrators of another group with the purpose of makingthe infiltrated group look bad.</td></tr><tr><td rowspan=1 colspan=1>Misleading Vividness</td><td rowspan=1 colspan=1>A small number of dramatic and vivid events are taken to outweigha significant amount of statistical evidence</td></tr><tr><td rowspan=1 colspan=1>Appeal to Possibility</td><td rowspan=1 colspan=1>When a conclusion is assumed not because it is probably true, butbecause it is possible that it is true, no matter how improbable.</td></tr><tr><td rowspan=1 colspan=1>Rights To Ought Fallacy</td><td rowspan=1 colspan=1>When one conflates a reason for one&#x27;s rights (constitutional or other)with what one should do.</td></tr><tr><td rowspan=1 colspan=1>Psychogenetic Fallacy</td><td rowspan=1 colspan=1>Inferring some psychological reason why an argument is made thenassuming it is invalid, as a result.</td></tr><tr><td rowspan=1 colspan=1>Weak Analogy</td><td rowspan=1 colspan=1>When an analogy is used to prove or disprove an argument, butthe analogy is too dissimilar to be effective, that is, it is unlike theargument more than it is like the argument.</td></tr><tr><td rowspan=1 colspan=1>Extended Analogy</td><td rowspan=1 colspan=1>Suggesting that because two things are alike in some way and oneof those things is like something else, then both things must be likethat &quot;something else&quot;.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Equality</td><td rowspan=1 colspan=1>An assertion is deemed true or false based on an assumed pretenseof equality, where what exactly is &quot;equal&quot; is not made clear, and notsupported by the argument.</td></tr><tr><td rowspan=1 colspan=1>False Equivalence</td><td rowspan=1 colspan=1>An argument or claim in which two completely opposing argumentsappear to be logically equivalent when in fact they are not.</td></tr></table>",
+        "bbox": [
+            131,
+            95,
+            865,
+            909
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "page_number",
+        "text": "921",
+        "bbox": [
+            485,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "table",
+        "img_path": "images/017707532e432fca2bb34ebe0a6203397b5bee4bf0120118d4f637a01ec1c1bc.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=1>Galileo Fallacy</td><td rowspan=1 colspan=1>The claim that because an idea is forbidden, prosecuted, detested.or otherwise mocked, it must be true, or should be given morecredibility.</td></tr><tr><td rowspan=1 colspan=1>Post Designation</td><td rowspan=1 colspan=1>Drawing a conclusion from correlations observed in a given samplebut only after the sample has already been drawn, and without declar-ing in advance what correlations the experimenter was expecting tofind.</td></tr><tr><td rowspan=1 colspan=1>Just In Case Fallacy</td><td rowspan=1 colspan=1>Making an argument based on the worst-case scenario rather thanthe most probable scenario, allowing fear to prevail over reason.</td></tr><tr><td rowspan=1 colspan=1>Selective Attention</td><td rowspan=1 colspan=1>Focusing your attention on certain aspects of the argument whilecompletely ignoring or missing other parts.</td></tr><tr><td rowspan=1 colspan=1>nutpicking fallacy</td><td rowspan=1 colspan=1>When someone presents an atypical or weak member of a group asif they are a typical or strong representative.</td></tr><tr><td rowspan=1 colspan=1>Biased Sample Fallacy</td><td rowspan=1 colspan=1>Drawing a conclusion about a population based on a sample thatis biased, or chosen in order to make it appear the population onaverage is different than it actually is.</td></tr><tr><td rowspan=1 colspan=1>Survivorship Fallacy</td><td rowspan=1 colspan=1>In its general form, the survivorship fallacy is basing a conclusion ona limited number of &quot;winner&quot; testimonies due to the fact we cannotor do not hear the testimonies of the losers.</td></tr><tr><td rowspan=1 colspan=1>Spotlight Fallacy</td><td rowspan=1 colspan=1>Assuming that the media&#x27;s coverage of a certain class or category isrepresentative of the class or category in whole.</td></tr><tr><td rowspan=1 colspan=1>Hasty Generalization</td><td rowspan=1 colspan=1>Drawing a conclusion based on a small sample size, rather thanlooking at statistics that are much more in line with the typical oraverage situation.</td></tr><tr><td rowspan=1 colspan=1>Incomplete Comparison</td><td rowspan=1 colspan=1>An incomplete assertion that cannot possibly be refuted. This ispopular in advertising.</td></tr><tr><td rowspan=1 colspan=1>Texas Sharpshooter Fallacy</td><td rowspan=1 colspan=1>Ignoring the difference while focusing on the similarities, thus com-ing to an inaccurate conclusion.</td></tr><tr><td rowspan=1 colspan=1>Faulty Comparison</td><td rowspan=1 colspan=1>Comparing one thing to another that is really not related, in order tomake one thing look more or less desirable than it really is.</td></tr><tr><td rowspan=1 colspan=1>Base Rate Fallacy</td><td rowspan=1 colspan=1>Ignoring statistical information in favor of using irrelevant informa-tion, that one incorrectly believes to be relevant, to make a judgment.</td></tr><tr><td rowspan=1 colspan=1>Least Plausible Hypothesis</td><td rowspan=1 colspan=1>Choosing more unreasonable explanations for phenomena over moredefensible ones.</td></tr><tr><td rowspan=1 colspan=1>Far Fetched Hypothesis</td><td rowspan=1 colspan=1>Offering a bizarre (far-fetched) hypothesis as the correct explanationwithout first ruling out more mundane explanations.</td></tr><tr><td rowspan=1 colspan=1>Cherry Picking</td><td rowspan=1 colspan=1>When only select evidence is presented in order to persuade theaudience to accept a position, and evidence that would go againstthe position is withheld.</td></tr><tr><td rowspan=1 colspan=1>Argument bySelectiveReading</td><td rowspan=1 colspan=1>When a series of arguments or claims is made and the opponent actsas if the weakest argument was the best one made.</td></tr><tr><td rowspan=1 colspan=1>deceptive sharing</td><td rowspan=1 colspan=1>Sharing an article, post, or meme on social media with the intent toinfluence public perception to perceive a statistically rare event as acommon event.</td></tr><tr><td rowspan=1 colspan=1>Multiple Comparisons Fal-lacy</td><td rowspan=1 colspan=1>Claiming that unexpected trends that occur through random chancealone in a data set with a large number of variables are meaningful</td></tr><tr><td rowspan=1 colspan=1>Magical Thinking</td><td rowspan=1 colspan=1>Making causal connections or correlations between two events notbased on logic or evidence, but primarily based on superstition.</td></tr><tr><td rowspan=1 colspan=1>Slippery Slope</td><td rowspan=1 colspan=1>When a relatively insignificant first event is suggested to lead toa more significant event, which in turn leads to a more significantevent, and so on, until some ultimate, significant event is reachedwhere the connection of each event is not only unwarranted but witheach step it becomes more and more improbable.</td></tr><tr><td rowspan=1 colspan=1>Sunk Cost Fallacy</td><td rowspan=1 colspan=1>Reasoning that further investment is warranted on the fact that theresources already invested will be lost otherwise, not taking intoconsideration the overall losses involved in the further investment.</td></tr><tr><td rowspan=1 colspan=1>Jumping to Conclusions</td><td rowspan=1 colspan=1>Drawing a conclusion without taking the needed time to evaluate theevidence or reason through the argument.</td></tr></table>",
+        "bbox": [
+            247,
+            85,
+            863,
+            909
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "page_number",
+        "text": "922",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "table",
+        "img_path": "images/b8e6eecf8ebe751cacf1b19c5a9a0edfd4c5ab9ab3762eb98177b655c1422dcd.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=15 colspan=1></td><td rowspan=1 colspan=1>Argument from Silence</td><td rowspan=1 colspan=1>Drawing a conclusion based on the silence of the opponent, whenthe opponent is refusing to give evidence for any reason.</td></tr><tr><td rowspan=1 colspan=1>Argument from Hearsay</td><td rowspan=1 colspan=1>Presenting the testimony of a source that is not an eyewitness to theevent in question.</td></tr><tr><td rowspan=1 colspan=1>Anonymous Authority</td><td rowspan=1 colspan=1>When an unspecified source is used as evidence for the claim.</td></tr><tr><td rowspan=1 colspan=1>Insignificant Cause</td><td rowspan=1 colspan=1>An explanation that posits one minor factor, out of several thatcontributed, as its sole cause.</td></tr><tr><td rowspan=1 colspan=1>Just Because Fallacy</td><td rowspan=1 colspan=1>Refusing to respond to give reasons or evidence for a claim by statingyourself as the ultimate authority on the matter.</td></tr><tr><td rowspan=1 colspan=1>Appeal to the Law</td><td rowspan=1 colspan=1>When following the law is assumed to be the morally correct thingto do, without justification, or when breaking the law is assumed tobe the morally wrong thing to do, without justification.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Normality</td><td rowspan=1 colspan=1>Using social norms to determine what is good or bad.</td></tr><tr><td rowspan=1 colspan=1>False Effect</td><td rowspan=1 colspan=1>Claiming that the cause is true or false based on what we knowabout the effect in a claim of causality that has not been properlyestablished.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Consequences</td><td rowspan=1 colspan=1>Concluding that an idea or proposition is true or false because theconsequences of it being true or false are desirable or undesirable.</td></tr><tr><td rowspan=1 colspan=1>Retrogressive Causation</td><td rowspan=1 colspan=1>Invoking the cause to eliminate the effect, or calling on the source torelieve the effect of the source.</td></tr><tr><td rowspan=1 colspan=1>Confusing Currently Unex-plained with Unexplainable</td><td rowspan=1 colspan=1>Making the assumption that what cannot currently be explained is,therefore, unexplainable (impossible to explain).</td></tr><tr><td rowspan=1 colspan=1>Appeal to Desperation</td><td rowspan=1 colspan=1>Arguing that your conclusion, solution, or proposition is right basedon the fact that something must be done, and your solution is &quot;some-thing.&#x27;</td></tr><tr><td rowspan=1 colspan=1>Regression Fallacy</td><td rowspan=1 colspan=1>Ascribing a cause where none exists in situations where natural fluc-tuations exist while failing to account for these natural fluctuations</td></tr><tr><td rowspan=1 colspan=1>Causal Reductionism</td><td rowspan=1 colspan=1>Assuming a single cause or reason when there were actually multiplecauses or reasons.</td></tr><tr><td rowspan=1 colspan=1>Questionable Cause</td><td rowspan=1 colspan=1>Concluding that one thing caused another, simply because they areregularly associated.</td></tr><tr><td rowspan=11 colspan=1>Informal-InappropriatePresumption</td><td rowspan=1 colspan=1>Hedging</td><td rowspan=1 colspan=1>Refining your claim simply to avoid counter evidence and then actingas if your revised claim is the same as the original.</td></tr><tr><td rowspan=1 colspan=1>Circular Definition</td><td rowspan=1 colspan=1>A circular definition is defining a term by using the term in thedefinition.</td></tr><tr><td rowspan=1 colspan=1>Homunculus Fallacy</td><td rowspan=1 colspan=1>An argument that accounts for a phenomenon in terms of the veryphenomenon that it is supposed to explain, which results in an infiniteregress.</td></tr><tr><td rowspan=1 colspan=1>Circular Reasoning</td><td rowspan=1 colspan=1>A type of reasoning in which the proposition is supported by thepremises, which is supported by the proposition.</td></tr><tr><td rowspan=1 colspan=1>Tokenism</td><td rowspan=1 colspan=1>Interpreting a token gesture as an adequate substitute for the realthing.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Novelty</td><td rowspan=1 colspan=1>Claiming that something that is new or modern is superior to thestatus quo, based exclusively on its newness.</td></tr><tr><td rowspan=1 colspan=1>Two Wrongs Make a Right</td><td rowspan=1 colspan=1>When a person attempts to justify an action against another personbecause the other person did take or would take the same actionagainst him or her.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Nature</td><td rowspan=1 colspan=1>When used as a fallacy, the belief or suggestion that “natural&quot; isbetter than “unnatural&quot; based on its naturalness.</td></tr><tr><td rowspan=1 colspan=1>Naturalistic Fallacy</td><td rowspan=1 colspan=1>When the conclusion expresses what ought to be, based only on whatis, or what ought not to be, based on what is not.</td></tr><tr><td rowspan=1 colspan=1>Moralistic Fallacy</td><td rowspan=1 colspan=1>When the conclusion expresses what is, based only on what onebelieves ought to be, or what isn&#x27;t is based on what one believesought not to be.</td></tr><tr><td rowspan=1 colspan=1>Suppressed Correlative</td><td rowspan=1 colspan=1>The attempt to redefine a correlative (one of two mutually exclusiveoptions) so that one alternative encompasses the other, i.e. makingone alternative impossible.</td></tr></table>",
+        "bbox": [
+            132,
+            84,
+            865,
+            914
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "page_number",
+        "text": "923",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "table",
+        "img_path": "images/dd6d34445e6fc1564b2f378e2795b71c2a0345eef5a7c6acba1c73b0a228a8db.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=1>Historians Fallacy</td><td rowspan=1 colspan=1>Judging a person&#x27;s decision in the light of new information notavailable at the time.</td></tr><tr><td rowspan=1 colspan=1>Willed Ignorance</td><td rowspan=1 colspan=1>Refusing to change one&#x27;s mind or consider conflicting informationbased on a desire to maintain one&#x27;s existing beliefs.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Coincidence</td><td rowspan=1 colspan=1>Concluding that a result is due to chance when the evidence stronglysuggests otherwise.</td></tr><tr><td rowspan=1 colspan=1>Argument from Incredulity</td><td rowspan=1 colspan=1>Concluding that because you can&#x27;t or refuse to believe something, itmust not be true, improbable, or the argument must be flawed.</td></tr><tr><td rowspan=1 colspan=1>Argument by Pigheaded-ness</td><td rowspan=1 colspan=1>This is a refusal to accept a well-proven argument for one of manyreasons related to stubbornness.</td></tr><tr><td rowspan=1 colspan=1>Argument by Repetition</td><td rowspan=1 colspan=1>Repeating an argument or a premise over and over again in place ofbetter supporting evidence.</td></tr><tr><td rowspan=1 colspan=1>Definist Fallacy</td><td rowspan=1 colspan=1>Defining a term in such a way that makes one&#x27;s position much easierto defend.</td></tr><tr><td rowspan=1 colspan=1>Limited Scope</td><td rowspan=1 colspan=1>The theory doesn&#x27;t explain anything other than the phenomenon itexplains (that one thing), and at best, is likely to be incomplete.</td></tr><tr><td rowspan=1 colspan=1>Moving the Goalposts</td><td rowspan=1 colspan=1>Demanding from an opponent that he or she address more and morepoints after the initial counter-argument has been satisfied refusingto concede or accept the opponent&#x27;s argument</td></tr><tr><td rowspan=1 colspan=1>Argument from Fallacy</td><td rowspan=1 colspan=1>Concluding that the truth value of an argument is false based on thefact that the argument contains a fallacy.</td></tr><tr><td rowspan=1 colspan=1>False Dilemma</td><td rowspan=1 colspan=1>When only two choices are presented yet more exist, or a spectrumof possible choices exists between two extremes.</td></tr><tr><td rowspan=1 colspan=1>Argument from Ignorance</td><td rowspan=1 colspan=1>The assumption of a conclusion or fact based primarily on lack ofevidence to the contrary.</td></tr><tr><td rowspan=1 colspan=1>Alternative Advance</td><td rowspan=1 colspan=1>When one is presented with just two choices, both of which areessentially the same, just worded differently.</td></tr><tr><td rowspan=1 colspan=1>Shifting of the Burden ofProof</td><td rowspan=1 colspan=1>Making a claim that needs justification, then demanding that theopponent justifies the opposite of the claim.</td></tr><tr><td rowspan=1 colspan=1>Proving Non Existence</td><td rowspan=1 colspan=1>Demanding that one proves the non-existence of something in placeof providing adequate evidence for the existence of that something.</td></tr><tr><td rowspan=1 colspan=1>Proof Surrogate</td><td rowspan=1 colspan=1>A claim masquerading as proof or evidence, when no such proof orevidence is actually being offered.</td></tr><tr><td rowspan=1 colspan=1>Rationalization</td><td rowspan=1 colspan=1>Offering false or inauthentic excuses for our claim because we knowthe real reasons are much less persuasive or more embarrassing toshare, or harsher than the manufactured ones given.</td></tr><tr><td rowspan=1 colspan=1>Spin Doctoring</td><td rowspan=1 colspan=1>Presenting information in a deceptive way that results in othersinterpreting the information in such a way that does not reflect realitybut is how you want the information to be interpreted.</td></tr><tr><td rowspan=1 colspan=1>Lying with Statistics</td><td rowspan=1 colspan=1>Presenting statistical data in a very biased way.</td></tr><tr><td rowspan=1 colspan=1>Ad Hoc Rescue</td><td rowspan=1 colspan=1>When we desperately want to be right and hold on to certain beliefs,we begin to make up excuses without no real evidence as to why ourbelief could be.</td></tr><tr><td rowspan=1 colspan=1>False Attribution</td><td rowspan=1 colspan=1>Appealing to an irrelevant, unqualified, unidentified, biased, or fabri-cated source in support of an argument (modern usage).</td></tr><tr><td rowspan=1 colspan=1>Amazing Familiarity</td><td rowspan=1 colspan=1>The argument contains information that seems impossible to haveobtained—like it came from an omniscient author.</td></tr><tr><td rowspan=1 colspan=1>Ludic Fallacy</td><td rowspan=1 colspan=1>Assuming flawless statistical models apply to situations where theyactually don&#x27;t.</td></tr><tr><td rowspan=1 colspan=1>Missing Data Fallacy</td><td rowspan=1 colspan=1>Refusing to admit ignorance to the hypothesis and/or the conclusion,but insisting that your ignorance has to do with missing data thatvalidate both the hypothesis and conclusion.</td></tr><tr><td rowspan=1 colspan=1>Begging the Question</td><td rowspan=1 colspan=1>Any form of argument where the conclusion is assumed in one ofthe premises.</td></tr><tr><td rowspan=1 colspan=1>Complex Question Fallacy</td><td rowspan=1 colspan=1>A question that has a presupposition built in, which implies some-thing but protects the one asking the question from accusations offalse claims.</td></tr></table>",
+        "bbox": [
+            247,
+            85,
+            863,
+            913
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "page_number",
+        "text": "924",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "table",
+        "img_path": "images/ccb0837afbf7c074e5cac8495fbdb7d783e0a5bb72ae314bb82faa576de71a09.jpg",
+        "table_caption": [
+            "Table 11: Categorizations and descriptions of the fallacies in our dataset."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=17 colspan=1></td><td rowspan=1 colspan=1>Package Deal Fallacy</td><td rowspan=1 colspan=1>Assuming things that are often grouped together must always begrouped together, or the assumption that the ungrouping will havesignificantly more severe effects than anticipated.</td></tr><tr><td rowspan=1 colspan=1>Subjectivist Fallacy</td><td rowspan=1 colspan=1>Claiming something is true for one person, but not for someone elsewhen, in fact, it is true for everyone (objective) as demonstrated byempirical evidence.</td></tr><tr><td rowspan=1 colspan=1>Distinction Without a Differ-ence</td><td rowspan=1 colspan=1>The assertion that a position is different from another position basedon the language when, in fact, both positions are the same – at leastin practice or practical terms.</td></tr><tr><td rowspan=1 colspan=1>Hypothesis Contrary to Fact</td><td rowspan=1 colspan=1>Offering a poorly supported claim about what might have happenedin the past or future, if (the hypothetical part) circumstances orconditions were different.</td></tr><tr><td rowspan=1 colspan=1>Shoehorning</td><td rowspan=1 colspan=1>The process of force-fitting some current affair into one&#x27;s personalpolitical, or religious agenda.</td></tr><tr><td rowspan=1 colspan=1>Appeal to Self-evidentTruth</td><td rowspan=1 colspan=1>Making the claim that something is &quot;self-evident&quot; when it is notself-evident in place of arguing a claim with reason.</td></tr><tr><td rowspan=1 colspan=1>Subverted Support</td><td rowspan=1 colspan=1>The attempt to explain some phenomenon that does not actuallyoccur or there is no evidence that it does.</td></tr><tr><td rowspan=1 colspan=1>Double Standard</td><td rowspan=1 colspan=1>Judging two situations by different standards when, in fact, youshould be using the same standard.</td></tr><tr><td rowspan=1 colspan=1>Fantasy Projection</td><td rowspan=1 colspan=1>Confusing subjective experiences, usually very emotionally chargedwith objective reality, then suggesting or demanding that othersaccept the subjective experience as objective reality.</td></tr><tr><td rowspan=1 colspan=1>Argument to Moderation</td><td rowspan=1 colspan=1>Asserting that given any two positions, there exists a compromisebetween them that must be correct.</td></tr><tr><td rowspan=1 colspan=1>Broken Window Fallacy</td><td rowspan=1 colspan=1>The illusion that destruction and money spent in recovery fromdestruction, is a net-benefit to society.</td></tr><tr><td rowspan=1 colspan=1>Self Sealing Argument</td><td rowspan=1 colspan=1>An argument or position is self-sealing if and only if no evidencecan be brought against it no matter what.</td></tr><tr><td rowspan=1 colspan=1>Unfalsifiability</td><td rowspan=1 colspan=1>Confidently asserting that a theory or hypothesis is true or false eventhough the theory or hypothesis cannot possibly be contradicted byan observation or the outcome of any physical experiment, usuallywithout strong evidence or good reasons.</td></tr><tr><td rowspan=1 colspan=1>Conspiracy Theory</td><td rowspan=1 colspan=1>Explaining that your claim cannot be proven or verified because thetruth is being hidden and/or evidence destroyed by a group of two ormore people.</td></tr><tr><td rowspan=1 colspan=1>Confusing an Explanationwith an Excuse</td><td rowspan=1 colspan=1>Treating an explanation of a fact as if it were a justification of thefact, a valid reason for the fact, or evidence for the fact.</td></tr><tr><td rowspan=1 colspan=1>Limited Depth</td><td rowspan=1 colspan=1>Failing to appeal to an underlying cause, and instead simply appeal-ing to membership in a category.</td></tr><tr><td rowspan=1 colspan=1>Alleged Certainty</td><td rowspan=1 colspan=1>Asserting a conclusion without evidence or premises, through astatement that makes the conclusion appear certain when, in fact, itis not.</td></tr></table>",
+        "bbox": [
+            136,
+            82,
+            865,
+            694
+        ],
+        "page_idx": 25
+    },
+    {
+        "type": "page_number",
+        "text": "925",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 25
+    }
+]

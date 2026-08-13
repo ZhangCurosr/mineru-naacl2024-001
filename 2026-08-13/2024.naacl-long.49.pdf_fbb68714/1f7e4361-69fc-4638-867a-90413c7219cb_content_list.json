@@ -1,0 +1,1981 @@
+[
+    {
+        "type": "text",
+        "text": "Create! Don’t Repeat: A Paradigm Shift in Multi-Label Augmentation through Label Creative Generation",
+        "text_level": 1,
+        "bbox": [
+            132,
+            89,
+            865,
+            129
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Letian Wang, Xianggen Liu, Jiancheng Lv\\*",
+        "bbox": [
+            294,
+            152,
+            702,
+            168
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "College of Computer Science, Sichuan University, China Engineering Research Center of Machine Learning and Industry Intelligence, China letianwang@stu.scu.edu.cn, {liuxianggen, lvjiancheng}@scu.edu.cn",
+        "bbox": [
+            157,
+            168,
+            840,
+            221
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            262,
+            260,
+            342,
+            277
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "We propose Label Creative Generation (LCG), a new paradigm in multi-label data augmentation. Beyond repeating data points with fixed labels, LCG creates new data by exploring innovative label combinations. Within LCG, we introduce Tail-Driven Conditional Augmentation (TDCA), combining tail-driven label sampling and label-conditioned text generation for balanced, consistent data augmentation. Our approach has demonstrated a 100.21% increase in PSP@1 across three datasets, successfully mitigating the long-tail effect in MLTC and markedly enhancing model performance.",
+        "bbox": [
+            141,
+            284,
+            462,
+            472
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            115,
+            481,
+            260,
+            497
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Multi-label Text Classification (MLTC), prevalent in fields such as sentiment analysis and recommendation systems, grapples with the dual challenges of an extensive label space and a pronounced longtail distribution. This imbalance is exemplified in Wiki10-31K dataset, where a mere 1.5% of labels have more than 100 training instances, leaving the vast majority with a scarcity of training data. Table 1 reveals that while numerous studies claim to have addressed or alleviated the long-tail issue, advancements in recent years, particularly on PSP@k, have been gradual. Relying solely on advancements in neural architectures appears to be ineffective over time. There is a need for data augmentation.",
+        "bbox": [
+            112,
+            505,
+            490,
+            732
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "table",
+        "img_path": "images/d648f963d5f5ecbf368b2212bfb888c97870193d9027de456d3e0114e630681d.jpg",
+        "table_caption": [
+            "Table 1: Comparison of MLTC methods on Wiki10-31K using PSP@k, a widely used metric that assigns higher weights to tail labels for a more balanced evaluation."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Method</td><td>Source</td><td>PSP@1</td><td>PSP@3</td><td>PSP@5</td></tr><tr><td>PfastreXML</td><td>Jain et al. (2016)</td><td>19.02</td><td>18.34</td><td>18.43</td></tr><tr><td>XML-CNN</td><td>Liu et al. (2017)</td><td>9.39</td><td>10.00</td><td>10.20</td></tr><tr><td>AttentionXML</td><td>You et al. (2019)</td><td>15.57</td><td>16.80</td><td>17.82</td></tr><tr><td>LightXML</td><td>Jiang et al. (2021)</td><td>16.00</td><td>16.99</td><td>18.97</td></tr><tr><td>Cbolt</td><td>Ge et al. (2022)</td><td>12.00</td><td>13.50</td><td>15.00</td></tr><tr><td>XRR</td><td>Xiong et al. (2023)</td><td>11.77</td><td>16.48</td><td>21.07</td></tr><tr><td>TDCA</td><td>ours</td><td>46.31</td><td>39.02</td><td>36.92</td></tr></table>",
+        "bbox": [
+            115,
+            740,
+            484,
+            833
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "chart",
+        "img_path": "images/3e0bb9e7843f20b6dc564ba1da5e2989c810769c934b7b1e2567f109a042036d.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 1: PSP@5 for various expansion ratios on MeSH-12K dataset, comparing four data augmentation methods: Easy Data Augmentation (EDA), Back-Translation (BT), Conditional Augmentation (CA), and TDCA. The Expansion Ratio (E/R) quantifies augmentation: 1 indicates no augmentation and 1 + x% shows x% augmentation over the original dataset."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            517,
+            260,
+            878,
+            441
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1.1 Inadequacies of Current DA Methods",
+        "text_level": 2,
+        "bbox": [
+            510,
+            560,
+            852,
+            576
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Current data augmentation (DA) methods in text classification have shown promise, yet their effectiveness in MLTC remains limited. Prevailing DA strategies typically focus on employing various approaches to replicate data while maintaining labels unchanged. These methods fall into two distinct categories: paraphrase-based augmentation and conditional augmentation (CA). The former includes model-free methods like easy data augmentation (Wei and Zou, 2019), as well as model-required techniques such as backtranslation (Sennrich et al., 2016; Edunov et al., 2018). CA employs conditional generation (often label-conditioned) for data augmentation to synthesize texts that are more controlled yet diverse (Li et al., 2020; Liu et al., 2020). Such strategies offered benefits in binary or multi-class text classification, often regarded as a means to bolster model robustness (Bayer et al., 2023). However, as illustrated in Figure 1, conventional approaches like EDA and BT are seldom effective and might even impede model performance, particularly at greater data expansion scales. CA shows improved performance but remains modest.",
+        "bbox": [
+            507,
+            585,
+            887,
+            922
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "\\*Corresponding Author.",
+        "bbox": [
+            136,
+            908,
+            285,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "855",
+        "bbox": [
+            485,
+            928,
+            515,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 855–869 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            946,
+            857,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            490,
+            133
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Intrinsically marked by the existence of multiple labels per instance, MLTC poses distinct challenges to conventional data augmentation methods. Paraphrasing-based approaches, which solely alter the text while maintaining its original intent and keeping the labels unchanged, fail to enhance performance by a large margin. Moreover, the noise introduced in the paraphrasing process can adversely affect model performance, a negative impact that becomes more pronounced with an increasing proportion of augmented data.",
+        "bbox": [
+            112,
+            133,
+            490,
+            311
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "1.2 LLMs in MLTC",
+        "text_level": 2,
+        "bbox": [
+            114,
+            321,
+            290,
+            336
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The recent validation of scaling laws in large language models (LLMs) like GPT (Brown et al., 2020; Bubeck et al., 2023) and LLaMa (Touvron et al., 2023a,b) has revolutionized previously infeasible tasks and advanced tasks that had plateaued. Research exploring LLMs in multi-label text classification has been emerging. For example, Kocon et al. (2023) evaluated ChatGPT in text classification, observing its lag behind traditional SOTA models, with the gap widening in complex classification scenarios. However, its performance in emotion recognition was noteworthy. Loukas et al. (2023) corroborated this, highlighting ChatGPT’s potential in few-shot and zero-shot classification. This is in line with the training goal of LLMs, which involves predicting the next token from preceding ones.",
+        "bbox": [
+            112,
+            342,
+            490,
+            615
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Post-training on large-scale general corpora, their formidable understanding and common sense skills lend them efficacy in text generation tasks and common classification tasks with fewer categories (Ray, 2023). Nonetheless, they grapple with issues like hallucinations and prompt sensitivity, underperforming in knowledge-intensive tasks like large-scale information retrieval and fine-grained text classification (Li et al., 2023).",
+        "bbox": [
+            112,
+            617,
+            489,
+            760
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Given the extremely large number of labels, employing LLMs for MLTC directly is impractical. An alternative is leveraging LLMs for data augmentation, as explored in some recent works. AugGPT (Dai et al., 2023), for instance, continued with the conventional approach, employing ChatGPT for paraphrasing texts while preserving the original labels, yielding marginal improvements. Van Nooten and Daelemans (2023) took a more straightforward route. They provided ChatGPT with nine distinct labels along with the corresponding examples to generate additional text-labels pairs for tweet classification.",
+        "bbox": [
+            112,
+            762,
+            490,
+            923
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "chart",
+        "img_path": "images/237f83f512c93294e23882d60be634f88a91738ce77d4bba1c738883a3cc6373.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 2: Tag frequency distribution post data augmentation. Compared to traditional data augmentation methods (EDA, BT, and CA), TDCA demonstrates more effective mitigation of the long-tail effect."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            510,
+            82,
+            877,
+            252
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            348,
+            887,
+            395
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "1.3 Create! Don’t Repeat",
+        "text_level": 2,
+        "bbox": [
+            510,
+            412,
+            727,
+            428
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The untapped potential of LLMs opens new avenues for conditional data generation to liberate us from the limitations of simply repeating existing data points, enabling the synthesis of entirely new ones. Hence, we introduce a new multilabel data augmentation paradigm, Label Creative Generation (LCG), and within LCG, we propose Tail-Driven Conditional Augmentation (TDCA). TDCA comprises (1) a Metropolis-Hastings algorithm based tail-driven label sampling for crafting more balanced label combinations with consideration of label correlations; and (2) a contrastive labelconditioned generation approach, which fine-tunes LLMs to generate texts that not only accurately reflect each label in the sampled label combinations but also emulate the style of the original dataset.",
+        "bbox": [
+            507,
+            436,
+            887,
+            694
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "TDCA enables the transference of extensive correlations from head labels to tail labels through LLM. Our experimental results demonstrate a substantial alleviation of the long-tail effect, evidenced by a 100.21% average enhancement in PSP@1 across Eurlex-4K, MeSH-12K, and Wiki10-30K datasets. Remarkably, with increasing expansion ratios, we observe an ascending trend in PSP@k, devoid of the detrimental noise impact commonly associated with traditional data augmentation methods, a finding corroborated by t-SNE visualizations in Figure 5. Ablation studies affirm the efficacy and validity of TCDA.",
+        "bbox": [
+            507,
+            695,
+            887,
+            904
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Our contributions are threefold:",
+        "bbox": [
+            527,
+            906,
+            768,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "856",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "1. We introduce a new paradigm in multi-label data augmentation, Label Creative Generation. This approach, to the best of our knowledge, is pioneering in the field as it does not rely on pre-existing label combinations but instead creates new ones.",
+        "bbox": [
+            129,
+            84,
+            490,
+            181
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2. Within the framework of LCG, we propose a novel method named Tail-Driven Conditional Augmentation. TDCA enables the generation of balanced label combinations through the construction of a dual-weighted label graph and employs tail-driven label sampling based on the Metropolis-Hastings algorithm. Moreover, it utilizes contrastive label-conditioned generation to produce augmented texts that are both representative of the assigned labels and coherent with the original dataset.",
+        "bbox": [
+            127,
+            196,
+            489,
+            374
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3. Our experiments conducted across three datasets show that TDCA significantly reduced the long-tail effect in MLTC. The results show notable improvements in PSP@1, P@10, and N@10, with increases of 100.21%, 16.58%, and 11.65%, respectively.",
+        "bbox": [
+            126,
+            388,
+            490,
+            486
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2 Tail-Driven Conditional Augmentation",
+        "text_level": 2,
+        "bbox": [
+            114,
+            502,
+            484,
+            519
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Multi-label Text Classification (MLTC) aims to assign a subset of labels $Y \\subseteq L$ to each instance x, where $L = \\{ l _ { 1 } , l _ { 2 } , . . . , l _ { N } \\}$ represents the entire possible label space. This task can be formalized as learning a mapping function $f ( x )  2 ^ { L }$ , predicting the power set of L. The approach of TDCA is straightforward: It commences with tail-driven label sampling to create label combinations and proceeds to contrastive label-conditioned generation, synthesizing text that aligns with these labels.",
+        "bbox": [
+            112,
+            530,
+            490,
+            693
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2.1 Tail-Driven Label Sampling",
+        "text_level": 2,
+        "bbox": [
+            114,
+            706,
+            381,
+            722
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "In MLTC, two primary characteristics emerge: (1) Each instance is associated with multiple labels, which exhibit significant correlations; (2) As depicted in Table 2, multi-label datasets encounter a pronounced long-tail effect, with tail labels dominating the label space yet being represented in only a small fraction of training instances. To address this, a balanced and correlation-aware label sampling approach is necessary. Consequently, we present Tail-Driven Label Sampling, which incorporates the Dual-Weighted Label Graph and Metropolis-Hastings sampling.",
+        "bbox": [
+            112,
+            728,
+            490,
+            923
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/2ee2b4c7e6c02b9365c57095c80b3ee4f7655edfade7f5d7cd2d40a17124e909.jpg",
+        "image_caption": [
+            "Figure 3: Tail-driven label sampling. Vertex size shows label frequency in the dataset, while edge thickness and color depth indicate label co-occurrence frequency."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            509,
+            82,
+            882,
+            302
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2.1.1 Dual-Weighted Label Graph",
+        "text_level": 2,
+        "bbox": [
+            509,
+            380,
+            796,
+            395
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The Dual-Weighted Label Graph (DWLG) is formally defined as $G = ( V , E , W _ { v } , W _ { e } )$ . It comprises vertices V , each signifying a distinct label, and edges E, linking pairs of vertices based on their co-occurrence in the dataset. Vertex weights are consolidated in $W _ { v } = \\{ w _ { v } ( i ) \\mid i \\in V \\}$ , with $w _ { v } ( i )$ representing the occurrence frequency of label i. The edge weights, denoted as $w _ { e } ( i , j )$ in $W _ { e } ,$ capture the co-occurrence strength between labels i and j. This dual-weighted architecture yields an integrated perspective of both individual label properties and their interconnections, fundamental for advanced label sampling and data exploration<sup>1</sup>.",
+        "bbox": [
+            507,
+            399,
+            885,
+            611
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2.1.2 Metropolis-Hastings Label Sampling",
+        "text_level": 2,
+        "bbox": [
+            509,
+            618,
+            860,
+            634
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Employing the principles of Markov chain theory, Metropolis-Hastings (M-H) sampling (Metropolis et al., 1953; Hastings, 1970) can adeptly adjust to the target distribution, which is perfectly in tune with our aim to achieve a more balanced sampling strategy in long-tail distributions. We initiate M-H sampling of the DWLG by starting from a tail label, then iteratively transitions to other labels, directed by both the transition kernel and acceptance rate. This procedure is maintained until an adequate count of labels is sampled or a pre-determined step limit is reached.",
+        "bbox": [
+            507,
+            638,
+            885,
+            831
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Firstly, the transition kernel $q ( i  j )$ calculates the likelihood of moving from the current label i to an alternative label j within the DWLG during sampling. Considering the inter-label correlations, we define $q ( i  j )$ in the following manner:",
+        "bbox": [
+            509,
+            832,
+            885,
+            863
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>Our DWLG diverges from the traditional Label Correlation Graph concept introduced by Mittal et al. (2021), departing from random walk-based graph construction and incorporating dual weights for a clearer depiction of label dynamics.",
+        "bbox": [
+            507,
+            871,
+            885,
+            922
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "857",
+        "bbox": [
+            485,
+            928,
+            515,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "Algorithm 1 Tail-Driven Label Sampling   \nInput:   \nG: Dual-Weighted Label Graph   \nstart: Starting Label   \nsteps: Number of M-H Steps   \n$T \\colon$ Temperature Parameter   \nmaxLabels: Max Labels to Collect   \nOutput:   \nsampled: Sampled Labels Set   \n1: sampled start   \n2: current start   \n3: for $i \\gets 1$ to steps do   \n4: N GetNeighbors(current, G)   \n5: next SampleNext(N)   \n6: accept Acceptance(current, next, T)   \n7: if accept then   \n8: current next   \n9: sampled sampled next   \n10: end if   \n11: if sampled $\\geq$ maxLabels then   \n12: break   \n13: end if   \n14: end for   \n15: return sampled",
+        "bbox": [
+            112,
+            82,
+            485,
+            493
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            514,
+            489,
+            564
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/c7764c3ef1cc48c3a486633b5cfc5baebeb1695ec2c16f9fb36f2b907593e487.jpg",
+        "text": "$$\nq ( i  j ) ~ = ~ { \\frac { e ^ { w _ { e } ( i , j ) } } { \\sum _ { k \\in \\mathrm { n e i g h b o r s } ( i ) } e ^ { w _ { e } ( i , k ) } } } ,\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            152,
+            582,
+            447,
+            621
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where $w _ { e } ( i , j )$ denotes the edge weight between labels i and j in the DWLG.",
+        "bbox": [
+            112,
+            627,
+            487,
+            659
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Then, drawing upon the principles of information entropy (Shannon, 1948), the target distribution $p ( i )$ is defined to encapsulate the significance and scarcity of label i:",
+        "bbox": [
+            112,
+            661,
+            489,
+            724
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/d5c72f6fcdfc6c39ee31c9209177c9cccc6d92765ffc2ba8816e7ea4301b5bd1.jpg",
+        "text": "$$\np ( i ) = \\frac { e ^ { s ( i ) / T } } { \\sum _ { k } e ^ { s ( k ) / T } } .\\tag{2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            205,
+            730,
+            359,
+            768
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Here, $s ( i ) = - \\log ( w _ { v } ( i ) )$ is the importance score of label i, and $T$ is a temperature parameter that moderates the distribution’s smoothness.",
+        "bbox": [
+            112,
+            772,
+            487,
+            820
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Finally, the acceptance rate $\\alpha ( i  j )$ evaluates whether to accept the transition from label i to label $j ,$ , thereby steering the sampling outcomes towards the target distribution:",
+        "bbox": [
+            112,
+            821,
+            489,
+            885
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/f4e324fec6bad4971d3bbc9ea2c212af77db91c2cd8ac9b44dda195ac124a426.jpg",
+        "text": "$$\n\\alpha ( i  j ) = \\operatorname* { m i n } ( 1 , { \\frac { p ( j ) \\cdot q ( j  i ) } { p ( i ) \\cdot q ( i  j ) } } ) .\\tag{3}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            131,
+            891,
+            433,
+            927
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "2.2 Contrastive Label-conditioned Generation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            84,
+            884,
+            99
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Conditional generation, recognized for its capability to produce texts that are both diverse and controlled, has improved data augmentation in binary and multi-class scenarios. However, previous studies have largely concentrated on the labelconditioned duplication of existing data points. The true potential of conditional generation extends far beyond this practice.",
+        "bbox": [
+            507,
+            109,
+            887,
+            237
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Integrating LLMs into conditional generation introduces several challenges. When dealing with a sampled labels set: (1) An excess of labels leads to extended input sequences, complicating LLMs ability to reflect each label in the generated text, often causing omissions; (2) LLMs’ sensitivity to prompt selection results in erratic text generation quality; (3) Existing LLMs, enhanced with RLHF, tend to generate superfluous explanatory content, which can be counterproductive for data augmentation; (4) Texts generated by LLMs exhibit stylistic discrepancies with the original dataset.",
+        "bbox": [
+            507,
+            239,
+            887,
+            432
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We fine-tune LLM on the original dataset to mitigate these issues. Inspired by Song et al. (2023) and Rafailov et al. (2023), we devised two targeted loss functions for multi-label classification dataset augmentation: Label Match Loss $( \\mathcal { L } _ { \\mathcal { L M } } )$ , ensuring generated texts align with each input label, and Style Consistency Loss $( \\mathcal { L } _ { S C } )$ , which aids in producing texts that are coherent, controllable, and in stylistic harmony with the original dataset.",
+        "bbox": [
+            507,
+            434,
+            887,
+            581
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "2.2.1 Style Consistency Loss",
+        "text_level": 2,
+        "bbox": [
+            509,
+            594,
+            749,
+            609
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Initially, a subset $\\{ X ^ { 1 } , Y ^ { 1 } ; \\ldots ; X ^ { n } , Y ^ { n } \\}$ is randomly extracted from the training set, wherein $X = \\{ x 1 , \\ldots , x _ { | X | } \\}$ denotes a text, comprising a series of tokens x, and $Y = \\{ y _ { 1 } , \\dots , y _ { | Y | } \\}$ represents a set of multiple labels associated with $X$ Regarding $Y .$ , we concat it with a prompt to create a composite text $c ( Y )$ , such as “Generate text for the labels $[ y _ { 1 } , \\dots , y _ { | Y ^ { i } | } ] ^ { * }$ to serve as an input for the LLM. To ensure that the text $X _ { a u g }$ produced by the LLM aligns with X, the Style Consistency Loss is as follows:",
+        "bbox": [
+            507,
+            615,
+            885,
+            794
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/50ebf362c890bd13c48c011f3939d8b53671e3e2a41b55e6ed760fa52a17af91.jpg",
+        "text": "$$\n\\mathcal { L } _ { S C } = - \\sum _ { t } \\log P _ { \\phi } ( x _ { t } | c ( Y ) , x _ { 1 , \\cdots , t - 1 } ) .\\tag{4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            524,
+            808,
+            831,
+            840
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Here, $\\phi$ signifies the parameters of the LLM. Given the input $c ( Y )$ and the prior tokens $x _ { 1 , \\cdots , t - 1 }$ our goal is to fine-tune the model with greater probability to predict the next token $x _ { t }$",
+        "bbox": [
+            507,
+            858,
+            885,
+            922
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "858",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/68e97c64b0a528a751fc52b705d0ad74a7c6209ae77fa463da845bb47ef74335.jpg",
+        "image_caption": [
+            "Figure 4: Fine-tuning LLM in Contrastive Label-conditioned Generation. $\\mathcal { L } _ { \\mathcal { L M } }$ ensures alignment of generated texts with input labels. $\\mathcal { L } _ { S C }$ supports the production of similar texts with the original dataset."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            119,
+            80,
+            878,
+            351
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "2.2.2 Label Match Loss",
+        "text_level": 2,
+        "bbox": [
+            114,
+            414,
+            317,
+            430
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "To effectively align the augmented input $X _ { a u g }$ with the corresponding label combinations $Y$ we not only employ $\\mathcal { L } _ { S \\mathcal { C } }$ to illustrate ideal generation but also aim to guide the LLM in distinguishing between good and bad ones. In the randomly selected subset of the training set $\\{ X ^ { 1 } , Y ^ { 1 } ; X ^ { 2 } , Y ^ { 2 } ; \\dots ; X ^ { n } , Y ^ { n } \\}$ , where each $Y ^ { i }$ is unique, the Jaccard similarity (Jaccard, 1912) is utilized to evaluate and rank the degrees of similarity, ranging from $Y ^ { 1 }$ and $Y ^ { 2 }$ , to $Y ^ { 1 }$ and $Y ^ { n }$ For labels $Y ^ { 1 }$ , its associated text $X ^ { 1 }$ is considered a positive example, while texts ranging from $X ^ { 2 }$ to $X ^ { n }$ are deemed negative examples, exhibiting progressively higher degrees of dissimilarity.",
+        "bbox": [
+            112,
+            435,
+            489,
+            661
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We generalize the InfoNCE loss (van den Oord et al., 2018) using the Plackett-Luce model (Plackett, 1975; Luce, 1959), deriving the Label Match Loss as follows:",
+        "bbox": [
+            112,
+            662,
+            489,
+            725
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/261d9367d70743f777d2f545a3b675b68bda845257e12aee26b88fd022c2aa99.jpg",
+        "text": "$$\n\\mathcal { L } _ { \\mathcal { L M } } = - \\sum _ { i = 1 } ^ { n - 1 } \\log \\frac { \\exp \\left( \\frac { r _ { \\phi } ( X ^ { i } ) } { T _ { i } ^ { i } } \\right) } { \\sum _ { j = i } ^ { n } \\exp \\left( \\frac { r _ { \\phi } ( X ^ { j } ) } { T _ { i } ^ { j } } \\right) } ,\\tag{5}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            129,
+            752,
+            436,
+            813
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $\\phi$ denotes the parameters of the LLM, represents the temperature coefficient, and $r _ { \\phi } ( X ^ { i } )$ indicates the likelihood of the LLM generating $X ^ { i }$ For the set $\\{ X ^ { 1 } , Y ^ { 1 } ; X ^ { 2 } , Y ^ { 2 } ; \\dots ; X ^ { n } , Y ^ { n } \\}$ , we initially compare $X ^ { 1 }$ with each of $X ^ { 2 } , . . . , X ^ { n }$ followed by a comparison of $X ^ { 2 }$ with $X ^ { 3 } , . . . , X ^ { n }$ aiming to align the LLM-generated $X _ { a u g }$ with the label $Y$ . Specifically, $r _ { \\phi } ( X )$ is defined as:",
+        "bbox": [
+            112,
+            826,
+            489,
+            922
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            414,
+            882,
+            448
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/5bb97d62cc8ac005451fbe9044642e34a4275e7481c3eae51f151fabf0c5d5c8.jpg",
+        "text": "$$\nr _ { \\phi } ( X ) = { \\frac { 1 } { | X | } } \\sum _ { t = 1 } ^ { | X | } \\log P _ { \\phi } ( x _ { t } | c ( Y ^ { 1 } ) , x _ { 1 , \\cdots , t - 1 } ) ,\\tag{6}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            507,
+            468,
+            855,
+            513
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where X encompassing tokens $x _ { 1 } , \\cdots , x _ { | X | }$ , with $c ( Y ^ { 1 } )$ representing the label of the positive sample integrated with the prompt.",
+        "bbox": [
+            507,
+            520,
+            884,
+            569
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Each comparison involves modulation of suppression for negative samples at varying degrees through temperature coefficients $\\tau { : }$",
+        "bbox": [
+            507,
+            569,
+            885,
+            618
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/98fe0b2c7e5fa19b983cdf94c886455e6b4b3be1e110d3326249451008320f38.jpg",
+        "text": "$$\n\\mathcal { T } _ { i } ^ { j > i } = \\frac { 1 } { s ( Y ^ { 1 } , Y ^ { i } ) - s ( Y ^ { 1 } , Y ^ { j } ) } ,\\tag{7}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            554,
+            638,
+            805,
+            670
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/8683640e515b6e243cda4abdc79e7cd5ee720353f0e1c00e818291f42d5d8910.jpg",
+        "text": "$$\nT _ { i } ^ { i } = \\operatorname* { m i n } _ { j > i } T _ { i } ^ { j } .\\tag{8}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            623,
+            694,
+            734,
+            720
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Here, $s ( Y ^ { i } , Y ^ { j } )$ denotes the Jaccard similarity between the label sets $Y ^ { i }$ and $Y ^ { j }$",
+        "bbox": [
+            509,
+            730,
+            884,
+            762
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "2.2.3 Optimization Objective",
+        "text_level": 2,
+        "bbox": [
+            509,
+            770,
+            756,
+            787
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Combining the label match loss and style consistency loss, the final loss function is:",
+        "bbox": [
+            509,
+            790,
+            885,
+            821
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/11cab03c5c03e56c871f004506f3bb51dd67b591fa8b45090a085bf24d57da8d.jpg",
+        "text": "$$\n\\begin{array} { r } { \\mathcal { L } = \\mathcal { L } _ { \\mathcal { L M } } + \\lambda \\mathcal { L } _ { S \\mathcal { C } } . } \\end{array}\\tag{9}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            603,
+            847,
+            754,
+            864
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The hyperparameter λ balances the importance of label matching and style consistency. Optimizing $\\mathcal { L }$ ensures that the generated text is not only",
+        "bbox": [
+            507,
+            873,
+            885,
+            922
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "859",
+        "bbox": [
+            485,
+            928,
+            517,
+            941
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "table",
+        "img_path": "images/13fc47bb9fb4b77a6d592dfc381acc69c468acf5683186b3d11febf9f4530fe2.jpg",
+        "table_caption": [
+            "Table 2: Summary of datasets in Eurlex-4K, MeSH-12K, and Wiki10-30K. $N _ { T r a i n } \\mathrm { : }$ Number of training instances, $N _ { T e s t } { : }$ Number of test instances, $W _ { A v g } \\mathrm { : }$ Average words per instance, $L _ { A v g } \\mathrm { : }$ Average labels per instance, $\\pmb { L } _ { T o t a l } \\mathrm { : }$ Total number of labels, $\\begin{array} { r l } {  { L _ { \\mathrm { > 1 0 0 : } } } } \\end{array}$ Labels with more than 100 instances, ${ \\cal L } _ { < 1 0 } { \\dot { : } }$ Labels with less than 10 instances."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Dataset</td><td> $N _ { T r a i n }$ </td><td> $N _ { T e s t }$ </td><td> $W _ { A v g }$ </td><td> ${ \\pmb { L } } _ { A v g }$ </td><td> $\\scriptstyle { L _ { T o t a l } }$ </td><td> ${ \\cal L } _ { > 1 0 0 }$ </td><td> $\\scriptstyle L _ { < 1 0 }$ </td></tr><tr><td>Eurlex-4K</td><td>15,449</td><td>3,865</td><td>1,237.88</td><td>5.32</td><td>3,956</td><td>233</td><td>2,396</td></tr><tr><td>MeSH-12K</td><td>9,996</td><td>3,500</td><td>178.47</td><td>12.27</td><td>12,784</td><td>211</td><td>9,951</td></tr><tr><td>Wiki10-30K</td><td>14,145</td><td>6,616</td><td>2,086.01</td><td>18.37</td><td>29,973</td><td>461</td><td>25,178</td></tr></table>",
+        "bbox": [
+            181,
+            82,
+            816,
+            149
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "relevant to the sampled labels Y but also stylistically coherent with the actual text X, striking a balance between accuracy and authenticity.",
+        "bbox": [
+            110,
+            229,
+            489,
+            278
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "3 Experiments",
+        "text_level": 2,
+        "bbox": [
+            114,
+            290,
+            260,
+            306
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "3.1 Datasets",
+        "text_level": 2,
+        "bbox": [
+            114,
+            317,
+            230,
+            332
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We employ three benchmark datasets: Eurlex-4K, MeSH-12K, and Wiki10-30K $( ^ { 6 6 } \\mathbf { K } ^ { 7 }$ denotes the label count within each dataset). Eurlex-4K (Loza Mencía and Fürnkranz, 2008) comprises a corpus of European Union legal documents. We utilize its raw text, as provided in Ye et al. (2020), without applying stemming or stop-word removal. MeSH-12K, a subset culled from the BioASQ datasets<sup>2</sup>(Tsatsaronis et al., 2015), is composed of article titles and abstracts from PubMed, annotated with Medical Subject Headings (MeSH) as their labels. Wiki10-30K, originating from Wikipedia, is a refined iteration of Wiki10-31K<sup>3</sup> (Zubiaga, 2012). While prior studies merely utilized the label IDs in Wiki10-31K for classification, we undertook a meticulous review and cleansing of this dataset. This entailed the exclusion of content-lacking instances and labels constituted solely of punctuations (e.g., “.”, “!”, “!!!”) or NLTK-listed stopwords (e.g., “and”, “or”). More statistical information can be found in Table 2.",
+        "bbox": [
+            110,
+            340,
+            490,
+            677
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "3.2 Evaluation Metrics",
+        "text_level": 2,
+        "bbox": [
+            114,
+            690,
+            314,
+            706
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "To assess the performance of each method, we use the following evaluation metrics: P@k, P SP@k, and N@k.",
+        "bbox": [
+            112,
+            712,
+            489,
+            759
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Precision at k (P@k) measures the precision of the top k predicted labels in matching the true labels. For an instance with its top-k predicted label set Y<sup>ˆ</sup> @k and actual label set Y, P@k is defined as:",
+        "bbox": [
+            112,
+            760,
+            489,
+            826
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/ca2d157393cb9bfbeead9c4c3e0e84e20052b2468fede774f5b087bcbef920e1.jpg",
+        "text": "$$\nP @ k = { \\frac { | { \\hat { Y } } @ k \\cap Y | } { k } } ,\\tag{10}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            218,
+            838,
+            381,
+            873
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "where $| \\hat { Y } _ { k } \\cap Y |$ is the number of correct predictions in the top k labels. On the Wiki10-30K, if a model accurately predicts the head labels $( L _ { > 1 0 0 } = 4 6 1 )$ and ignores the rest, it would achieve a P@1 of 90.8%. This high precision, however, overlooks the informative tail labels.",
+        "bbox": [
+            507,
+            228,
+            885,
+            324
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Propensity Scored Precision at k (PSP@k) mitigates this limitation by modifying precision to give higher weights to less frequent labels. Given the top-k predicted label set $\\hat { Y } _ { k }$ and the actual label set Y, PSP@k is defined as:",
+        "bbox": [
+            507,
+            325,
+            885,
+            406
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/4caa590fda89eed811ce26d6179183663841a5139019a703e5b092faec325d2b.jpg",
+        "text": "$$\nP S P @ k = \\frac { \\sum _ { y \\in \\hat { Y } @ k \\cap Y } \\frac { 1 } { \\pi _ { y } } } { k } .\\tag{11}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            588,
+            416,
+            805,
+            454
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Here, $\\pi _ { y }$ represents the propensity score of label y, quantifying the likelihood of encountering label y in the training dataset.",
+        "bbox": [
+            509,
+            463,
+            884,
+            511
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Normalized Discounted Cumulative Gain at k (N@k) evaluates the ranking quality of predicted labels, considering both the relevance of the labels and their ranking positions. The Discounted Cumulative Gain (DCG) for a predicted label $\\hat { y } _ { i }$ at rank i is calculated as:",
+        "bbox": [
+            507,
+            512,
+            885,
+            608
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/d8e01e9161fd59f076e7aa06614d773cd59daaab59c2d58fa75abf82fc43fe93.jpg",
+        "text": "$$\nD C G @ k = \\sum _ { i = 1 } ^ { k } { \\frac { \\mathbb { I } ( { \\hat { y } } _ { i } \\in Y ) } { \\log _ { 2 } ( i + 1 ) } } ,\\tag{12}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            584,
+            621,
+            806,
+            664
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "where $\\mathbb { I } ( \\cdot )$ is an indicator function. N@k is the ratio of DCG@k to iDCG@k:",
+        "bbox": [
+            507,
+            671,
+            882,
+            703
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/1f2890fadd59c719de6d2d69231eeef7cefebc22c12d86991014973ee5e5dd33.jpg",
+        "text": "$$\ni D C G @ k = \\sum _ { i = 1 } ^ { \\operatorname* { m i n } ( k , | Y | ) } \\frac { 1 } { \\log _ { 2 } ( i + 1 ) } .\\tag{13}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            546,
+            730,
+            816,
+            775
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/c6d792ed4ba5a85637f3e17c9147bcbabf82f71662fd333e9467482da6386ba2.jpg",
+        "text": "$$\nN @ k = \\frac { D C G @ k } { i D C G @ k } .\\tag{14}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            616,
+            788,
+            774,
+            821
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "3.3 Experiment Settings",
+        "text_level": 2,
+        "bbox": [
+            509,
+            835,
+            717,
+            852
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We compare TDCA with three data augmentation baselines: EDA, BT, and CA. EDA (Wei and Zou, 2019) involves synonym replacement and random insertion/swap/deletion. In BT, we select French, Chinese, Russian, Italian, and Spanish as intermediate languages for English paraphrasing via nllb-200-distilled model (Costajussà et al., 2022). CA and TDCA utilize LLaMabased LLM, Qwen-7B-Chat (Bai et al., 2023), for label-conditioned text generation. For MLTC, we utilized LightXML (Jiang et al., 2021) with bert-base-uncased (Devlin et al., 2019). The EurLex-4K setup included a 1e-4 learning rate, 15 epochs, batch size of 16, and max token length of 512, with SWA (Izmailov et al., 2018) applied post 10 epochs (step size 200). For Wiki10-30K, we extended training to 30 epochs (SWA step size 300), maintaining other parameters. MeSH-12K followed the Wiki10-30K settings, with a batch size of 8 and a max token length of 256. TDCA utilized Metropolis-Hastings sampling from labels with <100 instances, with a 1000-step limit and temperature of 10. Fine-tuning involved a λ value of 0.2 for loss balance, 2 epochs, a 512 sequence length, and a 5e-6 learning rate. All experiments were conducted on 8 NVIDIA A100 GPUs.",
+        "bbox": [
+            507,
+            858,
+            887,
+            922
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "860",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup>http://participants-area.bioasq.org",
+        "bbox": [
+            136,
+            882,
+            413,
+            897
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>3</sup>https://www.csie.ntu.edu.tw/\\~cjlin/ libsvmtools/datasets/multilabel.html",
+        "bbox": [
+            114,
+            896,
+            413,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/19bf0d2bdc0a7ea21bc256756119db5fd77c882b160d2fcdcf68330b9c466824.jpg",
+        "table_caption": [
+            "(a) Back-Translation",
+            "Table 3: Performance comparison of DA techniques (EDA, BT, CA, TDCA) against raw dataset on Wiki10-30K, EurLex-4K, and MeSH-12K. Metrics for each method are reported at their optimal E/R (Expansion Ratio)."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Dataset</td><td>Methods</td><td>E/R</td><td>PSP@1</td><td>PSP@3</td><td>PSP@5</td><td>P@1</td><td>P@3</td><td>P@5</td><td>P@10</td><td>N@3</td><td>N@5</td><td>N@10</td></tr><tr><td rowspan=\"5\">EurLex</td><td>Raw</td><td>1</td><td>42.65</td><td>50.46</td><td>53.89</td><td>85.56</td><td>73.11</td><td>60.91</td><td>38.35</td><td>76.48</td><td>70.46</td><td>73.82</td></tr><tr><td>EDA</td><td>1+100%</td><td>42.33</td><td>50.50</td><td>54.53</td><td>85.54</td><td>72.77</td><td>60.84</td><td>38.33</td><td>76.18</td><td>70.33</td><td>73.78</td></tr><tr><td>BT</td><td>1+25%</td><td>42.77</td><td>50.73</td><td>54.42</td><td>86.03</td><td>73.42</td><td>61.15</td><td>38.61</td><td>76.84</td><td>70.79</td><td>74.34</td></tr><tr><td>CA</td><td>1+150%</td><td>43.53</td><td>52.30</td><td>55.89</td><td>86.70</td><td>74.04</td><td>61.66</td><td>38.93</td><td>77.48</td><td>71.33</td><td>74.86</td></tr><tr><td>TDCA</td><td>1+400%</td><td>49.67</td><td>57.87</td><td>61.19</td><td>88.15</td><td>76.49</td><td>64.04</td><td>40.68</td><td>79.75</td><td>73.79</td><td>77.70</td></tr><tr><td rowspan=\"5\">MeSH</td><td>Raw</td><td>1</td><td>18.04</td><td>21.56</td><td>23.32</td><td>90.46</td><td>74.64</td><td>63.61</td><td>46.04</td><td>78.32</td><td>69.84</td><td>58.44</td></tr><tr><td>EDA</td><td>1+200%</td><td>18.13</td><td>21.93</td><td>24.04</td><td>89.31</td><td>74.65</td><td>63.66</td><td>45.90</td><td>78.06</td><td>69.70</td><td>58.20</td></tr><tr><td>BT</td><td>1+200%</td><td>18.16</td><td>21.66</td><td>23.64</td><td>89.20</td><td>73.89</td><td>62.70</td><td>45.18</td><td>77.45</td><td>68.91</td><td>57.49</td></tr><tr><td>CA</td><td>1+500%</td><td>19.33</td><td>24.14</td><td>26.65</td><td>90.03</td><td>77.85</td><td>66.99</td><td>49.07</td><td>80.74</td><td>72.63</td><td>61.34</td></tr><tr><td>TDCA</td><td>1+1000%</td><td>35.84</td><td>42.08</td><td>46.45</td><td>90.20</td><td>82.67</td><td>75.61</td><td>59.92</td><td>84.42</td><td>79.23</td><td>70.57</td></tr><tr><td rowspan=\"5\">Wiki</td><td>Raw</td><td>1</td><td>16.22</td><td>16.66</td><td>17.33</td><td>87.89</td><td>77.42</td><td>68.06</td><td>51.79</td><td>79.84</td><td>72.77</td><td>60.47</td></tr><tr><td>EDA</td><td>1+50%</td><td>16.67</td><td>17.30</td><td>18.13</td><td>87.24</td><td>76.43</td><td>67.00</td><td>50.82</td><td>78.92</td><td>71.78</td><td>59.52</td></tr><tr><td>BT</td><td>1+50%</td><td>16.66</td><td>17.50</td><td>18.28</td><td>87.32</td><td>76.98</td><td>67.59</td><td>51.42</td><td>79.37</td><td>72.29</td><td>60.07</td></tr><tr><td>CA</td><td>1+200%</td><td>17.83</td><td>19.15</td><td>20.34</td><td>87.09</td><td>76.48</td><td>67.52</td><td>51.20</td><td>78.97</td><td>72.16</td><td>59.89</td></tr><tr><td>TDCA</td><td>1+3000%</td><td>46.31</td><td>39.02</td><td>36.92</td><td>87.12</td><td>78.27</td><td>72.03</td><td>58.79</td><td>80.31</td><td>75.48</td><td>65.88</td></tr></table>",
+        "bbox": [
+            115,
+            80,
+            882,
+            294
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "images/525476d68f99cab58092d6737498ec704a1c3f40445f2959b6f8a8235e26a521.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            114,
+            346,
+            363,
+            475
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "images/52f42e35f7676615628818680320d3211acffb2cf0b1d3c9e256c530f2cf2d35.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            374,
+            347,
+            621,
+            479
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "images/c75b84492414dc3700a950fa57a29c304405708f4c1f5bafb96364a65c20c38b.jpg",
+        "image_caption": [
+            "Figure 5: A t-SNE (van der Maaten and Hinton, 2008) visualization of the MeSH-12K dataset comparing various text data augmentation methods: (a) BT, (b) EDA, and (c) our proposed TDCA, where represents original data, and represents augmented data."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            633,
+            346,
+            884,
+            482
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            562,
+            490,
+            916
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "4 Results",
+        "text_level": 2,
+        "bbox": [
+            509,
+            561,
+            610,
+            576
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "4.1 Performance Comparison",
+        "text_level": 2,
+        "bbox": [
+            509,
+            590,
+            759,
+            606
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Performance assessments were carried out on the EurLex-4K, MeSH-12K, and Wiki10-30K on various expansion ratios to evaluate the effectiveness of our proposed TDCA compared to EDA, BT, and CA. As Table 3 indicates, all methods mitigated the long-tail effect in MLTC datasets to varying degrees: EDA and BT marginally enhanced PSP@k(k = 1, 3, 5) by 1.89% and 1.95%, respectively. CA’s diverse text generation led to a 9.45% increase, limited by unchanged labels. TDCA, integrating tail-driven sampling, impressively reduced the long-tail effect with an 85.61% improvement.",
+        "bbox": [
+            507,
+            615,
+            887,
+            808
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Moreover, data augmentation’s effectiveness correlates with the number of dataset labels. TDCA enhanced PSP@1 by 16.46% on EurLex-4K, 98.78% on MeSH-12K, and 185.51% on Wiki10- 30K. This result aligns with the expectation that more labels intensify the long-tail effect, enhancing the utility of data augmentation.",
+        "bbox": [
+            507,
+            809,
+            887,
+            922
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "861",
+        "bbox": [
+            485,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/7346b15c02021df0d2891d3aed929839d089d93ef7f903f0efde4865a16c427b.jpg",
+        "table_caption": [
+            "Table 4: Performance comparison of EDA, BT, TDCA, and three TDCA variants: CA (TDCA w/o M-H), TDCA w/o F-T, and CA w/o F-T across various expansion ratios in terms of PSP@5, P@5, and N@5. In the table, deeper shades of red indicate higher values, while deeper shades of green denote lower values."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td></td><td colspan=\"3\">EDA</td><td colspan=\"3\">BT</td><td colspan=\"3\">CA w/o F-T</td><td colspan=\"3\">CA (TDCA w/o M-H)</td><td colspan=\"3\">TDCA w/0 F-T</td><td colspan=\"3\">TDCA</td></tr><tr><td></td><td></td><td>PSP</td><td>P</td><td>N</td><td>PSP</td><td>P</td><td>N</td><td>PSP</td><td>P</td><td>N</td><td>PSP</td><td>P</td><td>N</td><td>PSP</td><td>P</td><td>N</td><td>PSP</td><td>P</td><td>N</td></tr><tr><td rowspan=\"5\">EurLex</td><td>1+25% 1+50%</td><td>53.94</td><td>60.58</td><td>70.04 70.46</td><td>54.42 53.57</td><td>61.15 60.26</td><td>70.79 69.95</td><td>54.85 55.21</td><td>61.53 61.61</td><td>71.08 71.18</td><td>54.42 54.51</td><td>61.17 61.07</td><td>70.74 70.71</td><td>54.06 54.28</td><td>61.05 61.16</td><td>70.77 71.03</td><td>55.61 56.57</td><td>61.73 62.03</td><td>71.31 71.77</td></tr><tr><td></td><td>54.25</td><td>60.94</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+100%</td><td>54.53</td><td>60.84</td><td>70.33</td><td>53.97</td><td>60.63</td><td>70.12</td><td>55.15</td><td>61.31</td><td>70.81</td><td>55.39</td><td>61.50</td><td>71.21</td><td>55.73</td><td>61.92</td><td>71.82</td><td>58.97</td><td>63.37</td><td>73.17</td></tr><tr><td>1+200%</td><td>53.60</td><td>59.91</td><td>69.14</td><td>53.85</td><td>60.42</td><td>69.82</td><td>56.04</td><td>61.76</td><td>71.39</td><td>56.36</td><td>62.01</td><td>71.55</td><td>57.21</td><td>62.76</td><td>72.59</td><td>60.31</td><td>63.72</td><td>73.36</td></tr><tr><td>1+500%</td><td>54.47</td><td>60.40</td><td>69.46</td><td>53.96</td><td>60.51</td><td>69.90</td><td>56.42</td><td>61.92</td><td>71.52</td><td>56.43</td><td>62.00</td><td>71.50</td><td>60.77</td><td>63.75</td><td>73.45</td><td>61.21</td><td>64.08</td><td>73.63</td></tr><tr><td rowspan=\"5\">MeSH</td><td>1+25%</td><td>23.34</td><td>63.12</td><td>69.37</td><td>23.55</td><td>63.66</td><td>69.67</td><td>23.95</td><td>63.94</td><td>70.02</td><td>24.27</td><td>64.25</td><td>70.36</td><td>24.38</td><td>64.20</td><td>70.15</td><td>24.70</td><td>64.65</td><td>70.55</td></tr><tr><td>1+50%</td><td>23.64</td><td>63.31</td><td>69.44</td><td>23.67</td><td>63.41</td><td>69.61</td><td>24.64</td><td>64.65</td><td>70.63</td><td>24.68</td><td>65.07</td><td>70.95</td><td>24.98</td><td>64.78</td><td>70.69</td><td>25.80</td><td>65.65</td><td>71.44</td></tr><tr><td>1+100%</td><td>23.90</td><td>63.27</td><td>69.38</td><td>23.60</td><td>63.07</td><td>69.28</td><td>25.30</td><td>65.09</td><td>71.04</td><td>25.31</td><td>65.61</td><td>71.34</td><td>26.65</td><td>66.15</td><td>71.78</td><td>27.61</td><td>66.93</td><td>72.28</td></tr><tr><td>1+200%</td><td>24.04</td><td>63.66</td><td>69.70</td><td>23.64</td><td>62.70</td><td>68.91</td><td>25.96</td><td>65.69</td><td>71.52</td><td>26.16</td><td>66.52</td><td>72.14</td><td>29.24</td><td>68.19</td><td>73.49</td><td>31.60</td><td>69.86</td><td>74.71</td></tr><tr><td>1+500%</td><td>24.50</td><td>64.31</td><td>69.88</td><td>23.30</td><td>61.81</td><td>67.93</td><td>26.36</td><td>66.09</td><td>71.70</td><td>26.65</td><td>66.99</td><td>72.63</td><td>36.22</td><td>72.21</td><td>76.58</td><td>38.79</td><td>73.76</td><td>78.00</td></tr><tr><td rowspan=\"5\">Wiki</td><td>1+25%</td><td>17.89</td><td>67.73</td><td>72.42</td><td>17.95</td><td>68.03</td><td>72.61</td><td>18.16</td><td>68.33</td><td>72.93</td><td>18.14</td><td>68.40</td><td>73.01</td><td>17.73</td><td>68.01</td><td>72.75</td><td>17.85</td><td>68.54</td><td>73.17</td></tr><tr><td>1+50%</td><td>18.13</td><td>67.00</td><td>71.78</td><td>18.28</td><td>67.59</td><td>72.29</td><td>18.73</td><td>68.24</td><td>72.80</td><td>18.80</td><td>68.27</td><td>72.82</td><td>18.04</td><td>68.12</td><td>72.77</td><td>18.39</td><td>68.69</td><td>73.31</td></tr><tr><td>1+100%</td><td>18.23</td><td>65.92</td><td>70.58</td><td>18.35</td><td>66.43</td><td>71.26</td><td>19.50</td><td>67.74</td><td>72.34</td><td>19.63</td><td>67.82</td><td>72.34</td><td>19.03</td><td>68.86</td><td>73.46</td><td>19.17</td><td>69.07</td><td>73.66</td></tr><tr><td>1+200%</td><td>18.17</td><td>65.00</td><td>69.68</td><td>18.03</td><td>64.74</td><td>69.54</td><td>20.03</td><td>66.89</td><td>71.57</td><td>20.34</td><td>67.52</td><td>72.16</td><td>20.97</td><td>69.51</td><td>73.80</td><td>21.38</td><td>70.24</td><td>74.49</td></tr><tr><td>1+500%</td><td>17.83</td><td>63.99</td><td>68.64</td><td>17.51</td><td>63.92</td><td>68.53</td><td>19.85</td><td>65.07</td><td>69.73</td><td>20.64</td><td>66.84</td><td>71.39</td><td>25.75</td><td>70.79</td><td>74.73</td><td>26.35</td><td>70.98</td><td>74.91</td></tr></table>",
+        "bbox": [
+            114,
+            80,
+            882,
+            249
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Regarding P@K and N@K(k = 1, 3, 5, 10), label-conditioned augmentation methods, CA and TDCA, consistently improved performance, with CA increasing P@K by 1.42% and N@K by 1.09% on average, and TDCA by 8.16% and 5.95%. EDA and BT, however, had a marginal negative impact: EDA decreased P@k and N@K by 0.63% and 0.64%, while BT showed similar declines by 0.52% and 0.49%. This is further supported by t-SNE visualizations (Figure 5), where TDCA’s augmented data demonstrate better integration with original data, unlike EDA and BT.",
+        "bbox": [
+            112,
+            329,
+            489,
+            521
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "TDCA not only effectively counters the long-tail effect in MLTC datasets but also bolsters prediction precision and ranking quality. The improvements are progressive with larger values of k in all metrics, which indicates that label-conditioned augmentation is more adaptable to MLTC’s extremely large label space. Furthermore, the quantitative experiments (Table 4) reveal that TDCA outperforms traditional methods at equivalent ratios. While EDA and BT exhibit increasingly negative effects with more augmented data, TDCA’s benefits progressively amplify. For comprehensive details, refer to training logs in Appendix B.",
+        "bbox": [
+            112,
+            524,
+            490,
+            734
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "The case study in Appendix A uncovers an intriguing aspect: the original dataset often exhibits an implicit link between labels and text, significantly challenging the learning process of models. The LLM-based CA and TDCA render these labels more explicit in the generated texts, facilitating an easier learning of correspondences.",
+        "bbox": [
+            112,
+            736,
+            490,
+            848
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "4.2 Ablation Analysis",
+        "text_level": 2,
+        "bbox": [
+            114,
+            866,
+            302,
+            881
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Table 4 presents the results of TDCA and its three variant models under different expansion ratios.",
+        "bbox": [
+            112,
+            890,
+            489,
+            922
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "These variants are: CA (TDCA without M-H based tail-driven sampling, i.e., TDCA w/o M-H), TDCA w/o F-T (TDCA without contrastive labelconditioned fine-tuning), and CA w/o F-T (TDCA w/o M-H & F-T ).",
+        "bbox": [
+            507,
+            329,
+            887,
+            409
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "The varying shades of red (high) and green (low) in the table illustrate that TDCA and TDCA w/o F-T significantly outperform both CA (TDCA w/o M-H) and CA w/o F-T (TDCA w/o F-T & M-H) across all metrics. This highlights the pivotal role of M-H based tail-driven sampling in TDCA, validating our proposed Label Creative Generation. Furthermore, the comparison between TDCA and TDCA w/o F-T, as well as between CA and CA w/o F-T, confirms the effectiveness of contrastive fine-tuning. Overall, these results demonstrate that each component of the TDCA structure is effective and contributes to its overall performance.",
+        "bbox": [
+            507,
+            410,
+            887,
+            621
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "5 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            636,
+            643,
+            652
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we introduce a new multi-label data augmentation paradigm named Label Creative Generation (LCG). Under LCG, we propose Tail-Driven Conditional Augmentation (TDCA). TDCA facilitates the creation of balanced label combinations by dual-weighted label graph and tail-driven label sampling. Furthermore, TDCA employs a contrastive label-conditioned generation to produce augmented texts that match each label and maintain consistency with the original dataset. Empirical evaluations on three datasets with varying label counts demonstrate the effectiveness of TDCA. Our approach significantly surpasses existing data augmentation methods, effectively mitigates the long-tail effect, and enhances model prediction performance in MLTC.",
+        "bbox": [
+            507,
+            665,
+            887,
+            922
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "862",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Limitations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            220,
+            99
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "• This method is primarily effective for textual labels with semantic content. It is less suited for labels represented by numerical IDs or non-descriptive identifiers.",
+        "bbox": [
+            136,
+            109,
+            489,
+            173
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "• Compared to EDA and other non-model-based data augmentation techniques, our approach is more resource-intensive. However, its resource consumption is comparable to seq2seq model-based methods like back-translation.",
+        "bbox": [
+            136,
+            183,
+            489,
+            263
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "• Due to computational resource constraints, we were unable to fully explore the upper limits of TDCA’s performance improvements. On the EurLex dataset, we observed optimal expansion ratios between 400% to 500%. Beyond this range, performance tended to plateau or slightly decrease. In contrast, on the MeSH-12K and Wiki10-30K datasets, with more extensive labels, we experimented with expansion ratios up to 1000% and 3000%, respectively, without reaching an apparent performance ceiling.",
+        "bbox": [
+            136,
+            274,
+            490,
+            467
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "• Our exploration did not extend to closedsource LLMs such as ChatGPT, Bard, or Claude, limited by API access. Nonetheless, considering the promising results achieved with the un-tuned Qwen-7B model (i.e., TDCA w/o F-T in ablation study), we believe that employing closed-source LLMs via API calls can yield comparable or superior results.",
+        "bbox": [
+            136,
+            476,
+            490,
+            606
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "• We observed limitations in fine-tuning (FT), potentially due to the simplicity of our data synthesis task (generating text from labels), where using prompts alone could teach a LLM this task. However, we believe that the LCG extends beyond this. For instance, in recommendation systems, LCG could be used on the MovieLens dataset to generate diverse user information for movie recommendations, such as address, age, postal code, etc. Nevertheless, relying solely on prompts for an LLM might fall short, whereas FT ensures this capability.",
+        "bbox": [
+            136,
+            614,
+            490,
+            808
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgements",
+        "text_level": 2,
+        "bbox": [
+            114,
+            818,
+            287,
+            834
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "This work was supported by the National Natural Science Foundation of China (No. 62206192); the Natural Science Foundation of Sichuan Province (No. 2023NS-36 FSC1408); the Science and Technology Major Project of Sichuan Province; and the Fundamental Research Funds for the Central Universities (No. 1082204112364). We sincerely thank the ARR 2023 Dec reviewers for their insightful feedback and extend our great gratitude to Yang Li and Guanyu Qiao for the stimulating discussions at the inception of this research, which significantly enriched this work.",
+        "bbox": [
+            112,
+            841,
+            490,
+            923
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            198
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            510,
+            224,
+            610,
+            240
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Jinze Bai, Shuai Bai, Yunfei Chu, Zeyu Cui, Kai Dang, Xiaodong Deng, Yang Fan, Wenbin Ge, Yu Han, Fei Huang, Binyuan Hui, Luo Ji, Mei Li, Junyang Lin, Runji Lin, Dayiheng Liu, Gao Liu, Chengqiang Lu, Keming Lu, Jianxin Ma, Rui Men, Xingzhang Ren, Xuancheng Ren, Chuanqi Tan, Sinan Tan, Jianhong Tu, Peng Wang, Shijie Wang, Wei Wang, Shengguang Wu, Benfeng Xu, Jin Xu, An Yang, Hao Yang, Jian Yang, Shusheng Yang, Yang Yao, Bowen Yu, Hongyi Yuan, Zheng Yuan, Jianwei Zhang, Xingxuan Zhang, Yichang Zhang, Zhenru Zhang, Chang Zhou, Jingren Zhou, Xiaohuan Zhou, and Tianhang Zhu. 2023. Qwen technical report. CoRR, abs/2309.16609.",
+            "Markus Bayer, Marc-André Kaufhold, and Christian Reuter. 2023. A survey on data augmentation for text classification. ACM Comput. Surv., 55(7):146:1– 146:39.",
+            "Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel M. Ziegler, Jeffrey Wu, Clemens Winter, Christopher Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020, December 6-12, 2020, virtual.",
+            "Sébastien Bubeck, Varun Chandrasekaran, Ronen Eldan, Johannes Gehrke, Eric Horvitz, Ece Kamar, Peter Lee, Yin Tat Lee, Yuanzhi Li, Scott M. Lundberg, Harsha Nori, Hamid Palangi, Marco Túlio Ribeiro, and Yi Zhang. 2023. Sparks of artificial general intelligence: Early experiments with GPT-4. CoRR, abs/2303.12712.",
+            "Marta R. Costa-jussà, James Cross, Onur Çelebi, Maha Elbayad, Kenneth Heafield, Kevin Heffernan, Elahe Kalbassi, Janice Lam, Daniel Licht, Jean Maillard, Anna Sun, Skyler Wang, Guillaume Wenzek, Al Youngblood, Bapi Akula, Loïc Barrault, Gabriel Mejia Gonzalez, Prangthip Hansanti, John Hoffman, Semarley Jarrett, Kaushik Ram Sadagopan, Dirk Rowe, Shannon Spruit, Chau Tran, Pierre Andrews, Necip Fazil Ayan, Shruti"
+        ],
+        "bbox": [
+            510,
+            248,
+            885,
+            418
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "863",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Bhosale, Sergey Edunov, Angela Fan, Cynthia Gao, Vedanuj Goswami, Francisco Guzmán, Philipp Koehn, Alexandre Mourachko, Christophe Ropers, Safiyyah Saleem, Holger Schwenk, and Jeff Wang. 2022. No language left behind: Scaling human-centered machine translation. CoRR, abs/2207.04672.",
+            "Haixing Dai, Zhengliang Liu, Wenxiong Liao, Xiaoke Huang, Yihan Cao, Zihao Wu, Lin Zhao, Shaochen Xu, Wei Liu, Ninghao Liu, Sheng Li, Dajiang Zhu, Hongmin Cai, Lichao Sun, Quanzheng Li, Dinggang Shen, Tianming Liu, and Xiang Li. 2023. Auggpt: Leveraging chatgpt for text data augmentation. arXiv preprint arXiv:2302.13007, v3.",
+            "Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT: Pre-training of deep bidirectional transformers for language understanding. In Proceedings ofthe 2019 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers), pages 4171–4186, Minneapolis, Minnesota. Association for Computational Linguistics.",
+            "Sergey Edunov, Myle Ott, Michael Auli, and David Grangier. 2018. Understanding back-translation at scale. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing, Brussels, Belgium, October 31 - November 4, 2018, pages 489–500. Association for Computational Linguistics.",
+            "Zhiqi Ge, Yuanyuan Guan, Ximing Li, and Bo Fu. 2022. Consistent, balanced, and overlapping label trees for extreme multi-label learning. In Proceedings of the 31st ACM International Conference on Information & Knowledge Management, Atlanta, GA, USA, October 17-21, 2022, pages 551–560. ACM.",
+            "W. K. Hastings. 1970. Monte Carlo sampling methods using Markov chains and their applications. Biometrika, 57(1):97–109.",
+            "Pavel Izmailov, Dmitrii Podoprikhin, Timur Garipov, Dmitry P. Vetrov, and Andrew Gordon Wilson. 2018. Averaging weights leads to wider optima and better generalization. In Proceedings ofthe Thirty-Fourth Conference on Uncertainty in Artificial Intelligence, UAI 2018, Monterey, California, USA, August 6-10, 2018, pages 876–885. AUAI Press.",
+            "Paul Jaccard. 1912. The distribution of the flora in the alpine zone.1. New Phytologist, 11(2):37–50.",
+            "Himanshu Jain, Yashoteja Prabhu, and Manik Varma. 2016. Extreme multi-label loss functions for recommendation, tagging, ranking & other missing label applications. In Proceedings ofthe 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, San Francisco, CA, USA, August 13-17, 2016, pages 935–944. ACM.",
+            "Ting Jiang, Deqing Wang, Leilei Sun, Huayi Yang, Zhengyang Zhao, and Fuzhen Zhuang. 2021.",
+            "Lightxml: Transformer with dynamic negative sampling for high-performance extreme multi-label text classification. In Thirty-Fifth AAAI Conference on Artificial Intelligence, AAAI 2021, Thirty-Third Conference on Innovative Applications of Artificial Intelligence, IAAI 2021, The Eleventh Symposium on Educational Advances in Artificial Intelligence, EAAI 2021, Virtual Event, February 2-9, 2021, pages 7987– 7994. AAAI Press.",
+            "Jan Kocon, Igor Cichecki, Oliwier Kaszyca, Mateusz Kochanek, Dominika Szydlo, Joanna Baran, Julita Bielaniewicz, Marcin Gruza, Arkadiusz Janz, Kamil Kanclerz, Anna Kocon, Bartlomiej Koptyra, Wiktoria Mieleszczenko-Kowszewicz, Piotr Milkowski, Marcin Oleksy, Maciej Piasecki, Lukasz Radlinski, Konrad Wojtasik, Stanislaw Wozniak, and Przemyslaw Kazienko. 2023. Chatgpt: Jack of all trades, master of none. Inf. Fusion, 99:101861.",
+            "Junyi Li, Xiaoxue Cheng, Xin Zhao, Jian-Yun Nie, and Ji-Rong Wen. 2023. Halueval: A large-scale hallucination evaluation benchmark for large language models. In Proceedings ofthe 2023 Conference on Empirical Methods in Natural Language Processing, EMNLP 2023, Singapore, December 6-10, 2023, pages 6449–6464. Association for Computational Linguistics.",
+            "Kun Li, Chengbo Chen, Xiaojun Quan, Qing Ling, and Yan Song. 2020. Conditional augmentation for aspect term extraction via masked sequence-tosequence generation. In Proceedings ofthe 58th Annual Meeting ofthe Associationfor Computational Linguistics, pages 7056–7066, Online. Association for Computational Linguistics.",
+            "Jingzhou Liu, Wei-Cheng Chang, Yuexin Wu, and Yiming Yang. 2017. Deep learning for extreme multilabel text classification. In Proceedings of the 40th International ACM SIGIR Conference on Research and Development in Information Retrieval, Shinjuku, Tokyo, Japan, August 7-11, 2017, pages 115–124. ACM.",
+            "Ruibo Liu, Guangxuan Xu, Chenyan Jia, Weicheng Ma, Lili Wang, and Soroush Vosoughi. 2020. Data boost: Text data augmentation through reinforcement learning guided conditional generation. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing, EMNLP 2020, Online, November 16-20, 2020, pages 9031–9041. Association for Computational Linguistics.",
+            "Lefteris Loukas, Ilias Stogiannidis, Prodromos Malakasiotis, and Stavros Vassos. 2023. Breaking the bank with ChatGPT: Few-shot text classification for finance. In Proceedings of the Fifth Workshop on Financial Technology and Natural Language Processing and the Second Multimodal AI For Financial Forecasting, pages 74–80, Macao. Association for Computational Linguistics.",
+            "Eneldo Loza Mencía and Johannes Fürnkranz. 2008. Efficient pairwise multilabel classification for largescale problems in the legal domain. In Machine"
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            177
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "864",
+        "bbox": [
+            485,
+            929,
+            517,
+            941
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Learning and Knowledge Discovery in Databases, pages 50–65, Berlin, Heidelberg. Springer Berlin Heidelberg.",
+            "R. D. Luce. 1959. Individual Choice Behavior: A Theoretical Analysis. Wiley, New York.",
+            "Nicholas Metropolis, Arianna W. Rosenbluth, Marshall N. Rosenbluth, Augusta H. Teller, and Edward Teller. 1953. Equation of state calculations by fast computing machines. The Journal ofChemical Physics, 21(6):1087–1092.",
+            "Anshul Mittal, Noveen Sachdeva, Sheshansh Agrawal, Sumeet Agarwal, Purushottam Kar, and Manik Varma. 2021. ECLARE: extreme classification with label graph correlations. In WWW ’21: The Web Conference 2021, Virtual Event / Ljubljana, Slovenia, April 19-23, 2021, pages 3721–3732. ACM / IW3C2.",
+            "R. L. Plackett. 1975. The analysis of permutations. Journal ofthe Royal Statistical Society. Series C (Applied Statistics), 24(2):193–202.",
+            "Rafael Rafailov, Archit Sharma, Eric Mitchell, Stefano Ermon, Christopher D. Manning, and Chelsea Finn. 2023. Direct preference optimization: Your language model is secretly a reward model. CoRR, abs/2305.18290.",
+            "Partha Pratim Ray. 2023. Chatgpt: A comprehensive review on background, applications, key challenges, bias, ethics, limitations and future scope. Internet of Things and Cyber-Physical Systems, 3:121–154.",
+            "Rico Sennrich, Barry Haddow, and Alexandra Birch. 2016. Improving neural machine translation models with monolingual data. In Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics, ACL 2016, August 7-12, 2016, Berlin, Germany, Volume 1: Long Papers. The Association for Computer Linguistics.",
+            "C. E. Shannon. 1948. A mathematical theory of communication. The Bell System Technical Journal, 27(3):379–423.",
+            "Feifan Song, Bowen Yu, Minghao Li, Haiyang Yu, Fei Huang, Yongbin Li, and Houfeng Wang. 2023. Preference ranking optimization for human alignment. CoRR, abs/2306.17492.",
+            "Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, Aurélien Rodriguez, Armand Joulin, Edouard Grave, and Guillaume Lample. 2023a. Llama: Open and efficient foundation language models. CoRR, abs/2302.13971.",
+            "Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Dan Bikel, Lukas Blecher, Cristian Canton-Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller,",
+            "Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel Kloumann, Artem Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, Ranjan Subramanian, Xiaoqing Ellen Tan, Binh Tang, Ross Taylor, Adina Williams, Jian Xiang Kuan, Puxin Xu, Zheng Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melanie Kambadur, Sharan Narang, Aurélien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas Scialom. 2023b. Llama 2: Open foundation and fine-tuned chat models. CoRR, abs/2307.09288.",
+            "George Tsatsaronis, Georgios Balikas, Prodromos Malakasiotis, Ioannis Partalas, Matthias Zschunke, Michael R Alvers, Dirk Weissenborn, Anastasia Krithara, Sergios Petridis, Dimitris Polychronopoulos, Yannis Almirantis, John Pavlopoulos, Nicolas Baskiotis, Patrick Gallinari, Thierry Artieres, Axel Ngonga, Norman Heino, Eric Gaussier, Liliana Barrio-Alvers, Michael Schroeder, Ion Androutsopoulos, and Georgios Paliouras. 2015. An overview of the bioasq large-scale biomedical semantic indexing and question answering competition. BMC Bioinformatics, 16:138.",
+            "Aäron van den Oord, Yazhe Li, and Oriol Vinyals. 2018. Representation learning with contrastive predictive coding. CoRR, abs/1807.03748.",
+            "Laurens van der Maaten and Geoffrey Hinton. 2008. Visualizing data using t-sne. Journal of Machine Learning Research, 9(86):2579–2605.",
+            "Jens Van Nooten and Walter Daelemans. 2023. Improving Dutch vaccine hesitancy monitoring via multilabel data augmentation with GPT-3.5. In Proceedings of the 13th Workshop on Computational Approaches to Subjectivity, Sentiment, & Social Media Analysis, pages 251–270, Toronto, Canada. Association for Computational Linguistics.",
+            "Jason W. Wei and Kai Zou. 2019. EDA: easy data augmentation techniques for boosting performance on text classification tasks. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing, EMNLP-IJCNLP 2019, Hong Kong, China, November 3-7, 2019, pages 6381–6387. Association for Computational Linguistics.",
+            "Jie Xiong, Li Yu, Xi Niu, and Youfang Leng. 2023. Xrr: Extreme multi-label text classification with candidate retrieving and deep ranking. Information Sciences, 622:115–132.",
+            "Hui Ye, Zhiyu Chen, Da-Han Wang, and Brian D. Davison. 2020. Pretrained generalized autoregressive model with adaptive probabilistic label clusters for"
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            126
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "865",
+        "bbox": [
+            485,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "extreme multi-label text classification. In Proceedings of the 37th International Conference on Machine Learning, ICML 2020, 13-18 July 2020, Virtual Event, volume 119 of Proceedings ofMachine Learning Research, pages 10809–10819. PMLR.",
+        "bbox": [
+            132,
+            86,
+            489,
+            152
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Ronghui You, Zihan Zhang, Ziye Wang, Suyang Dai, Hiroshi Mamitsuka, and Shanfeng Zhu. 2019. Attentionxml: Label tree-based attention-aware deep model for high-performance extreme multi-label text classification. In Advances in Neural Information Processing Systems 32: Annual Conference on Neural Information Processing Systems 2019, NeurIPS 2019, December 8-14, 2019, Vancouver, BC, Canada, pages 5812–5822.",
+            "Arkaitz Zubiaga. 2012. Enhancing navigation on wikipedia with social tags. CoRR, abs/1202.5469."
+        ],
+        "bbox": [
+            117,
+            161,
+            489,
+            280
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "866",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/6ac22382fa0ee8a44b8a779effb6661f74822952fd41646fd9fc34e233965420.jpg",
+        "image_caption": [
+            "A Case Study",
+            "Figure 6: Case study on the MeSH-12K dataset evaluating three traditional data augmentation methods: EDA, BT, and CA. Head labels (over 100 instances in training) are marked in red; tail labels (under 10 instances) in blue. The study finds that paraphrasing methods, EDA and BT, although effective in diversifying data, inadvertently add noise. CA-generated text is smooth and aligns with all MeSH terms (labels). Notably, the original dataset’s text-label correspondence is often implicit, posing challenges in classifier training. For instance, Consultants are indirectly implicated through “local public health agencies” and “hospitals,” and Data Collection is inferred from the context of health planning. The term United States is indirectly indicated by mentioning “Iowa.” These nuances complicate classification, which is not simplified by mere paraphrasing. In contrast, CA’s label-conditioned generation directly incorporates labels into the text, significantly aiding the classification of rare tail labels."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            126,
+            129,
+            867,
+            722
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "867",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "image",
+        "img_path": "images/cf0758e8994384774990e77973d85391cd9d30b39a9ae86ddb5b7e3ef808fb3e.jpg",
+        "image_caption": [
+            "Figure 7: Illustration of TDCA performance on the MeSH-12K dataset. Similar to Figure 6, red indicates head labels (with over 100 instances in the training set), and blue denotes tail labels (with fewer than 10 instances). But TDCA exhibits fewer red head labels and a greater number of blue tail labels. Despite the low frequency of occurrence, the labels are still related due to the construction of the Dual-Weighted Label Graph and Tail-Driven Label Sampling, as seen in the first example: Fanconi Anemia is linked to Chromosomes, Human, Pair 13 due to mutations causing this inherited disease. Similarly, Syndrome is a term that includes conditions like Fanconi Anemia. The enzyme Thromboxane-A Synthase is crucial in producing Thromboxane B2. Furthermore, Leukotrienes, known for their role in inflammation, can interact with Thromboxane B2 during certain physiological or pathological conditions. These interrelations facilitate the LLMs’ task of generating coherent texts, and the augmented data is meaningful in real-world contexts."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            124,
+            116,
+            868,
+            728
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "868",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B Training Logs",
+        "text_level": 2,
+        "bbox": [
+            114,
+            83,
+            275,
+            101
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/69079cc8ac39d508a4997fb2260419c41a966b1a223d88dd7b7f03a76a316966.jpg",
+        "content": "",
+        "chart_caption": [
+            "(a) PSP@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            121,
+            124,
+            359,
+            242
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/8b3a33890f8758b49ef43d4e3f1d7c5b39b8d340994fed72d68ae1186803717e.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) P@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            379,
+            123,
+            616,
+            242
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/95af309f685c09eebd8d5d49773a274deaa9d0cbbc70921252013f3faa43b6d4.jpg",
+        "content": "",
+        "chart_caption": [
+            "(c) N@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            640,
+            123,
+            875,
+            241
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/86aea85922b5198558993c39b1ec949150fa29621c731951f214e4782bb78b7a.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 8: Training logs of TDCA at different expansion ratios for PSP, P, and N metrics on MeSH-12K.",
+            "(a) PSP@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            122,
+            321,
+            359,
+            439
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/6526705ff0e841782edc2131d818444541fa6c1c243c8af620b3ee1895f6939a.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) P@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            379,
+            319,
+            618,
+            439
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/f2c89a8c8b8ab5144022985763f02e25f09ba91b0d0ae2d98c94516d4642b2f4.jpg",
+        "content": "",
+        "chart_caption": [
+            "(c) N@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            638,
+            321,
+            875,
+            438
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/6acaf0fc8eb400430b62c124f25b08b6919122aef9050cfa954b870e257b3131.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 9: Training logs of CA at different expansion ratios for PSP, P, and N metrics on MeSH-12K.",
+            "(a) PSP@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            122,
+            517,
+            359,
+            636
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/cd5876f45e13713fa669285922fe1eecaf4faa73ecfc68078fc015e588e9d605.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) P@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            381,
+            516,
+            618,
+            636
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/28a65fc4d99d82018d52974719de73eaa0856f2b82f74cec7ffe660eda486e29.jpg",
+        "content": "",
+        "chart_caption": [
+            "(c) N@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            640,
+            517,
+            877,
+            634
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/7cb7502c9495e10ca6c6f7c9e875577f62ffa7e48e4add9da47c405c2d7b2a0f.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 10: Training logs of EDA at different expansion ratios for PSP, P, and N metrics on MeSH-12K.",
+            "(a) PSP@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            122,
+            713,
+            357,
+            832
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/f421948aab585a72c43a9389b99ba8cb23904e325a80a56fb28a3ed6397dee0d.jpg",
+        "content": "",
+        "chart_caption": [
+            "(b) P@5"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            379,
+            714,
+            618,
+            832
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "chart",
+        "img_path": "images/5cf7c2d6de53c77c45d9a699056fa499498554bc313bb4d380eec61aa89ed4be.jpg",
+        "content": "",
+        "chart_caption": [
+            "(c) N@5",
+            "Figure 11: Training logs of BT at different expansion ratios for PSP, P, and N metrics on MeSH-12K."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            640,
+            714,
+            877,
+            832
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "869",
+        "bbox": [
+            485,
+            928,
+            517,
+            941
+        ],
+        "page_idx": 14
+    }
+]

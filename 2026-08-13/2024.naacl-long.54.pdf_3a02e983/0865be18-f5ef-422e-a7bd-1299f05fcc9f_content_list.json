@@ -1,0 +1,2164 @@
+[
+    {
+        "type": "text",
+        "text": "MATHSENSEI: A Tool-Augmented Large Language Model for Mathematical Reasoning",
+        "text_level": 1,
+        "bbox": [
+            191,
+            87,
+            833,
+            128
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Debrup Das\\*<sup>1</sup>, Debopriyo Banerjee<sup>2</sup>, Somak Aditya<sup>1</sup>, and Ashish Kulkarni<sup>2</sup>",
+        "bbox": [
+            193,
+            136,
+            808,
+            153
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>1</sup>IIT Kharagpur",
+        "bbox": [
+            438,
+            164,
+            568,
+            181
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "debrupdas@iitkgp.ac.in, saditya@cse.iitkgp.ac.in <sup>2</sup>Rakuten Group, Inc. Rakuten Institute of Technology India {debopriyo.banerjee,ashish.kulkarni}@rakuten.com",
+        "bbox": [
+            257,
+            181,
+            746,
+            233
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            260,
+            239,
+            342,
+            254
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Tool-augmented Large Language Models (TALMs) are known to enhance the skillset of large language models (LLMs), thereby, leading to their improved reasoning abilities across many tasks. While, TALMs have been successfully employed in different questionanswering benchmarks, their efficacy on complex mathematical reasoning benchmarks, and the potential complementary benefits offered by tools for knowledge retrieval and mathematical equation solving are open research questions. In this work, we present MATHSEN-SEI, a tool-augmented large language model for mathematical reasoning. We study the complementary benefits of the tools - knowledge retriever (Bing Web Search), program generator + executor (Python), and symbolic equation solver (WolframAlpha-API) through evaluations on mathematical reasoning datasets. We perform exhaustive ablations on MATH, a popular dataset for evaluating mathematical reasoning on diverse mathematical disciplines. We also conduct experiments involving well-known tool planners to study the impact of tool sequencing on the model performance. MATHSENSEI achieves 13.5% better accuracy over gpt-3.5-turbo with Chain-of-Thought on the MATH dataset. Wefurther observe that TALMs are not as effective for simpler math word problems (in GSM-8K), and the benefit increases as the complexity and required knowledge increases (progressively over AQuA, MMLU-Math, and higher level complex questions in MATH). The code and data are available at https://github.com/Debrup-61/MathSensei",
+        "bbox": [
+            141,
+            263,
+            462,
+            776
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            115,
+            796,
+            260,
+            812
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "State-of-the-art Large language models (LLMs), including gpt-3.5-turbo, GPT-4, and open-source counterparts, such as Llama 2 have demonstrated impressive performance across a broad spectrum of NLP tasks (Brown et al., 2020; Radford et al., 2019; Chowdhery et al.,",
+        "bbox": [
+            112,
+            820,
+            490,
+            891
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "2024; OpenAI, 2023). However, their consistent failure on established reasoning dimensions, such as mathematical, commonsense, abductive, and multi-hop reasoning (Lu et al., 2023b; Cobbe et al., 2021; Huang and Chang, 2023) have led the research community to explore various solutions for enhancing their reasoning abilities. This pursuit has given rise to techniques, such as - (1) intelligent prompting variations, such as chain of thought (Wei et al., 2022), program of thought (Chen et al., 2023c), tree of thoughts (Yao et al., 2023), and self-refinement (Madaan et al., 2023), (2) programguided solving that generates python code as intermediate steps and offloads execution to a symbolic interpreter (Gao et al., 2023), (3) multi-model interaction frameworks, such as Multi-agent Debate (Du et al., 2023; Liang et al., 2023) and Round-Table Conference (Chen et al., 2023b), 4) tool-augmented LLMs powered by external symbolic tools, APIs, and libraries (Schick et al., 2023; Lu et al., 2023a; Paranjape et al., 2023; Yang and Narasimhan, 2023; Xie et al., 2023).",
+        "bbox": [
+            507,
+            240,
+            887,
+            525
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In this work, we study the effectiveness of toolaugmented LLMs (TALM) applied to problems involving mathematical reasoning. Recent advancements in TALM frameworks, such as Chameleon (Lu et al., 2023a), OlaGPT (Xie et al., 2023), ART (Paranjape et al., 2023), and SocraticAI (Yang and Narasimhan, 2023) have explored the effectiveness of incorporating external tools for solving knowledge-intensive reasoning tasks and fundamental mathematical problems (such as, arithmetic and algebra). However, the effectiveness of TALM framework is yet to be validated on mathematical reasoning tasks involving complex computations. In this context, it is imperative to assess the suitability of specific tool combinations across diverse mathematical domains (e.g., PreAlgebra, Calculus, Geometry, Intermediate Algebra, Probability) at varying levels of difficulty. This motivated us to undertake a thorough evaluation of TALM framework in the context of complex mathematical reasoning tasks. We propose and develop MATHSENSEI, a TALM-based framework, comprising a distinct set of tools (also referred to as modules), combined in a sequential fashion. These modules include LLM-based components, such as - knowledge retriever (KR ). python code generator (PG ), code refiner (CR ), , and solution generator (SG ); and APIs, such as - Bing-Web-Search-API (BS ) and WolframAlpha-API (WA ). As illustrated in Fig. 1, MATHSENSEI adopts the modular architecture from Chameleon (Lu et al., 2023a). Through systematic experiments of MATHSENSEI, we aim to discern the effectiveness of each module in addressing specific types of mathematical problems, having varying levels of difficulty.",
+        "bbox": [
+            507,
+            525,
+            887,
+            925
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "header",
+        "text": "福",
+        "bbox": [
+            166,
+            82,
+            191,
+            107
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "\\*Work done during internship at Rakuten India Enterprise Private Limited.",
+        "bbox": [
+            112,
+            897,
+            487,
+            923
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "942",
+        "bbox": [
+            485,
+            928,
+            515,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings ofthe 2024 Conference ofthe North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 942–966 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            946,
+            857,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/7ea9d784b5c33f1d1f0c20e653fd9b348df2ded8b170b4e60fd7c095f2a4c2f6.jpg",
+        "image_caption": [
+            "Figure 1: An end-to-end workflow of MATHSENSEI on the compositional setting from the MATH dataset. The final answer is higlighted in green font."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            196,
+            82,
+            803,
+            280
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "images/032c7ba173e8ab97af13990186d43fb4e38f7f0756e4044084a0e42e310cce6f.jpg",
+        "table_caption": [
+            "Table 1: Comparison of MATHSENSEI with state-of-the-art Tool-Augmented LLMs; Form - Question-Answer Format (MCQ with multiple options, Open/Subjective), Search - Use of Web Search, Python - Python code guided problem solving, WAlpha - WolframAlpha, Tool-Study - Study of each tool, Plan - Planning Strategy used; Plan-And-Solve - Determine the sequence of tools to be executed beforehand, Call-as-req - Dynamically decide to call tool when required at a step during execution."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=1>TALM</td><td rowspan=1 colspan=1>Math Discipline</td><td rowspan=1 colspan=1>Form</td><td rowspan=1 colspan=1>Search</td><td rowspan=1 colspan=1>Python</td><td rowspan=1 colspan=1>WAlpha</td><td rowspan=1 colspan=1>Plan</td><td rowspan=1 colspan=1>Tool-Study</td></tr><tr><td rowspan=1 colspan=1>OlaGPT</td><td rowspan=1 colspan=1>Algebra</td><td rowspan=1 colspan=1>MCQ</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>Plan-And-Solve</td><td rowspan=1 colspan=1>X</td></tr><tr><td rowspan=1 colspan=1>Chameleon</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>Plan-And-Solve</td><td rowspan=1 colspan=1>X</td></tr><tr><td rowspan=1 colspan=1>ART</td><td rowspan=1 colspan=1>Algebra</td><td rowspan=1 colspan=1>Open</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>Call-as-req</td><td rowspan=1 colspan=1>X</td></tr><tr><td rowspan=1 colspan=1>MATHSENSEI</td><td rowspan=1 colspan=1>Algebra, Precalculus,Geometry, Probability,Number Theory &amp; more</td><td rowspan=1 colspan=1>Both</td><td rowspan=1 colspan=1>L</td><td rowspan=1 colspan=1>L</td><td rowspan=1 colspan=1>L</td><td rowspan=1 colspan=1>Both</td><td rowspan=1 colspan=1>L</td></tr></table>",
+        "bbox": [
+            124,
+            337,
+            873,
+            425
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            505,
+            489,
+            577
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Our extensive ablations (varying the set and order of modules), show that complex mathematical problems, spanning different subdomains can be benefited by specific types, combinations, and order of the modules. This further highlights the need for planning strategies. We evaluate two advanced planning techniques within our pipeline, investigating methodologies such as Plan-And-Solve (Lu et al., 2023a) and REACT (Yao et al., 2022) with MATHSENSEI.",
+        "bbox": [
+            112,
+            580,
+            490,
+            707
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We make the following contributions:",
+        "text_level": 2,
+        "bbox": [
+            114,
+            709,
+            373,
+            724
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "1. We comprehensively evaluate the effectiveness of TALM frameworks across multiple mathemati cal datasets, such as GSM-8K, AQUA-RAT, MATH, MMLU-Math, encompassing diverse mathematical problem types and tasks. Compared to MATH, MMLU-Math, our experiments on simpler mathematical datasets (e.g., GSM-8K, AQUA-RAT) reveal minimal benefit of using multiple modules on top of CoT prompting.",
+        "bbox": [
+            112,
+            724,
+            489,
+            838
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2. Through systematic ablations by varying the set and order of modules in our framework, we observe that complex mathematical problems spanning different domains (such as, algebra, calculus, number theory, and probability from the MATH dataset) can be benefited by certain types, combinations, and order of these modules.",
+        "bbox": [
+            112,
+            838,
+            490,
+            923
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We observe that the BS module outperforms the KR module for retrieving relevant knowledge for mathematical problems. The setting of WA+BS+SG outperforms PG+SG, demonstrating that program-guided solving techniques (Gao et al., 2023; Drori et al., 2022) may not be universally suitable for all mathematical problems. These findings motivate the necessity of exploiting better planning techniques.",
+        "bbox": [
+            507,
+            505,
+            885,
+            620
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Our best configuration of MATHSENSEI, PG+WA+SG achieves an impressive performance accuracy of 47.6 % on the MATH dataset, surpassing gpt-3.5-turbo( ) with Chain-of-Thought (CoT) prompting by 13.5% (Chen et al., 2023a). The same setting shows a performance gain of +11.6% over GPT-4 (with CoT prompting) on Intermediate Algebra problems. For Precalculus, GPT-4 (with CoT prompting) has an accuracy of 26.7%, which gets improved to 28.9% by our WA+PG+SG setting. Improvements on AQuA-RAT and MMLU-Math are lower, 2.4% and 3.3% respectively, showing the efficacy decreases as requirement of external knowledge decreases.",
+        "bbox": [
+            507,
+            621,
+            885,
+            807
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3. We quantify the performance of state-of-the-art planning techniques, such as Plan-And-Solve and RE-ACT coupled with tool-augmented LLMs on the MATH dataset. However, we do not observe benefit of using the planners over our best configurations of PG+WA+SG, which may indicate a need for developing targeted planning strategies for mathematical TALMs. We include our Planning related experiments in the Appendix.",
+        "bbox": [
+            507,
+            809,
+            885,
+            925
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "943",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work",
+        "text_level": 2,
+        "bbox": [
+            114,
+            83,
+            270,
+            98
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Prompting Techniques. Large Language Models (LLMs) employing prompting strategies such as Chainof-Thought (CoT) (Wei et al., 2022) and Programof-Thought (POT) (Chen et al., 2023c) have demonstrated commendable performance on simple mathematical datasets such as GSM-8K (Cobbe et al., 2021). However, their efficacy diminishes for datasets requiring complex computations and advanced mathematical knowledge. For instance, on the MATH dataset, GPT-4 exhibits a notably low accuracy of around 50%. Several variations of these strategies have been explored to improve accuracy in reasoning tasks. (Madaan et al., 2023) proposed self-refine that involves iteratively refining the initial output by utilizing feedback from the same model. (Zhou et al., 2024) employs code-based self-verification, by utilizing python code to check simple constraints that the LLM generated output should satisfy and correcting the output if necessary. Similarly, Progressive-Hint-Prompting (Zheng et al., 2023) involves multiple turns of interactions, using previously generated answers as hints for subsequent turns. Similar to POT prompting, PAL (Program Aided language models) (Gao et al., 2023) adopts a program-guided solving paradigm. It reads natural language problems, generates programs as intermediate reasoning steps, and delegates the solution step to a runtime environment, such as a Python interpreter. Across 13 natural language reasoning tasks within Big-Bench-Hard (Suzgun et al., 2023), they observe that program-guided solving consistently outperforms significantly larger models.",
+        "bbox": [
+            112,
+            109,
+            490,
+            537
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "In our Tool-augmented framework (MATHSENSEI), we incorporate several such techniques. We adopt CoT prompting for the text generation modules, and use the methodology by (Gao et al., 2023) to generate python code (using libraries like sympy) based on the current context and mathematical question; followed by execution of the code using python interpreter. While (Gao et al., 2023) focuses on elementary level MWP (Math Word problems) and simple arithmetic datasets such as ASDIV (Miao et al., 2020) and SingleEQ (Koncel-Kedziorski et al., 2015), we explore complex mathematical datasets spanning diverse math problem types (MATH, AQUA (Ling et al., 2017), MMLU-Math). Following self-refine, we employ a code refinement module to iteratively rectify syntactical errors in the original generated code, using error messages from the interpreter.",
+        "bbox": [
+            112,
+            538,
+            490,
+            781
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Tool-Augmented LLMs. The emerging trend of toolaugmented LLMs has garnered increasing attention within the research community. Large language models, trained on the objective of next-token prediction, excel at generating tokens based on probabilistic patterns in their training data, making them effective in dataintensive tasks. However, their proficiency falls short in capturing nuanced reasoning or token relationships, particularly in mathematical domains. Consequently, there are instances or specific question types where it would be advantageous for an LLM to leverage support from specialized tools or modules. For instance, consider a question requiring the solution to the roots of a 4th-degree polynomial. The LLM, upon generating a special token followed by a query, can pause its generation and invoke a mathematics computing platform WolframAlpha. WolframAlpha, in turn, can utilize its API to process the query and return the answer to the LLM, which can then continue its generation. Toolformer (Schick et al., 2023) leverages data annotated with such tool calls (using special tokens for tools) and responses to train language models to employ tools as needed in a self-supervised manner. Similarly, the tool-augmented LLM framework CHAMELEON (Lu et al., 2023a) adopts a plug-and-play approach to utilize tools sequentially. In their setup, the sequence of execution of the tools is predetermined based on a target task; the output of each tool is added to the context for subsequent downstream tools in the pipeline. They perform evaluation on multi-modal knowledge-intensive datasets, such as ScienceQA and TabMWP. Similarly, frameworks such as ART (Paranjape et al., 2023) engage in multi-step reasoning, where each step is linked to a tool call. Utilizing search and code tools, ART tackles various tasks across datasets such as MMLU (Hendrycks et al., 2021a)and BigBench (Srivastava et al., 2023).",
+        "bbox": [
+            112,
+            781,
+            490,
+            925
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            887,
+            455
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Our work adopts the generic backbone of popular tool-augmented LLM frameworks such as Toolformer and CHAMELEON. In comparison to the previous work, we distinguish ourselves by conducting a comprehensive analysis and comparison specific to tools useful for addressing diverse mathematical problems. Notably, CHAMELEON lacks evaluation on mathematical datasets, and ART focuses exclusively on algebra, leading to gaps in the assessment of tool-augmented LLMs. Furthermore, our study incorporates a comparison of planning techniques within tool-augmented LLM frameworks for mathematical reasoning, an aspect not adequately addressed in the current literature. To the best of our knowledge, planning techniques like REACT (Yao et al., 2022) have primarily been tested on knowledgeintensive reasoning datasets such as FEVER (Thorne et al., 2018) and HotpotQA (Yang et al., 2018).",
+        "bbox": [
+            507,
+            455,
+            887,
+            697
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3 Methodology",
+        "text_level": 2,
+        "bbox": [
+            509,
+            709,
+            658,
+            726
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "We first discuss some notations to formalize the problem. Let M denote the set of modules<sup>1</sup> (each performing a specific task), $p _ { i }$ be the input prompt for module $m _ { i }$ and Q be the set of mathematical queries.",
+        "bbox": [
+            507,
+            734,
+            885,
+            793
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 Problem Formulation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            802,
+            709,
+            816
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Given an input mathematical query $q \\in Q$ , the objective is to provide the final correct answer a by executing the set of relevant modules. Let $[ m _ { 1 } , \\ldots , m _ { t } ] ,$ be the ordered sequence of chosen modules for answering $q ,$ and $\\left[ o _ { 1 } , \\ldots , o _ { t } \\right]$ be the output sequence of the t modules. Let, $s _ { i } , \\ f _ { i } ,$ , and $c _ { i }$ denote the instruction, in-context example(s), and context, respectively, that we use for module $m _ { i }$ . The input prompt $p _ { i }$ , corresponding to module $m _ { i }$ is defined as:",
+        "bbox": [
+            509,
+            822,
+            884,
+            852
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>The modules can be viewed as external tools, where each module m  M can be either powered by LLMs, such as Python code generators, Knowledge Retrievers, or they can be non-LLM API tools, such as WolframAlpha, Bing Web Search.",
+        "bbox": [
+            509,
+            862,
+            884,
+            922
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "944",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            489,
+            185
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/45e307b1877a422ccb675b572407207fb4d2d9ff3b290955e4a1ac1f5278e9fc.jpg",
+        "text": "$$\np _ { i } = \\langle s _ { i } ; f _ { i } ; c _ { i } \\rangle\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            243,
+            193,
+            356,
+            209
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where context $c _ { i }$ is defined as:",
+        "bbox": [
+            112,
+            217,
+            322,
+            231
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/50839f520b6d4f2460f362aaedebc9f5aea7a8d8b4e10ed5f69ad1a21a10004b.jpg",
+        "text": "$$\nc _ { i } = \\left\\{ \\begin{array} { l l } { [ q ] , \\mathrm { i f } i = 1 ; } \\\\ { [ c _ { i - 1 } ; o _ { i - 1 } ] , \\mathrm { f o r } i = 2 , \\dots , t } \\end{array} \\right.\\tag{2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            166,
+            239,
+            416,
+            278
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Here, x; y denotes concatenation of x and y.",
+        "bbox": [
+            112,
+            284,
+            416,
+            299
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.2 Modules",
+        "text_level": 2,
+        "bbox": [
+            114,
+            307,
+            221,
+            322
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In this section, we present a brief overview of the tools or modules that we use in our study. We show the list of model/api used for each module in Table 8. A detailed description of the prompts used in each module is presented in the Appendix section.",
+        "bbox": [
+            112,
+            325,
+            489,
+            397
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "LLM-based Knowledge Retrieval (KR) - For this module, we design a prompt to extract relevant knowledge from a pre-trained LLM (taking any one from the list of models mentioned in Table 8) in the form of concepts, formulas, mathematical expressions, theorems, definitions, and hints on how to solve a corresponding mathematical question. An example prompt and output is shown in Table 19 in Appendix.",
+        "bbox": [
+            112,
+            397,
+            489,
+            511
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Bing Web Search (BS) - This module queries the Bing-Web-Search-API ( ) to extract the most relevant snippets which may contain similar questions and concepts required for solving a mathematical problem. For similar questions search, we directly query the API with the mathematical question. In case of concepts search, we first use an LLM (either gpt-3.5-turbo or text-davinci-003) to generate a query corresponding to the input question, and then call the API to retrieve relevant concepts (refer to Fig. 2 for an example).",
+        "bbox": [
+            112,
+            511,
+            489,
+            653
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "WolframAlpha (WA) - This module (comprising multiple components) calls the WolframAlpha-API using a query in the Wolfram language, retrieving the mathematical information from this knowledge base and utilizing the capabilities of its computation engine. First we employ an LLM to generate contextualized thoughts. Subsequently, based on the generated thought, the next component formulates a Wolfram code language query (referred to as the “Final Query”). On passing this query as input to the WolframAlpha-API, we get a JSON dictionary object. We extract all the useful information from this dictionary (using an LLM-based extractor) and add it to the context of next module. An overview of the WA module is presented in Fig. 3.",
+        "bbox": [
+            112,
+            653,
+            489,
+            852
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Python Generator+Executor (PG) - We use an LLM that takes as input the current context as a part of a well-structured prompt (shown in Fig. 4). The LLM is explicitly instructed to use the sympy library for accessing a set of mathematical operations and data structures required. Based on the prompt, the module generates an (executable) Python code, which on execution returns some output(s) or an error message. We handle syntax errors using two setups:",
+        "bbox": [
+            112,
+            852,
+            489,
+            925
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/398be4abacb2729eccb5ffbee7538356a5c07751c78a51922d96cd4f8e503470.jpg",
+        "image_caption": [
+            "Figure 2: Overview of the BS module; We concatenate the similar questions and concepts (which is then used by a downstream module)."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            522,
+            84,
+            870,
+            394
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/58795cad49623a8ac5a5a28b11c4c89e0faca16014492fe41936f330db33dd97.jpg",
+        "image_caption": [
+            "Figure 3: Overview of the WA module."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            522,
+            482,
+            870,
+            707
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            750,
+            884,
+            808
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "fi- Without refinement: Here, if generated code produces syntax errors, we omit the output of PG from the context for next module.",
+        "bbox": [
+            529,
+            814,
+            885,
+            858
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "\\- Code-Refinement (CR): Here, we feed the error message along with the incorrect program to a code-fixing LLM which then generates a corrected python code and rationales of fixed errors given as “Errorsfixed”. We also add the information of common errors from our qualitative analysis in the system prompt to aid the code refinement process. An output for the code refinement setup from the MATH dataset is presented in Fig. 4 (Appendix).",
+        "bbox": [
+            529,
+            866,
+            885,
+            925
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "945",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            146,
+            84,
+            489,
+            156
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Solution Generator (SG) - The solution generator is the final module in all settings. It takes the output from the pipeline and compiles a step-by-step solution based on all the context of previous modules. The final step is prompted to produce the answer of the question. It outputs the final answer enclosed within \\$ boxed \\$ for the MATH dataset.",
+        "bbox": [
+            112,
+            166,
+            489,
+            266
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4 Experimental Setup",
+        "text_level": 2,
+        "bbox": [
+            114,
+            278,
+            322,
+            294
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We first introduce the mathematical datasets used in our study (§4.1), followed by the experiments that we perform with various combinations of modules (§4.2). We use gpt-3.5-turbo as the default LLM in LLMbased modules unless mentioned otherwise. This is mainly because it is more accessible and cheaper compared to GPT-4. For querying a search-engine, we use Bing-Web-Search-API. Please refer to 23 in Appendix for details about online resources that we use.",
+        "bbox": [
+            112,
+            302,
+            489,
+            430
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.1 Datasets",
+        "text_level": 2,
+        "bbox": [
+            114,
+            439,
+            220,
+            454
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "MATH. The MATH dataset (Hendrycks et al., 2021b) serves as the primary dataset for our work. It covers 5000 mathematical problems, which are categorized into seven subject types (Precalculus, Prealgebra, Algebra, Geometry, Intermediate Algebra, Counting and Probability, and Number Theory) andfive levels of difficulty (ranging from 1 to 5, where 1 denotes the least difficult and 5 denotes the most difficult). Our choice of the MATH dataset is motivated by its unique characteristics: Unlike many datasets, scaling up LLMs (in terms of model parameters) does not necessarily enhance accuracy on MATH. The dataset also poses intricate challenges, going beyond simple arithmetic or high school mathematics problems.",
+        "bbox": [
+            110,
+            457,
+            490,
+            658
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "AQUA-RAT. The AQUA-RAT dataset (Ling et al., 2017) contains 253 algebraic math word problems with rationales. Unlike the MATH datset, it has a multiplechoice answer format with five options. It allows us to evaluate MATHSENSEI on mathematical problems in the domain of algebra.",
+        "bbox": [
+            112,
+            664,
+            489,
+            751
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "GSM-8K. GSM-8K (Cobbe et al., 2021) contains high school level math word problems which require basic arithmetic operations (addition, subtraction, multiplication, and division) to reach the final answer. The final answer is always an integer value. We use all 1319 examples from GSM-8K test set for evaluation.",
+        "bbox": [
+            112,
+            758,
+            489,
+            845
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "MMLU-Math. The MMLU dataset (Hendrycks et al., 2021a) covers 57 diverse tasks (including elementary mathematics, US history, computer science, etc.), which require extensive problem solving abilities and world knowledge. For this work, we use the mathematical test subset of MMLU, known as MMLU-Math that contains 974 mathematical questions spanning 5 types - abstract algebra, elementary mathematics, high-school mathematics, college mathematics, andformal logic. Similar to AQUA-RAT, MMLU-Math also has a multiple-choice answer format.",
+        "bbox": [
+            112,
+            852,
+            489,
+            925
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            84,
+            885,
+            171
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.2 Experiments",
+        "text_level": 2,
+        "bbox": [
+            509,
+            180,
+            647,
+            196
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We conduct several experiments by meticulous analysis of individual modules in the domain of complex mathematical reasoning, through systematic ablations on the module sequences. For some of our ablations, we use different variants of OpenAI models, such as textdavinci-002 and text-davinci-003 other than the default gpt-3.5-turbo. We also employ models from the Llama family, such as Llama-2-7B and Phind-Code-Llama-34B-V2. We use accuracy as our evaluation metric for comparing different settings. Our experiments enquire the following questions:",
+        "bbox": [
+            507,
+            200,
+            887,
+            356
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "What is the impact of adding LLM generated mathematical knowledge relevant to the question [KR module] before invoking the Solution Generator module [SG module]? (§5.1)",
+        "bbox": [
+            507,
+            356,
+            885,
+            413
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "How does Bing Web Search [BS module] compare against the LLM-based knowledge generation [KR module] for the task of adding relevant mathematical knowledge and information to the problem solving process? (§5.1, §5.2)",
+        "bbox": [
+            507,
+            413,
+            885,
+            485
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "What is the utility of augmenting mathematical knowledge-bases, such as WolframAlpha [WA module] with LLMs for solving problems across different levels of complexity? How does it compare against the paradigm of program-guided solving? (§5.3)",
+        "bbox": [
+            507,
+            485,
+            885,
+            556
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "What are the benefits of using program-guided complex problem solving [PG module], and impact of LLMbased code refinement [CR module] in case of syntactical errors? (§5.4)",
+        "bbox": [
+            507,
+            556,
+            887,
+            613
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "What is the effect of using multiple modules together? How does the benefit vary with the difficulty level, mathematical subject type, and dataset? (§5.5) How to plan effective utilization of these modules? How does non-adaptive planning strategies [Plan-And-Solve] compare against dynamic planning strategies such as [REACT] which uses a thought, action, and observation based mechanism. (Appendix A)",
+        "bbox": [
+            507,
+            613,
+            887,
+            728
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5 Effects of Adding Modules over LLMs",
+        "text_level": 2,
+        "bbox": [
+            509,
+            739,
+            877,
+            756
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Here, we present results and analyze the impact of adding individual modules on top of the original LLM CoT variant (termed SG): KR in §5.1, BS in §5.2, PG in §5.4, and WA in §5.3. For each module, we also provide ablations over different LLMs (as applicable).",
+        "bbox": [
+            507,
+            764,
+            885,
+            837
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.1 LLM-Based Knowledge Retrieval (KR)",
+        "text_level": 2,
+        "bbox": [
+            509,
+            846,
+            835,
+            862
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Recently, Chameleon (Lu et al., 2023a) demonstrated an accuracy boost for knowledge intensive QA datasets, such as ScienceQA and TabMWP by using the KR module. Skills-In-Context prompting (Chen et al., 2023a)",
+        "bbox": [
+            507,
+            865,
+            887,
+            925
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "946",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "table",
+        "img_path": "images/70a33b7b824b1bc4030483fd10f9981be375217e08eda95bb10ff4541dd2a60b.jpg",
+        "table_caption": [
+            "Table 2: Performance of different backbone models used for KR module in the KR+SG setting. For all settings, we use gpt-3.5-turbo as the default LLM for the SG module."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>Ovr Acc</td></tr><tr><td>text-davinci-002 ()</td><td>22.8</td></tr><tr><td>text-davinci-003 (0)</td><td>27.1</td></tr><tr><td>Llama2-7B ()</td><td>28.4</td></tr><tr><td>gpt-3.5-turbo ()</td><td>34.4</td></tr></table>",
+        "bbox": [
+            181,
+            83,
+            421,
+            167
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "also shows similar results by utilizing some basic skills (such as mathematical theorems) during generation. Following the literature, we investigate the impact of adding relevant knowledge (such as mathematical concepts and formulae) using an LLM-based KR module in the context of SG module, and examine the efficacy of the KR+SG setting on the MATH dataset (Table 4). We also ablate over different LLMs (Table 2) to power the KR module, while fixing the SG module to gpt-3.5-turbo.",
+        "bbox": [
+            112,
+            241,
+            490,
+            370
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Results. As shown in of Table 4, the extra knowledge retrieved by the KR module is useful only for problems in Algebra, PreAlgebra, and Probability domains. Moreover, the overall accuracy drops steadily as we change KR’s LLM from gpt-3.5-turbo to other variants (shown in Table 2). This indicates that, generic LLMs (such as those mentioned in Table 2) are not equipped with mathematical concepts of other domains (Precalculus, Geometry, Number Theory, Intermediate Algebra). After analyzing different LLM variants for the KR module, we find that the knowledge retrieved by weaker LLMs heavily degrades performance of the downstream SG module. This motivated us to explore the impact of search engine-based knowledge retrieval (detailed in §5.2).",
+        "bbox": [
+            110,
+            388,
+            490,
+            602
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.2 Bing Web Search (BS)",
+        "text_level": 2,
+        "bbox": [
+            114,
+            621,
+            317,
+            637
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We investigate the advantages of adding a search enginebased knowledge retrieval module (BS) as an alternative of KR for similar questions search and concepts search before applying SG.",
+        "bbox": [
+            110,
+            648,
+            490,
+            706
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Results. In Table 3, we observe that BS+SG setting is a clear winner over the SG setting, when gpt-3.5-turbo is used for generating the Bing-Web-Search-API query and getting final solution from SG. This holds true even if the stand-alone SG is varied between text-davinci-003 (+22.5%) and gpt-3.5-turbo (+4.2%). Thus, augmenting LLMs with knowledge (relevant to a mathematical question) retrieved from the web proves to be beneficial in improving problem solving capabilities. The use of text-davinci-003 alone or in combination with gpt-3.5-turbo for BS and SG modules, diminishes the performance of both BS+SG and SG settings, which is expected (Ye et al., 2023).",
+        "bbox": [
+            110,
+            724,
+            489,
+            925
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/f73a6053c84abbfa8f4cb02fb3fcc852fc3cc009547c07f6225f09a3590bb338.jpg",
+        "table_caption": [
+            "Table 3: Ablations of BS+SG ( + ), WA+SG ( + ), and SG ( ) settings using different combination of LLMs, such as gpt-3.5-turbo ( ) and text-davinci-003 ( ) on the MATH dataset."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">LLMs</td><td colspan=\"3\">Setting</td></tr><tr><td>(a+)</td><td>(0+0)</td><td>()</td></tr><tr><td>(+)</td><td>38.7</td><td>42.6</td><td>–</td></tr><tr><td>(+)</td><td>27.4</td><td>35.6</td><td>=</td></tr><tr><td>(+)</td><td>30.0</td><td>37.8</td><td>=</td></tr><tr><td>(+)</td><td>20.8</td><td>27.0</td><td></td></tr><tr><td>()</td><td>=</td><td>1</td><td>34.5</td></tr><tr><td>()</td><td>–</td><td>–</td><td>16.2</td></tr></table>",
+        "bbox": [
+            574,
+            80,
+            818,
+            214
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.3 WolframAlpha Search (WA)",
+        "text_level": 2,
+        "bbox": [
+            509,
+            294,
+            757,
+            310
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We compare the performance of WA+SG and SG settings on the MATH dataset in Table 3. We perform ablations with text-davinci-003 and gpt-3.5-turbo as the LLMs used in WA for query generation and answer extraction.",
+        "bbox": [
+            507,
+            313,
+            885,
+            386
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Results. From Table 3, we observe that WA+SG outperforms the SG approach by 8.1%, when both WA and SG are powered by gpt-3.5-turbo. This shows a clear and significant contribution of complementary strengths coming from the knowledge retrieved through WolframAlpha. Furthermore, it is notable that the observed benefits of the WA module cannot be solely attributed to the characteristics of the LLMs employed for query generation or answer extraction. This is evident from the substantial performance gains (around 10.8%) achieved, even after enabling both WA and SG with a comparatively weaker model, such as text-davinci-003. Additionally, the mix of text-davinci-003 and gpt-3.5-turbo for the WA+SG setting demonstrates superior performance compared to SG with gpt-3.5-turbo, achieving improvements of 1.1% and 3.3%, respectively. Thus, showcasing meaningful positive impact of augmenting WA with the stand-alone SG module.",
+        "bbox": [
+            507,
+            394,
+            887,
+            667
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.4 Python Generator (PG)",
+        "text_level": 2,
+        "bbox": [
+            509,
+            676,
+            722,
+            690
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In this section, we investigate the effectiveness of the Python Generator (PG) module in using python code, and an interpreter to solve mathematical problems (utilizing external symbolic libraries from Sympy). Following, PAL (Program Aided Language Models) (Gao et al., 2023), Program of thought (Chen et al., 2023c), our PG module consists of a a program generator and an executor. The generated code and corresponding output are added in context of the next module in sequence. We present the results of the PG+SG setting in Table 4 for the MATH dataset. For MATH, we present three variations: (i) PG+SG with no code refinement, (ii) PG+CR+SG with code refinement, and (iii) PG′[ ]+SG (where PG′[ ] denotes the use of Phind-CodeLLama-34B-V2 model for PG. We choose Phind-CodeLLama-34B-V2 for our ablation since it is the best model from the huggingface Code-LLM leaderboards. The Phind family of models are finetuned versions of CodeLlama-34B on a Phind dataset consisting of 80k high quality programming problems and solutions.",
+        "bbox": [
+            507,
+            695,
+            887,
+            923
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "947",
+        "bbox": [
+            484,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/11a8b6ca37887c8bf4c84ec1d514b07f64cddc181011865abc596215550a6c09.jpg",
+        "table_caption": [
+            "Table 4: Comparison of our Modular Settings to Published Baselines on MATH. We use gpt-3.5-turbo ( ) as the default LLM for each setting (except one row). For PG′[ ]+SG ( + ) setting, we use Phind-CodeLlama-34B-V2 as the underlying LLM for the PG module (while keeping gpt-3.5-turbo ( ) as the default LLM for SG module); Alg: Algebra, P.Cal: Precalculus, P.Alg: Prealgebra, Geom: Geometry, Prob: Probability, N.Th: Number Theory, Int.Alg: Intermediate Algebra; We have taken the first four baseline results from SKiC (Chen et al., 2023a), and following two baselines from (Zhou et al., 2024)."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Method</td><td>Alg</td><td>P.Cal</td><td>P.Alg</td><td>Geom</td><td>Prob</td><td>N.Th</td><td>Int.Alg</td><td>O.Acc</td></tr><tr><td>Baselines with gpt-3.5-turbo ()</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>CoT-LTP (Guo et al., 2023)</td><td>49.6</td><td>16.3</td><td>52.3</td><td>22.5</td><td>30.2</td><td>29.8</td><td>16.9</td><td>31.1</td></tr><tr><td>ComplexCoT (Fu et al., 2023)</td><td>49.1</td><td>16.8</td><td>53.8</td><td>22.3</td><td>29.7</td><td>33.4</td><td>14.6</td><td>34.1</td></tr><tr><td>ComplexCoT+PHP (Zheng et al., 2023)</td><td>51.1</td><td>16.1</td><td>57.7</td><td>25.4</td><td>33.7</td><td>35.1</td><td>17.1</td><td>36.5</td></tr><tr><td>SKiC (Chen et al., 2023a)</td><td>57.9</td><td>23.0</td><td>62.0</td><td>30.1</td><td>38.2</td><td>35.5</td><td>17.8</td><td>40.6</td></tr><tr><td>Baselines with GPT-4</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>CoT (Zhou et al., 2024)</td><td>70.8</td><td>26.7</td><td>71.6</td><td>36.5</td><td>53.1</td><td>49.6</td><td>23.4</td><td>50.4</td></tr><tr><td>PHP (Zhou et al., 2024)</td><td>74.3</td><td>29.8</td><td>73.8</td><td>41.9</td><td>56.3</td><td>55.7</td><td>26.3</td><td>53.9</td></tr><tr><td>Ours</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SG ()</td><td>46.7</td><td>18.1</td><td>55.7</td><td>25.3</td><td>32.9</td><td>30.2</td><td>16.2</td><td>34.5</td></tr><tr><td>KR+SG (日+)</td><td>49.1</td><td>15.0</td><td>58.0</td><td>24.4</td><td>34.3</td><td>29.6</td><td>12.0</td><td>34.4</td></tr><tr><td>BS+SG (€+)</td><td>51.6</td><td>20.1</td><td>63.3</td><td>27.1</td><td>36.1</td><td>39.6</td><td>16.3</td><td>38.7</td></tr><tr><td>PG+SG (+)</td><td>60.0</td><td>26.5</td><td>66.1</td><td>30.7</td><td>42.1</td><td>40.5</td><td>21.1</td><td>44.6</td></tr><tr><td>PG+CR+SG (+A+)</td><td>59.7</td><td>25.2</td><td>63.9</td><td>26.9</td><td>48.3</td><td>43.0</td><td>26.9</td><td>44.8</td></tr><tr><td>PG&#x27;[]+SG (+)</td><td>55.4</td><td>23.5</td><td>58.0</td><td>22.9</td><td>32.7</td><td>42.2</td><td>17.9</td><td>39.6</td></tr><tr><td>WA+SG (+)</td><td>57.8</td><td>26.1</td><td>58.5</td><td>26.3</td><td>37.6</td><td>37.8</td><td>31.5</td><td>42.6</td></tr><tr><td>PG+BS+SG (+€+0)</td><td>53.1</td><td>20.7</td><td>58.7</td><td>28.6</td><td>37.8</td><td>36.6</td><td>19.9</td><td>39.0</td></tr><tr><td>BS+PG+SG (€++0)</td><td>55.0</td><td>23.1</td><td>61.2</td><td>27.5</td><td>35.4</td><td>35.4</td><td>20.5</td><td>39.8</td></tr><tr><td>WA+PG+SG (++)</td><td>62.5</td><td>28.9</td><td>61.5</td><td>27.1</td><td>42.6</td><td>45.7</td><td>33.4</td><td>46.3</td></tr><tr><td>PG+WA+SG (++0)</td><td>61.6</td><td>28.7</td><td>64.7</td><td>30.5</td><td>42.8</td><td>49.1</td><td>35.0</td><td>47.6</td></tr><tr><td>BS+WA+SG (€+0+)</td><td>56.2</td><td>22.9</td><td>61.0</td><td>29.8</td><td>37.5</td><td>44.0</td><td>28.9</td><td>42.9</td></tr><tr><td>WA+BS+SG (+E+)</td><td>60.0</td><td>27.0</td><td>65.0</td><td>29.0</td><td>40.5</td><td>42.2</td><td>31.4</td><td>45.4</td></tr><tr><td> $\\mathrm { B S + P G + W A + S G \\ ( \\not \\in + \\not = + \\ 0 + 0 ) }$ </td><td>60.2</td><td>26.4</td><td>65.0</td><td>31.3</td><td>44.7</td><td>48.7</td><td>31.6</td><td>46.7</td></tr></table>",
+        "bbox": [
+            117,
+            82,
+            882,
+            448
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            539,
+            489,
+            612
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Results In Table 4, we observe that the PG+SG setting using the sympy library without code refinement can improve upon the performance accuracy of SG on the MATH dataset by a margin of 10.1%. We find that a majority of problems in MATH require complex computations such as solving equations, representation of complex mathematical objects such as vectors, solving problems in Geometry, some of which are hurdles for the Solution generator module since text representations alone fail to capture such complexities. Libraries such as Sympy, on the other hand, has support for symbolically representing such objects using well defined functions, classes, methods, and sub-packages. We find that this helps PG outperform SG on all mathematical types in MATH. The outcomes of our experiment with PG+CR+SG setting only yields marginal enhancements on overall accuracy. We also observe a drop in the accuracy by 5% when using Phind-CodeLLama-34B-V2 as the LLM in PG module.",
+        "bbox": [
+            112,
+            652,
+            490,
+            923
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/e698ece03c0eb2d071b1f5ad0ae2f2f788db8295c98e1fb1361ca2fee3851b30.jpg",
+        "table_caption": [
+            "Table 5: MMLU Accuracy vs type of problem; FL:Formal logic, AA: Abstract Algebra, EM: Elementary Mathematics, CM: College Mathematics, HM: High School Mathematics"
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Setting</td><td>FL</td><td>AA</td><td>EM</td><td>CM</td><td>HM</td></tr><tr><td>()</td><td>53.9</td><td>49.0</td><td>84.6</td><td>41.0</td><td>57.7</td></tr><tr><td>(日+)</td><td>50.6</td><td>43.9</td><td>84.8</td><td>38.6</td><td>58.5</td></tr><tr><td>(0+0)</td><td>52.4</td><td>54.5</td><td>88.1</td><td>58.0</td><td>67.0</td></tr><tr><td>(+)</td><td>40.5</td><td>44.4</td><td>80.1</td><td>49.0</td><td>63.0</td></tr><tr><td>(2+0)</td><td>49.5</td><td>50.0</td><td>81.6</td><td>44.0</td><td>69.4</td></tr><tr><td>(0++)</td><td>44.7</td><td>36.1</td><td>81.4</td><td>57.1</td><td>63.7</td></tr><tr><td>(2+0+0)</td><td>45.7</td><td>55.5</td><td>92.1</td><td>42.3</td><td>68.0</td></tr><tr><td>(2+€+)</td><td>50.0</td><td>47.0</td><td>81.2</td><td>44.0</td><td>59.1</td></tr><tr><td>(++)</td><td>46.8</td><td>38.0</td><td>84.9</td><td>47.5</td><td>63.3</td></tr><tr><td>(0++0+)</td><td>41.3</td><td>43.0</td><td>79.3</td><td>45.0</td><td>66.1</td></tr></table>",
+        "bbox": [
+            532,
+            538,
+            863,
+            669
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/98f4aaf0a77896c5c70bfa5369eac37bdce53a1f1911620de4e08581aece3700.jpg",
+        "table_caption": [
+            "Table 6: Comparison of Multi-Module Settings for GSM-8K, AQUA-RAT (AQUA), and MMLU-Math (M.Math) datasets."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=4>Setting       GSM-8K   AQUA   M.Math</td></tr><tr><td rowspan=1 colspan=1>()</td><td rowspan=1 colspan=1>77.0</td><td rowspan=1 colspan=1>61.4</td><td rowspan=1 colspan=1>66.2</td></tr><tr><td rowspan=1 colspan=1>(日+)</td><td rowspan=1 colspan=1>71.8</td><td rowspan=1 colspan=1>57.5</td><td rowspan=1 colspan=1>64.5</td></tr><tr><td rowspan=1 colspan=1>(0+0)</td><td rowspan=1 colspan=1>61.7</td><td rowspan=1 colspan=1>57.9</td><td rowspan=1 colspan=1>66.0</td></tr><tr><td rowspan=1 colspan=1>(+)</td><td rowspan=1 colspan=1>56.0</td><td rowspan=1 colspan=1>53.5</td><td rowspan=1 colspan=1>67.6</td></tr><tr><td rowspan=1 colspan=1>(2+)</td><td rowspan=1 colspan=1>74.1</td><td rowspan=1 colspan=1>55.1</td><td rowspan=1 colspan=1>68.1</td></tr><tr><td rowspan=1 colspan=1>(0+2+0)</td><td rowspan=1 colspan=1>69.1</td><td rowspan=1 colspan=1>63.8</td><td rowspan=1 colspan=1>65.1</td></tr><tr><td rowspan=1 colspan=1>(2+0+0)</td><td rowspan=1 colspan=1>67.6</td><td rowspan=1 colspan=1>62.6</td><td rowspan=1 colspan=1>67.1</td></tr><tr><td rowspan=1 colspan=1>(++)</td><td rowspan=1 colspan=1>67.6</td><td rowspan=1 colspan=1>58.3</td><td rowspan=1 colspan=1>67.2</td></tr><tr><td rowspan=1 colspan=1>(++)</td><td rowspan=1 colspan=1>69.2</td><td rowspan=1 colspan=1>56.3</td><td rowspan=1 colspan=1>69.5</td></tr><tr><td rowspan=1 colspan=2>(€++0+)     70.7</td><td rowspan=1 colspan=1>61.4</td><td rowspan=1 colspan=1>66.9</td></tr></table>",
+        "bbox": [
+            547,
+            730,
+            848,
+            862
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "948",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.5 Results of Multiple Module Experiments",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            450,
+            99
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We experiment with various module combinations on four datasets MATH, AQUA-RAT, GSM-8K, and MMLU-Math and report in Tabs. 4 & 6. Our findings reveal that distinct modules exhibit specialized efficacy in addressing specific categories of mathematical problems. On the MATH dataset, (1) WA emerges as a valuable resource for tackling intricate mathematical subdomains, particularly in Intermediate Algebra (Int.Alg) and Number Theory (N.Th). The PG+WA+SG setting outperforms SG by 19% on Int.Alg. We conduct a qualitative analysis of PG+SG on 106 randomly sampled questions from MATH spanning all types and difficulty levels, presented in Table 13. We find that the majority of errors in Int.Alg arise from python code execution errors and the inability of python code to represent complex math objects in this subdomain. In contrast, the WA module effectively interacts with the API using both natural language and symbolic queries (Table 15) to address these issues, resulting in substantial enhancements.(2) For Algebra-related problems (Prealgebra and Algebra) having complex computations, the generation of Python code guided by PG and the Sympy library proves to be an effective choice. The WA+PG+SG setting elevates the performance of SG by 15.8% on Algebra. The PG+SG setting performance is also significantly better compared to SG (10.4%) on Prealgebra showing the utility of code representations over natural language in this subdomain. (3) Table 9 presents an examination of the variations in accuracy among various settings as a function of the problem levels (1-5) in the MATH dataset. Our analysis reveals a consistent improvement of over 10% across all levels with diverse modular configurations. This reaffirms the importance of judiciously selecting tools and configurations based on the specific features and attributes of the given problem.",
+        "bbox": [
+            112,
+            109,
+            490,
+            608
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Effectiveness of MATHSENSEI on MMLU-Math. Results in Table 6 reveal that the BS+PG+SG configuration enhances the accuracy of the SG setting by 3.3%. As the performance is gain is low, we further perform a type wise analysis in Table 5. We observe that, other than Formal Logic (FL), adding different modules show substantial improvements in different types, such as 17% in College Math, 11.7% in High School Math, 7.5% in Elementary Math. More specifically we find that: (1) The PG+WA+SG setting improves the accuracy of the SG setting from 84.6% to 92.1% on Elementary mathematics problems. (2) Interestingly, problems in Formal logic are best solved using SG alone. The drop in performance for the PG+SG setting (53.9 -> 49.5) is due to the inability of PG to adequately represent predicate logic, First Order Logic (FOL) sentences through python code, (3) For College Mathematics, the WolframAlpha module demonstrates highest efficacy, as evidenced by the substantial benefits observed in both the WA+SG and WA+PG+SG settings. Notably, WA+SG outperforms the SG setting by a significant margin of 17%. Our analysis in MMLU-Math further supports the complementary benefit of the tools used in MATHSENSEI framework for various mathematical types.",
+        "bbox": [
+            110,
+            611,
+            490,
+            925
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            84,
+            884,
+            141
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Decreased Effectiveness of MATHSENSEI on GSM-8K, and AQUA-RAT. From Table 6, we observe marginal improvements of using multiple modules on AQUA-RAT and GSM-8K, over the standalone SG module. Both datasets comprise simpler algebraic and arithmetic word problems. GSM-8K consists of problems requiring simple arithmetic operations such as addition, subtraction, etc. and its complexity stems from linguistic diversity. We conduct a case study on a randomly sampled set of 20 examples from GSM-8K, where PG+SG is incorrect and SG is correct, we find that 18 (out of 20) have incorrect outputs generated by PG (due to reasoning errors) (Table 13). For all these 18 examples, the LLM generated python code tries to solve a simple problem by using complex objects in Sympy, which in turn degrades the performance. For the remaining two examples, one has an execution error, while for the other one, SG alters the correct PG answer to incorrect. Similar to GSM-8K, AQUA-RAT primarily focuses on problems that require generic language-based reasoning skills. We find that settings with tools mostly hurt the performance compared to SG. This is attributed to the fact that WA and BS are unnecessary for addressing straightforward problems, and invoking them often introduces noisy and irrelevant information into the context of SG. As we saw previously in case of GSM-8K, a significant proportion of errors in PG+SG ( + ) can be linked to the application of Sympy for simple problems (Table 13). These outcomes highlight the diminishing utility of employing additional modules for tasks requiring minimal external knowledge.",
+        "bbox": [
+            507,
+            141,
+            887,
+            599
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "5.6 Insights from Qualitative Analysis of Modules",
+        "text_level": 2,
+        "bbox": [
+            509,
+            608,
+            884,
+            624
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We consider an example from the MATH dataset and present a qualitative analysis of the responses generated by different settings in Table 7. We observe that SG and PG+SG are unable to capture the fine-grained nuances in the input question (repetition of characters in the word \"NINE\"), leading to reasoning errors. On the other hand, the BS+SG and WA+SG settings avoid committing such errors. This demands a need for a careful examination of the strengths and limitations of the individual modules, which we discuss in details in this section.",
+        "bbox": [
+            507,
+            627,
+            885,
+            772
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Bing Web Search (BS). Previous investigations of retrieval-augmented generation (RAG) (Lewis et al., 2021) and Self-RAG (Asai et al., 2023) have shown that conditional generation using retrieval-based approaches improves factuality in knowledge intensive tasks such as question answering, fact verification, etc. We observe similar benefits of employing retrieval-based methods in the domain of complex mathematical reasoning. The BS module retrieves useful information (such as formulas, concepts and similar questions) from the Web, improving the effectiveness of the downstream SG module. As shown in Table 7, the BS module retrieves an informative example of a similar question (permutations of the letters in the word \"BANANA\", having repeated characters) and the correct formula of permutations with repetitions, which aids the SG module in correctly reasoning about the final solution. However, our current implementation of the BS module also has certain limitations. We directly use the raw output returned by the Bing Web Search API v7, which is noisy in certain cases. Additionally, we do not employ any critique mechanism to check the relative importance of multiple pieces of the retrieved information. We also observe a significant reduction in performance on GSM-8K after adding the BS module to SG. This calls for a component which can effectively decide when it is required to retrieve knowledge and when it is not necessary (future research).",
+        "bbox": [
+            507,
+            781,
+            887,
+            925
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "949",
+        "bbox": [
+            485,
+            929,
+            517,
+            941
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "images/4bc8a1a4ac199174eef5bf3d71106256ddb9642578078784061f4ec5c007489a.jpg",
+        "image_caption": [
+            "Table 7: Qualitative Analysis of the Responses generated by different Settings for a given MATH example."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            122,
+            84,
+            873,
+            263
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            306,
+            490,
+            564
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "WolframAlpha (WA). The WA module overcomes the limitations of SG by harnessing the computational power and intelligence of the WolframAlpha engine. In cases, where the query to the WolframAlpha-API is syntactically and logically correct for solving a mathematical question, the returned answer is guaranteed to be correct, which is then processed by the SG module to compile the final answer. From Figure 6, we observe maximum benefit of WolframAlpha module for problems in the subdomains of Algebra and Intermediate Algebra (primarily for difficulty levels greater than one). We demonstrate the utility and limitations of the WA module in Tables 16 and 14, respectively. The limitations of the WA module are mostly associated with: (1) Logical errors in LLM-generated WA API Queries (Example 1 in Table 14), (2) Wrong interpretation of correct WA response by the downstream SG module (Example 2 in Table 14), (3) Single line WA response, which restricts the ability of downstream SG module to generate step-by-step reasoning (Example 3 in Table 14).",
+        "bbox": [
+            112,
+            569,
+            490,
+            870
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Python Generator (PG). As mentioned in Section 5.4, the Sympy library offers strong capabilities to the PG module for MATH. The deterministic program executor also helps in avoiding common errors committed by the standalone SG module. We found the PG module to be most useful in solving Algebra, Prealgebra and Number Theory problems. The example presented in Table 17 demonstrates the advantage of using the PG module over the SG module. The primary errors of the PG module in Intermediate Algebra and Prealgebra are mainly due to inability of the generated python code to express complex objects (syntax errors) and boundary cases, respectively. In the case of Geometry and Precalculus problems, a large proportion of errors are caused due to lack of understanding the plots/figures (expressed in latex format) accompanying the question. Table 12 presents examples of common syntactical errors (from the MATH dataset) of the PG module, and Table 13 summarizes the different error types of PG+SG setting. Similar to PoT (Chen et al., 2023c), we found the PG module to be less effective for simpler arithmetic problems (removal of Sympy improves the performance by 2-3%). However, the overall performance of SG and PG+SG still remains quite similar. In Table 18, we present an example from GSM-8K where PG+SG commits a reasoning error while the SG setting is correct.",
+        "bbox": [
+            112,
+            881,
+            489,
+            925
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            307,
+            885,
+            637
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            661,
+            643,
+            676
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We introduce a Tool-augmented Large Language Model (TALM) framework, aka MATHSENSEI, targeted for Mathematical Reasoning. We utilize tools for webbased knowledge retrieval, program generation and execution and symbolic equation solving. We perform extensive ablations over the individual tools, along with varying the order and combination on complex mathematical reasoning datasets (such as MATH). Our best configuration achieves a 13.5% improvement over gpt-3.5-turbo (with CoT prompting) on MATH. Our experiments with tool-sequencing methods does not improve over our best configuration. We also observe that benefit of mathematical TALMs are minimal for simpler math word problems (in GSM-8k) and its benefit increases as the required complexity and knowledge for the problem increases through AQuA, MMLU-Math.",
+        "bbox": [
+            507,
+            695,
+            887,
+            925
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "950",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Limitations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            83,
+            220,
+            98
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "We propose a Tool-Augmented LLM framework (TALM), uniquely targeted towards complex mathematical reasoning. Here, we discuss three types of limitations: 1) choice of the set of tools, 2) variants of the PG module for simpler problems and 3) developing mathematical TALM-specific planning methods.",
+        "bbox": [
+            112,
+            108,
+            489,
+            193
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "1. Here, we choose tools, which intuitively offers knowledge about complex mathematical disciplines and complex equation solving capabilities such as Python with sympy library, WolframAlpha-API and Bing Web Search API. However, we have not explored other solvers which are targeted towards logical complexity or adding commonsense knowledge. In future, a more universal TALM can target adding Z3, SAT solvers and OMCS knowledge base query capabilities.",
+        "bbox": [
+            112,
+            193,
+            489,
+            321
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "2. Our Program Generator (PG) module is not only inspired by the program-guided solving methods, but also targetedly use sympy library to access complex mathematical equation solving skills. Such skills may not be required for simpler math word problems, as present in GSM-8k. In future, we plan to work on generalizing the PG module so that it is adaptive for simpler problems and focuses mainly on representing the problems in code, only accessing sympy capabilities when required.",
+        "bbox": [
+            112,
+            322,
+            489,
+            463
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "3. Lastly, we worked on vanilla adaptation of the available planning or tool-sequencing methods directly in the mathematical TALM (or MATHSENSEI) context. From our experiments, it is clear that we need to develop more efficient planners that can dynamically choose a sequence of tools based on the problem type (say WA+PG+SG for algebra and PG+CR+SG for Probability), striking a balance between planning beforehand (Plan-And-Solve) and example-wise planning (REACT). We hope our work will inspire researchers to work on such planning methods for mathematical TALMs.",
+        "bbox": [
+            112,
+            464,
+            489,
+            621
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgements",
+        "text_level": 2,
+        "bbox": [
+            114,
+            633,
+            287,
+            649
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "This work is directly supported by Rakuten India Enterprise Private Limited. Additionally, Debrup Das and PI Somak Aditya are partially supported by the Microsoft Accelerate Foundation Models Research (AFMR) Grant (especially Bing Search API-based experiments have been carried out with the help of AFMR).",
+        "bbox": [
+            112,
+            658,
+            489,
+            744
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            114,
+            770,
+            215,
+            785
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and Hannaneh Hajishirzi. 2023. Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection.",
+            "Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, and et al. 2020. Language Models are Few-Shot Learners. In Proceedings of the 34th Confer-",
+            "ence on Neural Information Processing Systems, volume 33 of NIPS ’20, pages 1877–1901.",
+            "Jiaao Chen, Xiaoman Pan, Dian Yu, Kaiqiang Song, Xiaoyang Wang, Dong Yu, and Jianshu Chen. 2023a. Skills-in-Context Prompting: Unlocking Compositionality in Large Language Models.",
+            "Justin Chih-Yao Chen, Swarnadeep Saha, and Mohit Bansal. 2023b. ReConcile: Round-Table Conference Improves Reasoning via Consensus among Diverse LLMs.",
+            "Wenhu Chen, Xueguang Ma, Xinyi Wang, and William W. Cohen. 2023c. Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks.",
+            "Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham, Hyung Won Chung, Charles Sutton, and et al. Gehrmann. 2024. PaLM: scaling language modeling with pathways. J. Mach. Learn. Res., 24(1):1– 113.",
+            "Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, Christopher Hesse, and John Schulman. 2021. Training Verifiers to Solve Math Word Problems.",
+            "Iddo Drori, Sarah Zhang, Reece Shuttleworth, Leonard Tang, Albert Lu, and et al. 2022. A Neural Network Solves, Explains, and Generates University Math Problems by Program Synthesis and Few-Shot Learning at Human Level. Proceedings of the National Academy ofSciences, 119(32):1–10.",
+            "Yilun Du, Shuang Li, Antonio Torralba, Joshua B. Tenenbaum, and Igor Mordatch. 2023. Improving factuality and reasoning in language models through multiagent debate.",
+            "Yao Fu, Hao Peng, Ashish Sabharwal, Peter Clark, and Tushar Khot. 2023. Complexity-Based Prompting for Multi-step Reasoning. In Proceedings ofthe 11th International Conference on Learning Representations, ICLR ’23, pages 1–15.",
+            "Luyu Gao, Aman Madaan, Shuyan Zhou, Uri Alon, Pengfei Liu, Yiming Yang, Jamie Callan, and Graham Neubig. 2023. PAL: program-aided language models. In Proceedings of the 40th International Conference on Machine Learning, ICML’23, pages 10764–10799.",
+            "Yiduo Guo, Yaobo Liang, Chenfei Wu, Wenshan Wu, Dongyan Zhao, and Nan Duan. 2023. Learning to Program with Natural Language.",
+            "Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2021a. Measuring Massive Multitask Language Understanding. In Proceedings ofthe 9th International Conference on Learning Representations, ICLR ’21, pages 1–27."
+        ],
+        "bbox": [
+            115,
+            794,
+            487,
+            846
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "951",
+        "bbox": [
+            485,
+            929,
+            515,
+            941
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Tang, Dawn Song, and Jacob Steinhardt. 2021b. Measuring Mathematical Problem Solving With the MATH Dataset. In Proceedings ofthe 35th Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2), NIPS ’21, pages 1–11.",
+            "Jie Huang and Kevin Chen-Chuan Chang. 2023. Towards Reasoning in Large Language Models: A Survey.",
+            "Rik Koncel-Kedziorski, Hannaneh Hajishirzi, Ashish Sabharwal, Oren Etzioni, and Siena Dumas Ang. 2015. Parsing Algebraic Word Problems into Equations. Transactions ofthe Associationfor Computational Linguistics, 3:585–597.",
+            "Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Küttler, Mike Lewis, Wen tau Yih, Tim Rocktäschel, Sebastian Riedel, and Douwe Kiela. 2021. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.",
+            "Tian Liang, Zhiwei He, Wenxiang Jiao, Xing Wang, Yan Wang, Rui Wang, Yujiu Yang, Zhaopeng Tu, and Shuming Shi. 2023. Encouraging Divergent Thinking in Large Language Models through Multi-Agent Debate.",
+            "Wang Ling, Dani Yogatama, Chris Dyer, and Phil Blunsom. 2017. Program Induction by Rationale Generation: Learning to Solve and Explain Algebraic Word Problems. In Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL ’17’, pages 158–167.",
+            "Pan Lu, Baolin Peng, Hao Cheng, Michel Galley, Kai-Wei Chang, Ying Nian Wu, Song-Chun Zhu, and Jianfeng Gao. 2023a. Chameleon: Plug-and-Play Compositional Reasoning with Large Language Models. In Proceedings ofthe 37th Conference on Neural Information Processing Systems, NIPS ’23, pages 1–32.",
+            "Pan Lu, Liang Qiu, Wenhao Yu, Sean Welleck, and Kai-Wei Chang. 2023b. A Survey of Deep Learning for Mathematical Reasoning. In Proceedings ofthe 61st Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), ACL ’23, pages 14605–14631.",
+            "Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, Shashank Gupta, Bodhisattwa Prasad Majumder, Katherine Hermann, Sean Welleck, Amir Yazdanbakhsh, and Peter Clark. 2023. Self-Refine: Iterative Refinement with Self-Feedback. In Proceedings of the 37th Conference on Neural Information Processing Systems, NIPS ’23, pages 1–61.",
+            "Shen-yun Miao, Chao-Chun Liang, and Keh-Yih Su. 2020. A Diverse Corpus for Evaluating and Developing English Math Word Problem Solvers. In Proceedings of the 58th Annual Meeting of the Association",
+            "for Computational Linguistics, ACL ’20’, pages 975– 984.",
+            "OpenAI. 2023. GPT-4 Technical Report.",
+            "Bhargavi Paranjape, Scott Lundberg, Sameer Singh, Hannaneh Hajishirzi, Luke Zettlemoyer, and Marco Tulio Ribeiro. 2023. ART: Automatic multistep reasoning and tool-use for large language models.",
+            "Alec Radford, Jeff Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language Models are Unsupervised Multitask Learners.",
+            "Timo Schick, Jane Dwivedi-Yu, Roberto Dessi, Roberta Raileanu, Maria Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom. 2023. Toolformer: Language Models Can Teach Themselves to Use Tools. In Proceedings ofthe 37th Conference on Neural Information Processing Systems, NIPS ’23, pages 1–13.",
+            "Aarohi Srivastava, Abhinav Rastogi, Abhishek Rao, Abu Awal Md Shoeb, and et al. 2023. Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models. Transactions on Machine Learning Research, pages 1–95.",
+            "Mirac Suzgun, Nathan Scales, Nathanael Schärli, Sebastian Gehrmann, Yi Tay, Hyung Won Chung, Aakanksha Chowdhery, Quoc Le, Ed Chi, Denny Zhou, and Jason Wei. 2023. Challenging BIG-Bench Tasks and Whether Chain-of-Thought Can Solve Them. In Findings of the Association for Computational Linguistics, ACL ’23, pages 13003–13051.",
+            "James Thorne, Andreas Vlachos, Christos Christodoulopoulos, and Arpit Mittal. 2018. FEVER: A Large-scale Dataset for Fact Extraction and VERification. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers), NAACL ’18, pages 809–819.",
+            "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, brian ichter, Fei Xia, Ed H. Chi, Quoc V Le, and Denny Zhou. 2022. Chain of Thought Prompting Elicits Reasoning in Large Language Models. In Proceedings of the 36th Conference on Neural Information Processing Systems, NIPS ’22, pages 1–14.",
+            "Yuanzhen Xie, Tao Xie, Mingxiong Lin, WenTao Wei, Chenglin Li, Beibei Kong, Lei Chen, Chengxiang Zhuo, Bo Hu, and Zang Li. 2023. OlaGPT: Empowering LLMs With Human-like Problem-Solving Abilities.",
+            "Runzhe Yang and Karthik Narasimhan. 2023. The Socratic Method for Self-Discovery in Large Language Models.",
+            "Zhilin Yang, Peng Qi, Saizheng Zhang, Yoshua Bengio, William Cohen, Ruslan Salakhutdinov, and Christopher D. Manning. 2018. HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering."
+        ],
+        "bbox": [
+            115,
+            85,
+            489,
+            177
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "952",
+        "bbox": [
+            485,
+            928,
+            517,
+            941
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing, EMNLP ’18, pages 2369–2380.",
+            "Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas L. Griffiths, Yuan Cao, and Karthik R Narasimhan. 2023. Tree of Thoughts: Deliberate Problem Solving with Large Language Models. In Proceedings ofthe 37th Conference on Neural Information Processing Systems, NIPS ’23, pages 1–14.",
+            "Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao. 2022. ReAct: Synergizing Reasoning and Acting in Language Models.",
+            "Junjie Ye, Xuanting Chen, Nuo Xu, Can Zu, Zekai Shao, Shichun Liu, Yuhan Cui, Zeyang Zhou, Chao Gong, Yang Shen, Jie Zhou, Siming Chen, Tao Gui, Qi Zhang, and Xuanjing Huang. 2023. A Comprehensive Capability Analysis of GPT-3 and GPT-3.5 Series Models.",
+            "Chuanyang Zheng, Zhengying Liu, Enze Xie, Zhenguo Li, and Yu Li. 2023. Progressive-Hint Prompting Improves Reasoning in Large Language Models.",
+            "Aojun Zhou, Ke Wang, Zimu Lu, Weikang Shi, Sichun Luo, Zipeng Qin, Shaoqing Lu, Anya Jia, Linqi Song, Mingjie Zhan, and Hongsheng Li. 2024. Solving Challenging Math Word Problems Using GPT-4 Code Interpreter with Code-based Self-Verification. In Proceedings ofthe 12th International Conference on Learning Representations, ICLR ’24, pages 1–27."
+        ],
+        "bbox": [
+            129,
+            85,
+            487,
+            126
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "A Planning Experiments",
+        "text_level": 2,
+        "bbox": [
+            114,
+            527,
+            347,
+            545
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "We explore two state-of-the-art planning strategies based following the Chameleon (Lu et al., 2023a) and the REACT (Yao et al., 2022) frameworks and report in in Table 10.",
+        "bbox": [
+            112,
+            552,
+            489,
+            609
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Plan-And-Solve Within the Plan-And-Solve (PAS) framework, a dynamic planner (LLM), generates a plan for a given mathematical problem before the start of execution. In our context, the plan consists of the sequence of modules to be run. Notably, this planning approach is inherently non-adaptive, as the strategy lacks the capability to determine the next module based on feedback and the output of the previously executed modules. To instruct the planner LLM, we provide input prompts containing information about each module, along with few-shot examples representing a possible sequence. The prompts utilized for the planner model are detailed in Table 22.",
+        "bbox": [
+            112,
+            617,
+            490,
+            802
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "MATHSENSEI with REACT Planner. The previous modular settings, have a fixed order of execution of the modules. However, we also wish to test out settings where there is power given to the central LLM to call different modules as and when required. This is done by executing (thought, action request, action execution) triplets. The thought serves as a summary of what we have till now in relation to answering the question, the action request is the specific action we wish to take in the next step, and the action execution step calls the necessary module from the modules library to execute the action. An overview of the REACT setting applied to the MATH dataset is presented in Fig. 5. The results for this setting corresponding to each problem type is presented in Table 10.",
+        "bbox": [
+            112,
+            809,
+            489,
+            925
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            185
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Results. We evaluate the performance of Plan-And-Solve and REACT on a randomly sampled subset of the MATH dataset of 3100 examples(for which REACT converges). The results show that simple vanilla implementation of the above planners is not sufficient for surpassing our best configuration PG+WA+SG. In particular, the majority of errors for REACT, were as a result of the failure of REACT to converge to a final solution (finish thought state). The variation of the accuracy as a function of the level of the problem (Table 11) shows, REACT\\* can surpass Plan-And-Solve (PAS) by a small percentage, however it still lags behind our best settings.",
+        "bbox": [
+            507,
+            192,
+            887,
+            379
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Unlike planning in traditional closed world setup datasets such as Blocksworld, Logistics, Depot planning, etc., the task of planning in the mathematical reasoning domain presents multiple differences: Firstly, the set of possible actions is not finite as we can query each tool/module with any input string. Moreover, there are no preconditions that need to be satisfied for executing a particular action which makes the planning space much more unbounded. This can lead to long planning chains with (thought,action,execution) triplets where there may be multiple irrelevant actions. As seen from our work, the strengths and limitations of each tool also varies with the type of datasets, subdomains and difficulty levels, which makes the problem non-trivial. Hence, it turns out to be overwhelming to propose a novel planning strategy in this paper. We plan to explore this issue as a future research direction. A planner with a novel architecture and sufficient mathematical knowledge may be required to tackle this aspect.",
+        "bbox": [
+            507,
+            391,
+            887,
+            663
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "953",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "table",
+        "img_path": "images/e5b89da2dce9e345faf5ce5b896cd0b2fed627313ffb642965977f581b063e83.jpg",
+        "table_caption": [
+            "Table 8: Module Inventory."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=6>Modules</td></tr><tr><td rowspan=1 colspan=1>Models/APIs</td><td rowspan=1 colspan=1>KR明</td><td rowspan=1 colspan=1>BS</td><td rowspan=1 colspan=1>WAO</td><td rowspan=1 colspan=1>PG</td><td rowspan=1 colspan=1>CRA</td><td rowspan=1 colspan=1>SGO</td></tr><tr><td rowspan=1 colspan=1>Bing-Web-Search-API ()</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>x</td></tr><tr><td rowspan=1 colspan=1>Wolfram-Alpha-API ()</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>X</td></tr><tr><td rowspan=1 colspan=1>L1ama-2-7B (τ)</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>X</td></tr><tr><td rowspan=1 colspan=1>Phind-CodeLlama-34B-V2 ({)</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>x</td></tr><tr><td rowspan=1 colspan=1>text-davinci-002 ()</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>X</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>x</td></tr><tr><td rowspan=1 colspan=1>text-davinci-003 ()</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>x</td><td rowspan=1 colspan=1>√</td></tr><tr><td rowspan=1 colspan=1>gpt-3.5-turbo()</td><td rowspan=1 colspan=1>L</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>√</td><td rowspan=1 colspan=1>L</td></tr></table>",
+        "bbox": [
+            278,
+            82,
+            719,
+            223
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/e32b1715780ada0f2b336be9128d5104f874b2fe74e7848ee7d1ecdc7a4b6b67.jpg",
+        "table_caption": [
+            "Table 9: Performance of different Settings across varying Levels of Complexity (1-5) on the MATH dataset."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Setting</td><td>Level 1</td><td>Level 2</td><td>Level 3</td><td>Level 4</td><td>Level 5</td></tr><tr><td>()</td><td>71.8</td><td>53.1</td><td>41.0</td><td>25.6</td><td>12.2</td></tr><tr><td>(0+0)</td><td>74.6</td><td>60.5</td><td>46.6</td><td>37.6</td><td>21.3</td></tr><tr><td>(2+0)</td><td>83.6</td><td>62.4</td><td>52.6</td><td>40.0</td><td>19.8</td></tr><tr><td>(0++)</td><td>76.4</td><td>61.5</td><td>54.0</td><td>40.2</td><td>25.2</td></tr><tr><td>(2+0+0)</td><td>79.1</td><td>62.8</td><td>53.9</td><td>41.8</td><td>26.9</td></tr><tr><td>(a+0+0)</td><td>74.6</td><td>59.3</td><td>51.0</td><td>35.6</td><td>21.0</td></tr><tr><td>(0+aa+$)</td><td>76.0</td><td>60.1</td><td>52.0</td><td>39.9</td><td>24.6</td></tr><tr><td>(e++0+$)</td><td>81.0</td><td>60.5</td><td>52.9</td><td>41.6</td><td>25.4</td></tr></table>",
+        "bbox": [
+            285,
+            254,
+            712,
+            374
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/cad0433a62c9d09b83fb4c83a7974bdc0a9ade08f86c4b9bab7403888cba2b16.jpg",
+        "table_caption": [
+            "Table 10: Comparison of planning strategies: Plan-And-Solve (PAS) and REACT with two of our best performing settings on 3072 randomly sampled examples from the MATH dataset (i.e., PG+WA+SG ( + + ) and WA+PG+SG ( + + )). Here $X ^ { * }$ denotes the use of 3072 samples for evaluating method X."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Plan Method</td><td>Alg</td><td>P.Cal</td><td>P.Alg</td><td>Geom</td><td>Prob</td><td>N.Th</td><td>Int.Alg</td><td>O.Acc</td></tr><tr><td>PAS*</td><td>57.3</td><td>29.8</td><td>65.0</td><td>32.4</td><td>42.0</td><td>47.7</td><td>31.9</td><td>47.3</td></tr><tr><td>REACT*</td><td>62.9</td><td>30.6</td><td>65.1</td><td>32.1</td><td>42.0</td><td>46.1</td><td>33.7</td><td>48.9</td></tr><tr><td> $( e + 0 + 0 ) ^ { \\ast }$ </td><td>61.4</td><td>32.8</td><td>65.2</td><td>33.4</td><td>45.4</td><td>54.2</td><td>37.6</td><td>50.7</td></tr><tr><td> $( 0 + e + 0 ) ^ { 2 }$ </td><td>64.4</td><td>32.1</td><td>62.8</td><td>32.1</td><td>46.9</td><td>49.4</td><td>38.3</td><td>50.6</td></tr></table>",
+        "bbox": [
+            225,
+            406,
+            774,
+            478
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/d5fb72722ddc2d299c563e3dc7b4467febb0bc13ed6df8e0d853467c8ca41692.jpg",
+        "table_caption": [
+            "Table 11: Comparing Performance of different Planning Strategies with two of our Top Performing Settings (i.e., PG+WA+SG ( + + ) and WA+PG+SG ( + + )) by varying Difficulty Level of Problems from the MATH dataset. Here X\\* denotes the use of 3072 samples for evaluating method X."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Setting</td><td>Level 1</td><td>Level 2</td><td>Level 3</td><td>Level 4</td><td>Level 5</td></tr><tr><td>PAS*</td><td>76.0</td><td>60.1</td><td>53.9</td><td>40.5</td><td>26.1</td></tr><tr><td>REACT*</td><td>78.3</td><td>62.0</td><td>55.4</td><td>41.6</td><td>27.9</td></tr><tr><td>(2+0+0)*</td><td>79.3</td><td>65.3</td><td>54.3</td><td>43.9</td><td>31.1</td></tr><tr><td> $( 0 + e + 0 ) ^ { 2 }$ </td><td>78.3</td><td>65.6</td><td>55.8</td><td>43.1</td><td>30.1</td></tr></table>",
+        "bbox": [
+            292,
+            535,
+            707,
+            606
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/6d74527e26f5c65372c3ea031bdfef33f93fef943d1dec9b504e35436e26dfdc.jpg",
+        "table_caption": [
+            "Table 12: Syntactic Errors of the PG module."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Type</td><td>Error message</td></tr><tr><td>Undefined symbols</td><td>name &#x27;x’ is not defined</td></tr><tr><td>Incorrect handling of objects</td><td>&#x27;FiniteSet’ object has no at- tribute &#x27;subtract&#x27;</td></tr><tr><td>Undefined functions</td><td>name &#x27;divisible_by&#x27; is not defined</td></tr><tr><td>Use of libraries without import</td><td>sympy package not found</td></tr></table>",
+        "bbox": [
+            124,
+            707,
+            477,
+            864
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/5e8fd4bfc4ced1e09e866477ca3b206c67efb5add1c220bdaa18f47a38d91a20.jpg",
+        "table_caption": [
+            "Table 13: Summary of Error types with PG+SG ( + ) setting on a random subset of 106 examples (MATH dataset); for GSM-8K and AQUA we consider 20 random examples, where the setting SG ( ) is correct; PG-Exec-Err: Code generated by PG module having syntactical errors; PG-R-Err: Executable python code (from PG ) having reasoning errors; SG-Err: Solution Generator (SG ) alters correct output from PG to incorrect; Alg: Algebra, P.Cal: Precalculus, P.Alg: Prealgebra, Geom: Geometry, Prob: Probability, N.Th: Number Theory, Int.Alg: Intermediate Algebra, O.Cnt: Overall Count, Egs.: Examples. Here we report the absolute count of errors across different subjects."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=1>Dataset</td><td rowspan=1 colspan=1>Subject</td><td rowspan=1 colspan=3>PG-Exec-Err  PG-R-Err  SG-Err</td><td rowspan=1 colspan=1>Egs.</td></tr><tr><td rowspan=8 colspan=1>MATH</td><td rowspan=1 colspan=1>Alg</td><td rowspan=1 colspan=1>8</td><td></td><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>15</td></tr><tr><td rowspan=4 colspan=1>P.CalP.AlgGeomProb</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>15</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>15</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>15</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>15</td></tr><tr><td rowspan=2 colspan=1>N.ThInt.Alg</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>16</td></tr><tr><td rowspan=1 colspan=1>14</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>15</td></tr><tr><td rowspan=1 colspan=1>O.Cnt</td><td rowspan=1 colspan=1>51</td><td rowspan=1 colspan=1>48</td><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>106</td></tr><tr><td rowspan=2 colspan=1>GSM-8KAQUA</td><td rowspan=2 colspan=1></td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>18</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>20</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>13</td><td rowspan=1 colspan=1>20</td></tr></table>",
+        "bbox": [
+            522,
+            675,
+            870,
+            793
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "954",
+        "bbox": [
+            485,
+            929,
+            517,
+            941
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "image",
+        "img_path": "images/ceee98439deb61958c426ea05cb4326e3054dc52ec6147b784b72f6efed58939.jpg",
+        "image_caption": [
+            "(a)",
+            "(b)",
+            "Figure 4: Overview of (a) Python Generator Module and (b) Code Refiner Module"
+        ],
+        "image_footnote": [],
+        "bbox": [
+            107,
+            172,
+            889,
+            808
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "955",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "image",
+        "img_path": "images/4f922a42c719d10501a4139eaa574a0b7e561c6be20931c5d06b5f8436f81dc4.jpg",
+        "image_caption": [
+            "Figure 5: Generated output for example from the MATH dataset for the REACT planning setting."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            166,
+            271,
+            826,
+            706
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "956",
+        "bbox": [
+            484,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/47e01c455373f1f723b9c015c16415e014d84e2a2889d32c3b7c8c2a8dec921d.jpg",
+        "table_caption": [
+            "Figure 6: Distribution of examples where WA+SG ( + ) is correct and SG ( ) is wrong, across problem types and level of difficulty (1-5). The values are normalized by number of examples in each (subject - level) combination."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Geometry -</td><td>0.0789474</td><td>0.231707</td><td>0.147059</td><td>0.12</td><td>0.0538462</td><td rowspan=\"4\">0.30 -0.25</td></tr><tr><td>Intermediate Algebra</td><td>0.0961538</td><td>0.328125</td><td>0.276923</td><td>0.207317</td><td>0.167286</td></tr><tr><td>Algebra -</td><td>0.140741</td><td>0.17</td><td>0.211538</td><td>0.279152</td><td>0.224756</td></tr><tr><td>Counting &amp; Probability </td><td>0.0769231</td><td>0.207921</td><td>0.13</td><td>0.144144</td><td>0.146341</td></tr><tr><td>Precalculus -</td><td>0.192982</td><td>0.232143</td><td>0.133858</td><td>0.174312</td><td>0.0655738</td><td rowspan=\"2\">-0.15 - 0.10</td></tr><tr><td>Number Theory -</td><td>0.172414</td><td>0.163043</td><td>0.221311</td><td>0.204225</td><td>0.143791</td></tr><tr><td>Prealgebra -</td><td>0.0348837</td><td>0.125</td><td>0.156951</td><td>0.231579</td><td>0.165803</td><td>- 0.05</td></tr><tr><td></td><td>Level 1</td><td>Level 2</td><td>Level 3</td><td>Level 4</td><td>Level 5</td><td></td></tr></table>",
+        "bbox": [
+            121,
+            322,
+            932,
+            656
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "957",
+        "bbox": [
+            484,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/a9cfbe15dcb52dd52c016794177ad0c9fa9f6a23c8ea1a7f04bea01c378686f7.jpg",
+        "table_caption": [
+            "Table 14: Limitations of the WA Module in WA+SG ( + ) setting."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td colspan=\"3\">Setting: WA+SG (+)</td></tr><tr><td>QUESTION 1: The positive inte- gers up to 2007 are alternately sub- tracted and added: [1 − 2 + 3 − 4 + · · · + 2001 − 2002 + 2003 − 2004 + 2005 – 2006 + 2007.] What is the value of the expression?</td><td>QUESTION 2: When the expres- sion −2x2 − 20x − 53 is written in the form a(x + d)2 + e, where a, d, and e are constants, what is the sum a+d+e?</td><td> $\\textstyle { \\frac { 2 x ^ { 2 } + x + 3 } { x ^ { 2 } + x + 1 } } =$  QUESTION 3: Solve 2x+1 for x. x+1</td></tr><tr><td>WA API Query: Sum[(−1)n * n, {n, 1, 2007}] [INCORRECT; since it finds</td><td>WA API Query: CompleteSquare[−2x2 − 20x − 53] [CORRECT]</td><td>WA API Query: solve  $( 2 x ^ { 2 } + x + 3 ) / ( x ^ { 2 } + x + 1 ) =$  (2x + 1)/(x + 1) for x</td></tr><tr><td>CORRECT Query : Sum[(−1)(n+1) * n, {n, 1, 2007}] WA Output: Yes, the answer is -1004 . [Logical errors in LLM gener-</td><td>WA Output: Yes, the answer from this object is:  $- 2 ( x + 5 ) ^ { 2 } - 3$ </td><td>WA Output: Yes, the answer is x = -2 [Since WA module returns a single line answer (in many cases),</td></tr><tr><td>SG Output: We use the Wolfram Alpha API to evaluate the expression</td><td>SG Output: From WolframAlpha response, we find −2x2 − 20x − 53 =</td><td>provide a step-by-step reasoning.] SG Output We call the WolframAlpha API to solve the given equation.The</td></tr><tr><td>Sum[(−1)n * n, n, 1, 2007]. The answer from Wolfram Alpha is -1004. Therefore, the answer is -1004 [INCORRECT]</td><td>-2(x + 5)2 − 3.Thus we have a = −2, d = −5, and e = −3. So,  $a + d + e = - 2 - 5 - 3 = - 1 0 .$  Therefore, the answer is -10 [INCORRECT; wrong inter- pretation of correct WA response by</td><td>answer from Wolfram Alpha is x = -2. Therefore, the answer is -2 [CORRECT; but lacks reason-</td></tr></table>",
+        "bbox": [
+            115,
+            178,
+            895,
+            803
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "958",
+        "bbox": [
+            484,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [
+            "Table 15: Examples of generated WolframAlpha (WA ) Queries."
+        ],
+        "code_footnote": [],
+        "code_body": "WA Query   \nSum[i<sup>k</sup>, k, 1, 259 ]   \n$S o l v e [ \\{ 7 2 5 x + 7 2 7 y = = 1 5 0 0 , 7 2 9 x + 7 3 1 y = = 1 5 0 8 \\} , \\{ x , y \\} ]$   \nFactorInteger[3105]   \n$m a x i m i z e [ y / x , ( x - 3 ) ^ { 2 } + ( y - 3 ) ^ { 2 } = = 6 ]$   \nperiod of cos(bx)",
+        "bbox": [
+            267,
+            90,
+            731,
+            262
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "table",
+        "img_path": "images/c8d9f1a1f90b491081cfcc9b23dd66277b51c52d204d07123683195d875b4ec2.jpg",
+        "table_caption": [
+            "Table 16: Utility of the WA module in WA+SG ( + ) setting."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>QUESTION 1: Find the remainder when  $x ^ { 5 } + x ^ { 4 } +$   $x ^ { 3 } + x ^ { 2 } + x$  is divided by  $x ^ { 3 } - 4 x$   $\\left\\lceil 5 x ^ { 2 } + 2 1 x \\right\\rceil$  GOLD ANSWER: GOLD ANSWER:</td><td>QUESTION 2: Let P be the point (0, 5), let Q be the point (6, 9), and let R be the point (12, 0). Determine the area of right-angled  $\\triangle P Q R .$  39</td></tr><tr><td colspan=\"2\">Setting: SG ()</td></tr><tr><td colspan=\"2\">Response: Response:</td></tr><tr><td>The result of the division is  $\\begin{array} { r } { x ^ { 2 } + 5 x + \\frac { 5 x } { x ^ { 3 } - 4 x } } \\end{array}$  [INCORRECT; Calculation error in intermedi- ate step]</td><td> $Q \\bar { R = } \\sqrt { ( 1 2 - 6 ) ^ { 2 } + ( 0 - 9 ) ^ { 2 } } = \\sqrt { 1 8 0 }$  [INCORRECT; Error in distance calculation in intermediate step.]</td></tr><tr><td colspan=\"2\">Setting: WA+SG (+)</td></tr><tr><td>WA API Query: PolynomialRemainder  $[ x ^ { 5 } + x ^ { 4 } + x ^ { 3 } + x ^ { 2 } + x , x ^ { 3 } -$  4x, x] [CORRECT]</td><td>WA API Query: triangle((0,5),(6,9),(12,0)) [CORRECT]</td></tr><tr><td>WA Output: Yes, the answer is  $5 x ^ { 2 } + 2 1 x$  [CORRECT]</td><td>WA Output: Yes, the answer is: Triangle shape: right triangle; Edge lengths:  $( 2 { \\sqrt { 1 3 } } , 3 { \\sqrt { 1 3 } } , { \\bar { 1 3 } } )$  ≈ (7.211, 10.816, 13); - Area: 39; Perimeter:  $1 3 + 5 { \\sqrt { 1 3 } } \\approx 3 1 . 0 2 7 ;$  In- terior angles:  $\\cos ^ { - 1 } ( 3 / { \\sqrt { 1 3 } } )$  rad;  $c o s ^ { - 1 } ( 2 / \\sqrt { 1 } )$  rad;  $\\pi / 2$  rad ≈  $( 0 . 5 8 8$  rad, 0.982 rad, 1.570 rad); Interior angle sum:  $1 8 0 ^ { \\circ } = \\pi$  rad ≈ 3.142 rad. [CORRECT]</td></tr><tr><td>SG Output: The answer from Wolfram Alpha is found to be  $5 x ^ { 2 } +$  21x. Therefore, the answer is  $\\lceil 5 x ^ { 2 } + 2 1 x$  [CORRECT]</td><td>SG Output: We call the Wolfram Alpha API to find the area of the triangle formed by the points (0, 5), (6, 9), and (12, 0); The answer from Wolfram Alpha is found to be 39; Therefore, the answer is 39 [CORRECT]</td></tr></table>",
+        "bbox": [
+            122,
+            311,
+            877,
+            889
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "959",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "image",
+        "img_path": "images/68cbb7a97d4b753360b4cfaa99fc376db398a311512961dc7eab958026444a90.jpg",
+        "image_caption": [
+            "Table 17: Utility of the PG module in PG+SG ( + ) setting."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            117,
+            186,
+            878,
+            797
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "960",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "chart",
+        "img_path": "images/c539939450c7150c6f4a1f3aee65cc013832ba00b0fcb02aa97a857493d38e1a.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 7: Distribution of examples where PG+SG ( + ) is correct and SG ( ) is wrong, across problem types and level of difficulty (1-5). The values are normalized by number of examples in each (subject - level) combination."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            119,
+            121,
+            862,
+            424
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/39e02a80079f635738ef4903f1a43172aa43cc7a31001ce8abf7ad61e471349d.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 8: Distribution of examples where $\\mathrm { P G } + \\mathrm { W A } + \\mathrm { S G } \\left( \\mathrm { e } ^ { \\mathrm { ~ } } + \\mathrm { Q } + \\mathrm { e } \\right)$ is correct and SG ( ) is wrong, across problem types and level of difficulty (1-5). The values are normalized by number of examples in each (subject - level) combination."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            119,
+            537,
+            862,
+            840
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_number",
+        "text": "961",
+        "bbox": [
+            484,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "QUESTION: Uriah’s book bag is getting too heavy for him. He needs to remove 15 pounds from it. His comic books weigh 1/4 pound each and his toys weigh 1/2 pound each. If he removes 30 comic books, how many toys does he need to remove?",
+        "bbox": [
+            122,
+            228,
+            873,
+            273
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "GOLD ANSWER: 30 comic books weigh 7.5 pounds because 30 x .25 = «30\\*.25=7.5»7.5 He needs to remove 7.5 more pounds because 15 - 7.5 = 7.5 He needs to remove 15 toys because 7.5 / .5 = 15",
+        "bbox": [
+            122,
+            285,
+            873,
+            316
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Setting: SG ( )",
+        "bbox": [
+            124,
+            348,
+            240,
+            365
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Response:",
+        "text_level": 2,
+        "bbox": [
+            124,
+            376,
+            203,
+            393
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "We know that Uriah needs to remove a total of 15 pounds from his bag. He removes 30 comic books, which weigh a total of 30\\*(1/4) = 7.5 pounds. So he still needs to remove 15 - 7.5 = 7.5 pounds.Let the number of toys he needs to remove be x.The weight of x toys is x\\*(1/2) = 0.5x pounds. We need to solve the equation 0.5x = 7.5 to find x. Solving for x, we get x = 15. Therefore, Uriah needs to remove 15 toys from his bag. The answer is 15. [CORRECT]",
+        "bbox": [
+            122,
+            405,
+            873,
+            479
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "code",
+        "sub_type": "code",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "```python\nSetting: PG+SG ( + )\nResponse:\nfrom sympy import *\nx = symbols(’x’)\neq = Eq((1/4)*(30-x) + (1/2)*x, 15) [Wrong equation - reasoning error]\nprint(\"Equation:\",eq)\nsol = solve(eq, x)\nprint(\"Solution x:\",sol)\nans = 30 - sol[0]\nprint(\"Toys to remove:\",ans)\nPG Output: Equation: Eq(0.25*x + 7.5, 15); Solution x: [30.0000000000000]; Toys to remove: 0;\n```",
+        "bbox": [
+            121,
+            505,
+            798,
+            719
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "SG Output: From Python code we get that Uriah needs to remove 0 toys. The answer is 0. [INCORRECT]",
+        "bbox": [
+            124,
+            724,
+            848,
+            740
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Table 18: Demonstration of a Reasoning Error committed by the PG module in PG+SG ( + ) setting in a GSM-8K problem.",
+        "bbox": [
+            114,
+            760,
+            882,
+            791
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_number",
+        "text": "962",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "table",
+        "img_path": "images/ae487d1555e454b9488e37413e64b54b3b91717ed1f55f7d90a01e95e7563627.jpg",
+        "table_caption": [
+            "Table 19: LLM-based Knowledge Retrieval Prompt"
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>INSTRUCTION</td></tr><tr><td>Read the following question, generate the background knowledge or relevant mathematical information as the context information that could be helpful for answering the question.</td></tr><tr><td>IN-CONTEXT EXAMPLES</td></tr><tr><td>Question: The smallest distance between the origin and a point on the graph of  $[ y = { \\textstyle { \\frac { 1 } { 2 } } } x ^ { 2 } - 9 ]$  can be expressed as a. Find  $a ^ { 2 }$  Modules used till now: [] Mathematics Problem Type: Algebra Level of Problem: Level 5</td></tr><tr><td>- The distance between the origin and a point (x, y) on the graph is given by the formula - Minimizing  $( x ^ { 2 } + y ^ { 2 } )$  is same as minimizing  $\\sqrt { \\left( x ^ { 2 } + y ^ { 2 } \\right) }$  - Substitute  $y = 1 / 2 x ^ { 2 } - 9$  into the equation to get  $x ^ { 2 } + ( \\overset { \\cdot } { 1 } / 2 x ^ { 2 } - 9 ) ^ { 2 }$  - Take derivative of above equation and set it to 0.</td></tr><tr><td>[More few shot examples]</td></tr><tr><td>INPUT QUESTION Question: What is the following value when expressed as a common fraction:  $\\textstyle { \\frac { 1 } { 2 ^ { 1 } } } + { \\frac { 1 } { 2 ^ { 2 } } } + { \\frac { 1 } { 2 ^ { 3 } } } + \\cdots + { \\frac { 1 } { 2 ^ { 8 } } } + { \\frac { 1 } { 2 ^ { 9 } } } + { \\frac { 1 } { 2 ^ { 1 0 } } } \\ ?$ </td></tr><tr><td>Mathematics Problem Type: Algebra Level of Problem: Level 4</td></tr><tr><td>OUTPUT Knowledge:</td></tr><tr><td>- The question involves understanding of geometric series in mathematics. - A geometric series is a series of numbers where each term is obtained by multiplying the previous term by a</td></tr><tr><td></td></tr><tr><td>fixed constant, called the common ratio.</td></tr><tr><td></td></tr><tr><td>, where a is</td></tr><tr><td></td></tr><tr><td>- The sum of the first n terms of a geometric series is given by the formula  $S _ { n } = a ( 1 - r ^ { n } ) / ( 1 - r )$ </td></tr><tr><td></td></tr><tr><td></td></tr><tr><td>the first term and r is the common ratio.</td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td>- In this case, the first term is 1/2 and the common ratio is also 1/2.</td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td>- We need to find the sum of the first 10 terms of the series, which can be calculated using the above formula.</td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr><tr><td>Read the following question to generate thought, Query for searching Bing Web Search API, that will help to solve the entire problem or specific subproblems in the question.</td></tr><tr><td>IN-CONTEXT EXAMPLES Question: When the expression  $- 2 x ^ { 2 } - 2 0 x - 5 3$  is written in the form  $a ( x + d ) ^ { 2 } + e$  , where a, d, and e are</td></tr><tr><td>constants, what is the sum  $\\ a + d + e ?$  Modules used till now: [] Mathematics Problem Type: Algebra Level of Problem: Level 5 Thought: Since the question involves completing the square let us search how to complete the square.</td></tr><tr><td>Question: A circle is circumscribed about an equilateral triangle with side lengths of 6 units each. What is the area of the circle, in square units? Express your answer in terms of π. Modules used till now: [] Mathematics Problem Type: Geometry</td></tr><tr><td>Level of Problem: Level 5 Thought: To solve this problem, we can search how to find the circumradius of an equilateral triangle. Query: How to find the circumradius of an equilateral triangle?</td></tr><tr><td>... [More few shot examples] INPUT QUESTION</td></tr><tr><td>Question: The point  $P = ( 1 , 2 , 3 )$  is reflected in the xy-plane, then its image  $Q$  is rotated by  $1 8 0 ^ { \\circ }$  about the x-axis to produce  $R ,$  and finally, R is translated by 5 units in the positive-y direction to produce S. What are the coordinates of S?</td></tr><tr><td>Mathematics Problem Type: Precalculus Level of Problem: Level 3 OUTPUT</td></tr><tr><td>Read the following question to generate thought, answer and final query for searching Wolfram Alpha API, that is being used to solve the problem or specific subproblems.</td></tr><tr><td>IN-CONTEXT EXAMPLES</td></tr><tr><td>Question: When the expression  $- 2 x ^ { 2 } - 2 0 x - 5 3$  is written in the form  $a ( x + d ) ^ { 2 } + e ,$  where  $a , d ,$  and e are constants, what is the sum  $\\ a + d + e ?$  Modules used till now: []</td></tr><tr><td>Mathematics Problem Type: Algebra Level of Problem: Level 5</td></tr><tr><td>Thought: To find the answer to the problem, we need to rewrite the quadratic expression  $- 2 x ^ { 2 } - 2 0 x - 5 3$  in the form  $a ( x + d ) ^ { 2 } + e ,$  where a, d, and e are constants. Then, we find the sum a+d+e. Do you know the Wolfram Alpha command to do this?</td></tr><tr><td>Answer: Yes, the Wolfram Alpha command to factor the given quadratic expression is: factor  $\\left( - 2 x ^ { 2 } - 2 0 x - 5 3 \\right)$  Final Query: factor  $\\cdot ( - 2 x ^ { 2 } - 2 0 x - 5 3 )$ </td></tr><tr><td>Question: Harold tosses a nickel four times. What is the probability that he gets at least as many heads as tails? Modules used till now: []</td></tr><tr><td>Mathematics Problem Type: Counting and Probability Level of Problem: Level 5</td></tr><tr><td>Thought: To find the probability that Harold gets at least as many heads as tails when tossing a nickel four times, we can use combinatorial techniques to count the favorable outcomes. However, to simplify the calculations, we can leverage Wolfram Alpha to compute the probability efficiently. Do you know the Wolfram Alpha command to find the probability for this problem?</td></tr><tr><td>Answer: Yes, the Wolfram Alpha command to find the probability of getting at least as many heads as tails when tossing a nickel four times is: Binomial  $[ 4 , k ] * ( 1 / 2 ) ^ { \\bar { 4 } }$  , where k ranges from 2 to 4 (inclusive). Final Query: Sum[Binomia  $\\mathbf { \\Phi } _ { \\prime } ^ { \\prime } [ 4 , k ] * ( \\bar { 1 / 2 } ) ^ { 4 } , k , 2 , 4 ]$ </td></tr><tr><td>... [More few shot examples] INPUT QUESTION</td></tr><tr><td>Question: Find the constant c such that  $( x ^ { 2 } - 4 x + 3 ) ( x + 5 ) - ( x ^ { 2 } + 4 x - 5 ) ( x - c ) = 0$  for all x.</td></tr><tr><td>OUTPUT</td></tr><tr><td>Thought: To find the constant c such that the given expression is equal to zero for all  $\\mathbf { X } ,$  we can expand the expression and collect like terms. Do you know the Wolfram Alpha command to do this?</td></tr><tr><td>Answer: Yes, the Wolfram Alpha command to expand the given expression and set it equal to zero is: expand</td></tr><tr><td> $( ( x ^ { 2 } - 4 x + 3 ) ( x + 5 ) - ( x ^ { 2 } + 4 x - 5 ) ( x - c ) ) = 0$   $( ( x ^ { 2 } - 4 x + 3 ) ( x + 5 ) - ( x ^ { 2 } + 4 x - 5 ) ( x - c ) ) = 0$ </td></tr><tr><td>You need to act as a policy model, that given a question, determines the sequence of modules that can be executed sequentially to solve the question.</td></tr><tr><td>The modules are defined as follows: - wolfram-alpha-search: Calls the Wolfram-Alpha API to solve the given question or intermediate steps in the question. - bing-search: Retrieves similar questions, background knowledge, useful information using the Bing Web Search</td></tr><tr><td>API. - python-generator: This module generates an executable python program that can solve the given question using the Sympy library.</td></tr><tr><td>- solution-generator: This module generates a detailed solution to the question based on the already generated context. Normally, solution-generator will incorporate the information from wolfram-alpha-search, bing-search, python-generator. It is always the last module to be executed.</td></tr><tr><td>IN-CONTEXT EXAMPLES</td></tr><tr><td>Question: Determine the number of ways to arrange the letters of the word ELEVEN. Modules: ['bing-search','solution-generator']</td></tr><tr><td></td></tr><tr><td>INPUT QUESTION Question: If the numbers 4, 5 and 6 are each used exactly once to replace the letters in the expression A(B — C),</td></tr><tr><td>what is the least possible result? OUTPUT</td></tr><tr><td>Modules: ['python-generator', 'solution-generator']</td></tr></table>",
+        "bbox": [
+            114,
+            221,
+            882,
+            759
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "page_number",
+        "text": "963",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "table",
+        "img_path": "",
+        "table_caption": [],
+        "table_footnote": [],
+        "bbox": [
+            115,
+            236,
+            882,
+            744
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "Table 20: Bing Web Search Query generator Prompt for Concepts Search",
+        "bbox": [
+            248,
+            749,
+            747,
+            764
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "page_number",
+        "text": "964",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "table",
+        "img_path": "",
+        "table_caption": [],
+        "table_footnote": [],
+        "bbox": [
+            115,
+            164,
+            880,
+            814
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "Table 21: Wolfram Alpha API Query generator Prompt",
+        "bbox": [
+            309,
+            820,
+            687,
+            837
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "page_number",
+        "text": "965",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "table",
+        "img_path": "",
+        "table_caption": [],
+        "table_footnote": [],
+        "bbox": [
+            115,
+            123,
+            880,
+            517
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "text",
+        "text": "Table 22: Example of Planner Prompt and Output in Plan-And-Solve (PAS).",
+        "bbox": [
+            236,
+            520,
+            757,
+            536
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "table",
+        "img_path": "images/772163b9c19e5b022567bf9755e26b7b96a8e8514c895c7b6be5f291b9c01018.jpg",
+        "table_caption": [
+            "Table 23: Online Resources"
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Resource</td><td>URL</td></tr><tr><td>open-source icons</td><td>https://iconduck.com/icons/</td></tr><tr><td>llama-2 icon</td><td>https://1lama-2.ai/wp-content/uploads/2023/08/ Llama-2-icon-150x150.png</td></tr><tr><td>codellama icon</td><td>https://codellama.dev/icons/black-transparentbg.png</td></tr><tr><td>python icon</td><td>https://s3.dualstack.us-east-2.amazonaws.com/</td></tr><tr><td>azure openai service</td><td>pythondotorg-assets/media/community/logos/python-logo-only.png https://azure.microsoft.com/en-us/products/ai-services/</td></tr><tr><td>bing web search api service</td><td>openai-service/ https://www.microsoft.com/en-us/bing/apis/bing-web-search-api</td></tr></table>",
+        "bbox": [
+            121,
+            627,
+            877,
+            857
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "page_number",
+        "text": "966",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 24
+    }
+]
