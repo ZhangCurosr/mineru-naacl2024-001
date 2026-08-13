@@ -1,0 +1,3634 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Multimodal Multi-loss Fusion Network for Sentiment Analysis"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                176,
+                89,
+                821,
+                110
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Zehui Wu∗,<sup>1</sup> Ziwei Gong∗, <sup>1</sup> Jaywon Koo, <sup>1</sup> Julia Hirschberg <sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                130,
+                761,
+                148
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Department of Computer Science"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                149,
+                642,
+                165
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Columbia University"
+                    }
+                ]
+            },
+            "bbox": [
+                413,
+                166,
+                589,
+                181
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "{zw2804, zg2272, jk4541}@columbia.edu julia@cs.columbia.edu"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                181,
+                727,
+                215
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                260,
+                252,
+                342,
+                268
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This paper investigates the optimal selection and fusion of feature encoders across multiple modalities and combines these in one neural network to improve sentiment detection. We compare different fusion methods and examine the impact of multi-loss training within the multi-modality fusion network, identifying surprisingly important findings relating to subnet performance. We have also found that integrating context significantly enhances model performance. Our best model achieves state-of-the-art performance for three datasets (CMU-MOSI, CMU-MOSEI and CH-SIMS). These results suggest a roadmap toward an optimized feature selection and fusion approach for enhancing sentiment detection in neural networks."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                278,
+                462,
+                520
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                531,
+                258,
+                546
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In recent years, the multimodal affective computing field has seen significant advances in feature extraction and multimodal fusion methodologies in recent years (Garg et al., 2022), enabling a more nuanced understanding of human emotions by effectively synthesizing audio, text, and visual signals (Sun et al., 2023a; Yu et al., 2021). This study presents a series of experiments that delve into feature selection, comparative analysis of fusion network performance, multi-loss training, and context modeling utilizing audio and text from three datasets: CMU-MOSI (Zadeh et al., 2016), CMU-MOSEI (Bagher Zadeh et al., 2018) , and CH-SIMS (Bagher Zadeh et al., 2018). Our research aims to pioneer state-of-the-art (SOTA) approaches in affective computing tasks, achieved by identifying optimal features for each modality, devising the most effective methods for their fusion, and refining training methodologies to enhance performance."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                557,
+                490,
+                878
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hand-crafted feature extraction algorithms often lack flexibility and generalization across diverse tasks. To overcome these limitations, recent studies have proposed fully end-to-end models that jointly optimize feature extraction and learning processes (Dai et al., 2021; Han et al., 2021). Our work leverages feature representations derived from pretrained models across different modalities, combining them into an end-to-end framework, which provides a comprehensive and adaptable solution for multimodal affective feature computation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                253,
+                885,
+                430
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In multimodal fusion, the challenge lies in effectively fusing diverse signals, including natural language, facial gestures, and acoustic behaviors. Methods like the Tensor Fusion Network (TFN)(Zadeh et al., 2017) have been proposed to model intra-modality and inter-modality interactions. More recently, transformer encoder structures with cross-modal attention have gained popularity for integrating multimodal data (Tsai et al., 2019a; Yu et al., 2023a), with continous efforts to improve representations of multimodal information (Qian et al., 2023; Hu et al., 2022). Building from these ideas, we propose a robust fusion network structure that integrates cross-modal attention and self-attention, with additional feed-forward layers to refine the representations. Furthermore, our approach experiments with restoring original signals during the fusion process."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                434,
+                887,
+                725
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our experimental analysis has identified the most efficacious features for different modalities and compared various fusion network methods for amalgamating audio and text signals. Our findings reveal that the incorporation of audio signals consistently elevates performance metrics. More notably, our transformer fusion network demonstrates a remarkable enhancement of results and and achieves state-of-the-art performances across all datasets. Additionally, our exploration into multi-loss training has yielded two significant observations: first, the utilization of distinct labels for each modality in multi-loss training markedly benefits the models performance; second, training with multimodal features not only boosts overall model performance but also notably enhances accuracy in the singlemodality subnet. Furthermore, we compared two context modeling methods and found that contextual integration significantly amplifies model performance across all metrics. These novel findings have advanced our understanding of multi-modal sentiment analysis."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                727,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "These authors contributed equally to this work. Code is released at: https://github.com/zehuiwu/ MMML"
+                    }
+                ]
+            },
+            "bbox": [
+                105,
+                882,
+                489,
+                919
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3588"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                941
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 3588–3602 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                946,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                247
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                260,
+                270,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Existing research on multimodal affective computing often employs hand-crafted algorithms to perform initial feature representation extraction and retrieve some fixed representations for each modality (Shenoy and Sardana, 2020; Delbrouck et al., 2020). However, for these, the extracted features are static and lack the flexibility to be further fine-tuned for different target tasks; also, the manual determination of feature extraction algorithms can lead to sub-optimal performance due to constraints in generalization across diverse tasks (Dai et al., 2021). To address these issues, recent studies have proposed fully end-to-end models, effectively bridging the gap between feature extraction and learning processes (Dai et al., 2021; Wang et al., 2020). Our research also emphasizes an end-to-end structure that optimizes both phases jointly, presenting a comprehensive and adaptable solution for multimodal affective feature computation."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                290,
+                490,
+                595
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lexical features, owing to pre-training on expansive corpora through Transformer-based models, often outperform other modalities. Some recent work aims to improve model performance by incorporating speech information inside the text model such as SPECTRA (Yu et al., 2023b), by pre-training a speech-text transformer model to capture the speech-text alignment effectively. A similar innovative method is the Transformer-Based Speech-Prefixed Language Model (TEASEL) (Arjmand et al., 2021), which incorporates speech as a dynamic prefix along with the textual."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                596,
+                490,
+                791
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Many studies have explored multimodal human language time-series data, which typically includes a mixture of natural language, facial gestures, and acoustic behaviors. However, fusing these into a unified representation presents a significant challenge due to the variable sampling rates across modalities and the difficulty in determining intra-modality dependencies. Various methods have been proposed to model the interaction across modalities (Barezi and Fung, 2019), such as the Tensor Fusion Network (Zadeh et al., 2017), which utilizes the Cartesian product of different modalities to model both intramodality and inter-modality interactions. More recent work has shifted toward employing transformer encoder structures to integrate these signals via cross-modality attention. The MULT model (Tsai et al., 2019a) has pioneered this approach, introducing directional pairwise cross-modal attention. This method allows for interaction between multimodal sequences across distinct time steps and inherently adapts streams from one modality to another. Further research has also leveraged this concept of cross-modality attention (Goncalves and Busso, 2022; Paraskevopoulos et al., 2022), yielding valuable insights into how multimodal data can be processed more effectively. We enhance this approach by employing a self-attention encoder and a feed-forward network to further optimize the multimodal representation after one modality is projected into another using the cross-modality attention module, thus enriching our ability to process and understand multimodal data."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                793,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                488
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Methodology"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                501,
+                660,
+                518
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The model for sentiment detection in our study involves two primary components: the feature network and the fusion network. Each of these has its own unique mechanisms and contributes towards the overall functioning of our proposed Multi-Modality Multi-Loss Fusion Network (MMML) as illustrated in Figure 1. Additionally, We adopted multi-loss training, experimented with restoring original signals, and explored context modeling."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                530,
+                887,
+                675
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 Feature Network"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                687,
+                692,
+                703
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The Feature Network employs two different pretrained models for text and audio processing. The text subnet leverages RoBERTa (Liu et al., 2019), chosen for its significantly superior performance on various downstream tasks. The audio subnet employs different models for different languages: HuBERT (Hsu et al., 2021) for Mandarin and Data2Vec (Baevski et al., 2022) for English. This ensures the optimized extraction of features from the given modalities, setting a solid foundation for the subsequent fusion process."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                711,
+                887,
+                888
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The details and results of the feature network selection process are in Appendix A.5, and the experiments that lead to the exclusion of the vision modality are in Appendix A.3 and A.4."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                888,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3589"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/807b36f30ffe9165c8ccc73f8bfae497baaed7fd2c403e256b455129238db914.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: Our Model Structure"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                126,
+                89,
+                497,
+                348
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                406,
+                487,
+                438
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Fusion Network"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                449,
+                287,
+                464
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The Fusion Network is the heart of the MMML, where the information from multiple modalities is combined. This network is divided into three smaller components as shown in the yellow portion of Figure 1."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                470,
+                489,
+                551
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "First, there is a Cross-Attention Encoder, which adopts a mechanism similar to the self-attention encoder but which employs a query from one modality and uses keys and values generated from another modality. This cross-modal interaction aims to capture the inter-dependencies between different modalities, contributing to a more holistic understanding of the data. This encoder is defined as:"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                551,
+                490,
+                682
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm { A t t e n t i o n } ( Q _ { m 1 } , K _ { m 2 } , V _ { m 2 } ) = \\mathrm { s o f t m a x } \\left( { \\frac { Q _ { m 1 } K _ { m 2 } ^ { T } } { \\sqrt { d _ { k } } } } \\right) V _ { m 2 }",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6400f012e2fe5d54aa58e875910f90aaa1fafffc61deca2842c4dc5333282f04.jpg"
+                }
+            },
+            "bbox": [
+                115,
+                696,
+                484,
+                726
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where:"
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                749,
+                189,
+                763
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array} { r } { Q _ { m 1 } = W _ { q } \\cdot f _ { m 1 } } \\\\ { K _ { m 2 } = W _ { k } \\cdot f _ { m 2 } } \\\\ { V _ { m 2 } = W _ { v } \\cdot f _ { m 2 } } \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/4c283647534cc690f3e8eb12650ebbbf8ae826d8557cdfb954da2e154fd5e74f.jpg"
+                }
+            },
+            "bbox": [
+                242,
+                781,
+                359,
+                827
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We denote queries as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q _ { m 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(from modality 1) and the keys and values as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K _ { m 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { m 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(from modality 2). "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { m 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the feature from modality 1 and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { m 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the feature from modality 2. In Figure"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                856,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/a678c54aa2a4125108789e48e391cd632a5ea15768f9bd904c88749d71454f5b.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Model Variations"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                509,
+                82,
+                877,
+                356
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1, the text feature "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is utilized to build the query "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for text and is also used to construct the key "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k _ { a }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and value "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { a }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for audio. The cross-attention encoder essentially projects the hidden states from one modality into the space of another modality."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                406,
+                884,
+                486
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Also, our proposed network includes additional Self-Attention Encoders. The self-attention mechanism was originally designed to find the correlation within a single modality, thereby capturing the intra-modal dynamics of the data. In our model, the self-attention module serves to model the connections across time steps of the new feature representation after passing through the cross-modality encoder."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                487,
+                887,
+                631
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, our model includes a Pointwise Feed-Forward Network which applies fully connected feed-forward networks and ReLU activation functions to each individual position, further refining the encoded feature representations. Through combining these methodologies, we aim to optimize the multi-modal feature extraction and fusion process, enhancing the MMML’s performance in sentiment detection tasks."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                632,
+                887,
+                777
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Multi-Loss Training"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                787,
+                717,
+                802
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In order to leverage multi-loss training, we modified the architecture of our fusion network to incorporate an additional fully-connected layer at the termination of each feature network, as illustrated in the green portion of Figure 1. This modification enables two additional outputs from individual modalities, in addition to the combined feature output. This design facilitates the application of three distinct loss functions during training, each corresponding to one of the outputs. Despite the classification being conducted using only the output from the fusion network, the final loss is the summation of losses from the subnets and the loss from the fusion network:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                807,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3590"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                197
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "L o s s = \\sum _ { m \\in \\{ a , t , f \\} } \\alpha _ { m } * l o s s _ { - } f n ( y _ { m } , t a r g e t _ { m } )",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/94e0f925805613af66af2b541e935e7b7fe710d3abfe1028e40c6430454800c3.jpg"
+                }
+            },
+            "bbox": [
+                147,
+                205,
+                452,
+                236
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The source of targets from different modalities is explained in section 4.5 and we witness no significant boost in performance by adjusting α to be other than 1."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                246,
+                489,
+                310
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The rationale behind implementing additional losses for each individual modality is to bolster the respective feature networks’ comprehension and processing of their respective signals. Given that each feature network perceives and handles signals distinctively, akin to how humans discern emotions through different sensory signals, the multi-task loss serves a dual purpose: first, it encourages each feature network to refine its method of processing its specific modality, akin to honing the \"sense\" associated with that modality; second, it trains the fusion network to effectively combine the distinct signals relayed by the feature networks, as guided by the loss from the combined modality."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                310,
+                489,
+                536
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Through this multi-loss training approach, we create a model that efficiently mirrors human-like multi-modal emotion perception, each modality working independently and collaboratively to understand the comprehensive emotional context."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                536,
+                489,
+                617
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.4 Original Signal Restoration"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                625,
+                379,
+                642
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our investigation of the fusion network, we developed two variants designed to mitigate potential loss of original signals during the cross-modal projection process, as shown in Figure 2. Because the cross-attention mechanism projects one modality into another, some original signals might be obscured or lost. Therefore, these variations aim to combine the original signal with the projected signal, thereby enhancing the ability of the network to learn from both signals simultaneously."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                646,
+                490,
+                808
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first is Concatenation Variation, which concatenates the original feature with the fused feature. The second is the Transformer Variation. This variation merges the original hidden states and the fused hidden states along the feature dimension and uses transformer encoders to further process these combined hidden states."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                808,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This fusion of original and projected information within each modality aims to maintain the integrity of the original signals, while also integrating the enriched cross-modal information. The combined features then go through a linear layer and are subsequently concatenated with features from other modalities."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                197
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.5 Context Modeling"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                208,
+                699,
+                224
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We explored the integration of contextual data (previous utterances) into existing model frameworks, specifically contrasting two distinct methodologies for context integration. These methodologies were: (i) the concatenation of context (previous utterances) and the current utterance as a singular input stream to the model, and (ii) independent processing of context (previous utterances) and current utterance, followed by a subsequent fusion of their respective representational outputs. The first method treats the concatenated input as a single utterance and gives one representation, while the second processes the context and current input separately and gives one representation for each."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                230,
+                887,
+                456
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                467,
+                657,
+                483
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Experimental Setup"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                493,
+                714,
+                508
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1.1 Datasets"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                514,
+                640,
+                529
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use three primary datasets, each characterized by its unique properties and content, to test the performance of the Multi-Modality Multi-Loss Fusion Network on sentiment detection."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                532,
+                885,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The CMU-Multimodal Opinion Sentiment and Emotion Intensity (CMU-MOSI) (Zadeh et al., 2016): This dataset, developed in English, includes audio, text, and video modalities compiled from 2199 annotated video segments collected from YouTube monologue movie reviews. It offers a focused approach to studying sentiment detection within the context of film critiques."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                598,
+                885,
+                726
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The CMU-Multimodal Sentiment Analysis (CMU-MOSEI) (Bagher Zadeh et al., 2018) is an extension of CMU-MOSI, incorporating the same modalities of audio, text, and video from YouTube videos, but it has a broader scope, covering a wider range of topics, and is more substantial in size, with 23,453 annotated video segments."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                727,
+                885,
+                839
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The Chinese Multimodal Sentiment Analysis Dataset (CH-SIMS) (Yu et al., 2020) includes the same modalities in Mandarin: audio, text, and video, collected from 2281 annotated video segments. It includes data from TV shows and movies, making it culturally distinct and diverse, and provides multiple labels for the same utterance based on different modalities, which adds an extra layer of complexity and richness to the data."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                840,
+                887,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3591"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/b886e680bc6453ef0c3d5e6ed7f3a84651521e7eae7df1083f47fee1453845c4.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) CMU-MOSI and CMU-MOSEI"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"7\">CMU-MOSI</td><td colspan=\"7\">CMU-MOSEI</td></tr><tr><td>ACC2Has0</td><td>F1Has0</td><td>ACC2Non0</td><td>F1Non0</td><td>ACC7</td><td>MAE</td><td>Corr</td><td>ACC2Has0</td><td>F1Has0</td><td>ACC2Non0</td><td>F1Non0</td><td>ACC7</td><td>MAE</td><td>Corr</td></tr><tr><td>LMF</td><td></td><td></td><td>82.5</td><td>82.4</td><td>33.20</td><td>0.917</td><td>0.695</td><td></td><td></td><td>82.0</td><td>82.1</td><td>48.00</td><td>0.623</td><td>0.700</td></tr><tr><td>TFN</td><td></td><td></td><td>80.8</td><td>80.7</td><td>34.90</td><td>0.901</td><td>0.698</td><td></td><td></td><td>82.5</td><td>82.1</td><td>50.20</td><td>0.593</td><td>0.677</td></tr><tr><td>MFM</td><td></td><td></td><td>81.7</td><td>81.6</td><td>35.40</td><td>0.877</td><td>0.706</td><td></td><td></td><td>84.4</td><td>84.3</td><td>51.30</td><td>0.568</td><td>0.703</td></tr><tr><td>MTAG</td><td></td><td></td><td>82.3</td><td>82.1</td><td>38.90</td><td>0.866</td><td>0.722</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SPC</td><td></td><td></td><td>82.8</td><td>82.9</td><td></td><td></td><td></td><td></td><td></td><td>82.6</td><td>82.8</td><td></td><td></td><td></td></tr><tr><td>ICCN</td><td></td><td></td><td>83.0</td><td>83.0</td><td>39.00</td><td>0.862</td><td>0.714</td><td></td><td></td><td>84.2</td><td>84.2</td><td>51.60</td><td>0.565</td><td>0.704</td></tr><tr><td>MuIT</td><td>81.50</td><td>80.60</td><td>84.10</td><td>83.90</td><td></td><td>0.861</td><td>0.711</td><td></td><td></td><td>82.5</td><td>82.3</td><td></td><td>0.580</td><td>0.713</td></tr><tr><td>MISA</td><td>80.79</td><td>80.77</td><td>82.10</td><td>82.03</td><td></td><td>0.804</td><td>0.764</td><td>82.59</td><td>82.67</td><td>84.23</td><td>83.97</td><td></td><td>0.568</td><td>0.717</td></tr><tr><td>COGMEN</td><td></td><td></td><td></td><td>84.34</td><td>43.90</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Self-MM</td><td>84.00</td><td>84.42</td><td>85.98</td><td>85.95</td><td></td><td>0.713</td><td>0.798</td><td>82.81</td><td>82.53</td><td>85.17</td><td>85.30</td><td></td><td>0.530</td><td>0.765</td></tr><tr><td>MAGBERT</td><td>84.20</td><td>84.10</td><td>86.10</td><td>86.00</td><td></td><td>0.712</td><td>0.796</td><td>84.70</td><td>84.50</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>MIMM</td><td>84.14</td><td>84.00</td><td>86.06</td><td>85.98</td><td>46.65</td><td>0.700</td><td>0.800</td><td>82.24</td><td>82.66 4</td><td>85.97</td><td>85.94</td><td>54.24</td><td>0.526</td><td>0.772</td></tr><tr><td>TEASEL</td><td>84.79</td><td>84.72</td><td>87.5</td><td>85</td><td>47.52</td><td>64.4</td><td>83.6</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>SPECTRA</td><td></td><td></td><td>87.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td>87.34</td><td></td><td></td><td></td><td></td></tr><tr><td>UniMSE</td><td>85.85</td><td>85.83</td><td>86.9</td><td>86.42</td><td>48.68</td><td>69.1</td><td>80.9</td><td>85.86</td><td>85.79</td><td>87.5</td><td>87.46</td><td>54.39</td><td>52.3</td><td>77.3</td></tr><tr><td>MMML</td><td>85.91</td><td>85.85</td><td>88.16</td><td>88.15</td><td>48.25</td><td>64.29</td><td>83.8</td><td>86.32</td><td>86.23</td><td>86.73</td><td>86.49</td><td>54.95</td><td>51.74</td><td>79.08</td></tr><tr><td>+ context</td><td>87.51</td><td>87.45</td><td>89.69</td><td>89.67</td><td>50.34</td><td>58.31</td><td>86.93</td><td>87.24</td><td>87.18</td><td>88.02</td><td>88.15</td><td>55.74</td><td>49.22</td><td>81.37</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                83,
+                878,
+                288
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/161bf045ea5091cff0aa8cd1ffc28c38b97fe2524c1ff25e33dbe44b3694f8fe.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) CH-SIMS"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 1: Comparison with SOTA: Achieved best performance on three datasets. All experimental results presented are averages derived from three separate runs. The performances of baselines are shared by their authors."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>ACC2</td><td>ACC3</td><td>ACC5</td><td>F1</td><td>MAE</td><td>Corr</td></tr><tr><td>EMT</td><td>80.1</td><td>67.4</td><td>43.5</td><td>80.1</td><td>39.6</td><td>62.3</td></tr><tr><td>MMML(ours)</td><td>82.93</td><td>69.37</td><td>49.38</td><td>82.9</td><td>33.2</td><td>73.26</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                322,
+                315,
+                675,
+                354
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                438,
+                489,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These datasets provide a broad and multicultural perspective on sentiment detection, allowing for a thorough evaluation and comparative analysis of the MMML’s performance across diverse data landscapes."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                502,
+                490,
+                583
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1.2 Baseline Models"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                593,
+                304,
+                608
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our comprehensive evaluation of the MMML model, we conducted a detailed comparison with a wide array of baseline models in multimodal sentiment analysis. This comparison included several categories of models, each representing a unique approach to multimodal learning."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                613,
+                489,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first category consisted of early multimodal fusion methods, including Tensor Fusion Network (TFN) (Zadeh et al., 2017), Low-rank Multimodal Fusion (LMF) (Liu et al., 2018), and Multimodal Factorization Model (MFM) (Tsai et al., 2019c). These models are foundational in early multimodal fusion approaches to multimodal analysis."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                711,
+                489,
+                824
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The second category focused on methods that enhance multimodal integration through more modern modality interaction modeling methods. This includes the multimodal Transformer (MulT) by Tsai et al. (2019b), Interaction Canonical Correlation Network (ICCN) by Sun et al. (2019), Sparse"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                824,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Phased Transformer (SPC) by Chen et al. (2021), and Modal-Temporal Attention Graph (MTAG) by Yang et al. (2021). These models represent a significant advancement in handling complex multimodal interactions."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                437,
+                885,
+                519
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The third category encompasses models that prioritize modality consistency and difference. This includes MISA (Hazarika et al., 2020), which manages modal representation space, Self-MM (Yu et al., 2021) which leverages multi-task learning from unimodal representations, MAG-BERT (Rahman et al., 2020) with its innovative fusion gate, and MMIM (Han et al., 2021) which focuses on maximizing mutual information hierarchically. We also evaluated models focusing on self-supervised learning Transformers for combined modalities, such as TEASEL (Arjmand et al., 2021), and those exploring speech-text alignment like SPECTRA (Yu et al., 2023b)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                523,
+                887,
+                750
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Further broadening our comparison, we included models like COGMEN (Joshi et al., 2022), which consider the multimodal conversational context. A noteworthy inclusion was UniMSE (Hu et al., 2022), a model proposing a knowledge-sharing framework that unifies multimodal sentiment analysis and emotion recognition in conversation tasks, currently regarded as the state-of-the-art (SOTA) method."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                755,
+                887,
+                900
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In comparing the feature extractor between ours and the baselines, we find our approach to be on par with the baselines in terms of selecting feature extractors. Like ours, the majority of the baseline models employ advanced pre-trained models for feature extraction. For example, TEASEL adds speech tokens on top of a pre-trained RoBerta during training, which also uses advanced pre-trained models as the feature extractor, which is comparable to ours."
+                    }
+                ]
+            },
+            "bbox": [
+                526,
+                904,
+                884,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3592"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our methods further explore the effectiveness of cross-modality attention, aiming to further optimize the multimodal representation during the projection of one modality into another, along with enhancing to select optimal training methods including multi-loss training and context-modeling, thus enriching our ability to process and understand multimodal data."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                230,
+                490,
+                359
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1.3 Metrics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                368,
+                236,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our MMML model was evaluated using metrics consistent with existing research against existing benchmarks, which enables comprehensive evaluation of our model’s performance across diverse sentiment analysis dimensions (detailed descriptions in Appendix A.6). Additional sets of ablation experiments on different components of the model were conducted for analysis, to interpret and explain the model performance."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                387,
+                490,
+                535
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                544,
+                220,
+                558
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our overall results are shown in Table 1. When compared with contemporary state-of-the-art models, our method emerges as a robust performer, offering superior outcomes for both CMU-MOSI and CMU-MOSEI. Among recent models, UniMSE (Hu et al., 2022) has delivered the best results on the English datasets. Nonetheless, our MMML model surpasses UniMSE in most of the evaluation metrics, reinforcing the effectiveness of our approach. Adding context further elevates performance substantially for all metrics."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                565,
+                490,
+                743
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For CH-SIMS, one state-of-the-art model is the Efficient Multimodal Transformer (EMT) (Sun et al., 2023b), which has demonstrated a high degree of performance over existing methods. Our MMML model also significantly outperforms EMT across all metrics, further underscoring the potential of our fusion network."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                743,
+                489,
+                856
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also note that our model uses only audio and text signals, while these other models take advantage of all three signals. This further proves the effectiveness of our model. These results not only validate our multimodal fusion network but also affirm the robustness of our chosen methodology for sentiment detection tasks. Our impressive performance on all three datasets, CMU-MOSI, CMU-MOSEI, and CH-SIMS, verifies the versatility and adaptability of our MMML model, emphasizing its value in advancing the field of sentiment detection."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                856,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/84a11b5a3c804bce9b7188ffef3176cc26aa82648edd2c8d02b61d78b00b3acd.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) CH-SIMS"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Feature name</td><td>ACC2</td></tr><tr><td>openSMILE</td><td>0.6696</td></tr><tr><td>Mel Spectrogram</td><td>0.6805</td></tr><tr><td>Fine-tuned HuBert(CH)</td><td>0.7465</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                586,
+                82,
+                820,
+                131
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/dde5e4b2409e8ab4385d1a4c31fd37a7ad1ef478221a0bf22f9662187578f159.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) CMU-MOSI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 2: Audio Feature Selection Results: Fine-tuning a pre-trained audio model works significantly better than using other audio features."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Feature name</td><td>ACC2</td></tr><tr><td>openSMILE</td><td>0.4606</td></tr><tr><td>Mel Spectrogram</td><td>0.4519</td></tr><tr><td>Fine-tuned Data2vec(EN)</td><td>0.7099</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                581,
+                160,
+                826,
+                211
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                309,
+                887,
+                423
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Audio Feature Comparison"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                448,
+                771,
+                463
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To incorporate the best speech information into our model, the initial stage of our experimentation process involved comparing the performance on audio features for sentiment analysis from two datasets, CMU-MOSI (English) and CH-SIMS (Mandarin), using openSMILE and Mel spectrograms, each with customized parameters for optimal feature extraction to compare with features from a pre-trained audio model (details in Appendix A.2)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                469,
+                887,
+                614
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Upon evaluation of the different audio feature extraction methods shown in Table 2, we found that use of a pre-trained model for raw audio yielded higher accuracy rates: accuracy rates of approximately 71% and 75% were achieved for CMU-MOSI and CH-SIMS, respectively. This outperformed the other two hand-crafted features (openS-MILE and Mel spectrograms) by a significant margin. Interestingly, openSMILE and Mel spectrograms displayed comparable performance on CH-SIMS. However, their performance on CMU-MOSI was notably subpar. We hypothesize that CH-SIMS, comprising audio from TV shows and movies, presents a more straightforward task for audio sentiment detection."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                614,
+                887,
+                856
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This analysis highlights the effectiveness of using pre-trained models for raw audio in achieving superior sentiment classification accuracy. It also underscores the need to consider the characteristics and source of audio data in applying different feature extraction techniques."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                856,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3593"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                117
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Fusion Network Ablation Experiment"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                128,
+                458,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our ablation study focusing on the fusion network with the CMU-MOSI dataset, we identified crucial components that significantly contribute to the network’s performance. Specifically, the selfattention layers and the three fully connected layers following the cross-attention layers proved to be vital, as demonstrated in Table 8 of Appendix A.7."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                147,
+                490,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Upon removing the self-attention layers, we observed a noticeable decline in model performance across all metrics. This decline became more pronounced when both the self-attention and fully connected layers were eliminated. These findings underscore the importance of these components in enhancing and refining modality representations within the fusion network, highlighting their integral role in our model’s architecture."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                261,
+                490,
+                406
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.5 Comparison of Simple Concatenation and Fusion Network"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                416,
+                487,
+                448
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To demonstrate the superiority of our proposed fusion network, we compared it to concatenation. Upon analysis of our results (Table 3), we observed that the introduction of the transformer fusion network yielded improvements in performance in most metrics for CMU-MOSEI and CH-SIMS, and for half of the metrics for CMU-MOSI. These results underscore the effectiveness of our transformer fusion network in enhancing cross-modality modeling and suggest its potential as a powerful tool for multi-modal sentiment detection."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                453,
+                490,
+                630
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Beyond these observations, it is important to highlight that both methods which combined audio and text signals outperformed methods utilizing only text signals in all metrics across the three datasets. A noteworthy increase in performance was recorded on the CH-SIMS dataset upon the addition of audio signals, while the two English datasets, CMU-MOSI and CMU-MOSEI, exhibited smaller improvements. The substantial improvement observed in CH-SIMS can be attributed to two factors. First, CH-SIMS assigns unique labels to audio and text, thereby facilitating the network’s ability to learn distinct signals from each modality. Second, the source for CH-SIMS is TV show and movie videos, which typically display easily-interpretable sentiments. This characteristic probably contributes to the effectiveness of combining audio and text signals for sentiment detection."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                631,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.6 Multi-loss Training Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                85,
+                813,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To investigate the effectiveness of multi-loss training, we performed comparative experiments on two different datasets: CMU-MOSEI and CH-SIMS. CMU-MOSEI provides a single target for each utterance, whereas CH-SIMS offers different labels for each modality in addition to the combined modalities. We easily adapted multi-loss training to CH-SIMS, given its distinct labels for each modality. For CMU-MOSEI, we duplicated the single target across different losses to enable multi-task training."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                109,
+                887,
+                286
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The results, as shown in Table 4, were striking: while multi-loss and single-loss training performed similarly on CMU-MOSEI, multi-loss training significantly boosted performance on CH-SIMS. This underscores the value of unique labels for each modality when employing multi-loss training. The improved performance on CH-SIMS can be attributed to the distinct nature of the signals processed by each feature network. Since audio includes acoustic signals that are not present in the text, it is common for them to produce different sentiments. Having distinct labels assists each network in learning better how to process its unique signal."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                287,
+                887,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Surprisingly, as shown in Table 5, the multi-loss training also contributed to an enhanced performance of the text subnet when compared to training with only the text. The additional audio signal appears to support the performance improvement. This suggests that even when the goal is to use only the text input for inference, multi-loss training can be beneficial. The text subnet, after training with the multi-modal model, can be extracted and used independently, offering superior performance compared to being trained alone."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                514,
+                885,
+                692
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Interestingly, this improvement was not observed in the audio subnet, potentially due to the stronger signal from the text subnet (reflected by a 10% higher accuracy when trained alone) which made it easier to train, and thus the network might have focused on reducing its loss."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                693,
+                885,
+                789
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In summary, the benefits of multi-loss training are threefold. First, it substantially boosts the performance of the entire network when distinct labels for different modalities are available. Second, loss from other modalities enhances the performance of the text subnet, indicating that we can utilize other modalities in training even when the text subnet is the only required component for inference."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                791,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3594"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Third, it is capable of handling missing modalities, enabling outputs when only text or audio inputs are available. These findings shed light on the potential of multi-loss training in the context of multi-modality fusion networks, opening avenues for further research and optimization."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                85,
+                489,
+                183
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.7 Results for Original Signal Restoration"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                191,
+                468,
+                206
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To understand the effect of restoring original signals, we conducted a comparative analysis of proposed fusion network variations, which reveals a relatively consistent performance across all variations. As shown by the results presented in Table 6 in Appendix A.7, the three methods demonstrate similar performance across all metrics for both CMU-MOSEI and CH-SIMS. Surprisingly, re-incorporating the original signal into the fused signal did not lead to any significant improvement in performance. In essence, while similar performance across different fusion network variations was unanticipated, it paves the way for a deeper understanding of the interactions within the fusion network and the role of original signals in such approaches."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                212,
+                490,
+                472
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.8 Context Modeling Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                481,
+                408,
+                495
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our investigation, we sought to explore the integration of contextual information utilizing the CMU-MOSI dataset, characterized by many sequential utterances in dialogues, in contrast to the CH-SIMS dataset."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                502,
+                489,
+                581
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This exploration was initially conducted utilizing solely textual data streams to compare the two methods ((i) concatenation and (ii) independent processing), with different contextual window lengths (i.e., the number of preceding utterances considered as contextual input). As shown in Table 7 of Appendix A.7, our empirical findings indicated a superior capacity for context window management in the (ii) methodology that processes context and current utterance separately. Notably, while the optimal performance of the (i) concatenation approach was observed at a window of 1, the (ii) independent processing method exhibited performance enhancements up to a context window of 2. In addition, the (ii) independent processing method demonstrated superior performance across all evaluated metrics."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                582,
+                490,
+                856
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We next extended our research to the incorporation of audio signals, examining the effect of various permutations of context window lengths of both text and audio inputs. Optimal results were achieved with a textual context window of 2 and an auditory context window of 1. As shown in Table 1, this contextual model markedly outperformed our best non-contextual model across all evaluative metrics, identifying a significant advancement in the model’s performance capabilities."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                856,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                183
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                192,
+                643,
+                209
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In conclusion, this study has provided novel, important findings for multi-modal sentiment analysis that should benefit future researchers in the designing of sentiment analysis and other models. First, the use of pre-trained models for raw audio yielded superior results, highlighting their effectiveness in feature extraction. Second, combining audio and text signals consistently outperformed using text signals alone, with the transformer fusion network showing promise in enhancing cross-modality modeling. Third, multi-loss training proved beneficial for performance, particularly with unique labels for each modality. Fourth, context information boosts model performances significantly. Last, achieving state-of-the-art results on three sentiment detection datasets underscores the effectiveness of our approach."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                218,
+                887,
+                493
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Moreover, in analysis of ablation studies, we show model performance can be improved through a method that reflects a similar pattern with human understanding of sentiment analysis through the multi-loss training. Moreover, multimodal features improve both the overall model performance in multimodality and in single-modality input settings. We provide more effective ways to handle missing modalities and utilized individual modality representation, by allowing the model to train on multimodal features and boost performance on single modality input using multi-loss training. Still, the performance of fusion network variations did remain consistent, prompting further investigation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                493,
+                887,
+                719
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgements"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                730,
+                684,
+                746
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This research is supported in part by the Defense Advanced Research Projects Agency (DARPA), via the CCU Program contract HR001122C0034. The views, opinions and/or findings expressed are those of the authors and should not be interpreted as representing the official views or policies of the Department of Defense or the U.S. Government."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                755,
+                885,
+                869
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3595"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/9dbd4b64a24bec438313af734514477639a1d8ff5b48abc3bd867df38ec4795d.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Has0  $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1</td><td> $\\mathbf { N o n 0 \\_ A C C _ { 2 } }$ </td><td>Non0_F1</td><td> $\\mathbf { A C C _ { 5 } }$ </td><td> $\\mathbf { A C C } _ { 7 }$ </td><td>MAE</td><td>Corr</td></tr><tr><td>text-only</td><td>84.89</td><td>84.86</td><td>87.04</td><td>87.07</td><td>54.81</td><td>47.32</td><td>66.62</td><td>83.27</td></tr><tr><td>concatenation</td><td>85.77</td><td>85.74</td><td>87.6</td><td>87.62</td><td>56.51</td><td>48.79</td><td>64.27</td><td>84.06</td></tr><tr><td>+ fusion network 85.91</td><td></td><td>85.85</td><td>88.16</td><td>88.15</td><td>56.08</td><td>48.25</td><td>64.29</td><td>83.8</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                149,
+                97,
+                847,
+                156
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/7d8911a2b9f09ea41c49bb3922bc198ccf4daa25b7656b8e77626bcd9fcebb80.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) CMU-MOSI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(b) CMU-MOSEI"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Has0  $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1 Non0</td><td> $\\mathbf { A C C _ { 2 } }$ </td><td>Non0_F1</td><td> $\\mathbf { A C C _ { 5 } }$ </td><td>ACC7</td><td>MAE</td><td>Corr</td></tr><tr><td>text-only</td><td>84.81</td><td>84.95</td><td>86.34</td><td>86.19</td><td>54.99</td><td>52.7</td><td>53.31</td><td>78.6</td></tr><tr><td>concatenation</td><td>84.77</td><td>84.9</td><td>86.82</td><td>86.65</td><td>55.99</td><td>53.94</td><td>51.63</td><td>79.81</td></tr><tr><td>+ fusion network 86.32</td><td></td><td>86.23</td><td>86.73</td><td>86.49</td><td>57.32</td><td>54.95</td><td>51.54</td><td>79.08</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                149,
+                175,
+                847,
+                235
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/de276a6071298092d33b87da0b3d08161da8053478d7214837758cc4c0b659f0.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(c) CH-SIMS"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td> $\\mathbf { A C C _ { 2 } }$ </td><td> $\\mathbf { A C C _ { 3 } }$ </td><td> $\\mathbf { A C C _ { 5 } }$  F1</td><td>MAE</td><td>Corr</td></tr><tr><td>text-only 79.21</td><td>65.06</td><td>42.02</td><td>79.14 42.65</td><td>59.4</td></tr><tr><td>concatenation 81.91</td><td>70.68</td><td>47.12</td><td>82.1 34.96</td><td>72.37</td></tr><tr><td>+ fusion network 82.93</td><td>69.37</td><td>49.38</td><td>82.9 33.2</td><td>73.26</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                282,
+                263,
+                715,
+                324
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/8bbfc9f9a59c8053245bfd065b91edb54fee89c003384ec347c4bf58abf33f26.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Concatenation vs. Transformer Fusion: Integration of audio signals enhances performance across almost all metrics, with more pronounced impact on CH-SIMS. Implementing the Fusion Network augments performance slightly in most metrics. All experimental results presented are averages derived from three separate runs."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Has0  $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1</td><td>Non0  $\\mathbf { A C C _ { 2 } }$ </td><td>Non0_F1</td><td>ACC5</td><td>ACC7</td><td>MAE</td><td>Corr</td></tr><tr><td>single-loss</td><td>85.22</td><td>85.39</td><td>87.02</td><td>86.91</td><td>55.95</td><td>53.85</td><td>51.96</td><td>79.68</td></tr><tr><td>multi-loss</td><td>84.77</td><td>84.9</td><td>86.82</td><td>86.65</td><td>55.99</td><td>53.94</td><td>51.63</td><td>79.81</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                171,
+                445,
+                825,
+                492
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/a8a18b839d4837315630681a93ef989baa3e1738b575ebb99a8bc7c8f70aa9ad.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) CMU-MOSEI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(b) CH-SIMS"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td> $\\mathbf { A C C _ { 2 } }$ </td><td> $\\mathbf { A C C _ { 3 } }$ </td><td> $\\mathbf { A C C _ { 5 } }$ </td><td>F1</td><td>MAE</td><td>Corr</td></tr><tr><td>Single-loss</td><td>78.34</td><td>67.18</td><td>46.83</td><td>78.59</td><td>39.09</td><td>62.69</td></tr><tr><td>multi-loss</td><td>81.91</td><td>70.68</td><td>47.12</td><td>82.1</td><td>34.96</td><td>72.37</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                302,
+                511,
+                695,
+                557
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/bd2b8fbd5a9023d275801420b0ad7cd1fc604045b5e6fc61a73b132d94a434bd.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: Single-Loss Training vs. Multi-Loss Training: While multi-loss training does not yield performance improvement when identical labels are used for different losses, as in the case of CMU-MOSEI, it does contribute significantly to performance enhancement when unique labels are assigned to each modality, as observed with CH-SIMS."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Has0  $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1</td><td> $\\mathbf { N o n 0 \\_ A C C _ { 2 } }$ </td><td>Non0_F1</td><td> $\\mathbf { A C C _ { 5 } }$ </td><td> $\\mathbf { A C C } _ { 7 }$ </td><td>MAE</td><td>Corr</td></tr><tr><td>text-loss only 84.81</td><td></td><td>84.95</td><td>86.34</td><td>86.19</td><td>54.99</td><td>52.97</td><td>53.31</td><td>78.6</td></tr><tr><td>multi-loss</td><td>84.36</td><td>84.62</td><td>86.85</td><td>86.76</td><td>56.06</td><td>53.61</td><td>52.35</td><td>79.49</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                161,
+                693,
+                835,
+                738
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/7976ed9925d0f60675e4a315045eafe910da4b1ae1adae5748b80c1939ec3800.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) CMU-MOSEI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(b) CH-SIMS"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 5: Impact of Multi-Loss on Text Subnet: Utilizing audio-related losses can enhance performance of the text subnet, even when identical labels are employed, as is the case with CMU-MOSEI. Remarkably, using specific labels for different modalities results in a substantial performance boost in the text subnet, as evidenced by the results from CH-SIMS."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>ACC2</td><td> $\\mathbf { A C C _ { 3 } }$ </td><td> $\\mathbf { A C C _ { 5 } }$ </td><td>F1</td><td>MAE</td><td>Corr</td></tr><tr><td>text-loss only 79.21</td><td></td><td>65.06</td><td>42.02</td><td></td><td>79.14 42.65</td><td>59.4</td></tr><tr><td>multi-loss</td><td>83.15</td><td>72.14</td><td>48.21</td><td>83.74 28.58</td><td></td><td>78.72</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                292,
+                755,
+                704,
+                804
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3596"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One limitation of this paper is that the proposed model is studied on two language, English and Mandarin. Another is that the coverage of domains is limited to the design of the datasets we choose to use, which is from YouTube Videos and TV shows. Hence, it is likely that a portion of the data is acted rather than naturally occurring in real life, and acted emotions may be expressed differently than naturally occurring emotions. Such bias in the dataset might lead to learning similar bias in model features and cause errors in recognition if applied to real life situations, which could be different in characteristics and distribution than YouTube videos and TV shows."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                112,
+                489,
+                337
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Another limitation is that among the 3 public dataset we used, which are all collected from YouTube and TV shows, not all have detailed descriptions about anonymization of the persons appeared in the dataset. However, we did not modify the dataset, since the datasets are widely used and we would like to create coherent results, comparable with previous work."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                338,
+                490,
+                467
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As for potential risk of misuse, since the paper is focused on more fundamental aspects of the research, it is possible that the model might not perform well if deployed in other scenarios without additional fine-tuning and training, because the model is trained on public datasets collected from TV shows and YouTube. Misuse of directly deploying the model in real-life applications might create risks that the prediction might not always be accurate."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                468,
+                489,
+                629
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, our model does not yet incorporate vision features. In developing the model, we initially experimented with incorporating vision features including openFace features and embeddings from a finetuned VGGFace2 model during the early stages. However, our findings indicated that these features did not significantly enhance performance and required a substantial increase in computational resources — without a commensurate improvement in results. Importantly, our current model achieves performance metrics that surpass state-of-the-art (SOTA) models which do incorporate vision features. This accomplishment underscores the effectiveness of our approach relying on audio and text. Nonetheless, integrating vision features remains a potential avenue for future development. The exploration of vision capabilities is a promising direction for enhancing our model’s performance, particularly in areas where visual context can provide additional insights."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                631,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                509,
+                85,
+                885,
+                117
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                143,
+                610,
+                159
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Mehdi Arjmand, Mohammad Javad Dousti, and Hadi Moradi. 2021. Teasel: A transformer-based speechprefixed language model."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alexei Baevski, Wei-Ning Hsu, Qiantong Xu, Arun Babu, Jiatao Gu, and Michael Auli. 2022. data2vec: A general framework for self-supervised learning in speech, vision and language."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "AmirAli Bagher Zadeh, Paul Pu Liang, Soujanya Poria, Erik Cambria, and Louis-Philippe Morency. 2018. Multimodal language analysis in the wild: CMU-MOSEI dataset and interpretable dynamic fusion graph. In Proceedings ofthe 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 2236–2246, Melbourne, Australia. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Elham J. Barezi and Pascale Fung. 2019. Modalitybased factorization for multimodal fusion. In Proceedings of the 4th Workshop on Representation Learningfor NLP (RepL4NLP-2019), pages 260–269, Florence, Italy. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Gedas Bertasius, Heng Wang, and Lorenzo Torresani. 2021. Is space-time attention all you need for video understanding?"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Haoxing Chen, Huaxiong Li, Yaohui Li, and Chunlin Chen. 2021. Sparse spatial transformers for few-shot learning. CoRR, abs/2109.12932."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wenliang Dai, Samuel Cahyawijaya, Zihan Liu, and Pascale Fung. 2021. Multimodal end-to-end sparse model for emotion recognition. In Proceedings of the 2021 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, pages 5305–5316, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jean-Benoit Delbrouck, Noé Tits, Mathilde Brousmiche, and Stéphane Dupont. 2020. A transformer-based joint-encoding for emotion recognition and sentiment analysis. In Second Grand-Challenge and Workshop on Multimodal Language (Challenge-HML), pages 1–7, Seattle, USA. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Muskan Garg, Seema Wazarkar, Muskaan Singh, and Ondˇrej Bojar. 2022. Multimodality for NLP-centered applications: Resources, advances and frontiers. In Proceedings of the Thirteenth Language Resources and Evaluation Conference, pages 6837–6847, Marseille, France. European Language Resources Association."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Lucas Goncalves and Carlos Busso. 2022. Robust audiovisual emotion recognition: Aligning modalities,"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                167,
+                884,
+                208
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3597"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "capturing temporal information, and handling missing features. IEEE Transactions on Affective Computing, 13(4):2156–2170."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wei Han, Hui Chen, and Soujanya Poria. 2021. Improving multimodal fusion with hierarchical mutual information maximization for multimodal sentiment analysis. In Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing, pages 9180–9192, Online and Punta Cana, Dominican Republic. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Devamanyu Hazarika, Roger Zimmermann, and Soujanya Poria. 2020. Misa: Modality-invariant andspecific representations for multimodal sentiment analysis. arXiv preprint arXiv:2005.03545."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wei-Ning Hsu, Benjamin Bolte, Yao-Hung Hubert Tsai, Kushal Lakhotia, Ruslan Salakhutdinov, and Abdelrahman Mohamed. 2021. Hubert: Self-supervised speech representation learning by masked prediction of hidden units."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Guimin Hu, Ting-En Lin, Yi Zhao, Guangming Lu, Yuchuan Wu, and Yongbin Li. 2022. UniMSE: Towards unified multimodal sentiment analysis and emotion recognition. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, pages 7837–7851, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Abhinav Joshi, Ashwani Bhat, Ayush Jain, Atin Singh, and Ashutosh Modi. 2022. COGMEN: COntextualized GNN based multimodal emotion recognitioN. In Proceedings ofthe 2022 Conference ofthe North American Chapter of the Association for Computational Linguistics: Human Language Technologies, pages 4148–4164, Seattle, United States. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zhun Liu, Ying Shen, Varun Bharadhwaj Lakshminarasimhan, Paul Pu Liang, AmirAli Bagher Zadeh, and Louis-Philippe Morency. 2018. Efficient lowrank multimodal fusion with modality-specific factors. In Proceedings of the 56th Annual Meeting of the Associationfor Computational Linguistics (Volume 1: Long Papers), pages 2247–2256, Melbourne, Australia. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Georgios Paraskevopoulos, Efthymios Georgiou, and Alexandros Potamianos. 2022. Mmlatch: Bottom-up top-down fusion for multimodal sentiment analysis."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Fan Qian, Jiqing Han, Yongjun He, Tieran Zheng, and Guibin Zheng. 2023. Sentiment knowledge enhanced self-supervised learning for multimodal sentiment analysis. In Findings of the Association for Computational Linguistics: ACL 2023, pages 12966–12978,"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Toronto, Canada. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wasifur Rahman, Md Kamrul Hasan, Sangwu Lee, AmirAli Bagher Zadeh, Chengfeng Mao, Louis-Philippe Morency, and Ehsan Hoque. 2020. Integrating multimodal information in large pretrained transformers. In Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, pages 2359–2369, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Aman Shenoy and Ashish Sardana. 2020. Multiloguenet: A context-aware RNN for multi-modal emotion detection and sentiment analysis in conversation. In Second Grand-Challenge and Workshop on Multimodal Language (Challenge-HML). Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jun Sun, Shoukang Han, Yu-Ping Ruan, Xiaoning Zhang, Shu-Kai Zheng, Yulong Liu, Yuxin Huang, and Taihao Li. 2023a. Layer-wise fusion with modality independence modeling for multi-modal emotion recognition. In Proceedings ofthe 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 658–670, Toronto, Canada. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Licai Sun, Zheng Lian, Bin Liu, and Jianhua Tao. 2023b. Efficient multimodal transformer with dual-level feature restoration for robust multimodal sentiment analysis. IEEE Transactions on Affective Computing, pages 1–17."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zhongkai Sun, Prathusha Kameswara Sarma, William A. Sethares, and Yingyu Liang. 2019. Learning relationships between text, audio, and video via deep canonical correlation for multimodal language analysis. CoRR, abs/1911.05544."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yao-Hung Hubert Tsai, Shaojie Bai, Paul Pu Liang, J. Zico Kolter, Louis-Philippe Morency, and Ruslan Salakhutdinov. 2019a. Multimodal transformer for unaligned multimodal language sequences."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yao-Hung Hubert Tsai, Shaojie Bai, Paul Pu Liang, J. Zico Kolter, Louis-Philippe Morency, and Ruslan Salakhutdinov. 2019b. Multimodal transformer for unaligned multimodal language sequences. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics, pages 6558– 6569, Florence, Italy. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yao-Hung Hubert Tsai, Paul Pu Liang, Amir Zadeh, Louis-Philippe Morency, and Ruslan Salakhutdinov. 2019c. Learning factorized multimodal representations. In ICLR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zilong Wang, Zhaohong Wan, and Xiaojun Wan. 2020. Transmodality: An end2end fusion method with transformer for multimodal sentiment analysis. In Proceedings of The Web Conference 2020, WWW ’20, page 2514–2520, New York, NY, USA. Association for Computing Machinery."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                85,
+                489,
+                127
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3598"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jianing Yang, Yongxin Wang, Ruitao Yi, Yuying Zhu, Azaan Rehman, Amir Zadeh, Soujanya Poria, and Louis-Philippe Morency. 2021. MTAG: Modaltemporal attention graph for unaligned human multimodal language sequences. In Proceedings ofthe 2021 Conference ofthe North American Chapter of the Associationfor Computational Linguistics: Human Language Technologies, pages 1009–1021, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jianfei Yu, Kai Chen, and Rui Xia. 2023a. Hierarchical interactive multimodal transformer for aspect-based multimodal sentiment analysis. IEEE Transactions on Affective Computing, 14(3):1966–1978."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tianshu Yu, Haoyu Gao, Ting-En Lin, Min Yang, Yuchuan Wu, Wentao Ma, Chao Wang, Fei Huang, and Yongbin Li. 2023b. Speech-text dialog pretraining for spoken dialog understanding with explicit cross-modal alignment."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wenmeng Yu, Hua Xu, Fanyang Meng, Yilin Zhu, Yixiao Ma, Jiele Wu, Jiyun Zou, and Kaicheng Yang. 2020. CH-SIMS: A Chinese multimodal sentiment analysis dataset with fine-grained annotation of modality. In Proceedings of the 58th Annual Meeting ofthe Associationfor Computational Linguistics, pages 3718–3727, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wenmeng Yu, Hua Xu, Yuan Ziqi, and Wu Jiele. 2021. Learning modality-specific representations with selfsupervised multi-task learning for multimodal sentiment analysis. In Proceedings of the AAAI Conference on Artificial Intelligence."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Amir Zadeh, Minghai Chen, Soujanya Poria, Erik Cambria, and Louis-Philippe Morency. 2017. Tensor fusion network for multimodal sentiment analysis."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Amir Zadeh, Rowan Zellers, Eli Pincus, and Louis-Philippe Morency. 2016. Mosi: Multimodal corpus of sentiment intensity and subjectivity analysis in online opinion videos."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                204
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3599"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Appendix"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                238,
+                101
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.1 Training Details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                109,
+                294,
+                126
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The training process employed a learning rate of 1e-5, batch size of 16, and the AdamW optimizer. L2 loss was used to optimize the model during the training process. The validation set loss and accuracy were monitored to ensure that the model was not overfitting to the training data. An early stopping mechanism with patience of 8 epochs was employed to ensure the generalizability of the model. The entire procedure was conducted on a single RTX 4090 GPU. For the audio pre-trained model, the Convolutional Neural Network (CNN) portion used for feature extraction was frozen. The impact of different learning rates for various parts of the network was explored, but no significant differences were observed. Moreover, we found that using 5 layers of fusion network achieves the best results. All the results presented in the tables are averaged over three independent runs."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                131,
+                490,
+                422
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2 Audio Feature Extraction and Modeling Details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                431,
+                480,
+                462
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For openSMILE, we manipulated the frame size and step, setting them to 0.06 seconds and 0.02 seconds respectively. For Mel spectrograms, the number of Mel filterbanks was set to 128, while the window size and step were adjusted to 0.06 seconds and 0.02 seconds respectively. These configurations were chosen to enhance the precision of audio feature extraction without sacrificing computational efficiency."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                469,
+                489,
+                613
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following the feature extraction phase, these features were used to construct models with varying architectures: Transformer models, incorporating between 2 and 4 encoder layers complemented with positional encoding, were employed to process the openSMILE features. A feed-forward layer was subsequently added to process feature embeddings in the CLS token of the final transformer encoder. For processing Mel spectrogram features, we leveraged convolutional neural network (CNN) models, including a custom 8-layer CNN model and modified versions of ResNet-18 and ResNet-32. The choice of these CNN architectures was driven by their known effectiveness in handling image-like data structures such as spectrograms."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                614,
+                490,
+                857
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.3 Vision Features Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                868,
+                393,
+                883
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For facial extraction, we initially employed MTCNN, but switched to the OpenCV DNN model due to its superior performance under dim lighting conditions. We extracted faces at a rate of 5 frames per second."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                888,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                884,
+                133
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our experiments involved two models: 1) a CNN-transformer model, combining a CNN pretrained on the VGG-face2 dataset for spatial relationships with a transformer for temporal relationships; 2) TimesFormer (Bertasius et al., 2021), a transformer-based model pre-trained on video data. Both models achieved about 70% accuracy on the CH-SIMS dataset (0.7045 for CNN-transformer and 0.7294 for TimesFormer). However, their performance on CMU-MOSI was significantly lower (40-50% accuracy), leading us to conclude that the facial expressions in CMU-MOSI lack the distinct emotional information necessary for effective sentiment analysis."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                135,
+                887,
+                361
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.4 Modality Selection"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                378,
+                709,
+                393
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our model’s foundation is a text-based Large Language Model (LLM), while the other two modalities serve as auxiliary signals. Standalone, the text LLM, exhibits over 84 percent accuracy in English datasets and nearly 80 percent accuracy in the Mandarin dataset, outperforming other modalities in all evaluated metrics. We explored combinations of text with audio or video. The text-audio combination yielded a significant performance boost (see Table 3), whereas the text-video combination was less consistently beneficial. Specifically, video signals provide slight performance improvement in the CH-SIMS dataset, but not in the CMU-MOSI dataset. Our analysis revealed that CMU-MOSI videos contain more restrained and ambiguous facial expressions, making them less useful for sentiment detection compared to the emotionally richer expressions in CH-SIMS, sourced from TV shows and movies."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                403,
+                887,
+                708
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Given these findings, we chose not to include vision features in our final model. This decision was driven by two factors: 1) the inconsistent performance benefits, dependent on the dataset; 2) the substantial computational resources required for processing visual data (details explained in Appendix A.3). This latter aspect not only increases computational overhead but also introduces delays in real-time inference, without a corresponding improvement in results. We recognize that our approach lacks scalability in integrating multiple modalities due to the necessity of large pre-trained models for each to obtain the best performance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                711,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3600"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Importantly, our model still surpasses state-ofthe-art models that include vision features in performance metrics, emphasizing the efficacy of our text and audio-based approach. Nevertheless, the potential for integrating vision features remains a promising area for future enhancements. The utility of visual context, especially in scenarios where it provides critical insights, warrants further exploration."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                85,
+                492,
+                229
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.5 Feature Network Selection"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                240,
+                374,
+                255
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our sentiment analysis framework, we conducted extensive experiments with various text and audio models. For text processing, we evaluated MacBert, Bert, and RoBerta across both Mandarin and English datasets. RoBerta consistently outperformed the others in both languages, demonstrating its superior efficacy in understanding and processing textual data."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                261,
+                490,
+                390
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the audio component in the English dataset, we tested three Automatic Speech Recognition (ASR) models: wave2vec, HuBert, and Data2Vec. Among these, Data2Vec emerged as the most effective, providing the best performance in terms of accuracy and reliability. As there was no finetuned version of Data2Vec for Mandarin that is publicly available, we compared the performance of wave2vec and HuBert, ultimately selecting Hu-Bert for its superior performance with Mandarin. An interesting observation from our experiments was the positive correlation between the performance of ASR models in sentiment detection and their word error rate (WER) in public benchmarks."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                391,
+                492,
+                617
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.6 Metrics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                626,
+                228,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our MMML model was evaluated using metrics consistent with existing research."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                646,
+                487,
+                677
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For CMU-MOSI and CMU-MOSEI, we used:"
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                680,
+                478,
+                695
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Has0_ "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\bf { A C C _ { 2 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", Has0_F1, including zero sentiment scores as positive;"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                706,
+                487,
+                738
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Non0_ "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\bf { A C C _ { 2 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", Non0_F1, ignoring zero sentiment scores;"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                749,
+                487,
+                780
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• A "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { C C _ { 5 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", ACC<sub>7</sub>, representing 5-class and 7- class accuracies respectively;"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                791,
+                489,
+                824
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• MAE, Mean Absolute Error;"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                834,
+                378,
+                850
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Corr, assessing the correlation between predicted and actual scores."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                862,
+                489,
+                892
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For CH-SIMS, we utilized:"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                904,
+                339,
+                920
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• ACC<sub>2</sub>, ACC<sub>3</sub>, ACC<sub>5</sub>, representing 2- class, 3-class, and 5-class accuracies respectively;"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                84,
+                887,
+                134
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• F1, balancing precision and recall;"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                143,
+                811,
+                160
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• MAE, mean absolute error;"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                171,
+                764,
+                186
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Corr, assessing correlation between predicted and actual scores."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                197,
+                885,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These metrics enable comprehensive evaluation of our model’s performance across diverse sentiment analysis dimensions."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                240,
+                885,
+                288
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.7 Additional tables"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                299,
+                697,
+                315
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3601"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/10d899b3b71961ed68f2f4759e5dab43dd01c5f592ea8ee06e338b841de4c84a.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Has0  $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1 Non0</td><td> $\\mathbf { A C C _ { 2 } }$ </td><td>Non0_F1</td><td> $\\mathbf { A C C _ { 5 } }$ </td><td> $\\mathbf { A C C } _ { 7 }$ </td><td>MAE</td><td>Corr</td></tr><tr><td>Fused Features Only 86.32</td><td></td><td>86.23</td><td>86.73</td><td>86.49</td><td>57.32</td><td>54.95</td><td>51.54</td><td>79.08</td></tr><tr><td>Concatenation</td><td>84.96</td><td>85.09</td><td>86.78</td><td>86.61</td><td>56.86</td><td>57.78</td><td>51.88</td><td>79.09</td></tr><tr><td>Transformer</td><td>86.11</td><td>86.08</td><td>86.7</td><td>86.46</td><td>57.01</td><td>54.31</td><td>51.97</td><td>78.96</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                137,
+                122,
+                860,
+                183
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/b129b75e52cae863793d19d945591dc146f32b86bdd012607b56efb86868069e.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) CMU-MOSEI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(b) CH-SIMS"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 6: Comparative Performance of Model Variations: The Fused Features Only model employs only the features following the fusion network, while the Concatenation model merges the original signal with the fused signal. The Transformer model uses a transformer to combine these two signals. Across all metrics for both CMU-MOSEI and CH-SIMS, these three methods exhibit similar performance."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td> $\\mathbf { A C C _ { 2 } }$ </td><td> $\\mathbf { A C C _ { 3 } }$ </td><td> $\\mathbf { A C C 5 }$ </td><td>F1</td><td>MAE</td><td>Corr</td></tr><tr><td>Fused Features Only</td><td>82.93</td><td>69.37</td><td>49.38</td><td>82.9</td><td>33.2</td><td>73.26</td></tr><tr><td>Concatenation</td><td>82.42</td><td>69.44</td><td>49.82</td><td>82.38</td><td>33.6</td><td>72.87</td></tr><tr><td>Transformer</td><td>82.42</td><td>69.95</td><td>49.89</td><td>82.52</td><td>33.12</td><td>72.61</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                268,
+                199,
+                727,
+                262
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/9ccba42b2c5f3fd859869a44d545def727008b84fac462b4412c7e00c981012d.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Concatenation"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Context window Has0</td><td> $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1</td><td>Non0  $\\mathbf { A C C _ { 2 } }$ </td><td>Non0_F1</td><td>ACC5</td><td>ACC7</td><td>MAE</td><td>Corr</td></tr><tr><td>0</td><td>84.89</td><td>84.86</td><td>87.04</td><td>87.07</td><td>54.81</td><td>47.32</td><td>66.62</td><td>83.27</td></tr><tr><td>1</td><td>86.01</td><td>85.94</td><td>88.01</td><td>87.99</td><td>53.35</td><td>45.87</td><td>66.37</td><td>83.96</td></tr><tr><td>2</td><td>85.81</td><td>85.71</td><td>87.8</td><td>87.76</td><td>53.98</td><td>46.99</td><td>66.7</td><td>82.49</td></tr><tr><td>3</td><td>84.94</td><td>84.86</td><td>86.84</td><td>86.81</td><td>52.14</td><td>45.19</td><td>69.85</td><td>81.3</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                151,
+                447,
+                845,
+                521
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/5c1974d55b861b084b88fd4e8e1f19c139b27c938c4464b0ff4f5d0e41732738.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) Separation"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 7: Comparison of Context Modeling Methods with Only Text signals: the second method that separates the context and the current utterance can handle a longer context window and have a better performance."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Context window Has0</td><td> $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1</td><td>Non0  $\\mathbf { A C C _ { 2 } }$ </td><td>Non0_F1 ACC5</td><td></td><td>ACC7</td><td>MAE</td><td>Corr</td></tr><tr><td>0</td><td>84.89</td><td>84.86</td><td>87.04</td><td>87.07</td><td>54.81</td><td>47.32</td><td>66.62</td><td>83.27</td></tr><tr><td>1</td><td>85.57</td><td>85.51</td><td>87.8</td><td>87.8</td><td>55.44</td><td>47.81</td><td>65.17</td><td>83.37</td></tr><tr><td>2</td><td>86.2</td><td>86.12</td><td>88.46</td><td>88.44</td><td>55.24</td><td>47.04</td><td>63.88</td><td>84.46</td></tr><tr><td>3</td><td>85.76</td><td>85.69</td><td>88.01</td><td>87.99</td><td>54.67</td><td>46.89</td><td>65.26</td><td>83.71</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                151,
+                567,
+                847,
+                643
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/5d42ec04d69b15d204eac910c0c96724cc196b1723b5faf3b91770d121cd7aaa.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Fusion Network Ablation Experiment Results"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Has0  $\\mathbf { A C C _ { 2 } }$ </td><td>Has0_F1 Non0_</td><td> $\\mathbf { A C C _ { 2 } }$ </td><td></td><td>Non0_F1 ACC7</td><td>MAE</td><td>Corr</td></tr><tr><td>fusion network</td><td>85.91</td><td>85.85</td><td>88.16</td><td>88.15</td><td>48.25</td><td>64.29</td><td>83.8</td></tr><tr><td>- self attention layers</td><td>85.13</td><td>85.12</td><td>87.35</td><td>87.38</td><td>46.94</td><td>65.81</td><td>81.53</td></tr><tr><td>- fully connected layers 85.13</td><td></td><td>85.09</td><td>87.2</td><td>87.2</td><td>46.65</td><td>66.48</td><td>83.07</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                156,
+                790,
+                840,
+                850
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3602"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ]
+]

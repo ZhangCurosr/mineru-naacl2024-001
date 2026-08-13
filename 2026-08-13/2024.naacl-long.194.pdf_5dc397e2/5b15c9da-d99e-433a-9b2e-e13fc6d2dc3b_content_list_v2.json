@@ -1,0 +1,2495 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Low-Cost Generation and Evaluation of Dictionary Example Sentences"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                129,
+                89,
+                867,
+                110
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Bill Cai <sup>1</sup>, Clarence Ng <sup>2</sup>, Daniel Tan <sup>2</sup>, Shelvia Hotama <sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                129,
+                751,
+                147
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>Amazon Web Services <sup>2</sup>Ministry of Education, Singapore {billcaiy,hshelvia}@amazon.com {clarence_ng,daniel_tan}@moe.gov.sg"
+                    }
+                ]
+            },
+            "bbox": [
+                322,
+                160,
+                682,
+                227
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                262,
+                260,
+                342,
+                275
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Dictionary example sentences play an important role in illustrating word definitions and usage, but manually creating quality sentences is challenging. Prior works have demonstrated that language models can be trained to generate example sentences. However, they relied on costly customized models and word sense datasets for generation and evaluation of their work. Rapid advancements in foundational models present the opportunity to create low-cost, zero-shot methods for the generation and evaluation of dictionary example sentences. We introduce a new automatic evaluation metric called OxfordEval that measures the win-rate of generated sentences against existing Oxford Dictionary sentences. OxfordEval shows high alignment with human judgments, enabling large-scale automated quality evaluation. We experiment with various LLMs and configurations to generate dictionary sentences across word classes. We complement this with a novel approach of using masked language models to identify and select sentences that best exemplify word meaning. The eventual model, FM-MLM, achieves over 85.1% win rate against Oxford baseline sentences according to OxfordEval, compared to 39.8% win rate for prior model-generated sentences."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                287,
+                462,
+                688
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                699,
+                260,
+                714
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Dictionary example sentences play a vital role in illustrating the meanings and usage of headwords for dictionary users. Prior studies have found evidence supporting the importance of the quantity and quality of example sentences in improving learners performance for receptive and productive language tasks (Nesi, 1996; Frankenberg-Garcia, 2014)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                724,
+                490,
+                837
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Creating and maintaining example sentences for dictionaries can be a labour-intensive task – the Oxford Dictionary of English (Stevenson, 2010), for example, aims to represent the current usage of close to 100,000 English headwords. Traditional efforts to improve productivity of example sentence creation focused on searching for sentences with headwords in existing electronic text corpus (Kilgarriff et al., 2008; Hanks, 2009; Frankenberg-Garcia et al., 2021). However, such text corpora consists of content for myriad purposes, and may not always contain example sentences that best exemplify the meanings and usage of words to support language learning. To address this, recent works have demonstrated that language models can be trained to generate new sentences on unseen headwords (He and Yiu, 2022; Harvill et al., 2023), vastly expanding the search space that can be considered for crafting quality sentences. However, they often rely on custom-trained models and datasets annotated with word senses for the generation and evaluation of sentences, which can be a costly process."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                837,
+                489,
+                902
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                261,
+                887,
+                568
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Rapid advancements in foundational models (FMs) (Bommasani et al., 2021) now offer new possibilities for more flexible and creative generation of dictionary example sentences at low cost. Closed and open-source large language models (LLMs) like Claude and Llama-2 have demonstrated an impressive capacity to generate fluent, coherent text while capturing nuances of style, tone and topic (Liang et al., 2022). Their exposure to large corpora of linguistic data during pretraining (Touvron et al., 2023; Penedo et al., 2023) and ability to follow specific instructions (Wang et al., 2022; Mishra et al., 2022) allow these models to perform well for new previously unseen instructional tasks (Radford et al., 2019). They offer the potential for dictionary example sentences to be generated and evaluated at scale without the use of specialised models or datasets."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                568,
+                887,
+                857
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This paper examines low-cost, zero-shot methods for LLMs to automatically generate and evaluate dictionary example sentences. We start by defining the OxfordEval metric, which measures the win-rate of candidate dictionary example sentences when evaluated competitively by LLMs for quality against samples from the Oxford Dictionary. Using human annotations on a subset of outputs, we validate that OxfordEval matches well with human preferences. With this validated automatic evaluation measure, we are then able to expansively test various state-of-the-art models including Claude, Llama-2 and Mistral, and analyse how variations in generation methodology affect sentence quality. We show that LLMs can generate sentences that are preferred to Oxford Dictionary example sentences 83.9% of the time, while past model-generated sentences only have a win-rate of 39.8%. In addition, we develop a novel method of adapting pre-trained masked language models to generate measurements of how much a generated sentence exemplifies the meaning of a word. When this method is used to rerank a set of 5 sentences generated by LLMs for each word for use in the OxfordEval measurement, the win-rate further increases to 85.1%. We estimate that one end-to-end run of the generation, reranking, and evaluation steps for a set of 8000 word senses and definitions costs less than $50. Put together, we hope the work provides a refreshed low-cost baseline for the development of methods to generate high quality dictionary example sentences for the benefit of language learners."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                858,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": ",  Equal Contribution"
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                908,
+                294,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3538"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 3538–3549 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                946,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                552
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                569,
+                270,
+                585
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recent work has demonstrated that language models can be trained on existing sets of headwords and example sentences from dictionaries and other corpora for automatic example sentence generation. Barba et al. (2021) and He and Yiu (2022) adapt encoder-decoder architectures trained on reference sentences for each word sense to generate new sentences on unseen headwords, with He and Yiu (2022) demonstrating the ability to control for length and lexical complexity. Harvill et al. (2023) demonstrate that sentence generation can also be performed in a one-shot manner using just a reference sentence without word sense labels (which are less abundantly available), using an autoencoder trained to generate new sentences conditioned on latent sense representations."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                599,
+                490,
+                857
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Earlier studies of dictionary example sentences use a small-scale experimental setup to evaluate the usefulness of dictionary headwords with and without examples on learning outcomes (Nesi, 1996;"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                858,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Frankenberg-Garcia, 2014). These methods measure the direct impact for learners, but are limited to small-scale experimental settings. Later studies use specific model-based scores to automate the evaluation of sentence quality. Harvill et al. (2023) compared the cosine similarity of pretrained BERTlarge word embeddings (Scarlini et al., 2020) of the target word "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { W } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "between generated sentences and example sentences in a golden dataset. He and Yiu (2022) trained a BERT model to evaluate definition and part-of-speech (POS) accuracy using triplets of (word, definition, example) and (word, POS, example) respectively, with positive examples from Oxford Dicionary and negative examples generated synthetically by replacing words, definitions, POS, and examples. However, these automatic methods evaluate narrow factors (word sense accuracy, POS accuracy and definition accuracy) that have not been shown to be correlated with human-validated preferences for the sentence as a whole."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recent studies have demonstrated the ability of LLMs to evaluate free-form outputs of LLMs as instruction-following agents (Dubois et al., 2023) and chatbot assistants (Zheng et al., 2023), with a high degree of correlation to human preference when performing pairwise comparison on the overall quality of outputs. However, they also warn of position bias, verbosity bias and self-enhancement bias (Zheng et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                407,
+                885,
+                554
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Task Definition"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                565,
+                677,
+                581
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 Sentence Generation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                592,
+                721,
+                607
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The task of dictionary example generation is to generate fluent example sentences for dictionary headwords that effectively illustrate the target word under a specific sense or word meaning provided. Following the convention in He and Yiu (2022), the dictionary example sentence task aims to generate an example "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E = \\{ e _ { 1 } , . . . , e _ { T } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", given a target word "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a definition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D = \\{ d _ { 1 } , . . , d _ { S } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and part-ofspeech "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P \\in \\{ p _ { 1 } , . . , p _ { K } \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                614,
+                885,
+                760
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Dataset"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                771,
+                618,
+                787
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use the Oxford Dictionary dataset compiled by Gadetsky et al. (2018) and processed by He and Yiu (2022). Each entry in this dataset is a single word sense, with its associated lemma, part-of-speech, definition, and example sentences demonstrating the usage of the word in a sentence. Following He and Yiu (2022), we note that the dataset contains multiple entries for different inflections of the same lemma (for example, ’allow’, ’allowing’, ’allows’, and ’allowed’ for the lemma ’allow’ meaning ’let (someone) have or do something’), and keep only the inflection with the highest number of example sentences for each (lemma, POS, definition) triplet. The entire dataset comprises 105,818 Word Senses across the Training, Validation and Test splits. As we do not perform any model training, we focus only on the Validation and Test splits. Table 1 shows the summary statistics for the dataset. The validation set contains 7,931 word senses across 6,992 unique words and 6,311 unique lemmas, with an average of 11.0 example sentences per word sense. The test set contains 7,843 word senses across 6,963 unique words and 6,256 unique lemmas, with an average of 11.1 example sentences per word sense. As these splits are derived through random sampling from the Oxford Dictionary dataset, it can give a reasonable measure of the effectiveness of methods when scaled up to the entire dictionary while managing experimentation costs. Also, as we use the same preprocessing steps as He and Yiu (2022), we can compare our results with their generated sentences."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                794,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3539"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/1459b0f63f6189df5622f99c5eeb3293c38038eb20b7ee5560d6300394944d13.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Summary statistics: Number of unique words, word senses, lemmas, and example sentences in our dataset. Each unique word sense forms the unit of analysis for our study."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Dataset Split</td><td>Word Senses</td><td>Unique Words</td><td>Unique Lemmas</td><td>Average Number of Example Sentences</td></tr><tr><td>Validation</td><td>7,931</td><td>6,992</td><td>6,311</td><td>11.0</td></tr><tr><td>Test</td><td>7,843</td><td>6,963</td><td>6,256</td><td>11.1</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                82,
+                484,
+                184
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                277,
+                490,
+                664
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following He and Yiu (2022), we also augment the dataset with word occurrence frequencies from the one-billion-word dataset (Chelba et al., 2013), to be used as a proxy for word complexity (Paetzold and Specia, 2016) for supplementary analysis."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                664,
+                489,
+                746
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Sentence Evaluation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                756,
+                322,
+                772
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use LLMs to perform competitive evaluations of generated sentences against example sentences in the Oxford Dictionary dataset. As past studies have already demonstrated the ability to generate good example sentences that are fluent and semantically accurate (He and Yiu (2022); Harvill et al. (2023); Barba et al. (2021)), we propose that the next step would be to attempt to competitively identify sentences of the highest quality so that we can maximise the efficiency of language learning for dictionary users."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                777,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                885,
+                117
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We apply the recent approaches in pairwise output ranking (Zheng et al., 2023) and automating evaluations by using LLM as evaluators (Dubois et al., 2023), with one change: instead of performing comparisons of two LLM outputs, we use the example sentences within the Oxford dictionary dataset as the baseline comparison."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                117,
+                887,
+                230
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Formally, for each sentence generation method "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { G } : ( w ^ { * } , D , P )  E"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we calculate the win rate of the set of generated sentences "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ E _ { 1 } , . . . , E _ { M } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "over a baseline set of dictionary examples "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ E _ { M } ^ { * } , . . . , E _ { M } ^ { * } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "using an evaluator E "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": ": ( E , E ^ { * } ) \\to L \\in \\{ 0 , 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where L = 0 indicates E is preferred over "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and L = 1 indicates the reverse. For each word sense, we use the first* sentence amongst the example sentences in the Oxford dataset as the baseline dataset. By averaging over the labels L, we calculate the win-rate of a proposed sentence generation method over existing Oxford dictionary examples, which we define as the OxfordEval win-rate. A win-rate of above 50% will indicate that the generated sentences, on average, would be of higher quality than the sentences in the Oxford dictionary dataset."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                231,
+                887,
+                491
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/eca8545e6bb46223da0ab3b4d68e2637f97f8ecc451fc2ed2862d6ab73c80632.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: Agreement rate between LLM evaluators and human-annotated preferences, with highest value indicated in bold."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Agreement (%)</td></tr><tr><td>Claude-V1</td><td>73.6</td></tr><tr><td>Llama-2-70B Chat</td><td>71.6</td></tr><tr><td>Claude-V2</td><td>67.1</td></tr><tr><td>Mistral-7B Instruct</td><td>60.0</td></tr><tr><td>Llama-2-7B Chat</td><td>52.1</td></tr><tr><td>Llama-2-13B Chat</td><td>47.7</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                512,
+                504,
+                882,
+                617
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To validate our approach, we (the authors) annotated 501 examples of pairwise comparison between Claude-Instant generated sentences and baseline Oxford sentences using the Amazon Sage-Maker Ground Truth platform. The order of sentences presented was randomly flipped half the time and the source of each sentence cannot be seen by the annotator. For each example, we collected annotations from 2 different annotators and only kept examples with inter-annotator agreement. After doing so, we have 447 samples, with more than 89.2% inter-annotator agreement. We then compare these results with the outputs of different LLMs used as evaluators, and present the results in Table 2. We choose to use Claude-V1 for our subsequent experiments, as it displayed the highest agreement with human preference and also the highest score on ChatbotArena leaderboard<sup>†</sup> (which measures agreement between LLM outputs and human preference) at the time of study. The prompt used for sentence evaluation is given in Appendix A."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                689,
+                889,
+                852
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "Our experiments find no difference in quality based on order of sentences in the Oxford Dictionary dataset. Computing the OxfordEval metric for randomly selected sentences against the first sentence in the example sentence set achieved a win-rate of 49.9%."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                859,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3540"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                262
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Beyond the OxfordEval metric, we also track secondary metrics that can be relevant for the selection of preferred dictionary sentences. To measure sentence length, we track the average and standard deviation of the number of words in each sentence. To measure readability, we track the average and standard deviation of the Flesch-Kincard Grade Level (FKGL) (Kincaid et al., 1975) of each sentence. The averages of these metrics would provide insight on the length and readability of the typical sentence, while the standard deviations would provide insight on the diversity in terms of length and readability across sentences. For these secondary metrics, we propose that they should merely be used to provide an indication of the nature of sentences generated, rather than values that are blindly maximised or minimised, as the requirements could vary depending on the specific needs being addressed. For example, lower average lengths and FKGL scores could be desirable for new language learners, but intermediate learners might benefit from access to more complex and longer sentences."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                262,
+                490,
+                618
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Sentence Generation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                630,
+                329,
+                645
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we present the FM-MLM (Foundational Model - Masked Language Model) method for generating quality dictionary example sentences at low cost. FM-MLM uses a three-step process. First, foundational LLMs are used to generate a set of candidate sentences. Next, pre-trained masked language models are adapted with a novel method to score how much each candidate sentence exemplifies the meaning of the target word. Finally, the sentence with the highest score is selected to be the final generated sentence for evaluation."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                656,
+                489,
+                834
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Generating sentences with LLMs"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                845,
+                423,
+                860
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use zero-shot prompts to generate candidate sentences. The LLM is given the word, POS, and definition, and then asked to generate a sentence that illustrates the given definition of the word (the full prompt is given in Appendix B). We repeat the generation 5 times per word sense to obtain a set of 5 generated sentences. We observe that LLMs can sometimes fail to conform to our specified output format or refuse to generate sentences for certain sensitive words. In these cases, we retry the generation for up to 10 times per word sense. If sentences are not successfully generated after 10 retries, we abandon the process for that word sense and impute a dummy blank sentence for subsequent evaluation. This occurred for 84 out of 7931 word senses in the validation set."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                866,
+                489,
+                898
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                311
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Measuring exemplification using masked language models"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                321,
+                878,
+                354
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we propose a novel method to identify sentences that exemplify the meaning of each word, through creatively adapting pre-trained masked language models."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                359,
+                885,
+                423
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Prior work (Barba et al., 2021) has proposed that Word Sense Disambiguation (WSD) models can be used to measure the extent to which a sentence exemplifies the meaning of a word. If a sentence exemplifies the meaning of a word, then a WSD model should be able to identify the correct sense of the word with high probability. This approach, however, has some limitations. Consider for example the case where a word has only a verb and a noun sense, such as pedal, trivial sentences like “I will pedal this” (v. move (a bicycle) by working its pedals) and “This is a pedal” (n. each of a pair of foot-operated levers used for powering a bicycle or other vehicle propelled by the legs) could almost perfectly disambiguate between word senses, but do little to illustrate the meaning of the word to a language learner."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                423,
+                885,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We propose that a higher standard be used. Instead of simply disambiguating between the senses of the same word, we propose that exemplification can be measured by disambiguating against all other words."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                696,
+                887,
+                776
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1 illustrates how LLMs pre-trained on the masked language modelling task can be adapted to measure this. We first mask the target word in the sentence, and then compute the probability that the word masks correspond to the target word. A sentence that exemplifies the meaning of a word will receive a high probability score. We use this probability score as a proxy measure for the degree of exemplification of the word meaning in a sentence, and select the sentence with the highest score to perform evaluation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                777,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>†</sup>https://chat.lmsys.org/"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                907,
+                289,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3541"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7fff02c8021247e2bafbe7dbcc06a3441e0f76231d39d00c0491e07d8a1b9465.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: Measuring sentence exemplification with masked language models. First, we search for the word within the sentence and replace them with masked tokens. We then use the masked language model to measure the probability of reconstructing the same sentence in order to get the exemplification score."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                114,
+                83,
+                882,
+                253
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/0a0c9de6bcb26967e825c3d03b64cbed51608415f0681e0c53d03f9d0d5b0dfa.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Exemplification scores for sample sentences taken from Oxford Dictionary and generated by Claude-v1 for ’dull’ (adj. (of pain) indistinctly felt; not acute). We use exemplification scores to provide a measurement of how much each sentence exemplifies the meaning of the word. Higher scores indicate better exemplification of meaning."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Source</td><td>Sentence</td><td>Exemplification Ścore</td></tr><tr><td>Oxford</td><td>There was a dull pain in his lower jaw.</td><td>0.031</td></tr><tr><td>Oxford</td><td>All through her tantrum she felt the pain inside of her, but with after a half an hour her pain subsided into a dull ache.</td><td>0.969</td></tr><tr><td>Oxford</td><td>My finger is recovering well, I&#x27;m in no pain from that quarter, although I have a dull ache in my leg where I was shot full of medication.</td><td>0.527</td></tr><tr><td>Claude</td><td>While the headache had been throbbing and sharp earlier, now it was just a dull ache that</td><td>0.973</td></tr><tr><td>Claude</td><td>was easy to ignore. I felt a dull ache in my leg from overexerting myself during the hike.</td><td>0.257</td></tr><tr><td>Claude</td><td>After taking some pain medication, the ache in my back changed from a sharp pain to a dull one.</td><td>0.890</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                122,
+                323,
+                873,
+                499
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                585,
+                487,
+                618
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For example, for the word ’poor’ (adj. of a low or inferior standard or quality), sentences in the Oxford Dictionary dataset range in exemplification from ’Information dissemination and knowledge of law are poor at this level.’ (p=0.015) to ’A local police official blamed shoddy construction and the poor quality of the cement.’ (p=0.942). In the former sentence, we can see that the word ’poor could easily be replaced by many other words, even with antonyms such as ’excellent’. We suggest that such sentences are too general in nature and may not be as effective for language learners."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                624,
+                489,
+                819
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 3 illustrates the exemplification score of various sentences using the word ’dull’ (adj. (of pain) indistinctly felt; not acute). The sentence ’There was a dull pain in his lower jaw.’ is rated as having a low exemplification score, because we can easily replace ’dull’ with antonyms (’There was a sharp pain in his lower jaw.’) or unrelated words (’There was a constant pain in his lower jaw.\"). In contrast, the sentence \"While the headache had been throbbing and sharp earlier, now it was just a dull ache that was easy to ignore.’ has a higher exemplification score because it contains elements that hint towards the meaning of ’dull’, such as its contrast to ’throbbing and sharp’ and being ’easy to ignore’."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                826,
+                489,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                585,
+                885,
+                731
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Model Development"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                743,
+                719,
+                760
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 Development Environment"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                771,
+                768,
+                788
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We perform our experiments on Amazon Sagemaker. For sentence generation and evaluation, AWS Bedrock APIs are used to access Claude-V1, Claude-Instant-V1 (Anthropic, 2023b), Claude-V2 (Anthropic, 2023a), Llama-2 13B Chat and Llama-2 70B Chat (Touvron et al., 2023) models, and Amazon Sagemaker was used to deploy Llama-2-7B Chat and Mistral-7B-Instruct v0.1 (Jiang et al., 2023). The following pre-trained language models were used and run using the Hugging-Face transformers library: BERT-base, BERT-large, RoBERTa-base, and RoBERTa-large (Kenton and Toutanova, 2019; Liu et al., 2019). Experiments were run for a single replication for each model configuration."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                793,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3542"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/7b15635ab8d63c6a256a324a53e16e416a89183057a3e7a8329f27650203c03f.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: Hyperparameter search space. Bolded text indicates hyperparameters used in the FM-MLM model."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Hyperparameter</td><td>Values</td></tr><tr><td>Sentence Generation LLM</td><td>Claude-Instant- V1, Llama-2-Chat (7B, 13B, 70B),</td></tr><tr><td>Batching Method</td><td>Mistral-7B Instruct One at a time, All-at-</td></tr><tr><td>Number of Sentences Inputs</td><td>once 1-5 (5) POS+Def, POS Only,</td></tr><tr><td></td><td>Definition Only</td></tr><tr><td>Sentence Selection Selection Criteria</td><td>MLM-Score, First</td></tr><tr><td>MLM Model</td><td>Sentence RoBERTa-Base, RoBERTa-Large, BERT-Base, BERT-</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                80,
+                473,
+                423
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                488,
+                490,
+                601
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 Model Configurations and Hyperparameters"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                612,
+                368,
+                644
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 4 shows the search space and final settings for FM-MLM’s configurations and hyperparameters. We call Claude-instant-v1 with temperature of 0.9 to generate sentences one at a time to accumulate 5 sentences for each word sense, with a buffer for up to 10 retries in the event of failures. Top P was set to 1.0 and Top K was set to 500. The sentences are scored with a RoBERTa-large model, with the highest scoring sentence selected for evaluation against the example sentence in the Oxford Dictionary dataset. These hyperparameters were tuned manually to maximise the win-rate on the validation set, with one exception: while we could have further increased the number of sentences generated for each word sense to give more options to select from, we limited the number to 5 to manage computational costs."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                649,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "With these hyperparameters, the estimated cost of generating and evaluating sentences is US$45 for the validation set of 7,931 sentences. This is broken down into $21.4 for the use of Claude-instant v1 to generate 5 example sentences, $0.55 to generate exemplification scores with RoBERTa-large over 45 minutes on g4dn.xlarge EC2 instances, and $23.04 to evaluate the outputs with Claude v1."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                215
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 Ablation Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                227,
+                731,
+                243
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To validate the model configuration and hyperparameters, ablation experiments were conducted where we start with our model and then ablate or vary individual components one at a time, keeping all others constant, and then examine the differences in performance on the validation set."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                249,
+                887,
+                347
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For our ablation experiments, we focus on the primary metric (the overall win-rate of the generated sentence for each word sense against the first Oxford Dictionary example sentence in the validation set), and supplement with additional analysis where relevant to understand potential explanations for the trends observed."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                348,
+                887,
+                461
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3.1 Choice of LLM for sentence generation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                473,
+                878,
+                489
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/fea892ff05ecc7628a7dbb1f7f9c216d2bab860a926b5a423677d5b8732160e7.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 5: Performance when the LLM used for sentence generation is varied on the validation set."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Win-rate (%)</td></tr><tr><td>FM-MLM (Claude-Instant)</td><td>85.6</td></tr><tr><td>Llama-2-70B Chat</td><td>82.7</td></tr><tr><td>Llama-2-13B Chat</td><td>79.8</td></tr><tr><td>Llama-2-7B Chat</td><td>78.6</td></tr><tr><td>Mistral-7B Chat</td><td>72.2</td></tr><tr><td>No LLM (Oxford Sentences)</td><td>55.9</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                510,
+                505,
+                880,
+                621
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 5 shows how the win-rate varies when various open-source and closed-source LLMs are used for sentence generation. We see that the winrate is highly sensitive to the choice of LLM for sentence generation, with win-rates ranging from 72.2% (Mistral-7B-chat) to 85.6% (Claude-instantv1) depending on the LLM used."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                680,
+                887,
+                793
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Also, we report the win-rate when the LLM generation step is ablated, and sentences are selected based on the MLM exemplification metric on the full list of example sentences in the Oxford Dictionary dataset. In this setting, the win-rate is 55.9%, demonstrating the ability of the MLM exemplification metric to pick higher quality sentences among Oxford Dictionary examples."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                794,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3543"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3.2 Batched Generation vs Repeated Single Sentence Generation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                484,
+                117
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/0098c3b47899dfb8b1cc5715cc074b67e64f94d24f3042385c9680ccb681ec11.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 6: Performance when the batching strategy for sentence generation is varied on the validation set."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Win-rate (%)</td></tr><tr><td>FM-MLM (One-by-one)</td><td>85.6</td></tr><tr><td>Batched Generation (5 at once)</td><td>78.5</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                128,
+                480,
+                180
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One interesting finding observed was that FM-MLM was most effective when the LLMs were prompted to generate only a single sentence at a time (with the process repeated multiple times to get the final set of sentences to select from). As we can see in Table 6, changing the prompt to perform batched generations (“Generate 5 sentences. . . ” instead of “Generate a sentence”) resulted in the winrate dropping from 85.6% to 78.5%."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                240,
+                489,
+                385
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We hypothesize that this could be because the LLM might be primed to consider factors beyond simply maximising the quality of each individual sentence, such as ensuring diversity in the outputs. Two observations support this point: (1) taking the first sentence generated by the single sentence generation approach (win-rate = 84.4%) outperformed taking the first sentence generated by the batched generation approach (win-rate = 81.3%); (2) the win-rate for sentences decline as we go from the 1st sentence (81.3%) to the 5th sentence (Win-rate for 1st sentence = 81.3%; 2nd = 77.5%; 3rd = 76.4%; 4th = 74.8%; 5th = 75.6%). Using the MLM scores to select sentences (78.5%) also gives a lower score than simply picking the 1st sentence in this case, possibly because the MLM scores only measure exemplification and not other aspects of sentence quality."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                386,
+                490,
+                677
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3.3 Inclusion / Exclusion of Definition and POS"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                686,
+                475,
+                717
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/5a86b5f6c5bfc24067c502c1141718391b13d2cc4d0c64fe7cf5f87f38d8d16d.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Performance when the inputs for sentence generation are varied on the validation set."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Win-rate (%)</td></tr><tr><td>FM-MLM (Definition + POS)</td><td>85.6</td></tr><tr><td>Ablate POS (Definition only)</td><td>82.7</td></tr><tr><td>Ablate Definition (POS only)</td><td>55.6</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                730,
+                484,
+                799
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 7 shows how the win-rate varies when the definition and POS of the word were removed from the generation prompt. We observe a marginal drop in win-rate when POS is removed, and a very substantial drop in win-rate when word definitions are removed."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                858,
+                489,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                884,
+                116
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "There are two possible hypotheses for this. (1) the LLMs rely heavily on the given definition in the prompt to generate effective sentences, rather than latent knowledge of word definitions from pretraining. (2) for polysemous words, there is confusion over which definition to generate the sentence for. Further analysis suggests that hypothesis (1) might play a heavier role. When we compute the win-rate for words with a single sense (n = 5635; win-rate = 60.4%), it is slightly higher than polysemous words (n = 2296; win-rate = 43.3%), but not to the extent that it can explain the huge drop in win-rate."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                118,
+                885,
+                312
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3.4 Choice of MLM model to score sentences"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                324,
+                815,
+                356
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/c4230744460f80922b0cab1ad492756d41db3c07eb78ec2ae85584ada41f5df2.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Performance when the sentence selection strategy is varied on the validation set."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Win-rate (%)</td></tr><tr><td>FM-MLM (RoBERTa-Large)</td><td>85.6</td></tr><tr><td>RoBERTa-Base</td><td>85.4</td></tr><tr><td>BERT-Large</td><td>85.5</td></tr><tr><td>BERT-Base</td><td>85.2</td></tr><tr><td>Ablate Selection</td><td>84.4</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                510,
+                370,
+                880,
+                472
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 8 shows the results when the MLM model used to measure exemplification in generated sentences is varied. The general trend observed is that bigger and more advanced models achieve better performance, but the effect is only marginal."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                532,
+                885,
+                614
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also considered the possibility that MLM models might be more effective in measuring exemplification for words that are represented as a single token, as past work has suggested that it is more challenging to model words that are fragmented into multiple tokens (Lewis et al., 2020). When the validation set is split into single-token words (n=4090) and multi-token words (n=3641), we conversely observe a lower win rate for singletoken words (84.0%) as compared to multi-token words (87.3%). However, we hesitate to draw a general conclusion that the MLM model is more effective in scoring multi-token words, as there could be confounding factors such as LLMs being less reliable for multi-token words which are typically of higher difficulty in nature."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                615,
+                887,
+                873
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When no MLM model is used to score sentences (and the first sentence is picked), the win-rate drops from 85.6% to 84.4%."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                875,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3544"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3.5 Choice of LLM evaluator model"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                426,
+                99
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/6bbbef0ae7015a34680414202682e90d97f196be8072beb6da0ce748bcfc2486.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 9: Performance when switching the LLM evaluator between the top two evaluators aligned with human preference. The evaluated model is FM-MLM (Claude-Instant) over the baseline Oxford dictionary sentences."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Win-rate (%)</td></tr><tr><td>Claude-V1 as Evaluator</td><td>85.6</td></tr><tr><td>Llama2-70B Chat as Evaluator</td><td>86.9</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                114,
+                484,
+                165
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 9 shows how the win-rate over the baseline Oxford sentences changes when we switch the evaluator model from Claude-V1 to Llama-2-70B Chat. These two evaluator models were found to have the two highest alignment to human preference as shown in Table 2. Our findings show that the win-rates we observe for FM-MLM are robust across LLM evaluators. Our findings are also in alignment with Zheng et al. (2023) who found that LLMs demonstrate no preference for LLMs of the same family, and are only biased if the same LLM is used to evaluate outputs generated by itself."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                253,
+                489,
+                447
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Main Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                460,
+                265,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 10 shows the results of our models on the test set. We present the following models. Model (1) is the full FM-MLM model, Model (2) uses only the 1st sentence generated by the LLM, to evaluate the independent performance of LLMs and the additional contribution of the MLM exemplification scores. Model (3) uses the MLM exemplification scores to select amongst example sentences in the Oxford Dictionary dataset. Models (4) and (5) are the CDEG-Beam and CDEG-Greedy models, evaluated using the outputs provided by He and Yiu (2022)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                487,
+                489,
+                680
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Sentences generated by the FM-MLM model achieve a win-rate of 85.1% when compared to example sentences in the Oxford Dictionary dataset, demonstrating the ability of FM-MLM to generate sentences that compete favorably against expert references. Without the use of MLM exemplification scores to select sentences, the win-rate drops slightly to 83.9%. Using MLM exemplification scores to select amongst samples in the Oxford Dictionary dataset gives a win-rate of 56.7%. These results demonstrate that the MLM exemplification scores can be used to identify sentences of higher quality from a set. CDEG-Beam and CDEG-Greedy sentences achieve a win-rate of 39.8% and 39.1% respectively. This is aligned with results reported in (Harvill et al., 2023), where S2S (Harvill et al., 2023) and ExMaker (Barba et al., 2021) were found to have slightly lower human-annotated scores, in terms of semantic match and fluency, when compared against gold samples in the Oxford Dictionary and SemCor dataset. We note that the win rate for Claude Instant (batched generation) over baseline Oxford sentences based on 447 agreed human annotations was 76.5%, which is similar to the win-rate of 78.5% evaluated by the chosen LLM evaluator shown in Table 6."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                681,
+                492,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                887,
+                262
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By examining the secondary metrics, we see that sentences generated by FM-MLM has an average (SD) of 16.9 (4.0) words per sentence and an average (SD) FKGL of 8.9 (3.2). These are lower than the sentences in the Oxford Dictionary dataset, which has an average (SD) of 18.7 (7.4) words and an average (SD) FKGL of 9.1 (3.9), indicating that the Oxford Dictionary dataset has a more diverse range of sentences that are also typically more advanced in nature. Sentences generated by CDEG models tend to be shorter, simpler and more diverse in nature, with an average (SD) of 11.2 (1.3) words and average (SD) FKGL of 5.3 (2.9) for CDEG-Beam."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                262,
+                887,
+                488
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also obverse that the MLM selection step tends to favor slightly longer sentences, with the average words and FKGL levels increasing slightly for FM-MLM as compared to FM Only, and Oxford (+MLM Selection) compared to Oxford (1st Sentence)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                489,
+                887,
+                587
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                602,
+                643,
+                618
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Rapid advancements in LLM research has led to the creation of powerful, general-purpose models that can be flexibly adapted for myriad tasks without the need for expensive customisation efforts. While previous works years before this paper had to rely on compute-intensive model training steps and scarce datasets of word-sense annotations, we are now able to study dictionary example sentence generation at a fraction of the cost."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                631,
+                885,
+                776
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we demonstrated the FM-MLM model, which uses foundational LLMs to generate dictionary example sentences, and then uses a novel adaptation of pretrained masked language models to provide a measure of how much they exemplify the meaning of words. With automatic evaluation methods of the overall sentence quality that are validated with human preference data (in the form of the OxfordEval metric), we are able to easily perform extensive ablation studies on how various modelling choices and hyperparameters affect the effectiveness of the model, which we note was difficult for past studies. Sentences generated by the FM-MLM model achieve a winrate of 85.1% when evaluated competitively against typical sentences in the Oxford Dictionary dataset."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                777,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3545"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/e6e8db9e2637b07ee00a8411d3a00e6d9fbbba6758b5a18556fd0b724643bc36.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 10: Main results on the test set for various approaches to dictionary example sentence generation. Models are sorted by the OxfordEval win-rate (bold indicates the highest win-rate). The average and standard deviation of the number of words and Flesch-Kincaid Grade-Levels provide indications of the length and readability of sentences."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Win-Rate (%)</td><td>Words (Avg)</td><td>Words (SD)</td><td>FKGL (Avg)</td><td>FKGL (SD)</td></tr><tr><td>[1] FM-MLM</td><td>85.1</td><td>16.9</td><td>4.0</td><td>8.9</td><td>3.2</td></tr><tr><td>[2] FM Only</td><td>83.9</td><td>16.5</td><td>3.9</td><td>8.8</td><td>3.2</td></tr><tr><td>[3] Oxford (+MLM Selection)</td><td>56.7</td><td>19.9</td><td>7.1</td><td>9.5</td><td>3.8</td></tr><tr><td>(Baseline) Oxford (1st Sentence)</td><td>(50.0)</td><td>18.7</td><td>7.4</td><td>9.1</td><td>3.9</td></tr><tr><td>[4] CDEG-Beam (He and Yiu, 2022)</td><td>39.8</td><td>11.2</td><td>1.3</td><td>5.3</td><td>2.9</td></tr><tr><td>[5] CDEG-Greedy (He and Yiu, 2022)</td><td>39.3</td><td>11.7</td><td>1.1</td><td>5.7</td><td>2.9</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                129,
+                82,
+                868,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                284,
+                490,
+                397
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The high win-rate indicates the potential of adapting the FM-MLM model in practice to generate example sentences for actual use by language learners. However, for safety reasons, we recommend that any real-world application should be carefully supervised and governed to manage risks and limitations which we discuss in the limitations section."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                398,
+                489,
+                525
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We identify many potential areas for impactful future work. To improve sentence quality further, researchers can consider methods to customise and tune the foundational models for this specialised task. To work towards real-world use, we can also perform more rigourous and holistic evaluations on generated sentences for accuracy, fluency, and other factors of interest. Evaluation can also be conducted on sets of multiple sentences, rather than single sentences as we have done in this study, in order to better capture factors such as sentence diversity that would apply for a real dictionary. Lastly, the work can also be extended for other languages. We hope that our work enables these studies by providing a refreshed low-cost baseline reference for good quality sentence generation and evaluation that future researchers can build on."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                526,
+                490,
+                802
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                814,
+                221,
+                831
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While FM-MLM achieves an impressive winrate over real sentences in the Oxford Dictionary dataset, we caution against applying FM-MLM in real-world settings without further study and risk mitigation measures. Notably, the pairwise evaluation method we use only provides a relative measure of quality, and there is a risk of endorsing erroneous sentences when both candidate sentences are of poor quality. The accuracy of evaluation is also dependent on the capabilities of LLMs, and while we demonstrate agreement of LLM evaluators with human preferences at a level comparable to Dubois et al. (2023), the agreement rate is still lower than the agreement among human annotators. Possible ways to manage risks would include having experts to vet generate sentences before real-world use."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                841,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                284,
+                887,
+                461
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also note that dictionary example sentences could have purposes beyond supporting language learners, such as documenting the etymology of words and language use over time as is the case for the Oxford English Dictionary<sup>‡</sup>. Our work focuses only on human preferences of language learners, and does not aim to exhaustively address all the possible purposes of dictionary example sentences."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                462,
+                887,
+                590
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We acknowledge the potential for biases of using LLMs as evaluators. We mitigate this potential limitation by studying the alignment with human preference, and also with ablating the choice of LLM evaluator models for our specific task. We also acknowledge the potential for test set sentence leakage in the training corpora used to train the generator LLMs. This limitation is mitigated by our evaluation strategy of comparing win-rate over test set Oxford sentences, which mean that generator LLMs would still have to generate sentences preferred to potentially leaked test set sentences."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                592,
+                887,
+                785
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lastly, we acknowledge that the human preferences dataset, which was annotated by ourselves, would only represent the preferences of our narrow demographic group and could also contain unseen biases. The representativeness of the dataset can be further improved using a more diverse pool of annotators in future."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                787,
+                887,
+                900
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>‡</sup>https://www.oed.com/"
+                    }
+                ]
+            },
+            "bbox": [
+                536,
+                907,
+                684,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3546"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Ethics Statement"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                267,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "No conflicts of interest are declared by the authors. The dataset does not contain any personally identifiable data."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                110,
+                490,
+                158
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgements"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                170,
+                287,
+                185
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We would like to thank reviewers and metareviewers for their helpful comments. We would also like to thank Evelyn Ng, Sheldon Liu, Eric Ho, Annalyn Ng and Guang Yang for support that made this paper possible."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                195,
+                489,
+                277
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                303,
+                215,
+                318
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Anthropic. 2023a. Claude 2. https://www. anthropic.com/news/claude-2. Accessed: 2024- 02-01."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Anthropic. 2023b. Introducing claude. https://www. anthropic.com/news/introducing-claude. Accessed: 2024-02-01."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Edoardo Barba, Luigi Procopio, Caterina Lacerra, Tommaso Pasini, Roberto Navigli, et al. 2021. Exemplification modeling: Can you give me an example, please? In IJCAI, pages 3779–3785."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rishi Bommasani, Drew A Hudson, Ehsan Adeli, Russ Altman, Simran Arora, Sydney von Arx, Michael S Bernstein, Jeannette Bohg, Antoine Bosselut, Emma Brunskill, et al. 2021. On the opportunities and risks of foundation models. arXiv preprint arXiv:2108.07258."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ciprian Chelba, Tomas Mikolov, Mike Schuster, Qi Ge, Thorsten Brants, Phillipp Koehn, and Tony Robinson. 2013. One billion word benchmark for measuring progress in statistical language modeling. arXiv preprint arXiv:1312.3005."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yann Dubois, Xuechen Li, Rohan Taori, Tianyi Zhang, Ishaan Gulrajani, Jimmy Ba, Carlos Guestrin, Percy Liang, and Tatsunori B Hashimoto. 2023. Alpacafarm: A simulation framework for methods that learn from human feedback. arXiv preprint arXiv:2305.14387."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ana Frankenberg-Garcia. 2014. The use of corpus examples for language comprehension and production. ReCALL, 26(2):128–146."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ana Frankenberg-Garcia, Geraint Paul Rees, and Robert Lew. 2021. Slipping through the cracks in elexicography. International Journal of Lexicography, 34(2):206–234."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Artyom Gadetsky, Ilya Yakubovskiy, and Dmitry Vetrov. 2018. Conditional generators of words definitions. In Proceedings of the 56th Annual Meeting of the Associationfor Computational Linguistics (Volume 2: Short Papers), pages 266–271."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Patrick Hanks. 2009. The impact of corpora on dictionaries. Contemporary corpus linguistics, pages 214–236."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "John Harvill, Mark Hasegawa-Johnson, Hee Suk Yoon, Chang D Yoo, and Eunseop Yoon. 2023. One-shot exemplification modeling via latent sense representations. In Proceedings ofthe 8th Workshop on Representation Learningfor NLP (RepL4NLP 2023), pages 303–314."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xingwei He and Siu Ming Yiu. 2022. Controllable dictionary example generation: Generating example sentences for specific targeted audiences. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 610–627."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Albert Q Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford, Devendra Singh Chaplot, Diego de las Casas, Florian Bressand, Gianna Lengyel, Guillaume Lample, Lucile Saulnier, et al. 2023. Mistral 7b. arXiv preprint arXiv:2310.06825."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jacob Devlin Ming-Wei Chang Kenton and Lee Kristina Toutanova. 2019. Bert: Pre-training of deep bidirectional transformers for language understanding. In Proceedings ofNAACL-HLT, pages 4171–4186."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Adam Kilgarriff, Milos Husák, Katy McAdam, Michael Rundell, and Pavel Rychly. 2008. Gdex: Automati-` cally finding good dictionary examples in a corpus. In Proceedings ofthe XIII EURALEX international congress, volume 1, pages 425–432. Universitat Pompeu Fabra Barcelona."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "J Peter Kincaid, Robert P Fishburne Jr, Richard L Rogers, and Brad S Chissom. 1975. Derivation of new readability formulas (automated readability index, fog count and flesch reading ease formula) for navy enlisted personnel."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Patrick Lewis, Myle Ott, Jingfei Du, and Veselin Stoyanov. 2020. Pretrained language models for biomedical and clinical tasks: understanding and extending the state-of-the-art. In Proceedings ofthe 3rd Clinical Natural Language Processing Workshop, pages 146–157."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Percy Liang, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihiro Yasunaga, Yian Zhang, Deepak Narayanan, Yuhuai Wu, Ananya Kumar, et al. 2022. Holistic evaluation of language models. arXiv preprint arXiv:2211.09110."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Swaroop Mishra, Daniel Khashabi, Chitta Baral, and Hannaneh Hajishirzi. 2022. Cross-task generalization via natural language crowdsourcing instructions. In 60th Annual Meeting of the Association for Computational Linguistics, ACL 2022, pages 3470–3487. Association for Computational Linguistics (ACL)."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                325,
+                489,
+                365
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3547"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/c4ae17990f18d4b7e42dabac3e6935a34ea7c6fea18090afff3ed7e917fdd464.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td>Hilary Nesi. 1996. The role of illustrative examples in productive dictionary use. Dictionaries: Journal of the Dictionary Society of North America, 17(1):198– 206.</td><td>A Prompt for Evaluating Sentences</td></tr><tr><td>Gustavo Paetzold and Lucia Specia. 2016. Semeval 2016 task 11: Complex word identification. In Pro- ceedings of the 10th International Workshop on Se- mantic Evaluation (SemEval-2016), pages 560–569.</td><td>Select the output (a) or (b) that best matches the given instruction. Choose your preferred output, which can be subjective. Your answer should ONLY</td></tr><tr><td>Guilherme Penedo, Quentin Malartic, Daniel Hesslow, Ruxandra Cojocaru, Alessandro Cappelli, Hamza Alobeidli, Baptiste Pannier, Ebtesam Almazrouei, and Julien Launay. 2023. The refinedweb dataset for falcon llm: outperforming curated corpora with</td><td>contain: Output (a) or Output (b). Here&#x27;s an example: Example Task: Instruction: Give a description of the</td></tr><tr><td>web data, and web data only. arXiv preprint arXiv:2306.01116. Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, Ilya Sutskever, et al. 2019. Language models are unsupervised multitask learners. OpenAI</td><td>following job: &quot;ophthalmologist&quot; Output (a): An ophthalmologist is a medical doctor who specializes in the</td></tr><tr><td>blog, 1(8):9. Bianca Scarlini, Tommaso Pasini, Roberto Navigli, et al, 2020. With more contexts comes better performance: Contextualized sense embeddings for all-round word sense disambiguation. In Proceedings of the 2020 Conference on Empirical Methods in Natural Lan-</td><td>diagnosis and treatment of eye diseases and conditions. Output (b): An ophthalmologist is a medical doctor who pokes and prods at</td></tr><tr><td>guage Processing (EMNLP), pages 3528–3539. The Association for Computational Linguistics. Angus Stevenson. 2010. Oxford dictionary of English. Oxford University Press, USA. Hugo Touvron, Louis Martin, Kevin Stone, Peter Al- bert, Amjad Almahairi, Yasmine Babaei, Nikolay</td><td>your eyes while asking you to read letters from a chart. Which is best, Output (a) or Output</td></tr><tr><td>Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, et al. 2023. Llama 2: Open founda- tion and fine-tuned chat models. arXiv preprint arXiv:2307.09288.</td><td>(b)? Answer: Output (a) Explanation: Here the answer is Output</td></tr><tr><td></td><td>(a) because it provides a comprehensive and accurate description of the job of an</td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td>ophthalmologist. In contrast, output (b) is</td></tr><tr><td></td><td></td></tr><tr><td>Yizhong Wang, Swaroop Mishra, Pegah Alipoormo-</td><td></td></tr><tr><td></td><td>more of a joke,</td></tr><tr><td>labashi, Yeganeh Kordi, Amirreza Mirzaei, Atharva</td><td></td></tr><tr><td>Naik, Arjun Ashok, Arut Selvan Dhanasekaran, An- jana Arunkumar, David Stap, et al. 2022. Super- naturalinstructions: Generalization via declarative instructions on 1600+ nlp tasks. In Proceedings of the 2022 Conference on Empirical Methods in Natu-</td><td>Now is the real task, do not explain</td></tr><tr><td></td><td>your answer, just say Output (a) or Output</td></tr><tr><td>ral Language Processing, pages 5085–5109.</td><td>(b).</td></tr><tr><td></td><td></td></tr><tr><td></td><td>Actual Task:</td></tr><tr><td></td><td></td></tr><tr><td>Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan</td><td></td></tr><tr><td>Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin,</td><td>Instruction: Construct a sentence with the word {word}.</td></tr><tr><td>Zhuohan Li, Dacheng Li, Eric Xing, et al. 2023 Judging llm-as-a-judge with mt-bench and chatbot arena. arXiv preprint arXiv:2306.05685.</td><td>The sentence must illustrate the definition</td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr><tr><td></td><td>of the word given here: {definition }.</td></tr><tr><td></td><td></td></tr><tr><td>1st Sentence} Output (b): {Candidate Sentence}</td><td>The part-of-speech of the word within the context of the sentence should be a POS. Output (a): {Oxford Dictionary</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                109,
+                85,
+                840,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3548"
+                    }
+                ]
+            },
+            "bbox": [
+                478,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B Prompt for Generating Sentences<sup>¶</sup>"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                82,
+                447,
+                102
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/74aae21fc41a7693b47b3bb8901558dbe3c55d6c5a4fde116d7be35e26ea9e6e.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td>Using the definition and part-of-speech provided in tags, construct one sentence that illustrates the definition of the given word within the sentence provided. Go straight to the answer with no introduction. Here are examples:</td></tr><tr><td>Using the definition and part-of-speech provided in tags, construct one sentence that illustrates the definition of the word &quot;airstrip&quot; within the sentence provided. Go straight to the answer with no intro- duction. &lt;definition&gt; a strip of ground set aside for the take-off and landing of aircraft. &lt;/definition&gt; &lt;part-of-speech&gt; Noun &lt;/part-of-speech&gt; Assistant:</td></tr><tr><td>&lt;sentence&gt;The site has its own airstrip and light aircraft service, and its own small marina. &lt;/sentence&gt; { examples } Human: Using the definition and part-of-speech provided in tags, construct one sentence</td></tr><tr><td>that illustrates the definition of the word &quot;{word}&quot; within the sentence provided. Go straight to the answer with no intro- duction. &lt;definition&gt; { definition } &lt;/definition&gt; &lt;part-of-speech&gt; part-of-speech &lt;/part-of-speech&gt;</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                107,
+                445,
+                775
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>¶</sup>The prompt highlights the main content and structure of the prompt without the LLM-specific chat template format. LLM-specific chat template is followed during generation with LLMs."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                871,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3549"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ]
+]

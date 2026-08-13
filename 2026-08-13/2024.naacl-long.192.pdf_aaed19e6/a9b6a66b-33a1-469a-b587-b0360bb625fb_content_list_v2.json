@@ -1,0 +1,4312 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Subspace Representations for Soft Set Operations and Sentence Similarities"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                114,
+                89,
+                882,
+                111
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Yoichi Ishibashi<sup>1,2</sup>∗ Sho Yokoi<sup>3,4</sup> Katsuhito Sudoh<sup>1</sup> Satoshi Nakamura<sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                133,
+                862,
+                151
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup> Nara Institute of Science and Technology <sup>2</sup> Kyoto University"
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                151,
+                776,
+                167
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup> Tohoku University <sup>4</sup> RIKEN"
+                    }
+                ]
+            },
+            "bbox": [
+                376,
+                167,
+                667,
+                184
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "{ishibashi.yoichi.ir3, sudoh, s-nakamura}@is.naist.jp yokoi@tohoku.ac.jp"
+                    }
+                ]
+            },
+            "bbox": [
+                231,
+                184,
+                773,
+                217
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                260,
+                260,
+                342,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the field of natural language processing (NLP), continuous vector representations are crucial for capturing the semantic meanings of individual words. Yet, when it comes to the representations of sets of words, the conventional vector-based approaches often struggle with expressiveness and lack the essential set operations such as union, intersection, and complement. Inspired by quantum logic, we realize the representation of word sets and corresponding set operations within pre-trained word embedding spaces. By grounding our approach in the linear subspaces, we enable efficient computation of various set operations and facilitate the soft computation of membership functions within continuous spaces. Moreover, we allow for the computation of the F-score directly within word vectors, thereby establishing a direct link to the assessment of sentence similarity. In experiments with widely-used pre-trained embeddings and benchmarks, we show that our subspace-based set operations consistently outperform vector-based ones in both sentence similarity and set retrieval tasks. 1"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                290,
+                462,
+                643
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                659,
+                260,
+                675
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Embedding-based word representations have become fundamental in the field of natural language processing (NLP). Models like word2vec (Mikolov et al., 2013) and GloVe (Pennington et al., 2014), along with recent Transformer-based architectures (Vaswani et al., 2017; Devlin et al., 2019), have underscored the significance of embeddings in capturing the complexities of linguistic semantics."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                686,
+                490,
+                829
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The importance of representing collections of words is pivotal in understanding concepts and relationships within language contexts (Zaheer et al., 2017; Zhelezniak et al., 2019). For instance, while words like “apple” and “orange” each carry their distinct meanings, together they represent the broader concept of fruits. Another example of important application is a sentence representation (Zaheer et al., 2017). The set of words in a sentence captures the overall meaning, allowing for computations such as text similarity (Agirre et al., 2012)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                831,
+                489,
+                864
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/867375111e02169819ab002a21f41f3883e98b06ad5b974df1c0615d7ddbe197.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                554,
+                260,
+                712,
+                323
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/2a24cb7e358b5d191ba754fed79cbff286b5956517109c91aa8a203197d11730.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                714,
+                260,
+                863,
+                324
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6aef39a15a211aa943b9d590d073e8fc01e518892bcdeb9d9691a480de919d2c.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                515,
+                328,
+                697,
+                431
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/2cb4370b7dc21828434b9f5839ee911afa3d128e8f357e5293199474812a561a.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: Superiority of subspace representations: Our subspace representation (blue) surpasses the traditional vector set representation (gray) in both text similarity and text concept set retrieval tasks."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                714,
+                329,
+                889,
+                431
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                531,
+                887,
+                676
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Against this backdrop, our research recognizes the significance of applying set operations in NLP and explores a new approach. Set operations enable a richer representation of relationships between collections of words, leading to more accurate semantic analysis based on context. For example, employing set operations allows for a clearer understanding of shared semantic features and differences among word groups within a text. This directly benefits tasks like determining semantic similarity and expanding word sets."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                678,
+                887,
+                857
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In response to these challenges, our study introduces a novel methodology that exploits the principles of quantum logic (Birkhoff and Von Neumann, 1936), applied within embedding spaces to define set operations. Our proposed framework adopts a subspace-based approach for representing word sets, aiming to maintain the intricate semantic relationships within these sets. We represent a word set as a subspace which is spanned by pretrained embeddings. Additionally, it adheres to the foundational laws of set theory as delineated in the framework of quantum logic. This compliance ensures that our set operations, such as union, intersection, and complement, are not only mathematically robust but also linguistically meaningful when applied them in pre-trained embedding space."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                858,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "∗Work done while at Nara Institute of Science and Technology."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                870,
+                489,
+                896
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>Our code is publicly available at https://github.com/ yoichi1484/subspace"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                896,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 3512–3524 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                945,
+                857,
+                986
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3512"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                84,
+                492,
+                278
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We first introduce a subspace set representation along with basic operations ( , , and ). Subsequently, to highlight the usefulness of our proposed framework, we introduce two core set computations: text similarity and set membership. The empirical results consistently point towards the notable superiority of our approach; our straightforward approach of spanning subspaces with pretrained embedding sets enables a rich set representation, and we demonstrated its consistent performance enhancement in downstream tasks (Figure 1). Our research contributions include:"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                278,
+                492,
+                472
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. The introduction of continuous set representations and a framework for set operations, enabling more effective manipulation of word embedding sets (§4)."
+                    }
+                ]
+            },
+            "bbox": [
+                127,
+                480,
+                490,
+                545
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. We propose SubspaceBERTScore, an extension of the embedding set-based text similarity method, BERTScore (Zhang et al., 2020). By simply transitioning from a vector set representation to a subspace, and incorporating a subspace-based indicator function, we observe a salient improvement in performance across all text similarity benchmarks (§5)."
+                    }
+                ]
+            },
+            "bbox": [
+                126,
+                554,
+                490,
+                684
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. We apply subspace-based basic operations ( , , and ) to set expansion task and achive high performance (§6)."
+                    }
+                ]
+            },
+            "bbox": [
+                126,
+                693,
+                489,
+                741
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Preliminaries"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                751,
+                268,
+                768
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To make the following discussion clear, we define several symbols. The sets of tokens in two sentences (A and B) are denoted as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\ ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ a _ { 1 } , a _ { 2 } , \\ldots \\} , B = \\{ b _ { 1 } , b _ { 2 } , \\ldots \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively. The sets of contextualized token vectors are denoted as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { A } = \\{ \\pmb { a } _ { 1 } , \\pmb { a } _ { 2 } , \\ldots \\} , \\mathbf { B } = \\{ \\pmb { b } _ { 1 } , \\pmb { b } _ { 2 } , \\ldots \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where a and b are token vectors generated by the pretrained embedding model such as BERT. The subspace spanned by A is denoted as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A } ~ ="
+                    },
+                    {
+                        "type": "text",
+                        "content": "span "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\pmb { a } _ { 1 } , \\pmb { a } _ { 2 } , \\dots )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Note that the bases of the subspace is orthonormalized."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                777,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                885,
+                117
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Symbolic Set Operations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                507,
+                128,
+                759,
+                146
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We first formulate various set operations in a pretrained embedding space. Among many types of operations for practical NLP applications, this work focuses on set similarity:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                153,
+                887,
+                218
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array} { r l } & { A = \\{ A , b o y , w a l k s , i n , t h i s , p a r k \\} , } \\\\ & { B = \\{ T h e , k i d , r u n s , i n , t h e , s q u a r e \\} , } \\\\ & { \\mathrm { S i m i l a r i t y } ( A , B ) , } \\end{array}\\tag{1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/88dc5ca9907d96f8cbdbb7538331646ca576bd9b739b7f14b1b37f156b1dc84f.jpg"
+                }
+            },
+            "bbox": [
+                536,
+                229,
+                835,
+                286
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "set membership ( ) and basic operations ( , ):"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                297,
+                872,
+                315
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array} { r l } & { C o l o r = \\{ r e d , b l u e , g r e e n , o r a n g e , \\ldots \\} , } \\\\ & { F r u i t = \\{ a p p l e , o r a n g e , p e a c h , \\ldots \\} , } \\\\ & { o r a n g e \\in C o l o r \\cap F r u i t . } \\end{array}\\tag{2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e8de439bb98550846b5dd6a76fa9e6a9a2f7df5bf594c187ed1d56fcf6897837.jpg"
+                }
+            },
+            "bbox": [
+                529,
+                324,
+                842,
+                381
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For this purpose, we need following representations on a pre-trained embedding space<sup>2</sup>:"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                393,
+                887,
+                425
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An element and a set of elements The representations of an element and a set of elements are the most basic ones. To exploit word embeddings, we represent a word (e.g., orange) as an element and a group of words (e.g., red, blue, green, orange, . . . ) as a word set."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                434,
+                887,
+                532
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Quantification of set membership (indicator function) Membership denotes a relation in which word w is an element of set A, i.e., w A. We quantify it based on vector representations. Although the membership is typically a binary decision identical to that in a symbolic space, it can also be measured by the degree of closeness in a continuous vector space. Membership can be computed as an indicator function. The indicator function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { s e t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "quantifies whether the word w is included (1) or not (0) in the set in a discrete manner:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                539,
+                887,
+                718
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { 1 } _ { \\mathrm { s e t } } [ w \\in A ] = { \\left\\{ \\begin{array} { l l } { 1 } & { { \\mathrm { i f ~ } } w \\in A , } \\\\ { 0 } & { { \\mathrm { i f ~ } } w \\notin A . } \\end{array} \\right. }\\tag{3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/19e6376cc95d57592c565915bc4056eeccb5c9c9ea50ef3ab083537ca65f46dc.jpg"
+                }
+            },
+            "bbox": [
+                576,
+                727,
+                816,
+                769
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Similarity between discrete symbol sets Set similarity, such as recall and precision, is an essential operation when calculating the similarity of texts. Despite its simplicity, the word overlapbased sentence similarity serves as a remarkably effective approximation and has found widespread practical application, as evidenced by numerous studies(Bojar et al., 2018; Zhang et al., 2020; Cer et al., 2017; Zhelezniak et al., 2019). They stand out as excellent similarity metrics based on embeddings. BERTScore (Zhang et al., 2020), which utilizes embeddings for its computation, is grounded in recall and precision <sup>3</sup>. The typical computations for recall (R) and precision (P) are as follows<sup>4</sup>:"
+                    }
+                ]
+            },
+            "bbox": [
+                505,
+                778,
+                887,
+                877
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>These operations do not include some set operations such as cardinality, but are sufficient for expressing the practical forms of sets such as Eq. (1)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                884,
+                884,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3513"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                489,
+                215
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "R = \\frac { 1 } { | A | } \\sum _ { a _ { i } \\in A } \\mathbb { 1 } _ { \\mathrm { s e t } } [ a _ { i } \\in B ] ,\\tag{4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e9706733eaa685a117c1e5f4b9f21b095076f800f937b340525349d97ab472cd.jpg"
+                }
+            },
+            "bbox": [
+                194,
+                225,
+                406,
+                263
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P = \\frac { 1 } { | B | } \\sum _ { b _ { i } \\in B } \\mathbb { 1 } _ { \\mathrm { s e t } } [ b _ { i } \\in A ] ,\\tag{5}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c5ab18e03017f877ccecdef95ea8a631f5f71ab16b6b907a407e2a819d4b59d7.jpg"
+                }
+            },
+            "bbox": [
+                194,
+                267,
+                403,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Basic set operations We need three basic set operations: intersection "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( A \\ \\cap \\ B )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", union "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( A \\cup B )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and complement "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\overline { { A } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". They allow us to represent various sets using such different combinations as Color Fruit."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                317,
+                489,
+                401
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Subspace-based Set Representations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                414,
+                463,
+                432
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We propose the representations of a word set and set operations based on quantum logic (Birkhoff and Von Neumann, 1936). They hold advantages of geometric properties in an embedding space, and the set operations are guaranteed to hold for the laws of a set defined in quantum logic."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                442,
+                489,
+                541
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Quantum logic"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                551,
+                280,
+                568
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While word embedding represents a word’s meaning as a vector in linear space, quantum mechanics similarly represents a quantum state as a vector in linear space. These two intuitively different fields are very close to each other in terms of the representation and the operation of information."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                574,
+                489,
+                670
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Quantum logic (Birkhoff and Von Neumann, 1936) theory describes quantum mechanical phenomena. Intuitively, it is a framework for set operations in a vector space. In quantum logic, a set of vectors is represented as a linear subspace in a Hilbert space, and such set operations as union, intersection, and complement are defined as operations on subspaces. Quantum logic, which employs a complete orthomodular lattice as its system of truth values, guarantees to hold various set operations, such as De Morgan’s laws "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\overline { { ( A \\cap B ) } } } = { \\overline { { A } } } \\cup { \\overline { { B } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\overline { { ( A \\cup B ) } } } = { \\overline { { A } } } \\cap { \\overline { { B } } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", idempotent law: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\cap A = A ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and double complement: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\overline { { \\overline { { A } } } } } = A"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                671,
+                490,
+                850
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 1 Computing basis of a subspace Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ \\pmb { v } ^ { ( 1 ) } , \\dots , \\pmb { v } ^ { ( k ) } \\} \\subseteq \\mathbb { R } ^ { 1 \\times d } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Word embeddings to span subspace "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Output: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } } ^ { \\mathrm { ~ - ~ } } \\in \\mathbb { R } ^ { r \\times \\bar { d } } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\bar { \\mathbf { A } ^ { \\prime } } \\in \\mathbb { R } ^ { k \\times d }  \\operatorname { s T a C K \\_ R O W S } ( \\pmb { v } ^ { ( 1 ) } , \\dots , \\pmb { v } ^ { ( k ) } )"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } } \\in \\mathbb { R } ^ { r \\times d }  ( \\mathrm { O R T H O \\_ N O R M A L } ( \\mathbf { A } ^ { \\top } ) ) ^ { \\top } \\quad \\triangleright"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Orthonormalize the bases. r is the rank of A return "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } }"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                509,
+                82,
+                885,
+                219
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                509,
+                242,
+                885,
+                280
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Set Operations in an Embedding Space"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                290,
+                865,
+                306
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The representations of an element, a set, and such set operations as union, intersection, and complement in quantum logic can be applied directly in a word embedding space because it is a Euclidean space and therefore also a Hilbert space. However, since set similarity and set membership for a word embedding space are still missing in quantum logic, we propose a novel formulation of those operations using subspace-based representations, which is consistent with quantum logic. The correspondence between symbolic and subspace-based set operations is shown in Table 1."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                310,
+                887,
+                505
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Set and elements Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a n-dimensional embedding space (Euclidean space), let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\ ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ w _ { 1 } , w _ { 2 } , . . . \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a set of words, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { w } \\in \\mathbb { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a word (token) vector corresponding to w. As discussed in §3, we first formulate the representation of a word and a word set. In quantum logic, an element is represented by a vector, and a set is represented by a subspace spanned by the vectors corresponding to its elements. Here we assume an element, i.e., word "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is represented by vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { w } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a word set is represented by linear subspace "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A } \\subset \\mathbb { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "spanned by word vectors:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                511,
+                885,
+                707
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { S } _ { A } : = \\operatorname { s p a n } ( \\mathbf { A } ) : = \\operatorname { s p a n } ( \\pmb { a } _ { 1 } , \\pmb { a } _ { 2 } , . . . ) .\\tag{6}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/758641632aa61ef8f9d569c545e0e6d0ac4cf6d5ff8bf6942816b9fcb07ae07e.jpg"
+                }
+            },
+            "bbox": [
+                549,
+                718,
+                838,
+                734
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hereinafter we simply refer to linear subspace as subspace. Algorithm 1 is the pseudocode for computing the basis of the subspace."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                745,
+                885,
+                795
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Basic set operations The complement of set A, denoted by A, is represented by the orthogonal complement of subspace "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ":"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                802,
+                885,
+                851
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { S } _ { \\overline { { A } } } : = ( \\mathbb { S } _ { A } ) ^ { \\perp } = \\{ \\pmb { v } \\mid \\exists \\pmb { a } \\in \\mathbb { S } _ { A } , \\pmb { v } \\cdot \\pmb { a } = 0 \\} .\\tag{7}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d5727ea1a0ee3bd34f2ef603a1c2fad7073af642058e408c2d6a8c6f449ed399.jpg"
+                }
+            },
+            "bbox": [
+                522,
+                860,
+                843,
+                879
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The union of two sets, A and B, denoted by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\cup B ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is represented by the sum space of two"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                890,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>Unlike the symbolic set similarity, which do not consider word order, contextualized embeddings enable the capture of word sequence information."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                858,
+                489,
+                896
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>For simplicity in explanation, we present A and B in Eq. (4) and Eq. (5) as a set of tokens."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                896,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "3514"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/a6e103ea3a73fe8195e5d45ec49bdc487d5df321d03d20892cae2188f64e4c6d.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Correspondence between symbolic set representations and subspace-based set representations: We demonstrate that union, intersection, and complement, which are formulated in quantum logic, and our new formulations of set membership and word set similarity hold in pre-trained word embedding space."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td colspan=\"2\">Symbolic Set Representation</td><td colspan=\"2\">Subspace-based Set Representation</td></tr><tr><td>Element king</td><td><img src=\"images/9ef7f9fe17533de8ca6c897fe56fe92b9c74e5118363925732964474887fde53.jpg\"/></td><td>Vector  ${ \\pmb v } _ { k i n g }$ </td><td></td></tr><tr><td>Set  $M a l e = \\left\\{ k i n g , m a n , \\ldots \\right\\}$ </td><td></td><td>Subspace  $\\mathbb { S } _ { M a l e } = \\operatorname { s p a n } ( \\pmb { v } _ { k i n g } , \\pmb { v } _ { m a n } , \\dots )$ </td><td><img src=\"images/c3b192f2348bad271d6826034fe80399b3ba954b84400750f51710fb8d054d40.jpg\"/></td></tr><tr><td>Complement Male</td><td><img src=\"images/7b43b62e07853ef123ecde7207b4f46b816d70d088ec0ac63a5992dae65ada56.jpg\"/></td><td>Orthogonal complement  $( \\mathbb { S } _ { M a l e } ) ^ { \\perp }$ </td><td><img src=\"images/3d5601f7623aceff813035da47482c0a80d60e913f9d865e74453a9bb6ceae7b.jpg\"/></td></tr><tr><td>Union Male ∪ Female</td><td><img src=\"images/eb5e4a468c2cb34180bd7467ba37eac522eddb071d241609c67797e368efcfed.jpg\"/></td><td>Sum space  $\\mathbb { S } _ { M a l e } + \\mathbb { S } _ { F e m a l e }$ </td><td><img src=\"images/bd8981dd083205f7fbaad5d05a1c468c0f8fa4edfd44079e67fbc5639c1bb0d1.jpg\"/></td></tr><tr><td>Intersection Color ∩ Fruit</td><td><img src=\"images/6a5ba20460b15c8086b00216b0155a7020e98bb71d15f013992da5c32451109a.jpg\"/></td><td>Intersection  $\\mathbb { S } _ { C o l o r } \\cap \\mathbb { S } _ { F r u i t }$ </td><td><img src=\"images/42aefc6250fd7e480bdd1f7098c2b407958eb7861e52ef4ea9b239ca4cd67083.jpg\"/></td></tr><tr><td>Set membership  $\\mathbb { 1 } _ { \\mathrm { s e t } } [ b o y \\in M a l e ]$ </td><td><img src=\"images/89c13b7b561a845932f836dd95cccff7d456ee57fbe19ba85bcca05bddd14346.jpg\"/></td><td>Subspace indicator function  $\\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\pmb { v } _ { b o y } , \\mathbb { S } _ { M a l e } )$ </td><td><img src=\"images/9d6d899eb02977579432ed79a2becc07c08460c9912d9ac1166d1de2a1f8f012.jpg\"/></td></tr><tr><td>Set similarity</td><td></td><td>SubspaceBERTScore</td><td></td></tr><tr><td>Recall</td><td>0</td><td> $R _ { \\mathrm { s u b s p a c e } }$ </td><td> $\\frac { 6 4 } { 1 0 }$ </td></tr><tr><td>Precision</td><td></td><td> $P _ { \\mathrm { s u b s p a c e } }$ </td><td> $\\frac { 1 4 } { 4 }$ </td></tr><tr><td>F-score</td><td> $2 \\frac { \\frac { \\textcircled { \\times } } { \\textcircled { \\times } } \\times \\frac { \\textcircled { \\times } } { \\textcircled { \\times } } } { \\frac { \\textcircled { \\times } } { \\textcircled { \\times } } + \\frac { \\textcircled { \\times } } { \\textcircled { \\times } } }$ </td><td> $F _ { \\mathrm { s u b s p a c e } }$  2-</td><td> $\\frac { a } { \\textcircled { 1 } } \\times \\frac { a } { \\textcircled { 1 } }$   $\\frac { a } { \\textcircled { 1 } } + \\frac { a } { \\textcircled { 1 } }$ </td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                146,
+                82,
+                852,
+                605
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "subspaces, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { B } \\colon"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                684,
+                289,
+                700
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { S } _ { A \\cup B } : = \\mathbb { S } _ { A } + \\mathbb { S } _ { B } = \\{ \\pmb { a } + \\pmb { b } | \\pmb { a } \\in \\mathbb { S } _ { A } , \\pmb { b } \\in \\mathbb { S } _ { B } \\} . ( 8 )",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/311455c50f9bb6941279ad4aedb73b4c81b21d11adf611f5319e91adfb98c8f6.jpg"
+                }
+            },
+            "bbox": [
+                122,
+                708,
+                489,
+                726
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The intersection of two sets, A and B, denoted by A B, is represented by the intersection of two subspaces, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ":"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                734,
+                489,
+                783
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { S } _ { A \\cap B } : = \\mathbb { S } _ { A } \\cap \\mathbb { S } _ { B } = \\{ \\pmb { v } \\mid \\pmb { v } \\in \\mathbb { S } _ { A } , \\pmb { v } \\in \\mathbb { S } _ { B } \\} .\\tag{9}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/87e1afc75b2c74b83df2c1988325ac0f19390cc7bdeb64c3e0a93ce5867f1469.jpg"
+                }
+            },
+            "bbox": [
+                121,
+                791,
+                453,
+                809
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The basis of the intersection can be computed based on singular value decomposition (SVD). The bases are the vectors shared by the two subspaces."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                818,
+                489,
+                868
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hard membership The set membership in the embedding space (e.g., boy "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\in M a l e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be represented by the inclusion of a vector into a subspace"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                873,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(e.g., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { b o y } \\in \\mathbb { S } _ { M a l e } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and given by the following indicator function:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                684,
+                884,
+                715
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { 1 } _ { \\mathrm { h a r d } } ( \\pmb { v } , \\mathbb { S } _ { \\cal A } ) : = \\left\\{ \\begin{array} { l l } { 1 } & { ( \\pmb { v } \\in \\mathbb { S } _ { \\cal A } ) , } \\\\ { 0 } & { ( \\pmb { v } \\notin \\mathbb { S } _ { \\cal A } ) . } \\end{array} \\right.\\tag{10}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d34bbe1aaee4af5dbf9401ed486a9d80fedba8004efa31911365c8207c655d25.jpg"
+                }
+            },
+            "bbox": [
+                546,
+                724,
+                796,
+                766
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "However, this binary decision fails to exploit the geometric properties of the word embedding space regarding semantic similarity. Suppose we quantify the degree of membership of word boy for word set Male consisting of many masculine nouns other than boy. Even if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { b o y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is located very close to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { M a l e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "due to its semantic similarity to masculine nouns, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { h a r d } } ( \\pmb { v } _ { b o y } , \\mathbb { S } _ { M a l e } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must return 0 because "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { b o y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must not be located exactly on subspace "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { M a l e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defined by Male. It must return 1 based on the masculine property of word boy. Such hard membership defined by Eq. (10) is incompatible with an embedding space."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                777,
+                885,
+                923
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3515"
+                    }
+                ]
+            },
+            "bbox": [
+                478,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                84,
+                489,
+                151
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Soft membership: Subspace indicator function Instead, we define another membership function called subspace indicator function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { s u b s p a c e } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that returns continuous values from 0 to 1 depending on the following minimum angle between vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { w }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and subspace "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(the first canonical angle):"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                159,
+                489,
+                256
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\pmb { v } , \\mathbb { S } _ { A } ) : = \\operatorname* { m a x } \\bigg \\{ \\frac { | \\pmb { a } \\cdot \\pmb { v } | } { \\| \\pmb { a } \\| \\| \\pmb { v } \\| } \\bigg | \\pmb { a } \\in \\mathbb { S } _ { A } \\bigg \\} .\\tag{11}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1eb36aaf48f27a8015db7a265973a92f180de5b6dc15c0f74c57cf0998f3157c.jpg"
+                }
+            },
+            "bbox": [
+                124,
+                267,
+                473,
+                303
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This captures the degree of membership between a word and a word set, represented by the angle between a word vector and a subspace. It is a natural extension of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { h a r d } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., 1<sub>subspace</sub> returns 1 when "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { w } \\in \\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and 0 when "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { w } \\in \\mathbb { S } _ { \\overline { { A } } }"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                330,
+                489,
+                412
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The key distinction of our subspace indicator function approach lies in its ability to leverage the comprehensive information encapsulated within pre-trained word embedding space. The subspace indicator function does not simply find the nearest individual word from the set. Instead, we consider the closeness of the query word to the entire set as a whole, by projecting the query word into the subspace spanned by the pre-trained embeddings (as illustrated in the figure of the subspace indicator function function in Table 1). This way, we account not just for the individual word similarities, but also for the overall semantic coherence of the word set. The detailed process for computing this subspace indicator function can be found in Algorithm 2."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                412,
+                489,
+                670
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Set Similarity"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                681,
+                268,
+                697
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitation of symbolic set similarities Suppose we quantify the set similarity between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A = \\{ A"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", boy, walks, in, this, park and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B = \\{ T h e , k i d , r u n s , i n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the, square , which represent semantically similar sentences. The challenge with traditional symbolic set similarities, such as recall, is that they primarily rely on the exact overlap of words between the sets. These semantically similar sentences share only one word in between A and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B \\colon | A \\cap B | = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". To address this shortcoming, it is essential to compute vector-based set similarity, such as BERTScore."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                702,
+                490,
+                881
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Three types of similarity in BERTScore BERTScore is a method that uses embeddings to approximately calculate "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R , P ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the F-score:"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                890,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                865,
+                101
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "R _ { \\mathrm { B E R T } } = \\frac { 1 } { | A | } \\sum _ { \\pmb { a } _ { i } \\in \\mathbf { A } } \\mathbb { 1 } _ { \\mathrm { v e c t o r s } } ( \\pmb { a } _ { i } , \\mathbf { B } ) ,\\tag{12}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/088d54e8086069d20263e42482885170dcdb8ff15bf8bf53ce17c60bac7a001f.jpg"
+                }
+            },
+            "bbox": [
+                547,
+                109,
+                818,
+                147
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P _ { \\mathrm { B E R T } } = \\frac { 1 } { | B | } \\sum _ { b _ { i } \\in \\mathbf { B } } \\mathbb { 1 } _ { \\mathrm { v e c t o r s } } ( b _ { i } , \\mathbf { A } ) ,\\tag{13}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/8f89835bce8ced14f11500109d8bea6ca8e98fd7daf51d3390ea29b1dfbce43d.jpg"
+                }
+            },
+            "bbox": [
+                549,
+                149,
+                816,
+                187
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "F _ { \\mathrm { B E R T } } = 2 \\frac { P _ { \\mathrm { B E R T } } \\cdot R _ { \\mathrm { B E R T } } } { P _ { \\mathrm { B E R T } } + R _ { \\mathrm { B E R T } } } ,\\tag{14}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2be7e00056c8d7867b9b5ffb0d3a7512b45aafe227aecae9203d9e063d25290e.jpg"
+                }
+            },
+            "bbox": [
+                549,
+                190,
+                779,
+                224
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where a sentence is represented as a set of token vectors A and B. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { v e c t o r s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the indicator function for vector sets. Intuitively, this indicator function represents the calculation of selecting one token from the sentence and serves as a flexible extension of the binary indicator function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { s e t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". It returns a continuous similarity score between 1 and 1 for a token, depending on its similarity with the tokens in the sentence. Specifically, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { v e c t o r s } } ( \\mathbf { \\boldsymbol { a } } _ { i } , \\mathbf { \\boldsymbol { B } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "quantifies to what extent the i-th token vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { a } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in sentence A is semantically included in sentence B by taking the maximum cosine similarity between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { a } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the token vectors in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B { : }"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                230,
+                885,
+                439
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbb { 1 } _ { \\mathrm { v e c t o r s } } ( \\pmb { a } _ { i } , \\mathbf { B } ) = \\operatorname* { m a x } _ { { b _ { j } \\in \\mathbf { B } } } \\cos ( \\pmb { a } _ { i } , { b } _ { j } ) \\in [ - 1 , 1 ] ,\\tag{15}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b9eed7e9e53c0a14b39cf114463356bc83fc59762dbe81f9e10b4c6e1220adf0.jpg"
+                }
+            },
+            "bbox": [
+                526,
+                450,
+                865,
+                475
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where cos "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( a _ { i } , b _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the cosine similarity between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\alpha } _ { \\mathbf { \\alpha } } \\mathbf { a } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                502,
+                884,
+                536
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations of BERTScore’s Indicator Function The indicator function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { v e c t o r } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "lies at the heart of BERTScore, playing a crucial role in the computation of P<sub>BERT</sub>, R<sub>BERT</sub>, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { \\mathrm { B E R T } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, a critical limitation arises from BERTScore’s reliance on maximum cosine similarity for its indicator function, which severely hinders its ability to capture the rich and nuanced meanings conveyed by a sentence. Figure 2 starkly illustrates this limitation through the visualization of BERTScore’s "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { v e c t o r s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "calculation. Consider the sentence We are the king and queen, which evokes a broader, more abstract concept of royalty through the cooccurrence of king and queen. When seeking an alignment for royalty, BERTScore’s indicator function heavily favors the token with the highest cosine similarity — in this case, king. This approach leads to a severe alignment bias towards the meaning of a single word, while the complex and implicit meanings conveyed by the entire sentence are overlooked."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                543,
+                887,
+                882
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SubspaceBERTScore To overcome the limitations of BERTScore regarding the expressiveness of its indicator function, we propose Subspace-BERTScore. This method extends BERTScore by employing the concept of subspace-based sentence representation and indicator function."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                890,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "3516"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b83ff147cd3b54827f0ebd530bf573de78719717ab725ca6cb9b0ce010f327d8.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Comparison between the proposed SubspaceBERTScore and BERTScore. We visualize the alignment process between the word royalty and the words in the sentence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "SubspaceBERTScore represents B as the subspace "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and calculates the similarity (canonical angle) between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the royalty vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\pmb { a } _ { 4 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Our approach provides a “softer” alignment, capturing the overall semantic context of the sentence. On the other hand, BERTScore adopts a “harder” alignment strategy, selecting only the word from the sentence with the maximum cosine similarity."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                163,
+                82,
+                833,
+                192
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                299,
+                489,
+                365
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Extension of P, R, F with Subspaces Based on the above discussions, we propose Subspace-BERTScore, which calculates BERTScore’s R, P, F using the subspace representation of sentences and the subspace indicator function:"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                375,
+                490,
+                456
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "R _ { \\mathrm { s u b s p a c e } } = { \\frac { 1 } { | A | } } \\sum _ { \\mathbf { a } _ { i } \\in A } \\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\mathbf { a } _ { i } , \\mathbb { S } _ { B } ) ,\\tag{16}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6ebd1f7a0fd463f1c587af367031eac55b19eb876edebd3260973ba573a01108.jpg"
+                }
+            },
+            "bbox": [
+                134,
+                468,
+                438,
+                507
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P _ { \\mathrm { s u b s p a c e } } = \\frac { 1 } { | B | } \\sum _ { b _ { i } \\in B } \\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\boldsymbol { b } _ { i } , \\mathbb { S } _ { A } ) ,\\tag{17}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/22ddf9b8d2ff163c45b19e3fd56be43f1c0980f14b5dfdd900e0d9790ba0faa3.jpg"
+                }
+            },
+            "bbox": [
+                137,
+                510,
+                435,
+                546
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "F _ { \\mathrm { s u b s p a c e } } = 2 { \\frac { P _ { \\mathrm { s u b s p a c e } } \\cdot R _ { \\mathrm { s u b s p a c e } } } { P _ { \\mathrm { s u b s p a c e } } + R _ { \\mathrm { s u b s p a c e } } } } ,\\tag{18}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9ac08bdcdc5bb5146e2ac986b182d1c54d2840a2b16eadaa38db1c9ea74d9eae.jpg"
+                }
+            },
+            "bbox": [
+                136,
+                549,
+                413,
+                585
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { \\mathrm { s u b s p a c e } } , P _ { \\mathrm { s u b s p a c e } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { \\mathrm { s u b s p a c e } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the final evaluation measures of SubspaceBERTScore."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                596,
+                489,
+                629
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Weighting by Importance Previous study (Banerjee and Lavie, 2005; Vedantam et al., 2015) has shown that infrequently occurring words play a more important role in sentence similarity than general words. We apply importance weightings to our method as follows:"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                639,
+                489,
+                738
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "R _ { \\mathrm { s u b s p a c e } } = \\frac { \\sum _ { { \\pmb a } _ { i } \\in A } \\mathrm { w e i g h t } ( { \\pmb a } _ { i } ) \\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( { \\pmb a } _ { i } , \\mathbb { S } _ { B } ) } { \\sum _ { { \\pmb a } _ { i } \\in A } \\mathrm { w e i g h t } ( { \\pmb a } _ { i } ) } ,\\tag{19}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/4240deb2d17518d5458e2e95322e8eae7a2b8af4ac333a68c97740b0dc7b53a2.jpg"
+                }
+            },
+            "bbox": [
+                114,
+                747,
+                490,
+                788
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P _ { \\mathrm { s u b s p a c e } } = \\frac { \\sum _ { b _ { i } \\in \\cal B } \\mathrm { w e i g h t } ( b _ { i } ) \\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( b _ { i } , \\mathbb { S } _ { \\cal A } ) } { \\sum _ { b _ { i } \\in \\cal B } \\mathrm { w e i g h t } ( b _ { i } ) } ,\\tag{20}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cbd18f56804eff9f6ed0aaa6f4c4a2d88a6779e073d35e28545622009706cf4e.jpg"
+                }
+            },
+            "bbox": [
+                115,
+                803,
+                485,
+                845
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where weight( ) is a weighting function. We use the L2 norm of the vector (Yokoi et al., 2020; Oyama et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                873,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2 Subspace indicator function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\pmb { v } _ { w } , \\mathbb { S } _ { A } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } } \\in \\mathbb { R } ^ { k \\times d } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { w } \\in \\mathbb { R } ^ { 1 \\times d } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "A word vector Output: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma \\in \\mathbb { R } :"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Membership degree if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then return 0 else "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\widetilde { \\pmb { v } } _ { w }  \\frac { \\pmb { v } _ { w } } { \\vert \\vert \\pmb { v } _ { w } \\vert \\vert } \\in \\mathbb { R } ^ { 1 \\times d } } \\end{array}"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf U } ^ { \\top } \\in \\mathbb { R } ^ { k \\times k } , \\sigma \\in \\mathbb { R } , { \\bf V } \\in \\mathbb { R }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S V D } ( \\mathbf { S } _ { \\mathrm { A } } \\widetilde { \\pmb { v } } _ { w } ^ { \\top } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ereturn "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma \\in \\mathbb { R }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "▷ The output of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\pmb { v } _ { w } , \\mathbb { S } _ { A } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is always nonnegative because it is a singular value end if"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                509,
+                297,
+                885,
+                551
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Semantic Textual Similarity Task"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                576,
+                831,
+                594
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we examine the effectiveness of SubspaceBERTScore through the semantic textual similarity task (STS; Agirre et al., 2012)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                604,
+                885,
+                653
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Task An STS task calculates the similarity between two sentences. For the STS evaluation protocol, we follow Gao et al. (2021). Its evaluation is based on the correlation between the similarity calculated by the model and corresponding human judgments. We used datasets from the SemEval shared task 2012-2016 (Agirre et al., 2012, 2013, 2014, 2015, 2016), STS benchmark (STS-B; Cer et al., 2017), and SICK-Relatedness (SICK-R; Marelli et al., 2014). We used Spearman’s "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho ."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                662,
+                887,
+                825
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Embeddings We used 768-dimensional "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { B E R T _ { b a s e } } ^ { 5 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(Devlin et al., 2019), which was pre-trained with BookCorpus and Wikipedia. We used hidden states in the last layer."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                832,
+                885,
+                898
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>5</sup>https://huggingface.co/bert-base-uncased"
+                    }
+                ]
+            },
+            "bbox": [
+                529,
+                907,
+                848,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3517"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/e4aa9ef854f636fbbfdc005a760eff4d6b8c8b79c58369c7e8157287ec7de257.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: A comprehensive comparison of similarity metrics in the STS task. The scores are Spearman’s ρ. The methods with the highest values, using the same pre-trained embeddings, are highlighted in ⋆. Scores that showed improvement from BERTScore are denoted in bold."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Method</td><td>Metric</td><td>Weighting</td><td>STS12</td><td>STS13</td><td>STS14</td><td>STS15</td><td>STS16</td><td>STS-B</td><td>SICK-R</td><td>Avg.</td></tr><tr><td>CLS-cos</td><td></td><td></td><td>.215</td><td>.321</td><td>.213</td><td>.379</td><td>.442</td><td>.203</td><td>.424</td><td>.314</td></tr><tr><td>Avg-cos</td><td></td><td></td><td>.309</td><td>.599★</td><td>.477</td><td>.603</td><td>.637</td><td>.473</td><td>.582★</td><td>.526</td></tr><tr><td>WMD</td><td></td><td></td><td>.238</td><td>.443</td><td>.389</td><td>.531</td><td>.532</td><td>.384</td><td>.509</td><td>.432</td></tr><tr><td>WRD</td><td></td><td></td><td>.241</td><td>.502</td><td>.410</td><td>.573</td><td>.573</td><td>.421</td><td>.527</td><td>.464</td></tr><tr><td>DynaMax</td><td></td><td></td><td>.322</td><td>.518</td><td>.432</td><td>.616</td><td>.639</td><td>.452</td><td>.560</td><td>.506</td></tr><tr><td rowspan=\"3\">BERTScore</td><td>F</td><td></td><td>.312</td><td>.546</td><td>.450</td><td>.602</td><td>.636</td><td>.446</td><td>.553</td><td>.506</td></tr><tr><td>P</td><td></td><td>.261</td><td>.532</td><td>.462</td><td>.576</td><td>.622</td><td>.443</td><td>.559</td><td>.494</td></tr><tr><td>R</td><td></td><td>.350</td><td>.527</td><td>.416</td><td>.602</td><td>.623</td><td>.430</td><td>.522</td><td>.496</td></tr><tr><td rowspan=\"3\">SubspaceBERTScore</td><td>F</td><td></td><td>.335</td><td>.573</td><td>.476</td><td>.610</td><td>.650</td><td>.479</td><td>.562</td><td>.526</td></tr><tr><td>P</td><td></td><td>.282</td><td>.550</td><td>.488</td><td>.580</td><td>.630</td><td>.475</td><td>.568</td><td>.511</td></tr><tr><td>R</td><td></td><td>.369★</td><td>.552</td><td>.436</td><td>.611</td><td>.639</td><td>.462</td><td>.530</td><td>.514</td></tr><tr><td rowspan=\"3\">BERTScore</td><td>F</td><td>L2</td><td>.321</td><td>.540</td><td>.452</td><td>.613</td><td>.640</td><td>.454</td><td>.558</td><td>.511</td></tr><tr><td>P</td><td>L2</td><td>.274</td><td>.529</td><td>.468</td><td>.589</td><td>.627</td><td>.450</td><td>.565</td><td>.500</td></tr><tr><td>R</td><td>L2</td><td>.348</td><td>.520</td><td>.414</td><td>.610</td><td>.624</td><td>.437</td><td>.524</td><td>.497</td></tr><tr><td rowspan=\"3\">SubspaceBERTScore</td><td>F</td><td>L2</td><td>.342</td><td>.568</td><td>.477</td><td>.621</td><td>.653★</td><td>.486*</td><td>.568</td><td>.531*</td></tr><tr><td> $P$ </td><td>L2</td><td>.292</td><td>.547</td><td>.492*</td><td>.592</td><td>.634</td><td>.479</td><td>.574</td><td>.516</td></tr><tr><td>R</td><td>L2</td><td>.367</td><td>.544</td><td>.434</td><td>.620*</td><td>.640</td><td>.468</td><td>.532</td><td>.515</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                124,
+                82,
+                872,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Baselines We compared our method Subspace-BERTScore with other baseline similarity metrics. The baselines included Avg-cos (Arora et al., 2017), the cosine similarity between the averaged vectors, CLS-cos (Gao et al., 2021), the cosine similarity between the [CLS] representations of the pre-trained language model, DynaMax (Zhelezniak et al., 2019), a set similarity based on fuzzy sets, Word Mover’s Distance (WMD; Kusner et al., 2015), a metric based on optimal transport cost, and Word Rotator’s Distance (WMD; Yokoi et al., 2020), an optimal transport-based metric that improves WMD."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                436,
+                492,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Main results The results are shown in Table 2. In comparison to BERTScore, our method achieves superior correlation with human judgments across all three key metrics: F-score, precision, and recall. An important observation is that the performance consistently improves by subspace representation of the set. The results suggest that simply replacing the representation of embedding sets and the indicator function with subspace-based alternatives significantly enhances our ability to capture and express the depth of linguistic semantics."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                662,
+                490,
+                840
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also conduct an experiment using L2 norm as a weighting factor for the indicator function. This method has previously been proven effective in the STS task (Yokoi et al., 2020). We see that both our proposed method and BERTScore improve their performance underlining the effectiveness of this weighting approach in both cases. Notably, our proposed method continued to outperform BERTScore even when L2 norm was used for weighting."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                841,
+                489,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                436,
+                885,
+                500
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our similarity also outperforms the fuzzy-set based similarity of DynaMax. This result suggests that the proposed subspace-based approach represents a set and set operations better than the fuzzy set-based approach in embedding space."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                500,
+                887,
+                582
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Text Concept Set Retrieval Task"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                590,
+                821,
+                608
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we evaluate the capability of our proposed set operations ( , , and ) in effectively representing word sets."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                617,
+                885,
+                665
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Task We evaluate our set operations by the set expansion task introduced by Zaheer et al. (2017). In this task, the model is given a set of words that share a common concept or theme. The objective is to expand this set by retrieving relevant words from a vocabulary that fit the same concept. For instance, if the initial set includes words like “apple”, “banana”, and “peach”, the task would be to identify and add other fruit names (e.g., “orange”) to this set. For the evaluation, we follow Zaheer et al. (2017). We report recall (R@k) and Median, that indicate whether the words in the test set can be ranked higher."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                673,
+                887,
+                883
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Embeddings We used the most standard pretrained word embeddings in all of our experiments:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                890,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3518"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "300-dimensional "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { G l o V e } ^ { 6 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(Pennington et al., 2014), which was pre-trained with Common Crawl, and 300-dimensional word2vec<sup>7</sup> (Mikolov et al., 2013), which was pre-trained with Google News."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                83,
+                490,
+                149
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Set Expansion with Subspace Indicator Function To illustrate our subspace-based set expansion method (Subspace Set), we consider a set of fruit-related words. For example, let’s take "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\mathrm { f r u i t } } ~ = ~ \\{ a p p l e , b a n a n a , . . . \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This set is divided into two subsets: a ’span’ subset used for creating a subspace representation, and a ’test’ subset for evaluation. Let’s assume orange "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\notin \\ S _ { \\mathrm { f r u i t \\_ s p a n } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a target word for testing. (1) From the ’span’ subset, we generate a subspace: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { F r u i t } \\ = \\ \\mathrm { s p a n } ( S _ { \\mathrm { f r u i t \\_ s p a n } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "For instance, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\mathrm { f r u i t \\_ s p a n } } = \\{ a p p l e , b a n a n a , \\ldots \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { F r u i t } = \\mathrm { s p a n } ( \\pmb { v } _ { a p p l e } , \\pmb { v } _ { b a n a n a } , \\dots )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". (2) We define a subspace indicator function, which computes the degree to which a word vector belongs to the subspace. For a word w, the membership score is calculated as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { s c o r e } = \\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\pmb { v } _ { o r a n g e } , \\mathbb { S } _ { F r u i t } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This score reflects the extent to which w aligns with the semantic characteristics of the subspace. This method effectively expand the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\mathrm { f r u i t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by identifying words that share semantic properties with the subspace defined by the initial set."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                156,
+                490,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Baselines We compared several baselines, which don’t require training on word sets, to our method. Random just selects words randomly from the dataset’s vocabulary. A simple unsupervised baseline with word embeddings uses the nearest neighbors in the embedding space (Near)<sup>8</sup>. We also compare a method based on fuzzy sets (Fuzzy set; Zhelezniak et al., 2019) with our method. Similar to our method, their method is designed to exploit both the flexibility of word vectors and rich set operations. Fuzzy Set represents word set A by max-pooled word vectors "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { s } = \\operatorname* { m a x } _ { \\pmb { w } \\in A } \\pmb { v } _ { w }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". One major difference from our method is that Fuzzy set represents a set of word vectors by compressing them into a vector of fixed dimensions. Although the Text Concept Set Retrieval task requires computing the degree of a word’s membership for a word set, their method does not provide it. We instead used cosine similarity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\cos ( \\boldsymbol { v } _ { w } , \\boldsymbol { s } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "between word vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { w }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of word "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and s as the degree of membership to apply fuzzy sets to the task."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                520,
+                490,
+                827
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/6b45dee42fbfc53ab48badc531e72af3af62b3e962081dbc4cab096695b686d7.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Examples from original dataset (denoted as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { D } ^ { \\mathrm { S e t } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and additional "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { D } ^ { \\mathrm { U n i o n } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and D<sup>Intersect</sup> sets."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\">Dataset (# Set)</td><td colspan=\"5\">Example</td></tr><tr><td>Set</td><td></td><td>Words (set elements)</td><td></td><td></td></tr><tr><td> $\\mathbf { D } ^ { \\mathrm { S e t } } \\left( 1 0 0 \\right)$ </td><td> $S _ { 3 }$ </td><td>daily</td><td>news</td><td>paper</td><td></td></tr><tr><td rowspan=\"3\"> $\\mathbf { D } ^ { \\mathrm { U n i o n } } \\left( 1 0 0 \\right)$ </td><td> $S _ { 1 2 }$ </td><td>rider bike</td><td></td><td>bicycle</td><td></td></tr><tr><td> $S _ { 5 1 }$ </td><td></td><td>island fishing sea</td><td></td><td></td></tr><tr><td> $S _ { 1 2 } \\cup S _ { 5 1 }$ </td><td></td><td></td><td>races cycling islands</td><td></td></tr><tr><td rowspan=\"3\">DIntersect (100)</td><td> $S _ { 9 }$ </td><td>tour</td><td>open</td><td>golf</td><td></td></tr><tr><td> $S _ { 7 2 }$ </td><td></td><td></td><td>poker casino gambling . ..</td><td></td></tr><tr><td> $S _ { 9 } \\cap S _ { 7 2 }$ </td><td>money won</td><td></td><td>player</td><td></td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                522,
+                82,
+                870,
+                228
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/42f87cb1838e4d215fa21d6334e14085af1029cb012aa91730847527a7bfa2d3.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: Results of set retrieval task on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { D } ^ { \\mathrm { U n i o n } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(top half) and D<sup>Intersect</sup> (bottom half). The “Emb.” column indicates which pre-trained embedding is used. The “Set” column indicates whether each method is based on set computations: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { \\nu }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for incorporating set operations."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Method</td><td>Emb.</td><td></td><td>Set R@100</td><td>R@1k</td><td>Med.</td></tr><tr><td rowspan=\"5\"> $\\operatorname { R a n d } ^ { \\bigstar }$   $\\mathrm { N e a r } ^ { \\bigstar }$  Se D</td><td></td><td>x</td><td>0.6</td><td>5.9</td><td rowspan=\"2\">8520 641</td></tr><tr><td>word2vec</td><td>x</td><td>28.1</td><td>54.7</td></tr><tr><td>Fuzzy set Fuzzy set</td><td>word2vec</td><td>19.9</td><td>47.2 69.0</td><td>1240 320</td></tr><tr><td>GloVe Subspace set</td><td></td><td>30.9 29.7</td><td>58.9</td><td>478</td></tr><tr><td>word2vec Subspace set GloVe</td><td>V</td><td>35.7</td><td>72.7</td><td>246</td></tr><tr><td rowspan=\"6\">Don Fuzzy set Subspace set Rand</td><td>Rand Near</td><td></td><td>x</td><td>0.6</td><td>6.0 8422</td></tr><tr><td>word2vec Fuzzy set</td><td>x</td><td>17.5</td><td>34.3</td><td>3270</td></tr><tr><td>word2vec</td><td></td><td>2.8</td><td>17.1</td><td>4426</td></tr><tr><td>GloVe</td><td></td><td>5.4</td><td>32.0</td><td>2347</td></tr><tr><td>word2vec</td><td></td><td>18.4</td><td>46.9</td><td>1202</td></tr><tr><td>Subspace set GloVe</td><td>L</td><td>24.4</td><td>68.3</td><td>407</td></tr><tr><td rowspan=\"5\">Dntsect Near Fuzzy set Fuzzy set</td><td></td><td>x</td><td>0.2</td><td>6.6</td><td>7929</td></tr><tr><td>word2vec</td><td>x</td><td>23.5</td><td>40.8</td><td>3304</td></tr><tr><td>word2vec</td><td>V</td><td>4.7</td><td>20.9</td><td>3420</td></tr><tr><td>GloVe</td><td></td><td>32.5</td><td>75.0</td><td>255</td></tr><tr><td>Subspace set word2vec</td><td></td><td>25.7</td><td>45.7</td><td>1445</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Subspace set</td><td>GloVe</td><td>V</td><td>44.2</td><td>83.7</td><td>149</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                517,
+                284,
+                873,
+                551
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                662,
+                884,
+                695
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Dataset We used a previously created dataset (Zaheer et al., 2017), which was denoted by “LDA-1k, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { V o c a b } = 1 7 \\mathrm { k } . ^ { \\prime \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the paper. The dataset "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathbf { D } ^ { \\mathrm { S e t } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains 100 word sets, each of which consists of 50 words sampled from a common topic<sup>9</sup>. Five pre-determined words from each set were used as the word set S. An additional 800 word sets were used to train the models that require training on word sets. Table 3 shows an example of the data and the number of test sets."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                706,
+                887,
+                868
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To evaluate the union and intersection sets, we prepared additional data through the union and intersection operations on two randomly-selected word sets from the original word sets (D<sup>Set</sup>)<sup>10</sup>. The number of words in each set in D<sup>Union</sup> was limited to 50 to match the original dataset (D<sup>Set</sup>). The number of words in each set in D<sup>Intersect</sup> was set to a minimum of 10. Finally, 100 unions and intersections were randomly selected from these word sets with zero elements excluded. See Table 3 for examples and statistics of the datasets."
+                    }
+                ]
+            },
+            "bbox": [
+                526,
+                869,
+                885,
+                884
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>7</sup>https://code.google.com/archive/p/word2vec/"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                847,
+                473,
+                862
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>8</sup>While Zaheer et al. (2017) does not provide details about this method, we have inferred through our replication experiments that it uses a method based on the cosine similarity between the query word vector and other vectors to obtain the nearest neighbor."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                859,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>6</sup>https://nlp.stanford.edu/projects/glove/"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                834,
+                452,
+                848
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>9</sup>This work used Latent Dirichlet Allocation (LDA; Blei et al., 2003) as a topic model."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                895,
+                884,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3519"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                490,
+                247
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Results In experiments on union and intersection, we compared our method only with Fuzzy Set. The proposed method and Fuzzy Set can induce representations for the union and intersection using set operations defined in the word embedding space; the others cannot do so directly. Table 4 shows the experimental results. Here our subspace-based set operation method (Subspace set) is the best among the methods that did not require training. The results suggest that combining off-the-shelf pretrained embeddings with appropriate set-oriented operations makes linguistic computation on sets feasible without additional training. The results in D<sup>Union</sup> and D<sup>Intersect</sup> show that the our method outperform Fuzzy Set in most metrics. As methods for achieving set operations in vector spaces, the proposed method is empirically more promising than the existing fuzzy set-based method."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                255,
+                490,
+                546
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                557,
+                272,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Symbol-based similarities between word sets have been proposed, such as Jaccard coefficient (Jaccard, 1901; Manning and Schütze, 2001; Thada and Jaglan, 2013) and TF-IDF-based similarity (Jurafsky, 2000). Unfortunately, symbol-based methods cannot capture the semantic similarity of similar sets or words when the symbols are different."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                583,
+                490,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While many studies have explored representing word sets in pre-trained embedding spaces (Kusner et al., 2015; Yokoi et al., 2020), they primarily focus on set similarity. Our approach, however, extends beyond this by developing a comprehensive framework for various set operations within these spaces. Utilizing subspace properties, our method not only represents word sets but also performs a range of versatile operations, such as calculating textual similarities and membership degrees."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                697,
+                489,
+                858
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Many methods for learning the representation of sets have been proposed because of the wide range of possible applications (Zaheer et al., 2017; Pellegrini et al., 2021; Lee et al., 2019; Vilnis and Mc-Callum, 2015; Athiwaratkun and Wilson, 2017). In contrast, our approach does not require additional training. This enables us to compute set representations and operations using popular general-purpose language models, which are trained on the general domain (Brown et al., 2020)."
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                858,
+                489,
+                875
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                505,
+                85,
+                887,
+                230
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                507,
+                241,
+                643,
+                258
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This study introduces a novel framework for set representation and operations within pre-trained embedding spaces, employing linear subspaces grounded in quantum logic. This approach extends the scope of conventional embedding set operations by incorporating vector-based representations."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                267,
+                885,
+                366
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Ethical Considerations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                375,
+                714,
+                392
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We recognize the importance of addressing the inherent biases in pre-trained models, such as gender stereotypes. In our experiment, we used RoBERTa, which has gender biases (Sharma et al., 2021). We used this model in its original state to preserve the experimental conditions of BERTScore, acknowledging that such biases may influence our results. However, we would like to emphasize that the focus of our work, which lies in sentence similarity, does not inherently add to or magnify these ethical concerns."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                401,
+                887,
+                580
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                590,
+                616,
+                607
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our SubspaceBERTScore is built upon the foundation of BERTScore, which presents a limitation in that our results and findings are inherently dependent on the characteristics and performance of BERTScore. While we chose BERTScore due to its robustness and popularity in the field, potential biases or shortcomings intrinsic to BERTScore might be incorporated into our extension. Nevertheless, this constraint also suggests future research possibilities, such as applying our subspace-based approach to other base sentence similarity metrics, further expanding the versatility and applicability of our method."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                615,
+                887,
+                825
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The experiments we conducted were exclusive to BERT and RoBERTa. Testing our methodology with other pre-trained models, like GPT-3 (Brown et al., 2020), could broaden its applicability and establish its robustness across various pre-trained models."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                826,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>10</sup>Note that these were based on the dataset LDA-1k, which was automatically generated by Zaheer et al. (2017) using LDA, so the quality depends on their method."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                883,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3520"
+                    }
+                ]
+            },
+            "bbox": [
+                478,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We evaluated our methodology primarily using English datasets. This decision was made to streamline our initial explorations rather than due to an inherent language-specific bias in our approach. We expect that our subspace-based methodology will be effective across various languages."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                183
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                193,
+                277,
+                209
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This work was supported by JSPS KAKENHI Grant Number 22H03654, 22H03651, and JST, ACT-X Grant Number JPMJAX200S, Japan."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                218,
+                489,
+                267
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                293,
+                215,
+                309
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Eneko Agirre, Carmen Banea, Claire Cardie, Daniel M. Cer, Mona T. Diab, Aitor Gonzalez-Agirre, Weiwei Guo, Iñigo Lopez-Gazpio, Montse Maritxalar, Rada Mihalcea, German Rigau, Larraitz Uria, and Janyce Wiebe. 2015. SemEval-2015 Task 2: Semantic Textual Similarity, English, Spanish and Pilot on Interpretability. In Proceedings of the 9th International Workshop on Semantic Evaluation, SemEval@NAACL-HLT 2015, Denver, Colorado, USA, June 4-5, 2015, pages 252–263. The Association for Computer Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Eneko Agirre, Carmen Banea, Claire Cardie, Daniel M. Cer, Mona T. Diab, Aitor Gonzalez-Agirre, Weiwei Guo, Rada Mihalcea, German Rigau, and Janyce Wiebe. 2014. SemEval-2014 Task 10: Multilingual Semantic Textual Similarity. In Proceedings ofthe 8th International Workshop on Semantic Evaluation, SemEval@COLING 2014, Dublin, Ireland, August 23-24, 2014, pages 81–91. The Association for Computer Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Eneko Agirre, Carmen Banea, Daniel M. Cer, Mona T. Diab, Aitor Gonzalez-Agirre, Rada Mihalcea, German Rigau, and Janyce Wiebe. 2016. Semeval-2016 task 1: Semantic textual similarity, monolingual and cross-lingual evaluation. In Proceedings ofthe 10th International Workshop on Semantic Evaluation, SemEval@NAACL-HLT 2016, San Diego, CA, USA, June 16-17, 2016, pages 497–511. The Association for Computer Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Eneko Agirre, Daniel M. Cer, Mona T. Diab, and Aitor Gonzalez-Agirre. 2012. SemEval-2012 Task 6: A Pilot on Semantic Textual Similarity. In Proceedings ofthe 6th International Workshop on Semantic Evaluation, SemEval@NAACL-HLT 2012, Montréal, Canada, June 7-8, 2012, pages 385–393. The Association for Computer Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Eneko Agirre, Daniel M. Cer, Mona T. Diab, Aitor Gonzalez-Agirre, and Weiwei Guo. 2013. *SEM 2013 shared task: Semantic Textual Similarity. In Proceedings ofthe Second Joint Conference on Lexical and Computational Semantics, *SEM 2013, June 13-14, 2013, Atlanta, Georgia, USA, pages 32–43. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sanjeev Arora, Yingyu Liang, and Tengyu Ma. 2017. A Simple but Tough-to-Beat Baseline for Sentence Embeddings. In 5th International Conference on Learning Representations, ICLR 2017, Toulon, France, April 24-26, 2017, Conference Track Proceedings. OpenReview.net."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ben Athiwaratkun and Andrew Gordon Wilson. 2017. Multimodal Word Distributions. In Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics, ACL 2017, Vancouver, Canada, July 30 - August 4, Volume 1: Long Papers, pages 1645–1656."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Satanjeev Banerjee and Alon Lavie. 2005. METEOR: an automatic metric for MT evaluation with improved correlation with human judgments. In Proceedings of the Workshop on Intrinsic and Extrinsic Evaluation Measuresfor Machine Translation and/or Summarization@ACL 2005, Ann Arbor, Michigan, USA, June 29, 2005, pages 65–72. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Garrett Birkhoff and John Von Neumann. 1936. The logic of quantum mechanics. Annals of mathematics, pages 823–843."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "David M. Blei, Andrew Y. Ng, and Michael I. Jordan. 2003. Latent Dirichlet Allocation. J. Mach. Learn. Res., 3:993–1022."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ondv ej Bojar, Christian Federmann, Mark Fishel, Yvette Graham, Barry Haddow, Matthias Huck, Philipp Koehn, and Christof Monz. 2018. Findings of the 2018 conference on machine translation (WMT18). In Proceedings ofthe Third Conference on Machine Translation: Shared Task Papers, pages 272–303, Belgium, Brussels. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel M. Ziegler, Jeffrey Wu, Clemens Winter, Christopher Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020, December 6-12, 2020, virtual."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Daniel M. Cer, Mona T. Diab, Eneko Agirre, Iñigo Lopez-Gazpio, and Lucia Specia. 2017. SemEval-2017 Task 1: Semantic Textual Similarity Multilingual and Crosslingual Focused Evaluation. In Proceedings ofthe 11th International Workshop on Semantic Evaluation, SemEval@ACL 2017, Vancouver, Canada, August 3-4, 2017, pages 1–14. Association for Computational Linguistics."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                317,
+                489,
+                461
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3521"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                519,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. In Proceedings ofthe 2019 Conference ofthe North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, NAACL-HLT 2019, Minneapolis, MN, USA, June 2-7, 2019, Volume 1 (Long and Short Papers), pages 4171–4186. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tianyu Gao, Xingcheng Yao, and Danqi Chen. 2021. SimCSE: Simple Contrastive Learning of Sentence Embeddings. In Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing, EMNLP 2021, Virtual Event / Punta Cana, Dominican Republic, 7-11 November, 2021, pages 6894– 6910. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Paul Jaccard. 1901. Distribution de la flore alpine dans le bassin des dranses et dans quelques régions voisines. Bulletin de la Societe Vaudoise des Sciences Naturelles, 37:241–72."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Dan Jurafsky. 2000. Speech & language processing. Pearson Education India."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Matt J. Kusner, Yu Sun, Nicholas I. Kolkin, and Kilian Q. Weinberger. 2015. From Word Embeddings To Document Distances. In Proceedings ofthe 32nd International Conference on Machine Learning, ICML 2015, Lille, France, 6-11 July 2015, volume 37 of JMLR Workshop and Conference Proceedings, pages 957–966. JMLR.org."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Juho Lee, Yoonho Lee, Jungtaek Kim, Adam R. Kosiorek, Seungjin Choi, and Yee Whye Teh. 2019. Set Transformer: A Framework for Attention-based Permutation-Invariant Neural Networks. In Proceedings ofthe 36th International Conference on Machine Learning, ICML 2019, 9-15 June 2019, Long Beach, California, USA, volume 97 of Proceedings of Machine Learning Research, pages 3744–3753. PMLR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Qingsong Ma, Ondrej Bojar, and Yvette Graham. 2018. Results of the WMT18 metrics shared task: Both characters and embeddings achieve good performance. In Proceedings of the Third Conference on Machine Translation: Shared Task Papers, WMT 2018, Belgium, Brussels, October 31 - November 1, 2018, pages 671–688. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Christopher D. Manning and Hinrich Schütze. 2001. Foundations of statistical natural language processing. MIT Press."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Marco Marelli, Stefano Menini, Marco Baroni, Luisa Bentivogli, Raffaella Bernardi, and Roberto Zamparelli. 2014. A SICK cure for the evaluation of compositional distributional semantic models. In Proceedings of the Ninth International Conference on Language Resources and Evaluation, LREC 2014, Reykjavik, Iceland, May 26-31, 2014, pages 216–223. European Language Resources Association (ELRA)."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tomas Mikolov, Ilya Sutskever, Kai Chen, Gregory S. Corrado, and Jeffrey Dean. 2013. Distributed Representations of Words and Phrases and their Compositionality. In Advances in Neural Information Processing Systems 26: 27th Annual Conference on Neural Information Processing Systems 2013. Proceedings ofa meeting held December 5-8, 2013, Lake Tahoe, Nevada, United States., pages 3111–3119."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Momose Oyama, Sho Yokoi, and Hidetoshi Shimodaira. 2023. Norm of word embedding encodes information gain. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, EMNLP 2023, Singapore, December 6-10, 2023, pages 2108–2130. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Giovanni Pellegrini, Alessandro Tibo, Paolo Frasconi, Andrea Passerini, and Manfred Jaeger. 2021. Learning Aggregation Functions. In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI 2021, Virtual Event / Montreal, Canada, 19-27 August 2021, pages 2892–2898. ijcai.org."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jeffrey Pennington, Richard Socher, and Christopher D. Manning. 2014. Glove: Global Vectors for Word Representation. In Proceedings ofthe 2014 Conference on Empirical Methods in Natural Language Processing, EMNLP 2014, October 25-29, 2014, Doha, Qatar, A meeting of SIGDAT, a Special Interest Group ofthe ACL, pages 1532–1543."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shanya Sharma, Manan Dey, and Koustuv Sinha. 2021. Evaluating gender bias in natural language inference. CoRR, abs/2105.05541."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Vikas Thada and Vivek Jaglan. 2013. Comparison of jaccard, dice, cosine similarity coefficient to find best fitness value for web retrieved documents using genetic algorithm. International Journal of Innovations in Engineering and Technology, 2(4):202–205."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need. In Advances in Neural Information Processing Systems 30: Annual Conference on Neural Information Processing Systems 2017, December 4-9, 2017, Long Beach, CA, USA, pages 5998–6008."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ramakrishna Vedantam, C. Lawrence Zitnick, and Devi Parikh. 2015. Cider: Consensus-based image description evaluation. In IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2015, Boston, MA, USA, June 7-12, 2015, pages 4566–4575. IEEE Computer Society."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Luke Vilnis and Andrew McCallum. 2015. Word Representations via Gaussian Embedding. In 3rd International Conference on Learning Representations, ICLR 2015, San Diego, CA, USA, May 7-9, 2015, Conference Track Proceedings."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sho Yokoi, Ryo Takahashi, Reina Akama, Jun Suzuki, and Kentaro Inui. 2020. Word Rotator’s Distance. In"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                217
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3522"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing, EMNLP 2020, Online, November 16-20, 2020, pages 2944– 2960. Association for Computational Linguistics. Manzil Zaheer, Satwik Kottur, Siamak Ravanbakhsh, Barnabás Póczos, Ruslan Salakhutdinov, and Alexander J. Smola. 2017. Deep Sets. In Advances in Neural Information Processing Systems 30: Annual Conference on Neural Information Processing Systems 2017, December 4-9, 2017, Long Beach, CA, USA, pages 3391–3401. Tianyi Zhang, Varsha Kishore, Felix Wu, Kilian Q. Weinberger, and Yoav Artzi. 2020. BERTScore: Evaluating Text Generation with BERT. In 8th International Conference on Learning Representations, ICLR 2020, Addis Ababa, Ethiopia, April 26-30, 2020. OpenReview.net. Vitalii Zhelezniak, Aleksandar Savkov, April Shen, Francesco Moramarco, Jack Flann, and Nils Y. Hammerla. 2019. Don’t Settle for Average, Go for the Max: Fuzzy Sets and Max-Pooled Word Vectors. In 7th International Conference on Learning Representations, ICLR 2019, New Orleans, LA, USA, May 6-9, 2019. OpenReview.net."
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                114,
+                85,
+                490,
+                432
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Pseudocodes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                83,
+                660,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The pseudocodes for our SubspaceBERTScore and basic set operations are shown in Algorithms 3, 4, 5, and 6."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                111,
+                885,
+                160
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 3 Union Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } } \\in \\mathbb { R } ^ { k \\times d } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { B } } \\in \\mathbb { R } ^ { \\ell \\times d } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Output: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A U B } } \\in \\mathbb { R } ^ { r \\times d } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A } \\cup \\mathbb { S } _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "M "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\in \\mathbb { R } ^ { ( k + \\ell ) \\times d } \\gets \\mathrm { C O N C A T \\_ R O W S } ( \\mathbf { S } _ { \\mathrm { A } } , \\mathbf { S } _ { \\mathrm { B } } )"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A U B } } \\in \\mathbb { R } ^ { r \\times d }  \\mathrm { O R T H O \\_ N O R M A L } ( \\mathbf { M } ) \\triangleright r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is rank of M return "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A U B } }"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                509,
+                172,
+                882,
+                311
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 4 Intersection Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } } \\in \\mathbb { R } ^ { k \\times d } \\mathrm { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { B } } \\in \\mathbb { R } ^ { \\ell \\times d } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Bases of S "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\ell \\geq k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Input: α: Threshold below which the cosine of canonical angles is considered zero. Output: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } \\cap \\mathrm { B } } \\in \\mathbb { R } ^ { m \\times d } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A } \\cap \\mathbb { S } _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "M "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ u \\in \\mathbb { R } ^ { k \\times \\ell } \\gets \\mathbf { S } _ { \\mathrm { { A } } } \\mathbf { S } _ { \\mathrm { { B } } } ^ { \\top }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "U "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r l r } { \\in } & { { } \\mathbb { R } ^ { k \\times \\ell } , \\sum ^ { \\sim \\mathrm { ~ \\infty ~ } } \\in \\mathrm { ~ \\mathbb { R } ~ } ^ { \\ell \\times \\ell } , { \\bf V } ^ { \\top } } & { \\in } & { { } \\mathbb { R } ^ { \\ell \\times \\ell } \\mathrm { ~  ~ } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "SVD(M) △ "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\cdot \\Sigma = \\operatorname { d i a g } ( \\sigma _ { 1 } , \\dots , \\sigma _ { \\ell } ) ( \\sigma _ { 1 } \\geq \\cdot \\cdot \\cdot \\geq \\sigma _ { \\ell } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has cosines of the canonical angles between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { B }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { W } \\in \\mathbb { R } ^ { m \\times d }  \\mathbf { U } [ : , 1 : \\sigma _ { m } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "▷ m is the maximum index that satisfies "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\sigma _ { i } - 1 | \\leq \\alpha ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "return "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } \\cap \\mathrm { B } }"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                509,
+                341,
+                884,
+                609
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 5 Complement Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\mathrm { A } } \\in \\mathbb { R } ^ { k \\times d } \\mathrm { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Output: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\overline { { \\mathsf { A } } } } \\in \\mathbb { R } ^ { ( d - k ) \\times d } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": Bases of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { S } _ { \\overline { { A } } }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { U } ~ \\in ~ \\mathbb { R } ^ { \\hat { d } \\times d } , \\pmb { \\Sigma } ~ \\in ~ \\mathbb { R } ^ { d \\times k } , \\mathbf { V } ^ { \\top } ~ \\in ~ \\mathbb { R } ^ { k \\times k } ~"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { S V D } ( \\mathbf { S } _ { \\mathrm { A } } ^ { \\top } )"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\mathbf { S } _ { \\overline { { \\mathrm { A } } } } \\in \\dot { \\mathbb { R } } ^ { ( \\dot { d } - k ) \\times d }  ( \\mathbf { U } [ : , k : d ] ) ^ { \\top } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "return "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S } _ { \\overline { { \\mathrm { A } } } }"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                510,
+                639,
+                882,
+                766
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B WMT Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                797,
+                670,
+                813
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An example of a practical task where our proposed method can be directly utilized is the automatic evaluation of machine translation systems. We applied our SubspaceBERTScore to the WMT18 (Ma et al., 2018). The table 5 presents the results of applying both BERTScore and our proposed SubspaceBERTScore to various X-to-English translation settings in the WMT18 competition. Our proposed method consistently outperforms BERTScore. Specifically, for all X-to-English translation settings, we observed an increase in Kendall’s τ for F-score, Precision (P), and Recall (R). It is evident that SubspaceBERTScore shows an improvement across all the considered metrics, underscoring the effectiveness of our proposed method in evaluating machine translation systems."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                826,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3523"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/6b3f2ea361680589909dc142a96ed9a3122d879864ce1b9855fb054d43b74172.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 5: Comparison of BERTScore and SubspaceBERTScore on WMT18 for X-to-English translation tasks."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Method</td><td>Metric</td><td>cs-en</td><td>de-en</td><td>et-en</td><td>fi-en</td><td>ru-en</td><td>tr-en</td><td>zh-en</td><td>Avg.</td></tr><tr><td rowspan=\"3\">BERTScore</td><td>F</td><td>.404</td><td>.550</td><td>.397</td><td>.296</td><td>.353</td><td>.292</td><td>.264</td><td>.365</td></tr><tr><td>P</td><td>.387</td><td>.541</td><td>.389</td><td>.283</td><td>.345</td><td>.280</td><td>.248</td><td>.353</td></tr><tr><td>R</td><td>.388</td><td>.546</td><td>.391</td><td>.304</td><td>.343</td><td>.290</td><td>.255</td><td>.360</td></tr><tr><td rowspan=\"3\">SubspaceBERTScore</td><td>F</td><td>.411</td><td>.557</td><td>.403</td><td>.309</td><td>.358</td><td>.303</td><td>.264</td><td>.372</td></tr><tr><td>P</td><td>.382</td><td>.548</td><td>.393</td><td>.290</td><td>.352</td><td>.294</td><td>.248</td><td>.358</td></tr><tr><td>R</td><td>.391</td><td>.547</td><td>.392</td><td>.313</td><td>.358</td><td>.292</td><td>.259</td><td>.365</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                141,
+                83,
+                855,
+                217
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 6 SubspaceBERTScore Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ \\pmb { a } ^ { ( 1 ) } , \\dots , \\pmb { a } ^ { ( k ) } \\} \\subseteq \\mathbb { R } ^ { 1 \\times d } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Token vectors of first sentence Input: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ b ^ { ( 1 ) } , \\dots , b ^ { ( \\ell ) } \\} \\subseteq \\mathbb { R } ^ { 1 \\times d } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Token vectors of second sentence Output: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P \\in \\mathbb { R } , R \\in \\mathbb { R } , F \\in \\mathbb { R } \\mathrm { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": Similarity score "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { A } \\in \\mathbb { R } ^ { k \\times d }  \\operatorname { s T a C K \\_ R O W S } ( \\pmb { a } ^ { ( 1 ) } , \\dots , \\pmb { a } ^ { ( k ) } )"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { B } \\in \\mathbb { R } ^ { \\ell \\times d }  \\mathrm { s T a C K \\_ R O W S } ( \\lfloor ^ { ( 1 ) } , \\dots , \\pmb { b } ^ { ( \\ell ) } )"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { A } _ { \\mathrm { { o r t h } } } \\in \\mathbb { R } ^ { n \\times d }  ( \\mathrm { { O R T H O \\_ N O R M A L } } ( \\mathbf { A } ^ { \\top } ) ) ^ { \\top }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { B } _ { \\mathrm { o r t h } } \\in \\mathbb { R } ^ { m \\times d }  ( \\mathrm { o R T H O \\_ N O R M A L } ( \\mathbf { B } ^ { \\top } ) ) ^ { \\top }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "▷ Orthonormalize the bases. n and m are the ranks. k k "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R  \\sum f ( a _ { i } ) \\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( { \\pmb a } ^ { ( i ) } , { \\bf B } _ { \\mathrm { o r t h } } ) \\bigg / \\sum f ( a _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "i=1 i=1 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P \\gets \\sum _ { j = 1 } ^ { \\varepsilon } f ( b _ { i } ) \\mathbb { 1 } _ { \\mathrm { s u b s p a c e } } ( \\pmb { b } ^ { ( j ) } , \\mathbf { A } _ { \\mathrm { o r t h } } ) \\Big / \\sum _ { j = 1 } ^ { \\varepsilon } f ( b _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "▷ f( ) is a weighting function. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\gets 2 ( P \\cdot R ) / ( P + R )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "return "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P , R , F"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                112,
+                265,
+                490,
+                601
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                626,
+                492,
+                803
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C Vector vs. Set of Vectors"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                815,
+                364,
+                832
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 6 presents the comparison results on the STS-B dataset. We utilized embeddings from BERT and SimCSE (Gao et al., 2021). Avg-cos and CLScos are based on the cosine similarity of vectors, employing methods that compress information into a single vector. In contrast, BERTScore among other methods is based on sets of vectors. A key takeaway from these results is the suggestion that methods using sets of vectors outperform those using a single vector in evaluating similarity. It is particularly interesting that even SimCSE, which aims to optimize average cosine similarity, shows superior score when using set-based similarity."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                841,
+                492,
+                923
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/55a3c0658bcd06977a8caa223170f9e9e48b74576bcd997e2e9dd660517c7fc3.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 6: Comparison of vector-based similarity and setbased similarity metrics (†) on the STS-B dataset."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Emb.</td><td>Method</td><td>STS-B</td></tr><tr><td rowspan=\"4\">BERT-base</td><td>CLS-cos</td><td>.424</td></tr><tr><td>Avg-cos</td><td>.582</td></tr><tr><td>BERTScore†</td><td>.446</td></tr><tr><td>SubspaceBERTScore†</td><td>.478</td></tr><tr><td rowspan=\"4\">SimCSE</td><td>CLS-cos</td><td>.769</td></tr><tr><td>Avg-cos</td><td>.786</td></tr><tr><td> $\\mathrm { \\mathbf { B E R T S c o r e } ^ { \\dagger } }$ </td><td>.798</td></tr><tr><td> $\\mathrm { S u b s p a c e B E R T S c o r e } ^ { \\dagger }$ </td><td>.801</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                515,
+                266,
+                877,
+                434
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                499,
+                885,
+                631
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3524"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ]
+]

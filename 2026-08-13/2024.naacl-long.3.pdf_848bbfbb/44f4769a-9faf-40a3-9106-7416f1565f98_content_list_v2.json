@@ -1,0 +1,4327 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "An Interactive Framework for Profiling News Media Sources"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                181,
+                90,
+                815,
+                110
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "text_list",
+                "attribute": "unordered",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Nikhil Mehta"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Department of Computer Science"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Purdue University"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "West Lafayette, IN 47907"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "mehta52@purdue.edu"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Dan Goldwasser"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Department of Computer Science"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Purdue University"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "West Lafayette, IN 47907"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "dgoldwas@purdue.edu"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                194,
+                135,
+                470,
+                217
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "text_list",
+                "attribute": "unordered",
+                "list_items": []
+            },
+            "bbox": [
+                527,
+                135,
+                805,
+                218
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                260,
+                260,
+                342,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The recent rise of social media has led to the spread of large amounts of fake and biased news, content published with the intent to sway beliefs. While detecting and profiling the sources that spread this news is important to maintain a healthy society, it is challenging for automated systems."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                286,
+                460,
+                387
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we propose an interactive framework for news media profiling. It combines the strengths of graph based news media profiling models, Pre-trained Large Language Models, and human insight, to characterize the social context on social media. Experimental results show that with as little as 5 human interactions, our framework can rapidly detect fake and biased news media, even in the most challenging settings of emerging news events, where test data is unseen."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                391,
+                462,
+                549
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                558,
+                260,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The recent rise of social media has enabled information to spread at a rapid pace, having the potential to very quickly impact a large number of people, especially during key events, such as political elections (Vosoughi et al., 2018). While this rise of social media has many benefits, one downside is that harmful information, i.e. fake or politically biased news, can also spread rapidly, affecting people’s perspectives. Thus, detecting it is important."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                585,
+                490,
+                730
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While one approach is to fact-check or detect the bias of all content on social media (i.e. Twitter), another is to focus on the source, and ask: Is this sourcefactual or politically biased? This task, profiling news media sources, which we focus on, can scale better, as often times a large amount of the content sources’ publish have the same factuality/political bias as the source itself. We model this on a 3-point scale: high, low, and mixed factuality, and left, center, and right bias. Details: App. A.1."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                730,
+                490,
+                890
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Even at the source level, it is difficult for humans to profile all news content, due to the large number of sources online. Further, this task is still challenging for AI systems (Baly et al., 2018, 2020; Mehta et al., 2022), especially in the emerging events settings, when the system is tested on its ability to adapt to new events, consisting of new sources, content they generate, and social media users engaging with them that were not seen at training time (Yuan et al., 2020). For example, in a graph framework, test set nodes are not connected to training set nodes. In these settings, Large Language Models (LLMs) also struggle, even when enhanced with extra knowledge (Whitehouse et al., 2022)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                891,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                261,
+                887,
+                455
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Due to the struggles of AI systems to automatically profile news media, in this paper we propose a different, interactive approach, for this task. We are inspired by recent results (Cinelli et al., 2021; Vicario et al., 2016) showing that misinformation and highly biased content tends to spread in closely knit communities on social media. This leads us to ask, whether better modeling of the social media relationships that underlie content spread would improve our ability to profile the content itself. Specifically, we hypothesize that users on social media form information communities, or groups of users, where certain themes circulate more in some communities vs. others. If we can identify these themes and use them to identify information communities, then we can better profile the content discussed by the communities. For example, a user joining a left-leaning community, is more likely to be left-leaning, and so is the content they share. Then, if that user shares content from a source, that source is also more likely to be left-leaning."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                456,
+                887,
+                794
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the settings of emerging events, we must be able to characterize and form the information communities quickly, without using labeled training data, so we can rapidly detect fake/biased news sources on unseen data. Unfortunately, using only information on social media to form information communities involves complex reasoning on unseen data, and is thus challenging for automated systems, even LLMs (as we experimentally show). Thus, instead, in this paper, we propose an interactive learning framework, to form information communities. We take advantage of minimal human interactions, combining it with the strengths of news media profiling graph models and LLMs, to form the communities. We do this in an iterative process, showing how less than 5 human interactions, which do not label any additional data, can lead to significant improvements in both fake news and bias source detection, even in the challenging weakly supervised emerging events settings."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                794,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "40"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                941
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 40–58 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                946,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b4961d21b0151f7df85fcd2ee2a0d61305336fe7946e8aaa6ffeee62b953969e.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: Our framework overview: Using Trained Graph Models, Large Language Models (GPT-3) and Human Interaction to Form Information Communities for News Media Profiling. (Key: U = Users, A = Articles, S = Sources, Light Red Background = Candidate information Communities, Light Blue Background = Validated Information Communities). From the learned graph model (b), we find candidate information communities through k-means clustering. Using a LLM, GPT-3, we form a textual representation of the information community by summarizing its users, and then ask humans to narrow down the community based on the user summaries (d), forming smaller, validated communities, whose users are then connected to each other. We then expand the validated communities, by again model clustering users, forming user summaries, but this time asking GPT-3 to place or not palce the users into validated communities, which can be done repeatedly (e). This entire process (c-e) can repeat, starting with clustering of unassigned users (c), to form more validated communities, which can be expanded further."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                114,
+                80,
+                889,
+                249
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                382,
+                490,
+                576
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Specifically, to form the communities, we first form initial candidate communities by clustering social media users based on their graph model embeddings, capturing model beliefs. As news media profiling is difficult, these candidate information communities are likely to be imperfect, i.e., some users are likely to be inconsistent with their community assignment. Thus, these assignments need to be validated, by examining their actual information preferences and the content they generate, rather than using only relational information. This would help ensure that only users that are actually similar to each other (i.e. have similar perspectives on similar content) make up each community. We use LLMs and human interaction to do this validation. First, we summarize each user in the community using LLM’s, mapping their profile to a short statment capturing their views. This representation facilitates the human validation step, in which we ask humans to determine which users are similar, and by that form validated communities (experiments show this is hard for LLMs, but simple for humans). We then expand the validated communities, adding new users to them, based on model clustering. These assignments are again validated based on users’ summaries, but this time using LLMs to compare new users to users in human validated communities (we use human interactions as training examples for few-shot user similarity detection, a simpler LLM task). For users not assigned to validated communities, the above process is repeated, expanding the # of communities. Fig. 1 shows an overview. In short, humans interact to help form initial communities, which are then automatically expanded using graph and LLM similarity."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                585,
+                492,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                381,
+                887,
+                607
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In summary, we make the following contributions: (1): We formulate the task of interactive news media profiling, by presenting a framework to build information communities. (2) We take advantage of graph model, LLM, and human knowledge to perform this interactive task rapidly. (3) We evaluate on one of the most challenging news media profiling settings, emerging news events, showing how our interactive framework leads to performance improvements with less than 5 human interactions. More generally, our framework can be used to rapidly profile news media, without any additional labeling and minimal human effort."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                607,
+                887,
+                816
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Sec. 3 describes our graph, Sec. 4 our interactive framework, Sec. 5 results, and Sec. 6 analysis."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                816,
+                884,
+                850
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                863,
+                667,
+                879
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Over the last few years, there has been a large interest in profiling news media. Baly et al. and Sakketou et al. proposed datasets for political bias detection, while (Li and Goldwasser, 2019; Liu et al., 2021, 2022) study methods for it. Further, fake news detection has also been a hot research topic, studied in graphs (Nguyen et al., 2020; Mehta et al., 2022; Yang et al., 2023), cross-domain (Huang et al., 2021; Zhu et al., 2022a,b; Mosallanezhad et al., 2022), and low-resource (Lin et al., 2022) settings, amongst others."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                890,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "41"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                510,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We focus specifically on news media profiling in the emerging events setting, which is extremely challenging, as test data is unseen and does not interact with any train data. Thus, this setting is ideal for us to measure the benefits of human interactions. It also has received a lot of recent attention due to its’ challenge (Liu and Wu, 2018; Li et al., 2022), and we hypothesize that some of these methods can be combined with our work."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                230,
+                490,
+                374
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Large Language Models (LLMs) have been applied to many tasks, as they can capture lots of knowledge (Qin et al., 2023). However, LLMs still cannot reason well, and thus struggle on harder tasks like fake news detection (Whitehouse et al., 2022). We instead use LLM’s successful properties to amplify the impact of human interactions."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                375,
+                490,
+                488
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Interactive ML has also been studied and applied to many tasks (Wu et al., 2022; Dalvi et al., 2022; Kwon et al., 2023; Ramamurthy et al., 2023; Pacheco et al., 2022, 2023; Mehta and Goldwasser, 2023). Building information communities is also a popular research area, whether it be through embeddings or DNN modeling approaches (Cavallari et al., 2017; Su et al., 2022). Prior work also shows misinformation spreads in communities (Bessi et al., 2016). We propose to interactively build information communities, by humans interacting with LLMs and graph models. We discuss more related works in App. E."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                489,
+                492,
+                699
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Graph Overview"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                711,
+                295,
+                727
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we focus on detecting the political bias and factuality of news media sources, which we call news media profiling. We model sources for factuality and political bias on a 3-point scale: low, mixed, and high factuality, or left, center, and right political bias. More details about this task setup and its importance are in (Baly et al., 2020) and Appendix A.1."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                737,
+                489,
+                865
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use the public graph-based social media analysis model from Mehta et al.<sup>1</sup>, which they trained for fake news source detection. As we also evaluate news source bias detection, we train the graph for both objectives, on Twitter data. We refer to Mehta et al. for the details of this graph model, but briefly explain it here. Sec. 4 explains our interactive protocol for identifying information communities."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                866,
+                490,
+                900
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                181
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The model uses a heterogeneous graph, encoded using Relational Graph Conv. Networks (R-GCN), to capture the relationships between sources, articles, and users. Based on the R-GCN representations, factuality and bias of news sources can be predicted. R-GCNs allow us to better capture relationships in the graph, such as a source represented in part by the users that follow it (which are also represented by their relationships to other nodes)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                181,
+                887,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Graph Creation using Twitter Social Context: Our graph (Fig.1a, Mehta et al.) consists of 3 node types: News Sources (S), Articles (A) they publish, and Twitter Users (U) that interact with sources and articles. We connect sources to articles they publish, via edges. Further, users are connected to sources and other users they follow, and articles they propagate (retweet or tweet the link of). The Twitter users provide the social information in the graph, which we later aim to better learn."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                328,
+                887,
+                488
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Graph Training using Social Context: Similar to Mehta et al., we train a R-GCN (Schlichtkrull et al., 2018) to learn the graph. We train the classification objective of both fake news source detection and news source bias detection, using a separate Fully Connected (FC) layer for each, optimizing them jointly by summing the losses. Once the model is trained, we can use it to obtain meaningful node embeddings for every node in the graph, and profile news sources. More details: App. A.3."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                489,
+                887,
+                651
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Interactive Approach"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                507,
+                663,
+                731,
+                680
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While the above graph-based model proposed by Mehta et al. achieves strong performance on fake news source detection when evaluated in transductive settings (test data seen at training time), it struggles in the fully inductive settings (test data unseen), and in general performs well below human baselines. We thus propose an interactive approach, combining the strengths of graph models, large language models (LLMs i.e. GPT-3), and humans, to profile content on social media better."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                689,
+                887,
+                851
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our approach hinges on the fact that if we can better model user preferences and thus user similarity, we can better model the content they propagate. This is because, similar users are likely to have similar interests, and thus share similar content, which in turn is likely to have similar levels of factuality/bias. For example, a group of users sharing content in support of lowering taxes and decreasing regulations are more likely to be rightbiased (i.e. Republican) vs. left-biased (i.e. Democrat), and thus any source content they share is also more likely to be right-biased. Thus, we hypothesize that the larger the groups of users with similar content preferences we can form, the higher our performance is likely to be. Further, if we explicitly create new graph edges between these similar groups of users, this information will flow to other users not part of these groups, and eventually news sources, increasing classification performance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                851,
+                887,
+                900
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>https://github.com/hockeybro12/"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                907,
+                428,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "FakeNews_Inference_Operators"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                908,
+                769,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "42"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Fortunately, while modeling user content preferences solely through AI models like LLMs is difficult (Whitehouse et al., 2022), humans can quickly determine if two users are similar, forming an initial group. Then, we hypothesize, that LLMs can be prompted using the human insight to extend the group, by asking them if other users are similar in the same ways. Thus, in this paper, we propose an interactive framework, taking advantage of human and LLM strengths to better model user content preferences, and improve media profiling."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                343,
+                490,
+                520
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Specifically, in this Sec., we discuss the interactive approach we propose to form these groups of similar users, or information communities. We take advantage of the strengths of trained graph model knowledge, LLM knowledge (GPT-3), and human insight to design an iterative, interactive approach: We first use the graph models’ learned user similarities to form initial candidate information communities (Sec. 4.1), which are summarized by LLM’s (Sec. 4.2), and then validated by a human interactor (Sec. 4.3). These validated communities are then expanded upon to include more users in Sec. 4.4, by again using graph model knowledge and LLM’s. However, this time LLM’s are prompted based on the human interaction, to validate user assignments to communities. This expansion step can be done iteratively, i.e. assigning additional users to validated communities. Once enough users are not assigned to existing communities, we form an additional set of human validated communities, repeating the the above process from Sec. 4.1-Sec. 4.4, and the number of total validated communities is increased (Sec. 4.5). Finally, once enough information communities are formed, we can then learn them (Sec 4.6), updating graph model parameters."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                520,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We later show that through this iterative process, minimal human interactions can lead to significant performance improvements for news media profiling. Fig. 1 and Alg. 1 shows an overview."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                151
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 1 Our Interactive Framework to Find Validated Information Communities 1: Input: U (Users), U<sub>E</sub> (Graph User Embeddings), V (empty list to store validated information communities) 2: Output: V (Validated Communities) 3: Iteratively find information communities 4: while not converged do 5: c<sub>1...k</sub> = k-means(U<sub>E</sub>) K-means Cluster all Users based on Graph User Embeddings 6: c<sub>1</sub>, c<sub>2</sub> = max<sub>2</sub>(purity(c<sub>1...k</sub>)) Choose the highest purity clusters, that discuss the same entity 7: s<sub>1</sub>, s<sub>2</sub> = GPT-3 summarize(c<sub>1</sub>, c<sub>2</sub>) Use GPT-3 to summarize the users in each cluster 8: V.append([human(s<sub>1</sub>), human(s<sub>2</sub>)]) Validate clusters using humans to form validated communities 9: Now, iteratively expand each validated community 10: while not converged do 11: c<sub>1...k</sub> 二 k-means(U ) Again Cluster all Users based on Graph User Embeddings 12: c<sub>1...k</sub> = KNN(c<sub>1...k</sub>, V ) For each cluster, find the m nearest neighbors to each validated community, that’s our new cluster 13: V = (GPT-3(c<sub>1...k</sub>, V )) For each cluster, ask GPT-3 to assign or not assign users to validated clusters, expanding them 14: end while 15: end while 16: return V (Validated Information Communities)"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                510,
+                164,
+                885,
+                557
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Initial Communities from Graph Model"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                577,
+                870,
+                593
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first step in our process of forming information communities of similar users is forming candidate ones. For this, we use learned graph model knowledge, and k-means cluster all graph user node embeddings, as similar nodes will be part of the same cluster (and thus community). We keep the two (determined empirically using the dev. set) highest purity clusters, as the model is likely most confident about them, since it predicts similar users as having the same labels. To compute purity, each cluster is assigned to a class based on the most predicted user label in that cluster, and then the accuracy of this is measured. To get predicted user labels, we assign each user the label of the most common source they follow + article they tweet."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                600,
+                885,
+                841
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since these communities are formed using graph learned relationships, they are likely imperfect, and should be analyzed to form better communities. Thus, we ask humans to analyze them. However, as the communities have a lot of users which would require a lot of interactions, we narrow them down. We only keep users that discuss the most common entity mentioned in the community, as discussion around this entity can represent the community’s perspective. To do this, we run an Entity Recognition system (Akbik et al., 2019) on the articles each community user tweets, keeping users if they tweet an article containing the most frequent entity in the community. We now have initial model predicted information communities of users that discuss the same entity, and thus likely the same event."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                843,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "43"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                489,
+                263
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Characterizing Users Using GPT-3"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                274,
+                435,
+                290
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Before asking humans to validate communities based on user similarity, we form a textual representation for each user, that can be analyzed. While not essential, this representation captures relevant content and user preferences, making human interaction easier. To form it, we use LLMs (GPT-3), prompting them to create user summaries, as they have historically done well on this task (Qin et al., 2023). The summary for each user is formed based on their Twitter profile and a sample of their tweets related to the entity. An ex. of the prompt we designed is shown below in Tab. 1 and Fig. 2."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                296,
+                490,
+                491
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/9db7969b2ff9fc589c86a8dd239a54a254243080bc64649145d74becb195d8a1.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: The question, text, and output format expected from GPT-3 in the prompt to create user summaries."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Format</td><td rowspan=1 colspan=1>Language</td></tr><tr><td rowspan=1 colspan=1>Question</td><td rowspan=1 colspan=1>What is the user discussingand what is their perspective?</td></tr><tr><td rowspan=1 colspan=1>Text</td><td rowspan=1 colspan=1>Bio: ... Tweet 1: ... Tweet 2:...Summary:</td></tr><tr><td rowspan=1 colspan=1>Output</td><td rowspan=1 colspan=1>The user is discussing..</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                161,
+                502,
+                440,
+                585
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Human Interaction to Form Community"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                633,
+                480,
+                649
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Based on the GPT-3 summaries of each user in the communities, we ask a human interactor to tighten each community, and only keep similar users. For this, humans read the summaries, analyzing user perspective towards the entity. We say users have the same perspective if they discuss the same entity in a similar way (i.e. all are against BLM protests)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                655,
+                489,
+                768
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To make this analysis easier for humans, we also provide humans with an LLM’s opinion on which users are similar. While it is likely incorrect, as LLMs can’t reason well about user similarity on unseen topics (see Sec. 6.2), it can help humans make their decision quicker. To get it, we feed all user summaries to a dialogue LLM, Chat-GPT<sup>2</sup>, asking it: Which users have the same perspective?"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                769,
+                489,
+                898
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use Chat-GPT instead of GPT-3 as it is better suited to respond without being prompted, and it is hard to create a general enough prompt for this."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                133
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Chat-GPT responds with a list of users that it thinks have the same perspectives, for ex.: User a, b, c, d discuss ... while e, f discuss ..., which the human then reads (along with the summaries) and uses to form a human validated community. For ex., the human can decide users "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( a , b , c )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are in the same community, where d was thought to be part of it by Chat-GPT, but not by the human. An ex. of the exact text humans read is in Fig. 3."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                133,
+                885,
+                279
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Automatically Expanding Communities"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                290,
+                868,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "So far, we have formed small, human validated information communities, each of a single perspective. Now, we amplify this human interaction by expanding these communities, while maintaining the same perspective. We do this by identifying other users that have the same perspective and adding them to the community. These larger communities can then be used to to profile news media better."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                310,
+                885,
+                438
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We first connect the users in each validated community to each other, which changes their and other users’ graph embeddings, without any training. We then k-means cluster all user embeddings, ignoring any users already considered (to avoid redundancy). This forms k new, unique clusters, based on learned graph model knowledge. We hypothesize that if we can accurately map some users from each of these different clusters to validated communities, we would have a lot more information about each of those clusters, which could help news media profiling. (Aside: an alternative way to expand communities, which we do not pursue, is by assigning users that have similar embeddings as validated communities to them. However, this would just reinforce existing model predictions, as the model already believes these users similar, and thus likely not lead to better news media profiling.)"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                439,
+                887,
+                728
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To map users from clusters to validated communities, for each cluster, we keep the top m users that have similar embeddings to the centroids of each validated community, as these are the most likely users to belong to the community. These m users are now the candidate users for expansion into the validated community."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                730,
+                887,
+                841
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As this user to community assignment is based only on graph knowledge, it may be imperfect, so we hypothesize to use LLMs to clean it up. While LLMs cannot reason about community assignments on unseen news events (we experimentally show this), which is why we used humans in Sec. 4.3, we hypothesize that if prompted appropriately, they can compare user summaries on a topic, which the human communities are already centered around. Building on this, we few-shot prompt LLMs, asking them to identify user similarity and determine which of the m new users should be part of the validated community. To do this well, we prompt the LLM using a training example, created automatically from the human validated community. In it, community assignments humans chose when interacting are positive examples, while ones humans rejected are negative. LLMs now just have to make similar assignments as humans (i.e. determine if the new users are more similar to human accepted or rejected ones), a much simpler task. Tab. 2 shows an ex. of the test prompt for the community with users (a, b), where user a is assigned to the community and b is not. The same prompt format is used for the training example, except the summaries and assignments are provided based on the human interaction. Fig. 4 shows the full prompt."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                843,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>https://chat.openai.com/chat"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                907,
+                400,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "44"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                439
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/17dac2bd900f0d32189ef085c805cf138175043b0ac5971fda3419673805784e.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: The question, text, and output format expected from GPT-3 in the prompt to determine if users belong to a given information community. From the output, User A belongs, and User B does not."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Format</td><td rowspan=1 colspan=1>Language</td></tr><tr><td rowspan=1 colspan=1>Question</td><td rowspan=1 colspan=1>Which users have the sameperspective?</td></tr><tr><td rowspan=1 colspan=1>Text</td><td rowspan=1 colspan=1>User A Summary: ...User B Summary: ...Related Users;;;;Not Related Users:</td></tr><tr><td rowspan=1 colspan=1>Output</td><td rowspan=1 colspan=1>User A;;;;User B</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                144,
+                450,
+                457,
+                544
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.5 Iterative Community Expansion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                613,
+                415,
+                629
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The above process in Sec. 4.4 of expanding the validated communities can then be repeated until all users are assigned to or rejected for validated communities, defining convergence."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                633,
+                489,
+                697
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In addition, we also use a subset of rejected users to form a new set of human validated information communities. To do this, we repeat the above process from Sec. 4.1-Sec. 4.4: cluster rejected users, summarize them, ask humans to form a new validated community, and then expand the validated community. After each iteration, we have an additional pair of human validated communities."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                699,
+                490,
+                827
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.6 Unsupervised Graph Training"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                837,
+                400,
+                853
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Above, when we form communities, we create new graph edges connecting users in the same community. We now further learn these edges/user relationships, by fine-tuning the graph model from"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                858,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Sec. 3, all without using any additional gold labeled data. For this, we train graph link prediction, which captures this new edge knowledge directly, encouraging connected nodes to have similar embeddings. We do it only on the sub-graph of content that was interacted on: the users and the articles/sources they are directly connected to. Specifically, we train connected nodes to be closer together in the embedding space, while user nodes in different communities should be farther apart."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                246
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "After this training, the graph model captures the knowledge from the user communities identified by our framework, and can thus be directly used to better classify news sources for profiling. This is because, in the updated graph model, the new user embeddings directly affect the sources, through either direct or indirect edge connections."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                247,
+                885,
+                360
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.7 Framework Recap"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                372,
+                704,
+                387
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In short, we aim to build user information communities, used by the graph model for better news media profiling. Our framework first uses graph models to build candidate communities, which are validated by humans. Identifying the communities is hard for LLMs, but simple for humans and can be done in a few minutes. Then, the communities are expanded. The graph model generates candidates, which the LLM can validate, as it has training examples from the human validation, and just has to identify the same user similarity, a much simpler task. The entire process can be done iteratively and rapidly (under 10 minutes for 5 interaction steps)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                393,
+                887,
+                604
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                615,
+                657,
+                632
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 Evaluation Settings"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                643,
+                710,
+                658
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We evaluate our framework’s ability to improve fake news and news source bias detection. We focus on one of the most challenging settings for a graph framework, the fully inductive setting. Here, in addition to test data not being seen at training time, all test nodes are not connected in any way to training set nodes. For ex., users interacting with test set articles do not interact with any sources/articles/users seen at train time. While this setting is particularly difficult, as social media information learned at training time can’t be directly used to improve test performance, it can occur, such as when a new bot farm spreads content."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                664,
+                887,
+                873
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In addition to the inductive setting, we also focus our evaluation on emerging news events, where all test data is from a specific event collected from a"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                875,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "45"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/c9d7afe1c8efcb26bb776c7a5307079ca6de7df1daa79e396f27a0c499972171.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Fake News Source Detection baseline Results on Baly (Baly et al., 2020) and the inductive future Black Lives Matter event (Test). Results show that despite achieving high performance on (Baly et al., 2020), the Baseline from Mehta"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Model</td><td>Baly Acc.</td><td>Baly F1</td><td>Test Acc</td><td>Test F1</td></tr><tr><td>Baly Mehta R-GCN Mehta BEST</td><td>71.52 68.90 72.55</td><td>67.25 63.72 66.89</td><td>一 – -</td><td>- - -</td></tr><tr><td>BL: Mehta R-GCN</td><td>65.82</td><td>53.19</td><td>41.89</td><td>28.48</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                124,
+                82,
+                475,
+                181
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "text_list",
+                "attribute": "unordered",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "et al. (BL: Mehta R-GCN) struggles in the inductive,"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "emerging news events setting. This baseline is comparable to"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "the state of the art for fake news source detection from Mehta et al. (Mehta BEST) on (Baly et al., 2020)."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                236,
+                487,
+                285
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "time period after the training time period. Not only is this one of the most common real-world applications for fake news source and bias detection, but it is also very challenging, as test data focuses on sub-events not seen at training. In this work, we evaluate two important news events: Black Lives Matter (BLM) and Abortion/Feminism."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                292,
+                489,
+                405
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 Data Collection and Usage"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                417,
+                369,
+                432
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Fake News and Bias Source Detection: In order to evaluate our framework’s ability to improve fake news and news source bias detection, we used the Media Bias/Fact Check dataset, originally collected by Baly et al.. As we focus on specific events, many of which have occurred since the dataset was originally collected, we expand it by scraping additional news sources from Media Bias/Fact Check<sup>3</sup>. Additionally, we scraped the data used to construct the graph in Sec. 3 (articles sources publish, Twitter users, Twitter interactions, etc.) following the process in Mehta et al.. As done in Baly et al., we label news sources on a 3-point factuality and 3- point bias scale: high, mixed, or low factuality and left, center, or right bias. Dataset details, including statistics for number of sources is in App. D and Tab. 6. Our code and anonymized data is available.<sup>4</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                437,
+                490,
+                712
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Events: For each event that we tested on (Black Lives Matter and Abortion/Feminism), we scraped data for 2 different time periods (01/02/2019 - 06/01/19; 06/02/19 - 05/06/22), searching relevant hashtags on Twitter. These time periods also cover a broad range of sub-events, allowing us to test how our models would do on emerging news events. To learn the graph model for fake news and bias source detection from Sec. 3, we used the first period and a subset of data from Baly et al. (training the model on the event and general news). The other time period is our test data, and forms a fully inductive graph, where none of the nodes in the test graph are connected to training set nodes, making it hard."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                713,
+                490,
+                875
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                149
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 Evaluation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                160,
+                645,
+                174
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We evaluate our models primarily on Accuracy and Macro F1 score (the dataset is unbalanced), for sources. We also evaluate the # of users and sources interacted on, the total # of edges added by all interactions, the # of expansion rounds done (defined in Sec 4.4), and the # of interactions done."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                181,
+                885,
+                278
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 Baselines"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                288,
+                631,
+                304
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our first baseline is the strong graph based fake news source detection model from Mehta et al., which we also trained for and evaluated on bias detection. They also compared to multiple baselines in their work. Tab. 3 shows the performance of this model on Baly et al., but when evaluated on BLM in the inductive setting, it struggles (Tab. 3, Tab. 4)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                310,
+                887,
+                423
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our second baseline is our information community detection approach without humans and LLMs, creating the communities based only on graph model embeddings (Graph Only). We kmeans cluster user embeddings, and choose high purity clusters, keeping the top m similar users. We choose k=35 based on validation set performance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                423,
+                887,
+                536
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our final baseline, LLM Only, is our framework without humans, but still using LLM + graph knowledge. To remove the interaction step from Sec. 4.3. where humans form validated communities by reading summaries and Chat-GPT’s assignments, we instead trust the Chat-GPT assignments and use these as the “validated” communities."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                536,
+                887,
+                649
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.5 Interactive Framework Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                659,
+                803,
+                675
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Results for Black Lives Matter fake news and bias source detection are in Tab. 4. Abortion/Feminism results are in Tab. 7 + Tab. 8. Results show how our interactive framework (LLM + Humans) enables minimal human interactions (details about interaction process in App. C), sometimes only one, to lead to performance improvements for these tasks, even on emerging news events without additional labels. We experimented with a varying # of validated communities and expansion rounds (using the dev. set to find the #), and all showed improvements in either Acc. or F1 score over baselines. Specifically, we see 33% improvement on fake news source macro F1, and 40% improvement on bias news source macro F1. Our best models for each task and each event only needed up to two human interactions, showing the benefit of our framework to amplify human interactions. Also, all human interaction models outperform all nonhuman baselines, including LLM Only, showing that both LLM and human insight (to sort out LLM inconsistencies) is critical for news media profiling."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                681,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>https://mediabiasfactcheck.com"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                882,
+                423,
+                897
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>https://github.com/hockeybro12/ Interactive_News_Media_Profiling"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                896,
+                428,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "46"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/3fe4fa73d9fba730e1cb4e919233eb87ee28c5608a984569ff405fdaa7058668.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: Fake News (FN) and Bias Source Detection on Black Lives Matter: We evaluate Test Set Accuracy, Macro F1, the # of users and sources directly connected, the # of edges created, and the # of human interactions are performed (each forms 2 validated communities). Results show that our proposed approach, the human interaction models (LLM + Humans, last group), achieve improvements over all other models in Acc. and/or F1. Also, human interactions are critical, as LLM Only models (third group; they still use graph insight) do not achieve significant improvements over baselines (first and second group). Moreover, our best performance is with only 1 single human interaction, creating 2 communities and then expanding them (2 expansion rounds for fake news source detection and 4 for bias source detection)."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Model</td><td>FN Acc</td><td>FN F1</td><td>Bias Acc</td><td>Bias F1</td><td># Users; # Sources</td><td># Edges</td><td># Inter- actions</td></tr><tr><td>Baseline: (Mehta et al., 2022)</td><td>41.89</td><td>28.48</td><td>46.79</td><td>27.43</td><td>、</td><td>-</td><td>-</td></tr><tr><td>Graph Only: High Purity 2 Communities (Comms.)</td><td>43.01</td><td>28.85</td><td>46.15</td><td>28.59</td><td>25;25</td><td>1,200</td><td>-</td></tr><tr><td>Graph Only: High Purity 4 Communities (Comms.)</td><td>41.89</td><td>27.23</td><td>48.71</td><td>21.83</td><td>、</td><td>-</td><td>-</td></tr><tr><td>LLM Only: 2 Comms, 2 Expansion Rounds</td><td>42.70</td><td>28.05</td><td>45.01</td><td>27.84</td><td>38; 63</td><td>494</td><td>-</td></tr><tr><td>LLM Only: 4 Comms, 2 Expansion Rounds</td><td>42.70</td><td>28.62</td><td>39.50</td><td>33.22</td><td>69; 56</td><td>1,791</td><td>-</td></tr><tr><td>LLM Only: 6 Comms, 2 Expansion Rounds</td><td>40.54</td><td>26.88</td><td>37.03</td><td>29.22</td><td>73; 63</td><td>1,612</td><td>-</td></tr><tr><td>LLM + Humans: 2 Comms, 2 Expansion Rounds</td><td>52.51</td><td>38.03</td><td>44.23</td><td>33.40</td><td>25; 26</td><td>367</td><td>1</td></tr><tr><td>LLM + Humans: 2 Comms, 4 Expansion Rounds</td><td>46.36</td><td>35.03</td><td>49.35</td><td>45.13</td><td>72;56</td><td>1,087</td><td>1</td></tr><tr><td>LLM + Humans: 4 Comms, 2 Expansion Rounds</td><td>43.01</td><td>32.36</td><td>47.43</td><td>32.00</td><td>55; 43</td><td>808</td><td>2</td></tr><tr><td>LLM + Humans: 6 Comms, 2 Expansion Rounds</td><td>41.34</td><td>32.36</td><td>48.07</td><td>33.91</td><td>82; 61</td><td>1,696</td><td>3</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                82,
+                880,
+                279
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                390,
+                490,
+                501
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In summary, these results shows how we are able to successfully decompose the task of finding information communities: taking advantage of graph, LLM, and human strengths, to successfully profile news media, even on emerging news events."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                502,
+                490,
+                583
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Discussion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                593,
+                242,
+                609
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we evaluate our Black Lives Matter interactive framework (Sec. 5.5) learned information communities. We begin by analyzing the cohesiveness of the communities, first human (Sec.. 6.1) and second automatically (App. F.1). We then show why human interactions are critical (Sec. 6.2). Finally, we analyze the communities themselves, analyzing the topics discussed (App. F.2)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                618,
+                490,
+                747
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.1 Human Interactor Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                757,
+                378,
+                772
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we manually analyze our human interaction process, by asking the interactor how many candidate users for each information community they used and did not use to represent it, in each human community validation round. Results in Tab. 5 show that as more interaction steps occur, the candidate users become more similar, as humans reject less users. This shows how our interactive process improves the model’s understanding"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                777,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/d95e235777df53d571336b645a704c97bab5ef0aed1164886d0f8e5122223b53.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "of the social media framework."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 5: The number of users accepted and rejected by human interactors in each new community creation step. As more interactions occur, the # of rejected users decreases, as the graph model learns to better capture similarity. Note that the # of users presented to humans changes based on cluster sizes."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Interaction Round</td><td>Users Accepted</td><td>Users Rejected</td></tr><tr><td>1</td><td>3</td><td>9</td></tr><tr><td>2</td><td>3</td><td>6</td></tr><tr><td>3</td><td>4</td><td>2</td></tr><tr><td>4</td><td>6</td><td>1</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                512,
+                423,
+                889,
+                505
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.2 Importance of Humans"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                601,
+                741,
+                617
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As the results in Sec. 5.5 show, the human interaction step is critical to improve news media profiling performance. This is because LLM’s (i.e. Chat-GPT) cannot accurately capture user similarity, particularly for new news events, which leads to non-cohesive communities. However, humans with general world knowledge can easily determine this. As an ex. in Fig. 3 (more in App. F.3), Chat-GPT responds vaguely that all users share the same perspective, when User 3 is clearly more hostile."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                629,
+                887,
+                790
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Without cohesive initial communities, the training examples used to prompt the generation of further communities in Sec. 4.4 will also be non-cohesive and thus incorrect, leading to noncohesive expanded communities. Thus, the graph model wouldn’t gain any insight about user perspectives through the communities, which is why downstream performance doesn’t improve."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                794,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "47"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                247,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we proposed a framework for interactive news media source profiling. Our framework combines the strengths of graph based news media profiling models, LLMs, and humans, to build stronger information communities. We show how without any additional labeled data, and less than 5 human interactions which can be done in under 10 minutes, we can better detect fake news and bias sources, on two separate news events, even in the most challenging setting of emerging news."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                112,
+                489,
+                273
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our future work is building larger and better communities, and having more human interaction rounds. We hypothesize that more data (users, sources, articles, and human interactions) could lead to lead to better communities, as our approach can capture more perspectives on social media. This would also likely lead to a better trend in the results, leading to more consistent performance improvements as the number of interaction rounds are increased."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                273,
+                489,
+                434
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8 Acknowledgements"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                448,
+                317,
+                464
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We thank the anonymous reviewers of this paper for their vital feedback. The project was partially funded by NSF award IIS-2135573 and NSF CA-REER award IIS-2048001."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                475,
+                489,
+                539
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "9 Ethics Statement"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                554,
+                297,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the ethics statement, we first discuss limitations of our model (9.1), and then in Sec. 9.2 we discuss ethics for deploying our models.."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                581,
+                487,
+                630
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "9.1 Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                642,
+                253,
+                656
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we focus on news media profiling (fake news and bias source detection) on English and Twitter, specifically in the Black Lives Matter domain. The experimental results we presented in this paper showed our framework works in these domains/tasks. We are hopeful and believe that our framework would generalize to other domains, tasks, and topics, but we leave the investigation of this to future works."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                664,
+                489,
+                808
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we also primarily focused on the evaluation setting of early detection of fake/biased news sources, where we evaluate on unseen test data that is not connected to any training set data in the graph. We believe that this is one of the most challenging settings for news media profiling, as shown by prior work. We thus believe that our framework would generalize to other news media profiling settings, including ones that are not in the early detection space. Our future work involves testing this hypothesis, by combining our frameworks with other works in the early detection space."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                809,
+                489,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                180
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our framework utilizes Large Language Models, specifically GPT-3, which the details are not yet fully known publicly. Although these models have been shown to achieve strong performance in numerous NLP benchmarks (Qin et al., 2023), we believe the community should still be careful in deploying them."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                181,
+                887,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our framework also utilizes human interactions, which in our paper are extremely simple, as humans must just read short summaries to determine similarity. Further, our framework needs an extremely small amount of human interactions. However, we still caution that in a real world deployment of our framework, we should be careful of human interactors and make sure they do not have a malicious intent and are well educated for this task. Moreover, it would be better if numerous humans provided judgements on a single interaction sample, to confirm all the interactions across multiple experts."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                294,
+                887,
+                487
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For our experiments, we used a single GeForce GTX 1080 NVIDIA GPU, with 12 GB of memory. As our models are largely textual based, they do not require much GPU usage, but this could change in real world settings, where lots more data is available, which could be a potential limitation. Our hyper-parameter search, mentioned was done manually, based on dev set performance. The appendix provides more model details."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                488,
+                887,
+                633
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "9.2 Ethics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                643,
+                606,
+                658
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To the best of our knowledge, we did not violate any code of ethics throughout the experiments done in this paper. We reported technical details necessary to reproduce our results, and will release the code and dataset we collected, upon publication. We evaluated our model on the datasets that we collected in this paper, and was collected by prior work, but it is possible that results may differ on other datasets. However, we believe our methodology is solid and applies to any social media news profiling setting, as shown by our performance on emerging news events."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                664,
+                887,
+                858
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Due to lack of space, we placed some of the technical details in the Appendix section. The results we reported support our claims in this paper and we believe that they are reproducible. Any qualitative result we report is an outcome from a machine learning model that does not represent the authors personal views."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                858,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "48"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                133
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our future dataset release, we include sources, users, and articles, so that our experiments can be replicated. Each are in English, and are public information. We map each to an ID, for anonymity, and release Article textual representations. Article texts are available for academic use, and can be provided by requesting the authors and agreeing to appropriate conditions."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                134,
+                489,
+                262
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our framework in general is intended to be used to profile news media sources, and help identify the spread of misleading or perspective changing content on social media. While our framework could be used to build better methods of avoiding fake news/bias detection by ML systems, our interactive framework can guard against that as well."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                263,
+                489,
+                374
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In general, we caution that our models and methods be considered and used carefully, as in an area like news media profiling there are great consequences of wrong model decisions, such as unfair censorship and other social related issues. Further, it is possible our models are biased, and this should also be taken into consideration. An important future work is to investigate our models, interpreting them and understanding their predictions even better than the analysis showed in the Discussion section of this paper."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                375,
+                489,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The interactive setting we proposed was successful in this paper, particularly because the interactions were simple. However, in the real world, there could be biased interactors with malicious motives, and that is an important thing to consider when dealing with fake/bias news source detection systems."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                554,
+                489,
+                665
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These and many other related issues are things to consider when using models such as the ones proposed in this work."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                667,
+                487,
+                714
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                741,
+                213,
+                757
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alan Akbik, Tanja Bergmann, Duncan Blythe, Kashif Rasul, Stefan Schweter, and Roland Vollgraf. 2019. FLAIR: An easy-to-use framework for state-of-theart NLP. In NAACL 2019, 2019 Annual Conference of the North American Chapter of the Association for Computational Linguistics (Demonstrations), pages 54–59."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yuntao Bai, Andy Jones, Kamal Ndousse, Amanda Askell, Anna Chen, Nova DasSarma, Dawn Drain, Stanislav Fort, Deep Ganguli, Tom Henighan, et al. 2022. Training a helpful and harmless assistant with"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "reinforcement learning from human feedback. arXiv preprint arXiv:2204.05862."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ramy Baly, Georgi Karadzhov, Dimitar Alexandrov, James Glass, and Preslav Nakov. 2018. Predicting factuality of reporting and bias of news media sources. In Proceedings of the Conference on Empirical Methods in Natural Language Processing, EMNLP ’18, Brussels, Belgium."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ramy Baly, Georgi Karadzhov, Jisun An, Haewoon Kwak, Yoan Dinkov, Ahmed Ali, James Glass, and Preslav Nakov. 2020. What was written vs. who read it: News media profiling using text analysis and social media context. In Proceedings ofthe 58th Annual Meeting ofthe Associationfor Computational Linguistics, ACL ’20."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alessandro Bessi, Fabio Petroni, Michela Del Vicario, Fabiana Zollo, Aris Anagnostopoulos, Antonio Scala, Guido Caldarelli, and Walter Quattrociocchi. 2016. Homophily and polarization in the age of misinformation. The European Physical Journal Special Topics, 225:2047–2059."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. 2020. Language models are few-shot learners. Advances in neural information processing systems, 33:1877–1901."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sandro Cavallari, Vincent W Zheng, Hongyun Cai, Kevin Chen-Chuan Chang, and Erik Cambria. 2017. Learning community embedding with community detection and node embedding on graphs. In Proceedings ofthe 2017 ACM on Conference on Information and Knowledge Management, pages 377–386."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Matteo Cinelli, Gianmarco De Francisci Morales, Alessandro Galeazzi, Walter Quattrociocchi, and Michele Starnini. 2021. The echo chamber effect on social media. Proceedings ofthe National Academy ofSciences, 118(9):e2023301118."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Bhavana Dalvi, Oyvind Tafjord, and Peter Clark. 2022. Towards teachable reasoning systems: Using a dynamic memory of user feedback for continual system improvement. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, pages 9465–9480."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yosh Halberstam and Brian Knight. 2016. Homophily, group size, and the diffusion of political information in social networks: Evidence from twitter. Journal ofpublic economics, 143:73–88."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yinqiu Huang, Min Gao, Jia Wang, and Kai Shu. 2021. Dafd: Domain adaptation framework for fake news detection. In International Conference on Neural Information Processing, pages 305–316. Springer."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Minae Kwon, Sang Michael Xie, Kalesha Bullard, and Dorsa Sadigh. 2023. Reward design with language models. In The Eleventh International Conference on Learning Representations."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                765,
+                489,
+                856
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "49"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                510,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chang Li and Dan Goldwasser. 2019. Encoding social information with graph convolutional networks forpolitical perspective detection in news media. In Proceedings of the 57th Annual Meeting of the Associationfor Computational Linguistics, pages 2594– 2604."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ke Li, Bin Guo, Siyuan Ren, and Zhiwen Yu. 2022. Adadebunk: An efficient and reliable deep state space model for adaptive fake news early detection. In Proceedings ofthe 31st ACM International Conference on Information & Knowledge Management, pages 1156–1165."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Hongzhan Lin, Jing Ma, Liangliang Chen, Zhiwei Yang, Mingfei Cheng, and Chen Guang. 2022. Detect rumors in microblog posts for low-resource domains via adversarial contrastive learning. In Findings of the Association for Computational Linguistics: NAACL 2022, pages 2543–2556."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ruibo Liu, Chenyan Jia, Jason Wei, Guangxuan Xu, and Soroush Vosoughi. 2022. Quantifying and alleviating political bias in language models. Artificial Intelligence, 304:103654."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ruibo Liu, Chenyan Jia, Jason Wei, Guangxuan Xu, Lili Wang, and Soroush Vosoughi. 2021. Mitigating political bias in language models through reinforced calibration. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 35, pages 14857– 14866."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yang Liu and Yi-Fang Wu. 2018. Early detection of fake news on social media through propagation path classification with recurrent and convolutional networks. In Proceedings of the AAAI conference on artificial intelligence, volume 32."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2019. Roberta: A robustly optimized bert pretraining approach. arXiv preprint arXiv:1907.11692."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Nikhil Mehta and Dan Goldwasser. 2023. Interactively learning social media representations improves news source factuality detection. arXiv preprint arXiv:2309.14966."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Nikhil Mehta, María Leonor Pacheco, and Dan Goldwasser. 2022. Tackling fake news detection by continually improving social context representations using graph neural networks. In Proceedings of the 60th Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), pages 1363–1380."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ahmadreza Mosallanezhad, Mansooreh Karami, Kai Shu, Michelle V Mancenido, and Huan Liu. 2022. Domain adaptive fake news detection via reinforcement learning. In Proceedings ofthe ACM Web Conference 2022, pages 3632–3640."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Van-Hoang Nguyen, Kazunari Sugiyama, Preslav Nakov, and Min-Yen Kan. 2020. Fang: Leveraging"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "social context for fake news detection using graph representation. In Proceedings ofthe 29th ACM International Conference on Information & Knowledge Management, pages 1165–1174."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "OpenAI. 2023. Gpt-4 technical report. ArXiv, abs/2303.08774."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "María Leonor Pacheco, Tunazzina Islam, Monal Mahajan, Andrey Shor, Ming Yin, Lyle Ungar, and Dan Goldwasser. 2022. A holistic framework for analyzing the covid-19 vaccine debate. In Proceedings of the 2022 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, pages 5821–5839."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "María Leonor Pacheco, Tunazzina Islam, Lyle Ungar, Ming Yin, and Dan Goldwasser. 2023. Interactive concept learning for uncovering latent themes in large text collections. In Findings of the Association for Computational Linguistics: ACL 2023, pages 5059– 5080."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, Alban Desmaison, Andreas Kopf, Edward Yang, Zachary DeVito, Martin Raison, Alykhan Tejani, Sasank Chilamkurthy, Benoit Steiner, Lu Fang, Junjie Bai, and Soumith Chintala. 2019. Pytorch: An imperative style, high-performance deep learning library. In H. Wallach, H. Larochelle, A. Beygelzimer, F. d'Alché-Buc, E. Fox, and R. Garnett, editors, Advances in Neural Information Processing Systems 32, pages 8024–8035. Curran Associates, Inc."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chengwei Qin, Aston Zhang, Zhuosheng Zhang, Jiaao Chen, Michihiro Yasunaga, and Diyi Yang. 2023. Is chatgpt a general-purpose natural language processing task solver? arXiv preprint arXiv:2302.06476."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rajkumar Ramamurthy, Prithviraj Ammanabrolu, Kianté Brantley, Jack Hessel, Rafet Sifa, Christian Bauckhage, Hannaneh Hajishirzi, and Yejin Choi. 2023. Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization. In The Eleventh International Conference on Learning Representations."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Bhavtosh Rath, Xavier Morales, and Jaideep Srivastava. 2021. Scarlet: explainable attention based graph neural network for fake news spreader prediction. In Pacific-Asia conference on knowledge discovery and data mining, pages 714–727. Springer."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Bhavtosh Rath, Aadesh Salecha, and Jaideep Srivastava. 2020. Detecting fake news spreaders in social networks using inductive representation learning. In 2020 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining (ASONAM), pages 182–189. IEEE."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Nils Reimers and Iryna Gurevych. 2019. Sentence-bert: Sentence embeddings using siamese bert-networks. In Proceedings ofthe 2019 Conference on Empirical"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                164
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "50"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pages 3982–3992."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Flora Sakketou, Joan Plepi, Riccardo Cervero, Henri Jacques Geiss, Paolo Rosso, and Lucie Flek. 2022a. Factoid: A new dataset for identifying misinformation spreaders and political bias. In Proceedings ofthe Thirteenth Language Resources and Evaluation Conference, pages 3231–3241."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Flora Sakketou, Joan Plepi, Henri-Jacques Geiss, and Lucie Flek. 2022b. Temporal graph analysis of misinformation spreaders in social media. In Proceedings ofTextGraphs-16: Graph-based Methodsfor Natural Language Processing, pages 89–104."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Michael Schlichtkrull, Thomas N Kipf, Peter Bloem, Rianne Van Den Berg, Ivan Titov, and Max Welling. 2018. Modeling relational data with graph convolutional networks. In European semantic web conference, pages 593–607. Springer."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xing Su, Shan Xue, Fanzhen Liu, Jia Wu, Jian Yang, Chuan Zhou, Wenbin Hu, Cecile Paris, Surya Nepal, Di Jin, et al. 2022. A comprehensive survey on community detection with deep learning. IEEE Transactions on Neural Networks and Learning Systems."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Michela Del Vicario, Alessandro Bessi, Fabiana Zollo, Fabio Petroni, Antonio Scala, Guido Caldarelli, H. Eugene Stanley, and Walter Quattrociocchi. 2016. The spreading of misinformation online. Proceedings of the National Academy of Sciences, 113(3):554–559."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Soroush Vosoughi, Deb Roy, and Sinan Aral. 2018. The spread of true and false news online. Science, 359(6380):1146–1151."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Minjie Wang, Da Zheng, Zihao Ye, Quan Gan, Mufei Li, Xiang Song, Jinjing Zhou, Chao Ma, Lingfan Yu, Yu Gai, et al. 2019. Deep graph library: A graphcentric, highly-performant package for graph neural networks. arXiv preprint arXiv:1909.01315."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou, et al. 2022. Chain-of-thought prompting elicits reasoning in large language models. Advances in Neural Information Processing Systems, 35:24824–24837."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chenxi Whitehouse, Tillman Weyde, Pranava Madhyastha, and Nikos Komninos. 2022. Evaluation of fake news detection with knowledge-enhanced language models. In Proceedings of the International AAAI Conference on Web and Social Media, volume 16, pages 1425–1429."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xingjiao Wu, Luwei Xiao, Yixuan Sun, Junhang Zhang, Tianlong Ma, and Liang He. 2022. A survey of human-in-the-loop for machine learning. Future Generation Computer Systems."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sin-han Yang, Chung-Chi Chen, Hen-Hsen Huang, and Hsin-Hsi Chen. 2023. Entity-aware dual co-attention network for fake news detection. In Findings ofthe Association for Computational Linguistics: EACL 2023, pages 106–113."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chunyuan Yuan, Qianwen Ma, Wei Zhou, Jizhong Han, and Songlin Hu. 2020. Early detection of fake news by utilizing the credibility of news, publishers, and users based on weakly supervised learning. In Proceedings of the 28th International Conference on Computational Linguistics, pages 5444–5454."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tianjun Zhang, Fangchen Liu, Justin Wong, Pieter Abbeel, and Joseph E Gonzalez. 2023. The wisdom of hindsight makes language models better instruction followers. In International Conference on Machine Learning, pages 41414–41428. PMLR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wayne Xin Zhao, Kun Zhou, Junyi Li, Tianyi Tang, Xiaolei Wang, Yupeng Hou, Yingqian Min, Beichen Zhang, Junjie Zhang, Zican Dong, et al. 2023. A survey of large language models. arXiv preprint arXiv:2303.18223."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yongchun Zhu, Qiang Sheng, Juan Cao, Shuokai Li, Danding Wang, and Fuzhen Zhuang. 2022a. Generalizing to the future: Mitigating entity bias in fake news detection. In Proceedings of the 45nd International ACM SIGIR Conference on Research and Development in Information Retrieval. Association for Computing Machinery."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yongchun Zhu, Qiang Sheng, Juan Cao, Qiong Nan, Kai Shu, Minghui Wu, Jindong Wang, and Fuzhen Zhuang. 2022b. Memory-guided multi-view multidomain fake news detection. IEEE Transactions on Knowledge and Data Engineering."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                85,
+                487,
+                127
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "51"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                510,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Experimental Settings"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                347,
+                101
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.1 Profiling News Media Sources Task Definition and Importance"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                110,
+                442,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we focused on detecting the political bias and factuality of news media sources, which we call news media profiling. We focused on these tasks as stopping misinformation is critical, and politically biased content can sway beliefs and affect important real-world events, such as political elections (Vosoughi et al., 2018)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                147,
+                489,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We model sources for factuality on a 3-point scale: low, mixed, and high. Similarly, we model sources for political bias on a 3-point scale: left, center, and right. More details about this task setup and its importance can be found in (Baly et al., 2020). Below, we also briefly discuss the importance of profiling the source itself."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                261,
+                489,
+                374
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Focusing on profiling the source itself, rather than the content, can have several benefits, which is why we focused on this task work: (1) Most sources publish a large amount of content, and knowing the facutality/bias of the source can give us insight about all the content they publish. Moreover, any new content that the source publishes is more likely to have a similar factuality/bias as the source’s historical content. Thus, knowing the source’s historical level of facutality/bias can provide insight about the new content, which can help in rapidly profiling it. For example, a source publishing mostly left biased content in the past is more likely to be left biased in the future. (2) There are a lot more sources than content on social media, so it can be easier to accurately profile sources, and our framework makes this task even easier. As mentioned above, doing this can then provide insights on all the content the source publishes. (3) There are many new news sources arising daily, so manually profiling all of them is extremely difficult. Thus, developing an automated system is critical."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                374,
+                490,
+                730
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2 Graph Initial Embeddings"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                739,
+                373,
+                756
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We followed the released code and data from Mehta et al., so we use their exact node embedding representations as our initial graph embeddings. The Twitter embedding is a 773 dimensional vector consisting of the SBERT (Reimers and Gurevych, 2019) RoBERTa (Liu et al., 2019) representation of the user profile, consisting of features such as: user bio, user verification status, number of user followers/following, how many tweets they post, and how many likes their tweets have received. We also used similar features for YouTube embeddings for each source: number of likes, dislikes, and number of comments on their videos. For the article feature vector, it was also a SBERT RoBERTa textual embedding."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                760,
+                490,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                166
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.3 Models and Training"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                185,
+                727,
+                202
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We used the ChatGPT models available via the OpenAI "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { A P I } ^ { 5 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as of February 2023."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                212,
+                884,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For our graph models, we used the publicly released code and hyper-parameters of Mehta et al., which uses the PyTorch (Paszke et al., 2019) and DGL (Deep Graph Library) (Wang et al., 2019) libraries in Python. The R-GCN has 5 layers, 128 hidden unites, a batch size of 128, and learning rate 0.001."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                248,
+                887,
+                360
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our models are trained using a 12GB Titan XP GPU card, and intial training takes 2 hours. Link prediction training after human interactions is very quick, and can complete in under 30 minutes. Further, doing the expansion step completes in under 30 minutes. It took under 10 minutes for the humans to do all the interactions."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                363,
+                887,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We used the development set to evaluate model performance, and choose the best hyper-parameters for our experiments."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                479,
+                885,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our models are trained for source classification, using a separate Fully Connected (FC) layer for each fake news source classification and political bias source classification. The R-GCN (Schlichtkrull et al., 2018) model we use creates contextualized graph embeddings for each node in the graph. For example, source embeddings are affected by users and articles they are directly or indirectly connected to. This is why our approach to learn user communities, which leads to better user embeddings (i.e. users with similar perspectives are closer together), leads to better source embeddings."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                530,
+                887,
+                740
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "After being passed through the FC layer for classification, the R-GCN source embeddings are then passed through the Softmax activation function, and finally used to predict the source label. The model is trained like in Mehta et al., using a categorical cross-entropy loss, where the gold training labels are factuality or political bias. The two source classification tasks are trained jointly, summing their losses."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                743,
+                889,
+                889
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>5</sup>https://openai.com/blog/openai-api"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                907,
+                848,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "52"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B Prompts for GPT-3"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                83,
+                319,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we describe the prompts we use for GPT-3 and Chat-GPT, to utilize the large amounts of pre-trained knowledge contained in these models to help us in our interactive framework. It has been shown (Brown et al., 2020; Wei et al., 2022) that prompting can help utilize LLMs like GPT-3 for many NLP tasks, as they cannot be trained directly. While these models cannot do complex reasoning to determine if sources are fake or biased news, they can solve simpler tasks, such as determining if users have the same perspectives, which can help with our tasks, that we built into our interactive framework. Specifically, they can summarize users based on their content (Fig.2), help humans analyze perspectives (Fig. 3), and determine community membership based on similarity (Fig. 4),"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                109,
+                489,
+                367
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "All the prompts used in this paper are human designed."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                367,
+                487,
+                399
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C Human Interaction Details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                410,
+                386,
+                425
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We used a single human interactor for all our experiments, who was a computer science PhD student, of Asian American descent. The student was compensated in research credit hours, as the interaction process was part of their research credit work."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                435,
+                490,
+                516
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We used only a single human due to the fact that our interaction process is very simple, as humans only read a few user summaries and determine content similarity, which in all cases we evaluated on is fairly straight-forward. Moreover, the amount of interactions done in this work was very small, as only 5 interactions could lead to the formation of 8 information communities and connect different communities together. The human we used was also expertly trained. Thus, we did not explore using additional interactors in this work, and it is something we leave for future work. For example, other setups could use multiple experts for human interactions, taking their majority vote as the final interaction."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                516,
+                489,
+                758
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "D Dataset Statistics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                768,
+                302,
+                784
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 6 shows the statistics of the number of sources for the Black Lives Matter and Abortion/Feminism event we evaluate on."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                794,
+                489,
+                841
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To collect the data for Black Lives Matter and Abortion/Feminism, we searched hashtages on Twitter. The hashtags/search terms we used for the Black Lives Matter event were: Black Lives Matter, BLM, blacklivesmatter, Floyd, George Floyd."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                843,
+                490,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The hashtags/search terms we used for the Abortion/Feminism event were: abortion, feminism, womenempowerment, womensrights, metoo, prolife, prochoice."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                149
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E Related Work Cont."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                162,
+                721,
+                179
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We now discuss additional related works we didn’t cover in the main paper, due to space. Several additional works aim to analyze fake news spreaders on social media, some of them using graphs (Rath et al., 2020, 2021; Sakketou et al., 2022b)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                190,
+                885,
+                271
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E.1 Impact of Information Communities for News Media Profiling"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                284,
+                873,
+                316
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Prior work has shown that misinformation tends to spread in groups on social media (Bessi et al., 2016; Halberstam and Knight, 2016; Cinelli et al., 2021). Specifically, they show that like-minded users tend to form groups, that biased/false information reaches the users in these groups more quickly, and that these groups are more likely to be biased/spread misinformation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                323,
+                885,
+                451
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This motivates our ideas to build better information communities for fake news and bias source detection. We hypothesize that if we can identify these like-minded users, i.e. our information communities, then we can more easily identify their users’ bias and likeliness to spread misinformation. This knowledge can then be used to profile news media sources better, especially through our graph model, where users, articles, and sources are directly connected and vary in similarity to each other. Thus, we aimed to build better information communities, and took advantage of minimal human interactions to do this."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                451,
+                887,
+                663
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E.2 Humans Interacting with LLMs"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                675,
+                813,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Humans interacting with LLMs has gained popularity recently. One direction is Reinforcement Learning for Human Feedback (RLHF) (Bai et al., 2022; OpenAI, 2023), where humans preferences are used to train a Reinforcement Learning Agent reward model, which can then be used to improve the LLM. An extension of this, which needs significantly less human interactions, is having humans provide a few training examples to a LLM prompt, which can be used by the LLM to generate rewards (Kwon et al., 2023). In another direction, human interactions can be used to generate LLM prompt instructions to better solve a variety of NLP Tasks (Zhang et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                696,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "53"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/659e82c1910cf6709274984a1e3e4c2dd629d45d4d6a4d009da765fee508dcbf.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: An example of the output shown by Chat-GPT when provided user summaries and asked to predict similarity. Note how often times the output can be vague, which is why human interactions are necessary."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                114,
+                83,
+                880,
+                639
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In contrast, in this work, we had humans interact with LLM and graph knowledge to build better information communities for news media profiling. To do this, we first used LLMs to generate user and community summaries, which we presented to humans. Humans were then asked to use their judgement and reasoning skills, something that is simple for them but hard for LLMs, to form initial validated communities. These validated communities consisted of users who had similar perspectives on similar topics. Then, using graph knowledge, we generated additional candidate communities, and asked LLMs if the users in these additional communities belonged to any of the the human validated communities. As a prompt for this decision, we used the human validated community assignments."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                692,
+                492,
+                919
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                692,
+                885,
+                740
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In summary, we used LLMs to help humans (i.e. generate summaries) and amplify human interactions (i.e. determine if additional users are similar to users in any human validated communities)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                745,
+                887,
+                810
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "F Discussion Continued"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                837,
+                736,
+                853
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We now continue our discussion from Sec. 6, analyzing our Black Lives Matter human interaction models."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                873,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "54"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Which users have the same perspectives? User 1: This user is discussing the Black Lives Matter protest and their perspectives is that these leaders are stealing money from the organization. User 2: This user is discussing the death of a black man in Seattle who was shot by police. Their perspective appears to be critical of the Black Lives Matter movement, and suggest it is hypocritical for the movement to not be speaking out about this man’s death. User 3: This is discussing the case of Shaun King, a civil rights activist, and their perspective is that King is being unfairly attacked. They also express support for the Black Lives Matter movement. Positive Users;;;;Negative Users: User 1, User 2;;;;User 3 Which users have the same perspectives? User 4: …. User 5: … User 6: … Positive Users;;;;Negative Users:"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                168,
+                82,
+                828,
+                362
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/56b57328b3fad9c8287281cf4d2fe229de8ee02351305ea1ede575c3938a1dd3.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 4: An example of the prompt we used to determine community membership for one of the human validated information communities. We use the first paragraph as a 1-shot example, to prompt the model. User 1 and 2 are both critical of the Black Lives Matter movement protests, and thus part of the same community, while User 3 is in support of it, and thus shouldn’t be in the community. Based on this, we prompt GPT-3 with additional users (in this case User 4, 5, and 6), and ask it to determine which users belong in the community and which do not."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 6: Number of sources in our datasets for each emerging news event we evaluate on."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Dataset</td><td rowspan=1 colspan=1>Low Factuality orLeft Bias</td><td rowspan=1 colspan=1>Mixed Factualityor Center Bias</td><td rowspan=1 colspan=1>High Factuality orRight Bias</td></tr><tr><td rowspan=1 colspan=1>Black Lives Matter BiasBlack Lives Matter Factuality</td><td rowspan=1 colspan=1>4935</td><td rowspan=1 colspan=1>5645</td><td rowspan=1 colspan=1>7476</td></tr><tr><td rowspan=1 colspan=1>Abortion + Feminism BiasAbortion + Feminism Factuality</td><td rowspan=1 colspan=1>3849</td><td rowspan=1 colspan=1>5072</td><td rowspan=1 colspan=1>9182</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                183,
+                436,
+                813,
+                535
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "F.1 Community Cohesiveness Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                568,
+                435,
+                585
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this sub-section, we automatically analyze how many users in each community have the same perspectives. To do this, as an approximation, we hypothesize that the communities of users with similar perspectives likely have users with the same bias label. We use bias as an approximation as we have gold data for it, and users with the same political bias likely have similar perspectives (i.e. right bias users likely want to lower taxes). Tab. 9 shows that even in the final expansion round (i.e. after multiple steps of human interaction + model expansion - LLM + Humans Model) users in the communities largely have the same bias label, both when chosen by humans and automatically expanded. Thus, this approximation shows that our communities are in some ways cohesive."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                596,
+                490,
+                854
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "On the contrary, in Tab. 9, the LLM Only model doesn’t have as many users having the same labels as the LLM + Humans model, showing that without human interactions it may be harder to learn user"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                858,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "perspectives."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                569,
+                610,
+                585
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "F.2 Human Analysis of Community Topics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                595,
+                862,
+                611
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We now manually analyze the information communities learned by our best performing model on the Black Lives Matter event, by looking at the top 5 user summaries, determined by user embedding similarity to the community centroid. We observe that our communities capture meaningful perspectives. One community is against the Black Lives Matter protests, believing they are causing damage and the leaders are not condemning it. Another is in support of them, as they feel police do not treat everyone fairly. Other important sub-topics are also discussed, such as George Floyd murder, Ahmaud Arbery murder, police brutality and unions. All these are important BLM related topics."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                617,
+                885,
+                844
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "F.3 LLM Only Failure Cases"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                853,
+                754,
+                869
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we provide a few more examples of cases where Chat-GPT couldn’t find good information communities, and thus humans were needed, as in Sec. C. The examples are shown in Fig. 5 and Fig. 6, and the captions of the figures describe the failures."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                873,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "55"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/8163552eafaec2b3b07337bf3ec9d784774e7d328cfec7a7cc355781b96eb55b.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Model</td><td rowspan=1 colspan=1>TestAcc</td><td rowspan=1 colspan=1>TestF1</td><td rowspan=1 colspan=1># Users; #Sources</td><td rowspan=1 colspan=1># Edges</td><td rowspan=1 colspan=1># Inter-actions</td></tr><tr><td rowspan=1 colspan=1>Baseline: (Mehta et al., 2022)</td><td rowspan=1 colspan=1>36.04</td><td rowspan=1 colspan=1>23.32</td><td rowspan=1 colspan=1>-</td><td rowspan=1 colspan=1>-</td><td rowspan=1 colspan=1>-</td></tr><tr><td rowspan=1 colspan=1>Graph Only: High Purity 4 Communities</td><td rowspan=1 colspan=1>34.95</td><td rowspan=1 colspan=1>19.09</td><td rowspan=1 colspan=1>22;11</td><td rowspan=1 colspan=1>176</td><td rowspan=1 colspan=1>-</td></tr><tr><td rowspan=1 colspan=1>LLM + Humans: 2 Validated Comms, 2 Expansion RoundsLLM + Humans: 4 Validated Comms, 2 Expansion Rounds</td><td rowspan=1 colspan=1>37.3735.43</td><td rowspan=1 colspan=1>25.2419.64</td><td rowspan=1 colspan=1>173; 1650;32</td><td rowspan=1 colspan=1>280628</td><td rowspan=1 colspan=1>12</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                134,
+                82,
+                863,
+                183
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/f6e2540afce74807f755546b70c05737b7f60650b27794043493e10300a132fb.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Fake News Source Detection on Abortion/Feminism: We evaluate Test Set Accuracy, Macro F1, the number of users and sources directly connected/connected to, the number of edges created, and how many human interactions are performed. Results show both of our human interaction models (LLM + Humans) achieve improvements over other models (Baseline and Graph Only model). Specifically, creating two human validated communities and then expanding them over 2 expansion rounds achieves the highest fake news source detection performance. The final communities have 173 users, interact directly with 16 sources, and create 280 edges. Moreover, this performance improvement is with only 1 single human interaction."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Model</td><td rowspan=1 colspan=1>TestAcc</td><td rowspan=1 colspan=1>TestF1</td><td rowspan=1 colspan=1># Users; #Sources</td><td rowspan=1 colspan=1># Edges</td><td rowspan=1 colspan=1># Inter-actions</td></tr><tr><td rowspan=1 colspan=1>Baseline: (Mehta et al., 2022)</td><td rowspan=1 colspan=1>46.92</td><td rowspan=1 colspan=1>33.21</td><td rowspan=1 colspan=1>-</td><td rowspan=1 colspan=1>、</td><td rowspan=1 colspan=1>-</td></tr><tr><td rowspan=1 colspan=1>Graph Only: High Purity 4 Communities</td><td rowspan=1 colspan=1>47.86</td><td rowspan=1 colspan=1>34.02</td><td rowspan=1 colspan=1>22; 11</td><td rowspan=1 colspan=1>176</td><td rowspan=1 colspan=1>-</td></tr><tr><td rowspan=1 colspan=1>LLM + Humans: 2 Validated Comms, 2 Expansion Rounds.LLM + Humans: 4 Validated Comms, 2 Expansion Rounds</td><td rowspan=1 colspan=1>46.9251.39</td><td rowspan=1 colspan=1>40.3338.05</td><td rowspan=1 colspan=1>173; 1650;32</td><td rowspan=1 colspan=1>280628</td><td rowspan=1 colspan=1>12</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                134,
+                273,
+                863,
+                374
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/1525ef7bf5ac4e6773c7897a64e4d1ff562b8034dd530b74b063ae57c158ead4.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Bias News Source Detection on Abortion/Feminism: We evaluate Test Set Accuracy, Macro F1, the number of users and sources directly connected/connected to, the number of edges created, and how many human interactions are performed. Results show both of our human interaction models (LLM + Humans) achieve improvements over other models (Baselines and Graph Only). Specifically, creating four human validated communities and then expanding them over 2 expansion rounds achieves the highest bias news source detection accuracy. The final communities have 50 users, interact directly with 32 sources, and create 628 edges. Moreover, this performance improvement is with only 2 human interactions."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 9: At the final expansion round (i.e. after multiple steps of human interaction + model expansion) the majority of each community’s users for the LLM + Human Interaction Model (last column) have the same gold bias label as the dominant one in the community, showing high cohesiveness (at least in gold bias label). On the contrary, the LLM Only model (third column) has a lower percentage of users with the same gold bias label, showing that without human interactions it is harder to learn user perspectives, at least based on this approximation analysis."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Comm. #</td><td>Dominant LLM + Humans Label</td><td>LLM Only: % Of Users with Dominant Label</td><td>LLM + Humans: % Of Users with Dominant Label</td></tr><tr><td>1</td><td>Right</td><td>~50%</td><td>~60%</td></tr><tr><td>2</td><td>Right</td><td>~37%</td><td>~58%</td></tr><tr><td>3</td><td>Right</td><td>~43%</td><td>100%</td></tr><tr><td>4</td><td>Center</td><td>40%</td><td>50%</td></tr><tr><td>5</td><td>Left</td><td>~71%</td><td>~66%</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                161,
+                478,
+                835,
+                593
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                696,
+                487,
+                744
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While in this paper we experimented with GPT-3 and Chat-GPT as our LLMs of choice, we hypothesize that our results and framework would hold true for other strong LLMs as well. First, other LLMs are likely to also struggle at finding information communities on unseen data, as it is very challenging for AI models to make inferences on data and topics they have never seen before. Second, it is likely that other LLMs that perform well on determining text similarity can be used with our framework (Zhao et al., 2023). We primarily used"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                745,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "LLMs to expand communities, by asking them to determine if new users are similar to users chosen by humans to be part of validated communities. In some ways, this is a text similarity problem, as user summaries are compared. We leave the further investigation of the choice of LLMs for use with our framework to future work."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                696,
+                885,
+                810
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "F.4 Finer Cases"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                820,
+                652,
+                835
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this sub-section, we discuss some finer cases that could occur in our community analysis, and how they would or would not affect our framework."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                841,
+                884,
+                890
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Communities spreading both fake news and biased content: A group of users that spreads both fake news and biased content likely wouldn’t affect our approach/results. Through the approach in Sec. 4, the group would be identified as a single information community. Then, the R-GCN graph model would learn that this community is both a fake news and political bias spreading information community."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                890,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "56"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                929,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7f2d0adf7d8bd5952063e005e160ad54bfaa0181a6becb9f9ee41b4d474a0f98.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 6: LLM Failure Case: In this case, the LLM (Chat-GPT) considers all 3 users as similar and in the same community. However, User 1 doesn’t belong, as they are likely just reporting on the news of the inauguration. The LLM gets confused over the word “highlights”, which could be positive or negative in this situation."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                164,
+                80,
+                878,
+                549
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                613,
+                489,
+                726
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Source Label Inconsistencies: In this paper, we obtained source labels for both factuality and political bias from Media Bias/Fact Check<sup>6</sup>, a popular source fact-checking and source political bias detection website. This website typically holistically evaluates sources, so it is likely a majority of the content we scraped for our experiments follows the factuality/bias label provided by Media Bias/Fact-Check. However, it is possible that some sources have different levels of factuality/bias for different events that Media Bias/Fact Check doesn’t capture (i.e. a source could be labeled as “mixed” factuality but be completely factual on Black Lives Matter news). While we leave the analysis of this to future work, we hypothesize that these cases are rare and thus unlikely to significantly affect our results. More importantly, it’s possible that our framework can actually make the correct prediction on these incorrectly labeled sources. This can happen as our formed information communities typically span multiple sources and are very cohesive, so they are likely to be accurate. Once we form our communities, we train the graph for link prediction, so we aren’t actually using the source labels but rather we are capturing user perspectives through training. Thus, if some sources are labeled incorrectly and that leads to an initially biased graph model, our interaction process can actually fix that by helping us learn a better model, improving performance on those incorrectly labeled sources."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                728,
+                490,
+                890
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                613,
+                887,
+                920
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>6</sup>https://mediabiasfactcheck.com"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                907,
+                420,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "57"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                928,
+                512,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                114,
+                85,
+                364,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Human Interaction Inconsistencies: As mentioned in the main paper, our interaction task is extremely simple, as humans just have to determine user similarity by reading a few short spans of user text. This distinction is very clear-cut, as users that are borderline similar should not be placed in the same community. Thus, different human interactors are likely to make the same decisions, no matter their backgrounds/beliefs/etc., because identifying this level of similarity is a fairly simple task. Moreover, there are multiple ways to ensure that the interactions are done accurately, such as hiring multiple experts and taking their majority vote. However, still, in this section we analyze the situation in which humans incorrectly choose users as similar when they are not, or vice versa."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                101,
+                490,
+                359
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The strength of our framework is forming cohesive information communities through the interactions, where users have similar perspectives. Assuming an interaction lead to a community that wasn’t cohesive, it is likely that the trained graph model would learn to ignore it, as it wouldn’t gain any significant insight from this “random” community. Thus, this “incorrect” interaction is not likely to significantly hurt our model. Further, on a large scale over many interactions and lots of communities formed, a few “incorrect” interactions is unlikely to make huge negative difference to our approach, due to the fact that we always train for them using link prediction, so the model can learn to ignore it if necessary. For example, even though the link prediction training objective would pull the non-similar users in this “incorrect” community closer together, the content these users are connected to in a different “correct” community would still be pulled closer together. If there are more “correct” communities than incorrect, then even the users in the “incorrect” community would be indirectly affected by other communities and end up with the correct representations (i.e. farther apart if they are non-similar)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                359,
+                490,
+                763
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "58"
+                    }
+                ]
+            },
+            "bbox": [
+                489,
+                928,
+                512,
+                942
+            ]
+        }
+    ]
+]

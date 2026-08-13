@@ -1,0 +1,4208 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "BookSQL: A Large Scale Text-to-SQL Dataset for Accounting Domain"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                132,
+                89,
+                865,
+                111
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Rahul Kumar† Amar Raja Dibbu† Shrutendra Harsola∗"
+                    }
+                ]
+            },
+            "bbox": [
+                230,
+                128,
+                781,
+                146
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Vignesh Subrahmaniam∗ Ashutosh Modi†"
+                    }
+                ]
+            },
+            "bbox": [
+                305,
+                145,
+                704,
+                162
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "text_list",
+                "attribute": "unordered",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "† Indian Institute of Technology Kanpur (IIT Kanpur) ∗ Intuit {rahulkumar21,amard21}@iitk.ac.in"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "{shrutendra_harsola,vignesh_subrahmaniam}@intuit.com {ashutoshm}@cse.iitk.ac.in"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                235,
+                161,
+                769,
+                229
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                262,
+                260,
+                342,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Several large-scale datasets (e.g., WikiSQL, Spider) for developing natural language interfaces to databases have recently been proposed. These datasets cover a wide breadth of domains but fall short on some essential domains, such as finance and accounting. Given that accounting databases are used worldwide, particularly by non-technical people, there is an imminent need to develop models that could help extract information from accounting databases via natural language queries. In this resource paper, we aim to fill this gap by proposing a new largescale Text-to-SQL dataset for the accounting and financial domain: BookSQL. The dataset consists of 100k natural language queries-SQL pairs, and accounting databases of 1 million records. We experiment with and analyze existing state-of-the-art models (including GPT-4) for the Text-to-SQL task on BookSQL. We find significant performance gaps, thus pointing towards developing more focused models for this domain."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                291,
+                462,
+                606
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                620,
+                260,
+                637
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Relational databases are pervasive in all modernday organizations, from financial establishments to educational institutes. Typically, query languages such as SQL are used to extract the required data from relational databases. However, formulating queries in SQL needs mastery of the language itself; consequently, this excludes people (particularly those without technical background, e.g., financial accountants) who do not know SQL from using databases. It is imperative to develop techniques to address the research question, can relational databases be queried using natural language? In this paper, we take a step toward this goal; in particular, we explore if one could develop a natural language interface for accounting databases. In recent years, several large-scale general-purpose datasets (Deng et al., 2022) have been proposed for developing Text-to-SQL systems<sup>1</sup>, such as Spider (Yu et al., 2018) and WikiSQL (Zhong et al., 2017). Such datasets,<sup>2</sup> though cross-domain, are still not suitable for developing systems that could address real-world business use cases, such as accessing accounting databases via natural language interfaces. The primary reason is that these large-scale datasets have a considerable breadth regarding types of domains. However, they either lack certain domains (such as accounting) or have limited data and query types for specific domains (e.g., financial, sales, and marketing). In this paper, we try to address this gap by proposing a large-scale Text-to-SQL dataset (called BookSQL) for the accounting and business domain. We collaborate with financial experts to create a dataset that reflects actual accounting databases used in the industry."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                648,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/3e4706c609de3f74a21fceb36ae113238478ba39754cb6b2b9b86390c0dd2d85.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Performance (Exact Match Accuracy (c.f. §5)) of pre-trained SOTA Text-to-SQL models on Spider and the proposed BookSQL dataset. As can be observed existing models have very poor performance on Book-SQL indicative of poor domain generalization."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Model</td><td>Spider</td><td>BookSQL</td></tr><tr><td>UniSAr</td><td>70%</td><td>3.8%</td></tr><tr><td>SEDE</td><td>63.2%</td><td>0.0%</td></tr><tr><td>RESDSQL</td><td>80.5%</td><td>10.8%</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                559,
+                260,
+                833,
+                337
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                438,
+                887,
+                713
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To the best of our knowledge, there is no largescale dataset in the accounting domain that contains granular records of accounting books used in businesses. To give an idea about the scale of usage of accounting databases: there are around 33 million small businesses<sup>3</sup> in the US alone. Most of these businesses use accounting software to maintain their books to keep track of their finances, i.e., money-in transactions (e.g., invoice and sales receipt) and money-out transactions (e.g., expense, purchase order, and bill payment). Additionally, for tax purposes, these books need to follow standard accounting principles like double-entry accounting,<sup>4</sup> hierarchical chart of account structure,<sup>5</sup> and accrual accounting.<sup>6</sup> Transactions in the accounting database span across multiple tables. The corresponding SQL queries can involve complex operations such as aggregations, computing distinct counts, and nested queries to extract information from these. For a novice user, this is not an easy task. Moreover, as observed in our initial experiments (Table 1), existing state-of-the-art (SOTA) Text-to-SQL models trained on Spider have very poor performance on domain-specific BookSQL dataset, pointing towards the need for a accounting domain specific dataset which will further lead to the development of SOTA models. In a nutshell, in this resource paper, we make the following contributions:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                714,
+                887,
+                796
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>By Text-to-SQL system we refer to a system that, given a natural language query, automatically retrieves the desired information from a database or multiple databases by converting a natural language query to SQL query as an intermediate representation."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                812,
+                884,
+                873
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>By Text-to-SQL dataset we refer to a dataset having both the natural language queries with corresponding SQL formulation and correct answers along with the corresponding database against which queries are fired"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                872,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "497"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                515,
+                941
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 497–516 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                945,
+                858,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/b880267138b41e518f0311d4dc7f16c8e5f17147a24cf32afb590bfd49f685df.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: Comparison of benchmark datasets with BookSQL. #Size, #DB, #D, and #T/DB represent the numbers of query-SQL pairs, databases, domains, and the averaged number of tables per domain, respectively. The “-” in the #D column indicates an unknown number of domains. Last 3 columns indicate the query types. Yelp dataset is based on Yelp website, IMDB is based on movie domain and Advising dataset is based on the University Course domain"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Dataset</td><td>#Size</td><td>#DB</td><td>#D</td><td>#T/DB</td><td>Domain</td><td>ORDER BY</td><td>GROUP BY</td><td>NESTED</td></tr><tr><td>Spider</td><td>10,181</td><td>200</td><td>138</td><td>5.1</td><td>Cross</td><td>1335</td><td>1491</td><td>844</td></tr><tr><td>WikiSQL</td><td>80,654</td><td>26,521</td><td>-</td><td>1</td><td>Cross</td><td>0</td><td>0</td><td>0</td></tr><tr><td>Advising</td><td>3,898</td><td>208</td><td>1</td><td>10</td><td>Single</td><td>15</td><td>9</td><td>22</td></tr><tr><td>BIRD</td><td>12,751</td><td>95</td><td>37</td><td>7.3</td><td>Cross</td><td>2576</td><td>881</td><td>0</td></tr><tr><td>IMDB</td><td>131</td><td>1</td><td>1</td><td>16</td><td>Single</td><td>10</td><td>6</td><td>1</td></tr><tr><td>Yelp</td><td>128</td><td>1</td><td>1</td><td>7</td><td>Single</td><td>18</td><td>21</td><td>0</td></tr><tr><td>BookSQL</td><td>100k</td><td>1</td><td>1</td><td>7</td><td>Single</td><td>17,529</td><td>11,508</td><td>4,456</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                161,
+                82,
+                836,
+                230
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                312,
+                492,
+                700
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. We create a new and large-scale Text-to-SQL financial dataset referred to as BookSQL. The dataset consists of a financial-accounts database of 1 million records. The corresponding natural language queries are designed to address various practical intricacies of the accounting domain. BookSQL has 100k Query-"
+                    }
+                ]
+            },
+            "bbox": [
+                129,
+                712,
+                490,
+                826
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SQL pairs which is about 1.25 times the existing largest Text-2-SQL dataset: WikiSQL. In particular, for designing the queries, we consulted financial experts to understand various practical use cases."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                312,
+                887,
+                393
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. We run existing state-of-the-art models (including GPT-4) for the Text-to-SQL task on BookSQL to see the performance and analyze the shortcomings of the models trained on existing large-scale datasets such as Spider, pointing towards developing specialized models for this domain. We release the dataset and model code via GitHub: https://github. com/Exploration-Lab/BookSQL."
+                    }
+                ]
+            },
+            "bbox": [
+                522,
+                403,
+                889,
+                549
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                558,
+                667,
+                575
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Due to its importance in practical applications, developing natural language interfaces to databases has been an active area of research. Due to space constraints, we cannot cover all the research, and we refer the reader to the survey by Deng et al. (2022). We outline some of the main works in this area in this section. Several datasets have been proposed for Text-to-SQL task in recent years. For example, Spider (Yu et al., 2018) dataset has been proposed; it covers 138 different domains. A large-scale dataset, WikiSQL (Zhong et al., 2017), consisting of 24241 Wikipedia tables, has been created. Similarly, Squall (Shi et al., 2020b), KaggleDBQA (Lee et al., 2021), and BIRD-SQL (Li et al., 2023b) datasets have been generated to evaluate the generalization property of models on unseen domains. Domain-specific datasets have also been proposed, such as those based on Yelp and IMDB (Yaghmazadeh et al., 2017), Advising domain (Finegan-Dollak et al., 2018), MIMICSQL (Wang et al., 2020), SEDE (Hazoom et al., 2021a),"
+                    }
+                ]
+            },
+            "bbox": [
+                505,
+                585,
+                889,
+                923
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>https://tinyurl.com/mr3vrptj"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                833,
+                359,
+                847
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>https://en.wikipedia.org/wiki/Double-entry_ bookkeeping"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                846,
+                472,
+                872
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>5</sup>https://en.wikipedia.org/wiki/Chart_of_ accounts"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                871,
+                445,
+                896
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>6</sup>https://en.wikipedia.org/wiki/Basis_of_ accounting"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                896,
+                443,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "498"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/61b53a8edf467fed799d4c7d228ba9be35d9f9c0ace92f917decf4927db359dd.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Statistics of BookSQL."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>BookSQL</td><td>Stats</td></tr><tr><td>Size of the database</td><td>1 million</td></tr><tr><td>Total Businesses</td><td>27</td></tr><tr><td>Size of Question-SQL Pair</td><td>100k</td></tr><tr><td>Number of Easy SQL</td><td>10,000</td></tr><tr><td>Number of Medium SQL</td><td>45,000</td></tr><tr><td>Number of Hard SQL</td><td>45,000</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                147,
+                82,
+                453,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Restaurants domain (Tang and Mooney, 2001), and Academic domain (Li and Jagadish, 2014). The purpose of these datasets is to evaluate the performance of models with a high degree of precision while disregarding the generalization characteristic of the models."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                247,
+                489,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Comparison. We compare BookSQLwith other popular datasets in Table 2. As can be observed, BookSQL has a much large number of Query-SQL pairs, has a more diverse number of queries in terms of the SQL clauses (e.g., ORDER BY), and involves more complex (and nested) queries. Benchmark dataset such as Spider have a very wide coverage over various domains (138) but very few queries per domain (e.g., average number of queries per domain is 74 in the case of Spider), limiting its performance in a specific domain (see also Table 1). Moreover, BookSQL can be merged with the existing Spider dataset to increase its coverage in the business domain."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                346,
+                489,
+                570
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Models. Various models have been proposed for the Text-to-SQL task (Deng et al., 2022). Some state-of-the-art models include the non-invasive UniSAr model (Dou et al., 2022) based on Seq2Seq architecture. The model has shown high accuracy on the multi-domain, multi-table Spider dataset. RESDSQL (Li et al., 2023a) decouples the schema linking and the skeleton parsing for Text-to-SQL generation. Schema linking identifies the table and columns required for a given question. Skeleton parsing first generates the SQL skeleton and then the final SQL. It achieves SOTA performance on the Spider benchmark."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                573,
+                489,
+                783
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 BookSQL Dataset"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                797,
+                305,
+                814
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Given the importance and wide prevalence of business databases across the world, the proposed dataset, BookSQL focuses on the finance and accounting domain. Accounting databases are used across a wide spectrum of industries like construction, healthcare, retail, educational services, insurance, restaurant, real estate, etc. Business in these industries arranges their financial transactions into their own different set of categories (called a chart of accounts<sup>7</sup> in accounting terminology). For example, a restaurant business could have categories like advertising, license fees, etc., a real estate brokerage business could have categories like commissions, office supplies, etc. Keeping generalization in mind BookSQL dataset includes a variety of businesses from different industries. Hence, a Text-to-SQL system developed on BookSQL will be robust at handling various types of accounting databases. The total size of the dataset is 1 million. The dataset is prepared under financial experts’ supervision, and the dataset’s statistics are provided in Table 3. The dataset consists of 27 businesses, and each business has around 35k - 40k transactions. The distributions of all businesses and their products are shown in Appendix Figure 3 and Figure 4."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                826,
+                492,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                407
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 BookSQL Tables"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                417,
+                692,
+                432
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1 shows the detailed database schema. The schema is reflective of real-life databases used in the finance and accounting domain. There are seven tables in the BookSQL, namely, Master Transactions, Customer, Employees, Product Service, Vendor, Chart of Account, and Payment Method tables. We arrived at the list of seven tables after examining (and corresponding discussions with finance experts) the databases of several businesses. Given the nature of accounting domain, majority of databases used by businesses across the globe are restricted mainly to these seven tables only. The main table is the “Master Transaction” table (e.g., Appendix Table 8), which records money-in transactions (invoice, sales receipt, etc.) and money-out transactions (expense, purchase order, bill payment, etc.) This table also records additional corresponding transaction details, like the customer, vendor, product/service, credit account, debit account, and amount. The “Chart of accounts” table (e.g., Appendix Table 9) contains information on all account names and types. The “Customer” table (e.g., Appendix Table 10) contains all the customer’s details, i.e., name, billing, and shipping address. The “Vendors” table (e.g., Appendix Table 11) contains all the vendor details of all the businesses, i.e., vendor names and billing addresses. The “Employees” table (e.g., Appendix"
+                    }
+                ]
+            },
+            "bbox": [
+                505,
+                437,
+                889,
+                890
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>7</sup>https://www.investopedia.com/terms/c/chartaccounts.asp"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                895,
+                820,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "499"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/502f1018935128c9e430a802fb5b6eb7f227328163252ee175ca738d779a6386.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: BookSQL Database schema"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                184,
+                83,
+                816,
+                507
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 12) contains information about all the business employees. The “Product service” table (e.g., Appendix Table 13) contains the details of all the products and services. The “Payment method” table (e.g., Appendix Table 14) contains different payment methods the business uses."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                563,
+                490,
+                662
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Financial Constraints"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                674,
+                332,
+                689
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For creating the dataset, we took existing accounting databases based on the schema described above and anonymized the names and entries in the tables, i.e., actual names, businesses, and numbers were replaced with fictional ones while adhering to the financial constraints (described next). This is done to maintain the privacy of individuals and businesses. The resulting database is a true reflection of a realworld accounting setting. Accounting databases follow certain accounting rules and financial constraints, which were followed when anonymizing the database. In particular, standard double-entry accounting was followed, which means every entry to an account needs a corresponding and opposite entry to a different account, i.e., debit and credit. So, the sum of debit should always be equal to the sum of credit for every transaction. All seven tables were partitioned by business_id. For a given transaction_id, the sum of the credits column should equal the sum of the debits column, and both should equal the amount column in the Master Transactions table. Credit (in the Master Transaction table) should be equal to the product of Quantity and Rate. The chart of accounts was anonymized using the industry-wise list published by a popular CPA.<sup>8</sup> Business-specific custom fields were anonymized using the examples provided in the help articles of various accounting software. The created database was cross-checked with financial experts to make sure that the created database looked like a realworld accounts database."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                697,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                564,
+                887,
+                838
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Dataset Creation and Annotation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                847,
+                818,
+                863
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "BookSQL dataset consists of 100k questions in natural language and their corresponding SQL on multiple tables, covering 27 different businesses. We involved financial experts in the query creation process. We collaborated with two financial experts who have previously been involved in the creation of accounting software. Moreover, these experts have the knowledge and experience in dealing with customer interactions involving account books. The financial experts helped us on a pro bono basis since the creation of Text-to-SQL system for the accounting domain would help them and their customers."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                868,
+                885,
+                902
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>8</sup>https://hectorgarcia.com/resources/"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                907,
+                808,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "500"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7a387d398d8602cdbc6cd041d16f3b345a7bc0d647dc5b0cbb62a7c6dab0e937.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: An example showing the pipeline for creating BookSQL dataset. Note, here we can replace aggregation_entity by max, min, total, and average, and customer_name can be replaced with any possible name to get the Question-SQL pair. Similarly, date/period can be replaced with last quarter, this quarter, last month."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                127,
+                87,
+                473,
+                294
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                422,
+                490,
+                599
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The question-SQL pair formulation process is as follows. With the help of financial experts, we first created a list of typical questions (based on the account book) that customers (or business people) usually ask or questions about the information that customers are interested in knowing. We tried to keep the questions (queries) as natural as possible to capture real-world scenarios. We relied on the experience of financial experts to keep the list as exhaustive as possible. We also created the corresponding SQL query for each of the natural language queries in the list. The queries in the list were then used to create more queries via the process of templatization. Figure 2 explains the process with help of an example."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                600,
+                489,
+                841
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In order to be as exhaustive as possible, with the help of experts, we arrived at a list of 183 unique natural language questions that customers typically ask when interacting with accounting databases. These natural language questions were used to create query templates, and this was further used to generate diverse range of Question-SQL pairs in BookSQL. Additionally, we performed a second round of verification of the BookSQL corpus and query templates with financial experts to verify the consistency, veracity, and ensure that the dataset reflected the real-world scenario. Note that existing general Text-to-SQL datasets (e.g., Spider and WikiSQL) consist of databases from multiple domains and BookSQL is focused on the financial domain, hence the number of templates may appear to be less. However, the number of templates is still large when compared across a single domain, for example, to give a rough estimate, Spider dataset uses 5693 templates and spans 138 domains, so a rough estimate of number of templates per domain is about 41 ( 5693/138). Note that Spider doesn’t provide details about templates for each domain, hence a rough estimate. Moreover, questions in existing Text-to-SQL datasets (like Spider) are created by students (Yu et al., 2018), whereas questions in BookSQL are created by financial experts who use accounting systems on a regular basis and are well-versed. Although our dataset is small (in terms of total number of templates), it is of high quality and more complex; hence it helps in learning models that would generalize well. Moreover, while experimenting with models, the queries in the test set are based on templates that are not used during training (see section 5)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                843,
+                490,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                568
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To the best of our knowledge, BookSQLis the first Text-to-SQLdataset to have multi-step questions, which requires nested SQL queries to get the answer. For example - \"What products are selling less than last month/week?\" It would first require computing monthly/weekly product level sales and then comparing each product’s current and last month’s/week’s sales. BookSQLdatabase schema also contains complex column types. Additionally, BookSQLis the first Text-to-SQLdataset to have extensive time-based filters like last month, this quarter to date, last financial year, between July to August, this week, yesterday, etc."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                568,
+                887,
+                780
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.4 Complexity of SQL in BookSQL"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                788,
+                811,
+                804
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SQL queries in BookSQL are diverse and cover various levels of complexity, i.e., it covers the following operations: SELECT with multiple columns and aggregations, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT, JOIN, INTERSECT, UNION, NOT IN, OR, AND, EXISTS, CONTAINS as well as nested queries. Table 2 shows the comparisons of all Text-to-SQL datasets. In terms of complexity, BookSQL consists of complex SQL queries containing 17,529 ORDER BY, 11,508 GROUP BY, and 4,456 NESTED queries. We further divided all Query-SQL pairs into three categories: Easy, Medium, and Hard, based on the complexity of SQL. Table 4 shows examples for each category. Table 3 shows the main statistics of the BookSQL. BookSQL consists of 7,193 Hard SQL queries, making it a more complex, large, and challenging dataset. We used the following criteria to decide on the complexity of a query."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                809,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "501"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                515,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/af88a938969a6754b60a677d3e1b7b6258acecdd713f06fdf5f571dc2fb8619f.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: Examples of Question-SQL pairs from BookSQLbased on complexity of the query."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Complexity Question</td><td></td><td>SQL</td></tr><tr><td>Easy</td><td>owned by John?</td><td>What is the balance SELECT balance from Customers where customer_name = &#x27;John&#x27;</td></tr><tr><td>Medium</td><td></td><td>What is the maxi- SELECT MAX(credit) FROM master_txn_table where ac- mum sales for John count_type in (&#x27;Income&#x27;, &#x27;Other Income&#x27;) AND customer = &#x27;John&#x27; in the last month? AND month(transaction_date) = month(current_timestamp) - 1</td></tr><tr><td>Hard</td><td>month?</td><td>What products are SELECT A.product_service, revenue_this_month, rev- selling less than last enue_last_month FROM (SELECT product_service, SUM(credit) as revenue_this_month FROM master_txn_table WHERE account_type in (&#x27;Income&#x27;, &#x27;Other Income&#x27;) AND month(transaction_date) = month(current_timestamp) GROUP BY 1) AS A INNER JOIN (SELECT product_service, SUM(credit) as revenue_last_month FROM master_txn_table WHERE account_type in (&#x27;Income&#x27;, &#x27;Other Income&#x27;) AND month(transaction_date) = month(current_timestamp) - 1 GROUP BY 1) AS B ON A.product_service = B.product_service WHERE</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                121,
+                80,
+                875,
+                390
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                442,
+                490,
+                637
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• EASY: simple queries with single WHERE condition"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                648,
+                489,
+                680
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• MEDIUM: multiple conditions in WHERE clause and multiple columns in SELECT clause"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                692,
+                489,
+                740
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• HARD: Join, Group by, Inner queries, Union, Except as these are hard to predict from Natural Language question."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                752,
+                490,
+                802
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Baseline Models"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                814,
+                290,
+                831
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We benchmark existing state-of-the-art (SOTA) Text-to-SQL models on BookSQL dataset. SEDE: We fine-tuned the SEDE model (Hazoom et al., 2021b) on the BookSQL dataset. SEDE is a T5-based sequence-to-sequence model (Raffel et al., 2020). It takes unordered schema items (tables and column names) along with questions as input and generates the corresponding SQL query as output."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                841,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                442,
+                885,
+                506
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "UniSAr: We fine-tuned the UniSAr model (Dou et al., 2022) on the BookSQL train dataset, with T5-large as the base language model. UniSAr converts any seq-to-seq language model into a text2sql model by three non-invasive extensions: (1) Structure Mark to encode database schema in the model input, (2) Constrained Decoding to generate wellstructured SQL. For the BookSQL dataset, we removed the constrained decoding module of UniSAr, since it did not support the SQL queries with complex grammar present in the BookSQL dataset. (3) SQL Completion for completing potential missing JOIN relationships."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                510,
+                887,
+                720
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "RESDSQL: RESDSQL (Li et al., 2023a) decouples the schema linking and the skeleton aware decoding for SQL generation. A cross-encoder is trained to rank the tables and columns required for a given query for schema linking. For SQL generation, a seq-to-seq model with skeleton-aware decoding is used, which first generates an SQL skeleton, and then the model predicts the actual SQL query from it. The masked self-attention method in the decoder allows the first created skeleton to direct the future SQL parsing implicitly."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                724,
+                887,
+                902
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "DIN-SQL + GPT4: We use prompt chaining technique as proposed in Pourreza and Rafiei (2023). It decomposes Text-to-SQL task into multiple subtasks and then solves each sub-task one by one by prompting GPT4 (Achiam et al., 2023) with sub-task-specific prompts. It uses the following sub-tasks:"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                906,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "502"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/d3ba2c0e5d6afd9687335f0dbc13aa493710e3f6ea498aa46463ce7f06c18bcf.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 5: Results on Spider and BookSQL datasets. EMA refers to Exact Match Accuracy, EA refers to Execution Accuracy, and PCM-F1 refers to Partial Component Match F1. DFew+GPT4 refers to Dynamic few-shot prompt+GPT4"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"2\">Spider</td><td colspan=\"5\">BookSQL</td></tr><tr><td>EMA</td><td>EA</td><td>EMA</td><td>PCM-F1</td><td>EA</td><td>BLEU-4</td><td>ROUGE-L</td></tr><tr><td>SEDE</td><td>63.2%</td><td>1</td><td>43.4%</td><td>0.82</td><td>44.3%</td><td>0.69</td><td>0.83</td></tr><tr><td>UniSAr</td><td>70%</td><td></td><td>43.0%</td><td>0.78</td><td>47.6%</td><td>0.72</td><td>0.80</td></tr><tr><td>RESDSQL</td><td>80.5%</td><td>84.1%</td><td>51.5%</td><td>0.81</td><td>54.4%</td><td>0.74</td><td>0.81</td></tr><tr><td>DIN-SQL+GPT4</td><td>60%</td><td>85.3%</td><td>9.3%</td><td>0.63</td><td>7.6%</td><td>0.43</td><td>0.68</td></tr><tr><td>DFew+GPT4</td><td>一</td><td></td><td>47.5%</td><td>0.89</td><td>67.2%</td><td>0.86</td><td>0.90</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                114,
+                82,
+                887,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                307,
+                489,
+                405
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Schema Linking: This module identifies references to database tables and columns required to answer the natural language question."
+                    }
+                ]
+            },
+            "bbox": [
+                127,
+                413,
+                490,
+                479
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Classification and Decomposition: This module classifies each question into easy, nonnested complex, and nested complex. This signifies the type of SQL query required for the given question."
+                    }
+                ]
+            },
+            "bbox": [
+                127,
+                483,
+                490,
+                565
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. SQL Generation: This module generates the SQL using the output of previous modules."
+                    }
+                ]
+            },
+            "bbox": [
+                126,
+                570,
+                489,
+                602
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Self Correction module: This module is responsible for correcting any minor mistakes in the SQL generated by the previous module."
+                    }
+                ]
+            },
+            "bbox": [
+                127,
+                607,
+                490,
+                657
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Sample prompts for each of these sub-tasks are provided in the Appendix §C."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                665,
+                489,
+                697
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Dynamic few-shot prompt + GPT4 (DFew+GPT4): We follow a dynamic fewshot prompting technique similar to Sun et al. (2023). Firstly, a vector database is created by an embedding train set questions using SentenceTransfomers all-MiniLM-L6-v2 model.<sup>9</sup> This model is trained on the 1 billion sentence pairs dataset<sup>10</sup> and is best suited for generating sentence embeddings. This created embedding database is called trainDB. Then, at inference time, embedding for the test question is created using the same SentenceTransfomers model, and this embedding is used to do ANN (Approximate Nearest Neighbor) search in trainDB to get ten examples from the train set. These ten examples and database schema is used to create the few-shot SQL generation prompt for GPT4. Pseudo-code and sample prompts are provided in Appendix §B. We use ChromaDB<sup>11</sup> as the underlying vector database and for ANN search."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                697,
+                490,
+                876
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                307,
+                885,
+                455
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Experiments, Results and Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                507,
+                467,
+                843,
+                485
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 Evaluation Metrics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                494,
+                709,
+                511
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use the standard evaluation metrics (details in Appendix D) of Exact Match Accuracy (EMA) (Yu et al., 2018), Execution Accuracy (EA) (Yu et al., 2018), Partial Component Match F1 (PCM-F1) (Hazoom et al., 2021a), BLEU-4 (Papineni et al., 2002), and ROUGE-L (Lin, 2004)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                517,
+                885,
+                615
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 Experimental Setup"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                627,
+                715,
+                644
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We divide the dataset into 70% train, 10% validation, and 20% test sets based on query templates. The test set contains 14.37% easy, 78.43% medium, and 7.2% hard SQL queries. In order to check the generalization performance, queries in the test set are based on templates that are not used during training. Given limitations on the number of calls to OpenAI GPT4 API, we used a random 10% of BookSQL test set for GPT4-based approaches. We provide details about training and hyper-parameters in Appendix E."
+                    }
+                ]
+            },
+            "bbox": [
+                505,
+                650,
+                889,
+                829
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                840,
+                616,
+                857
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 5 and Table 6 shows the performance of baseline models. Table 5 shows the performance of"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                863,
+                887,
+                897
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>9</sup>https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                882,
+                452,
+                908
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>10</sup>https://huggingface.co/blog/1b-sentence-embeddings"
+                    }
+                ]
+            },
+            "bbox": [
+                129,
+                907,
+                468,
+                922
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>11</sup>https://github.com/chroma-core/chroma"
+                    }
+                ]
+            },
+            "bbox": [
+                526,
+                907,
+                784,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "503"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/b0886df2c0c77d53757340c7b74753e2db96454212ecf3daff84323e84b18b51.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 6: Execution Accuracy (in %) of various models on SQL queries of varying complexity. E refers to Easy query, M refers to Medium query and H refers to query with Hard complexity."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Query</td><td>SEDE</td><td></td><td>UniSAr RESDSQL GPT4</td><td></td></tr><tr><td>E</td><td>100</td><td>100</td><td>100</td><td>100</td></tr><tr><td>M</td><td>43.08</td><td>46.49</td><td>62.12</td><td>71.35</td></tr><tr><td>H</td><td>15.00</td><td>12.34</td><td>15.00</td><td>22.08</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                126,
+                84,
+                477,
+                162
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SOTA Text-to-SQL models fine-tuned on the Book-SQL dataset. RESDSQL performs best as can be observed with regard to exact match accuracy and execution accuracy scores. SEDE and UniSAr have poor exact match and execution accuracy scores. Though BookSQL and Spider are not directly comparable, we also include results of the models on the Spider dataset to provide a reference for comparison purposes. As can be observed, the models that perform well on Spider do not have a good performance on BookSQL, indicating the complexity of the dataset. Table 5 shows the in-context learning performance of GPT4 on the BookSQL test set. DIN-SQL+GPT4 could only get 9.3% exact match accuracy, while Dynamic few-shot prompt+GPT4 comes close to the best-fine-tuned model, with exact match accuracy of 47.5% and execution accuracy of 67.2%. Table 6 shows the performance on easy, medium and hard queries. All models have a perfect performance (100% execution accuracy) on easy queries but struggle with medium and hard queries."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                258,
+                490,
+                613
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 Error Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                626,
+                280,
+                642
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We observed that SOTA models fail on queries with date filters, nested queries, distinct aggregations, and domain-specific filters. Table 7 shows the outputs of models on some examples from the test set. DIN-SQL + GPT4 performs very poorly with execution accuracy of 7.6%. Perhaps, the reason for the bad performance is that it uses the same static chain-of-thought prompt, irrespective of the test question. BookSQL questions are very diverse and require domain knowledge. It is impossible to capture this diversity and domain knowledge in only a few examples in the prompt. Due to this, DIN-SQL fails whenever the test question is completely different from the examples provided in the prompt. Dynamic few shot prompt + GPT4 model addresses the limitations of DIN-SQL by dynamically selecting a few shot examples for the prompt based on the test question. It significantly improves execution accuracy to 67.2%. Possibly, the reasons for poor performance are: 1) Getting confused between different columns (like WHERE clause on product_service vs. account column - see table 7), 2) Mixing up credit, debit, and amount columns and using incorrect columns in aggregations, 3) Not able to generate Nested SQL, even when required to answer the test question correctly, 4) failing when domain-specific information is required to generate SQL correctly. For example, transaction_type filters of the invoice, sales receipt, and purchase order, or account_type filters of expense, income, account receivable, and account payable are incorrectly applied."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                649,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SEDE fails to generate correct SQL, possibly due to a lack of question and schema linking in the input to the T5 model. Due to this, it mixes up different columns like customer, vendor, product_service, and account. UniSAr performs poorly, possibly due to complex queries introduced in Book-SQL like date filters, nested queries, distinct aggregations, etc. UniSAr introduces constrained grammar-based decoding, which works well for simple queries but fails with such complex queries. RESDSQL is the best-performing model. Poor performance is possibly due to: 1) Failure at complex time-based questions like \"What is average revenue for customer X in last 6 years\" (see table 7); 2) mixing up of credit and debit columns; 3) failure when distinct aggregations are required like COUNT(DISTINCT transaction_id); 4) failure in case of many nested queries."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                328,
+                887,
+                619
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Future Directions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                633,
+                699,
+                649
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Results show the poor performance of the SOTA models on BookSQL. We outline some of the possible directions for the future to improve performance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                662,
+                887,
+                726
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Multi-task learning: One could employ a multitask learning setup, i.e., in addition to optimizing for SQL generation objective, adding other multitask objectives could help improve the performance on hard SQL queries. These objectives could include (1) nested vs. non-nested SQL classification, (2) distinct keyword classification, and (3) date format classification."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                728,
+                887,
+                857
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pre-training: For large databases, it is difficult for any model to relate the question tokens with column names when the question might refer to some table cell value. Before the Text-to-SQL task, one could do pre-training to better understand the question and table relationships. This can be done using mask modeling by defining tasks such as column recovery and column predictions where few tokens could be masked, and the model tries to recover and predict the masked tokens; a similar approach is proposed by Shi et al. (2020a) via the GAP model."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                858,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "504"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/20de97a5ce3e0e52103585108c42d45472ef07017fa632b446310898748b01ee.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Error analysis for different models on BookSQLtest set"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Question:</td><td>What was the average invoice value for Biogenic municipal waste-fueled power generation?</td></tr><tr><td>Gold SQL:</td><td>SELECT avg(credit) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27; AND</td></tr><tr><td></td><td>instr(account, &#x27;Biogenic municipal waste-fueled power generation&#x27;) Few-shot GPT4: SELECT avg(amount) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27; AND</td></tr><tr><td>SEDE:</td><td>productservice = &#x27;Biogenic municipal waste-fueled power generation&#x27;X SELECT avg(credit) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27; AND</td></tr><tr><td>UniSAr:</td><td>instr(account, &#x27;biogenic municipal waste-fueled power generation&#x27;) √ SELECT avg(credit) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27;AND</td></tr><tr><td>RESDSQL:</td><td>product_service = &#x27;Biogenic municipal waste-fueled power generation&#x27; X SELECT avg(credit) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27;AND</td></tr><tr><td>2 Question:</td><td>instr(account, &#x27;biogenic municipal waste-fueled power generation&#x27;) √ What was the last invoice value for Drain cleaning in This week to date?</td></tr><tr><td>Gold SQL:</td><td>SELECT max(credit) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27; AND instr(account,&#x27;Drain cleaning&#x27;) AND transaction_date BETWEEN date(current_date, &#x27;weekday</td></tr><tr><td></td><td>0&#x27;, &#x27;-7 days&#x27;) AND date( current_date) Few-shot GPT4: SELECT credit FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27; AND prod- uct_service = &#x27;Drain cleaning&#x27; AND transaction_date BETWEEN date(current_date, &#x27;weekday</td></tr><tr><td>SEDE:</td><td>0&#x27;, &#x27;-7 days&#x27;) AND date(current_date) ORDER BY transaction_date DESC LIMIT 1 X SELECT max(credit) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27; AND customers = &#x27;drain cleaning&#x27; AND transaction_date BETWEEN date(current_date, &#x27;weekday</td></tr><tr><td>UniSAr:</td><td>0&#x27;, &#x27;-7 days&#x27;) AND date(current_date) X SELECT max(credit) FROM master_txn_table WHERE transaction_date BETWEEN date (</td></tr><tr><td>RESDSQL:</td><td>current_date , &#x27;weekday 0&#x27;, &#x27;-7 days&#x27;) AND date (current_date) X SELECT max (credit) FROM master_txn_table WHERE transaction_type = &#x27;invoice&#x27; AND instr (account , &#x27;Drain cleaning’) AND transaction_date BETWEEN date (current_date ,</td></tr><tr><td>3 Question:</td><td>&#x27;weekday 0&#x27;, &#x27;-7 days&#x27;) AND date (current_date ) √ What is my average revenue for Customer Nathan Hernandez in the last 6 years?</td></tr><tr><td>Gold SQL:</td><td>SELECT sum(credit)/6 FROM master_txn_table WHERE customers = &#x27;Nathan Hernandez&#x27; AND strftime(&#x27;%Y&#x27;, transaction_date) &gt;= strftime(&#x27;%Y&#x27;, current_date)-6-1</td></tr><tr><td></td><td>Few-shot GPT4: SELECT sum(credit)/6 FROM master_txn_table WHERE customers = &#x27;Nathan Hernandez&#x27; AND strftime(&#x27;%Y&#x27;, transaction_date) &gt;= strftime(&#x27;%Y&#x27;, current_date)-6-1 √</td></tr><tr><td>SEDE:</td><td>SELECT avg(credit) FROM master_txn_table AS t1 JOIN chart_of_accounts AS t2 ON t1.account = t2.account_name WHERE account_type IN (&#x27;income&#x27;,&#x27;other income&#x27;) AND cus-</td></tr><tr><td>UniSAr:</td><td>tomers = &#x27;nathan hernandez&#x27; AND transaction_date BETWEEN date(current_date,&#x27;start of year&#x27;,&#x27;-6 year&#x27;) AND date(current_date,&#x27;start of year&#x27;,-1 day&#x27;) X SELECT avg(credit) FROM master_txn_table as T1 JOIN chart_of_accounts as T2 on T1.account = T2.account_name WHERE account_type in (&#x27;Income&#x27; , &#x27;Other Income&#x27;) AND</td></tr><tr><td>RESDSQL:</td><td>customers = &#x27;Nathan Hernandez&#x27; AND transaction_date BETWEEN date (current_date ,&#x27;start of year&#x27; , &#x27;-6 year&#x27;) AND date (current_date ,&#x27;start of year&#x27; , &#x27;-1 day&#x27;) X SELECT sum (credit) / 6 FROM master_txn_table WHERE customers = &#x27;Nathan Hernandez&#x27; AND strftime  $\\big ( \\mathrm { \\because } \\mathrm { \\% } \\mathrm { Y } ^ { \\mathrm { \\prime } }$  , transaction_date ) &gt;= strftime  $\\mathbf { \\Xi } ( \\mathbf { \\Lambda } ^ { \\bullet } \\% \\mathbf { Y } ^ { \\bullet }$  , current_date ) - 1 GROUP BY</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                141,
+                83,
+                855,
+                659
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                711,
+                489,
+                838
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Multi-step few-shot prompting: One could also generate SQL in multiple steps using dynamic fewshot prompting instead of generating in a single step."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                840,
+                489,
+                904
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Value Encoding: In-context learning models (GPT4) mixes up different columns due to a lack of knowledge about table contents. Adding related table rows in the prompt could alleviate this issue."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                906,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                711,
+                885,
+                759
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                777,
+                643,
+                794
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we propose BookSQL, a Text-to-SQL dataset that will have broad applications in the finance and accounting domain. The experimental outcomes of several Text-to-SQL models indicate considerable room for improvement. In the future, we aim to build a more robust model that can handle hard queries and improve performance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                809,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "505"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                220,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since this is a resource paper, we release a large dataset and consequently focus less on modeling the Text-to-SQL system. We tested existing Text-to-SQL systems to see how well these fare on the new dataset. The results are indicative of considerable scope for improvement. In the future, we will focus on developing new models with better performance on BookSQL. Moreover, we hope that once the dataset is released, it will foster more research in this domain, resulting in more interesting models."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                110,
+                489,
+                273
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Ethics Statement"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                284,
+                267,
+                300
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Considering the privacy aspect, we create anonymized entries in the dataset. Moreover, the dataset was verified by financial experts to make sure that the entries adhere to accounting principles and are reflective of real-life scenarios. We will be releasing the dataset publicly for research uses. To the best of our knowledge, we are not aware of any other possible ethical consequences of the proposed dataset."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                311,
+                489,
+                456
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                483,
+                215,
+                499
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Florencia Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat, et al. 2023. Gpt-4 technical report. arXiv preprint arXiv:2303.08774."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Naihao Deng, Yulong Chen, and Yue Zhang. 2022. Recent advances in text-to-SQL: A survey of what we have and what we expect. In COLING, Gyeongju, Republic of Korea. International Committee on Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Longxu Dou, Yan Gao, Mingyang Pan, Dingzirui Wang, Wanxiang Che, Dechen Zhan, and Jian-Guang Lou. 2022. Unisar: A unified structure-aware autoregressive language model for text-to-sql."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Catherine Finegan-Dollak, Jonathan K. Kummerfeld, Li Zhang, Karthik Ramanathan, Sesh Sadasivam, Rui Zhang, and Dragomir Radev. 2018. Improving textto-SQL evaluation methodology. In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 351–360, Melbourne, Australia. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Moshe Hazoom, Vibhor Malik, and Ben Bogin. 2021a. Text-to-SQL in the wild: A naturally-occurring dataset based on stack exchange data. In Proceedings of the 1st Workshop on Natural Language Processing for Programming (NLP4Prog 2021), pages 77–87, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Moshe Hazoom, Vibhor Malik, and Ben Bogin. 2021b. Text-to-sql in the wild: a naturally-occurring dataset based on stack exchange data. arXiv preprint arXiv:2106.05006."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chia-Hsuan Lee, Oleksandr Polozov, and Matthew Richardson. 2021. KaggleDBQA: Realistic evaluation of text-to-SQL parsers. In Proceedings ofthe 59th Annual Meeting ofthe Associationfor Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers), pages 2261–2273, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Fei Li and H. V. Jagadish. 2014. Constructing an interactive natural language interface for relational databases. Proc. VLDB Endow., 8(1):73–84."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Haoyang Li, Jing Zhang, Cuiping Li, and Hong Chen. 2023a. Resdsql: Decoupling schema linking and skeleton parsing for text-to-sql. In Proceedings of the Thirty-Seventh AAAI Conference on Artificial Intelligence (AAAI)."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jinyang Li, Binyuan Hui, Ge Qu, Binhua Li, Jiaxi Yang, Bowen Li, Bailin Wang, Bowen Qin, Rongyu Cao, Ruiying Geng, Nan Huo, Chenhao Ma, Kevin C. C. Chang, Fei Huang, Reynold Cheng, and Yongbin Li. 2023b. Can llm already serve as a database interface? a big bench for large-scale database grounded textto-sqls."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chin-Yew Lin. 2004. ROUGE: A package for automatic evaluation of summaries. In Text Summarization Branches Out, pages 74–81, Barcelona, Spain. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Kishore Papineni, Salim Roukos, Todd Ward, and Wei jing Zhu. 2002. Bleu: a method for automatic evaluation of machine translation. pages 311–318."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Mohammadreza Pourreza and Davood Rafiei. 2023. Din-sql: Decomposed in-context learning of text-to-sql with self-correction. arXiv preprint arXiv:2304.11015."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu. 2020. Exploring the limits of transfer learning with a unified text-to-text transformer. The Journal ofMachine Learning Research, 21(1):5485–5551."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Peng Shi, Patrick Ng, Zhiguo Wang, Henghui Zhu, Alexander Hanbo Li, Jun Wang, Cicero Nogueira dos Santos, and Bing Xiang. 2020a. Learning contextual representations for semantic parsing with generationaugmented pre-training."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tianze Shi, Chen Zhao, Jordan Boyd-Graber, Hal Daumé III, and Lillian Lee. 2020b. On the potential of lexico-logical alignments for semantic parsing to SQL queries. In Findings ofthe Association for Computational Linguistics: EMNLP 2020, pages 1849–1864, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                507,
+                489,
+                573
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "506"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ruoxi Sun, Sercan O Arik, Hootan Nakhost, Hanjun Dai, Rajarishi Sinha, Pengcheng Yin, and Tomas Pfister. 2023. Sql-palm: Improved large language modeladaptation for text-to-sql. arXiv preprint arXiv:2306.00739."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Lappoon R. Tang and Raymond J. Mooney. 2001. Using multiple clause constructors in inductive logic programming for semantic parsing. In Proceedings of the 12th European Conference on Machine Learning, pages 466–477, Freiburg, Germany."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ping Wang, Tian Shi, and Chandan K. Reddy. 2020. Text-to-sql generation for question answering on electronic medical records. In Proceedings of The Web Conference 2020, WWW ’20, page 350–361, New York, NY, USA. Association for Computing Machinery."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Navid Yaghmazadeh, Yuepeng Wang, Isil Dillig, and Thomas Dillig. 2017. Sqlizer: Query synthesis from natural language. Proc. ACM Program. Lang., 1(OOPSLA)."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tao Yu, Rui Zhang, Kai Yang, Michihiro Yasunaga, Dongxu Wang, Zifan Li, James Ma, Irene Li, Qingning Yao, Shanelle Roman, Zilin Zhang, and Dragomir Radev. 2018. Spider: A large-scale human-labeled dataset for complex and cross-domain semantic parsing and text-to-sql task."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Victor Zhong, Caiming Xiong, and Richard Socher. 2017. Seq2sql: Generating structured queries from natural language using reinforcement learning. CoRR, abs/1709.00103."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                487,
+                151
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "507"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Appendix"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                205,
+                101
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Dataset Details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                109,
+                284,
+                124
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Table 8 shows master transaction table."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                135,
+                443,
+                151
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Table 9 shows Chart of account table."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                152,
+                431,
+                166
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Table 10 shows Customer table"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                167,
+                388,
+                183
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Table 11 shows Vendor table."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                184,
+                371,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Table 12 shows Employee table."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                199,
+                393,
+                214
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Table 13 shows Product Service table."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                216,
+                435,
+                230
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Table 14 shows Payment Methods table."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                231,
+                450,
+                247
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Distribution of Businesses in BookSQL The distributions of all businesses and their products are shown in Figure 4. Each industry is represented in the inner circle layer, which is followed by its businesses (in the middle circle) and its products in the outer circle. Each industry comprises multiple businesses, and each business consists of multiple products and services."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                256,
+                489,
+                387
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "508"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/2632851d0421c9b6209fc2ae8533d6effec7a02ea1b0821aa80dd947811fa3bb.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: Sample BookSQL Business Distribution. The middle section shows the sample set of businesses, inner section shows the industries associated with the corresponding business and outer most section shows the corresponding product of the business. This chart is made with the information available at: https://www. ibisworld.com/united-states/list-of-industries/."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                305,
+                331,
+                695,
+                602
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "509"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/6167e399fde7e2d8cfee052546f2598a7af948a49319e64a8f300f13dc12c110.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 4: BookSQLBusiness Distribution. Here, inner circle indicates the industries , middle circle shows the sets of businesses associated to respective industry , and the outer most circle indicate corresponding product of the business. This chart is made with the information available at: https://www.ibisworld.com/united-states/ list-of-industries/."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                136,
+                208,
+                858,
+                719
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "510"
+                    }
+                ]
+            },
+            "bbox": [
+                484,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B Dynamic Few-shot Prompt + GPT4"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                83,
+                458,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pseudo-code for dynamic few-shot train example selection for a given test question:"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                109,
+                736,
+                124
+            ]
+        },
+        {
+            "type": "code",
+            "content": {
+                "code_caption": [],
+                "code_content": [
+                    {
+                        "type": "text",
+                        "content": "from l a n g c h a i n . embeddings . h u g g i n g fa c e import HuggingFaceEmbeddings from l a n g c h a i n . p r o m p t s . e x a m p l e _ s e l e c t o r import M a x M a r g i n a l R e l e v a n c e E x a m p l e S e l e c t o r from l a n g c h a i n . v e c t o r s t o r e s import Chroma e x a m p l e _ s e l e c t o r = M a x M a r g i n a l R e l e v a n c e E x a m p l e S e l e c t o r . fro m _ e x a m p l e s ( examples , HuggingFaceEmbeddings ( model_name=\" a l l −MiniLM−L6−v2 \" ) , Chroma , k =10 , i n p u t _ k e y s = [ \" i n p u t \" ] )"
+                    }
+                ],
+                "code_footnote": [],
+                "code_language": "python"
+            },
+            "bbox": [
+                110,
+                128,
+                884,
+                302
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B.1 Example Prompt"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                318,
+                299,
+                335
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Database schema:"
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                340,
+                262,
+                355
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "text_list",
+                "attribute": "unordered",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Table master_txn_table, columns = [*, Transaction_ID, Transaction_DATE, Transaction_TYPE, Amount,"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "CreatedDATE, CreatedUSER, Account, AR_paid, AP_paid, Due_DATE, Open_balance, Customers,"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Vendor, Product_Service, Quantity, Rate, Credit, Debit, payment_method, Misc]"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Table chart_of_accounts, columns = [*, Account_name, Account_type] Table customers, columns = [*,"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "customer_name, customer_full_name, Billing_address, Billing_city, Billing_state, Billing_ZIP_code,"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shipping_address, Shipping_city, Shipping_state, Shipping_ZIP_code, Balance]"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Table employees, columns = [*, Employee_name, Employee_ID, Hire_date, Billing_rate, Deleted]"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Table products, columns = [*, Product_Service, Product_Service_type]"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Table vendors, columns = [*, Vendor_name, Billing_address, Billing_city, Billing_state, Billing_ZIP_code,"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Balance]"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Table payment_method, columns = [*, Payment_method, Credit_card]"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                355,
+                885,
+                535
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Foreign_keys = [master_txn_table.Account = chart_of_accounts.Account_name, master_txn_table.Customers = customers.customer_name, master_txn_table.Vendor = vendors.Vendor_name, master_txn_table.Product_Service = products.Product_Service, master_txn_table.payment_method = payment_method.payment_method]"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                549,
+                885,
+                615
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following are the example of questions and corresponding SQL queries. «10 Few shot examples from train set»"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                630,
+                648,
+                662
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Translate following question to SQL query."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                678,
+                435,
+                693
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Input: How much open credit does customer Ronald Bailey have?"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                694,
+                605,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Output: SELECT"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                711,
+                250,
+                725
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C DIN-SQL+GPT4 Prompts"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                737,
+                381,
+                753
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following section shows the sample prompts used in different DIN-SQL modules. For brevity, we have added only 1 few shot example in these sample prompts. Though in practice, 5-10 few shot examples are used and is mentioned at the end of prompt in « »."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                762,
+                884,
+                812
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C.1 Schema Linking Prompt"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                820,
+                359,
+                837
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table master_txn_table, columns = [*, Transaction_ID, Transaction_DATE, Transaction_TYPE, Amount, CreatedDATE, CreatedUSER, Account, AR_paid, AP_paid, Due_DATE, Open_balance, Customers, Vendor, Product_Service, Quantity, Rate, Credit, Debit, payment_method, Misc]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                841,
+                885,
+                890
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table chart_of_accounts, columns = [*, Account_name, Account_type]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                890,
+                645,
+                906
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table customers, columns = [*, customer_name, customer_full_name, Billing_address, Billing_city,"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                906,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "511"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                515,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Billing_state, Billing_ZIP_code, Shipping_address, Shipping_city, Shipping_state, Shipping_ZIP_code, Balance]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                84,
+                885,
+                116
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table employees, columns = [*, Employee_name, Employee_ID, Hire_date, Billing_rate, Deleted] Table products, columns = [*, Product_Service, Product_Service_type]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                117,
+                845,
+                148
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table vendors, columns = [*, Vendor_name, Billing_address, Billing_city, Billing_state, Billing_ZIP_code, Balance]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                149,
+                885,
+                180
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table payment_method, columns = [*, Payment_method, Credit_card]"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                181,
+                638,
+                197
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Foreign_keys = [master_txn_table.Account = chart_of_accounts.Account_name, master_txn_table.Customers = customers.customer_name, master_txn_table.Vendor = vendors.Vendor_name, master_txn_table.Product_Service = products.Product_Service, master_txn_table.payment_method = payment_method.payment_method]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                198,
+                887,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Q: How much open credit does customer Ronald Bailey have?"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                278,
+                579,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "S: select sum(open_balance) from ( select distinct transaction_id, open_balance from master_txn_table where customers = ’Ronald Bailey’)"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                294,
+                884,
+                324
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A: Let’s think step by step. In the question \"How much open credit does customer Ronald Bailey?\", we are asked: \"How much open credit\", so we need column = [master_txn_table.open_balance] \"open credit does customer Ronald Bailey\", so we need column = [master_txn_table.transaction_id, master_txn_table.customers] Based on the columns and tables, we need these Foreign_keys = []. Based on the tables, columns, and Foreign_keys, The set of possible cell values are = [Ronald Bailey]. So the Schema_links are: Schema_links: [master_txn_table.open_balance, master_txn_table.customers, master_txn_table.transaction_id, Ronald Bailey]"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                326,
+                887,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "«9 MORE FEW-SHOT EXAMPLES»"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                441,
+                396,
+                455
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C.2 Classification prompt"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                466,
+                336,
+                482
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Q: What are my transactions MTD?"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                487,
+                386,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "schema_links: [master_txn_table.transaction_id, master_txn_table.amount, master_txn_table.transaction_date]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                504,
+                885,
+                535
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A: Let’s think step by step. The SQL query for the question \"What are my transactions MTD?\" needs these tables = [master_txn_table], so we don’t need JOIN. Plus, it doesn’t require nested queries with (INTERSECT, UNION, EXCEPT, IN, NOT IN), and we need the answer to the questions = [\"\"]. So, we don’t need JOIN and don’t need nested queries, then the the SQL query can be classified as \"EASY\". Label: \"EASY\""
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                535,
+                884,
+                615
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Q: How many products are never sold with total value higher than 5?"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                632,
+                628,
+                648
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "schema_links: [Product_Service.transaction_id, master_txn_table.transaction_type]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                649,
+                736,
+                664
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A: Let’s think step by step. The SQL query for the question \"How many products are never sold with total value higher than 5?\" needs these tables = [Product_Service,master_txn_table], so we need JOIN. Plus, it requires nested queries with (INTERSECT, UNION, EXCEPT, IN, NOT IN) or inner query inside from clause, and we need the answer to the questions = [\"products that are sold with total value higher than 5\"]. So, we need JOIN and need nested queries, then the the SQL query can be classified as \"NESTED\"."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                664,
+                885,
+                750
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Label: \"NESTED\""
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                745,
+                258,
+                760
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Q: YTD, what was our smallest expense?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                777,
+                425,
+                793
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "schema_links = [master_txn_table.account = chart_of_accounts.account_name, master_txn_table.credit, master_txn_table.transaction_date, master_txn_table.account_type, master_txn_table.debit]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                794,
+                885,
+                826
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A: Let’s think step by step. The SQL query for the question \"YTD, what was our smallest expense?\" needs these tables = [master_txn_table,chart_of_accounts], so we need JOIN. Plus, it doesn’t need nested queries with (INTERSECT, UNION, EXCEPT, IN, NOT IN), and we need the answer to the questions = [\"\"]. So, we need JOIN and don’t need nested queries, then the the SQL query can be classified as \"NON-NESTED\"."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                826,
+                885,
+                906
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Label: \"NON-NESTED\""
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                906,
+                305,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "512"
+                    }
+                ]
+            },
+            "bbox": [
+                484,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C.3 SQL Generation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                112,
+                297,
+                128
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C.3.1 Easy Prompt"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                134,
+                284,
+                149
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Q: \"How much open credit does customer Ronald Bailey?\""
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                153,
+                554,
+                168
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Schema_links: [master_txn_table.open_balance, master_txn_table.transaction_id, master_txn_table.customers,Ronald Bailey]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                170,
+                885,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SQL: select sum(open_balance) from ( select distinct transaction_id, open_balance from master_txn_table where customers = ’Ronald Bailey’)"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                202,
+                884,
+                233
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "«4 MORE FEW-SHOT EXAMPLES»"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                235,
+                394,
+                249
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C.3.2 Non-Nested Complex Prompt"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                260,
+                413,
+                275
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Q: \"How many Traveller accomodation did we sell to Ethan Walker today?\""
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                280,
+                678,
+                296
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Schema_links: [master_txn_table.quantity ,master_txn_table.customers, master_txn_table.product_service, master_txn_table.transaction_type, master_txn_table.transaction_date] A: Let’s think step by step. For creating the SQL for the given question, we need to join these tables = []. First, create an intermediate representation, then use it to construct the SQL query. Intermediate_representation: select sum(master_txn_table.quantity) from master_txn_table where master_txn_table.customers = ’Ethan Walker’ and master_txn_table.product_service = ’Traveller accomodation’ and master_txn_table.trasaction_type in (’invoice’,’sales receipt’) and master_txn_table.transaction_date BETWEEN date(current_date) AND date(current_date) SQL: select sum(quantity) from master_txn_table where customers = Ëthan Walkeränd product_service = Traveller accomodationänd trasaction_type in (’invoice’,’sales receipt’) and transaction_date BETWEEN<sup>¨</sup> date(current_date) AND date(current_date)"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                296,
+                885,
+                473
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "«9 MORE FEW-SHOT EXAMPLES»"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                474,
+                394,
+                488
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C.3.3 Nested Complex Prompt"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                499,
+                374,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Q: \"How many products are never sold with total value higher than 5?\" Schema_links: [master_txn_table.product_service, master_txn_table.transaction_type, master_txn_table.credit, product_service.*]"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                518,
+                885,
+                565
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A: Let’s think step by step. \"How many products are never sold with total value higher than 5?\" can be solved by knowing the answer to the following sub-question \"Show me all the products which are never sold with total credit value higher than 5?\". The SQL query for the sub-question \"Show me all the products which are never sold with total credit value higher than 5?\" is SELECT count(*) FROM Product_Service WHERE product_service NOT IN ( SELECT product_service FROM master_txn_table WHERE transaction_type in (’invoice’,’sales receipt’) group by product_service having sum(credit)>5) So, the answer to the question \"How many products are never sold with total value higher than 5?\" is = Intermediate_representation: SELECT count(Product_Service.*) FROM Product_Service WHERE Product_Service.product_service NOT IN ( SELECT master_txn_table.product_service FROM mas ter_txn_table WHERE master_txn_table.transaction_type in (’invoice’,’sales receipt’) group by master_txn_table.product_service having sum(master_txn_table.credit) > 5)"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                567,
+                885,
+                745
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SQL: SELECT count(*) FROM Product_Service WHERE product_service NOT IN ( SELECT product_service FROM master_txn_table WHERE transaction_type in (’invoice’,’sales receipt’) group by product_service having sum(credit) > 5)"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                744,
+                885,
+                793
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "«9 MORE FEW-SHOT EXAMPLES»"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                794,
+                394,
+                808
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C.4 Self Correction Prompt"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                820,
+                351,
+                835
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the given question, use the provided tables, columns, foreign keys, and primary keys to fix the given SQLite SQL QUERY for any issues. If there are any problems, fix them. If there are no issues, return the SQLite SQL QUERY as is."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                843,
+                884,
+                889
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Use the following instructions for fixing the SQL QUERY:"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                890,
+                552,
+                906
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1) Use the database values that are explicitly mentioned in the question."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                907,
+                645,
+                922
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "«7 MORE FEW-SHOT EXAMPLES»"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                85,
+                393,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "513"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2) Pay attention to the columns that are used for the JOIN by using the Foreign_keys."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                85,
+                746,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3) Use DESC and DISTINCT when needed."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                101,
+                447,
+                116
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4) Pay attention to the columns that are used for the GROUP BY statement."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                117,
+                673,
+                133
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5) Pay attention to the columns that are used for the SELECT statement."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                133,
+                652,
+                148
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "6) Only change the GROUP BY clause when necessary (Avoid redundant columns in GROUP BY)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                149,
+                852,
+                165
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "7) Use GROUP BY on one column only."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                166,
+                420,
+                181
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "D Evaluation Metrics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                192,
+                321,
+                209
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following standard metrics are used:"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                218,
+                420,
+                235
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Exact Match Accuracy (Yu et al., 2018): Both predicted and the Gold SQL are decomposed into different SQL components like SELECT, WHERE, GROUP BY, etc. Predicted SQL is marked as correct if all SQL components exactly match with the Gold SQL."
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                244,
+                884,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Execution Accuracy (Yu et al., 2018): Output of predicted SQL is the same as Gold SQL’s output on execution against the database."
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                299,
+                884,
+                331
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Partial Component Match F1 (Hazoom et al., 2021a): Both the predicted query and the gold query are parsed into tress using JSqlParser<sup>12</sup>. These two parsed trees are compared, and an aggregated score is calculated based on the number of matching sub-trees."
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                336,
+                884,
+                385
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• BLEU-4 (Papineni et al., 2002): It measures the number of matching n-grams between the predicted and the Gold SQL."
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                391,
+                884,
+                422
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• ROUGE-L (Lin, 2004): It is based on the longest common sub-sequence (LCS) between the predicted and the Gold SQL. A longer shared sequence indicates more similarity between the predicted and the Gold SQL."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                428,
+                885,
+                476
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E Training Details and Hyper-parameters"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                487,
+                495,
+                505
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "All experiments were done on a single NVIDIA A10G Tensor Core GPU."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                513,
+                662,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For SEDE, we used T5-Large as the base seq-to-seq model, with a learning rate of 5e  5 with 15 epochs and batch size of 6. For decoding, a beam size of 6 was used, with max decoding steps of 250."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                530,
+                882,
+                561
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For UniSAr, we use T5-Large as a base language model with a learning rate of 1e-5 and max tokens is 1024. We adopt the polynomial_decay with 5,000 warmup updates. The dropout rate is 0.1. Optimizer is Adam with the default parameters. The max-update is set to 10,000. Empirically, the model obtained the best performance about 10 15 epochs in BookSQL. The Fairseq dynamically tunes the batch size to realize higher GPU utilization."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                562,
+                885,
+                642
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For RESDSQL, we used settings recommended by the original paper and code. The Schema Item Classifier module used a RoBERTa-large model with a learning rate of 1e  5 and an effective batch size of 32 (using gradient accumulation). topk_table_num value of 4 and topk_column_num value of 8 were used. For the text2sql module, a T5-large model was used with a learning rate of 5e  5 and an effective batch size of 32 (using gradient accumulation). Beam search decoding was used with num_beams set to 8 and num_return_sequences set to 8."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                642,
+                885,
+                738
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For DIN-SQL+GPT4 and Dynamic few shot prompt + GPT4, we used OpenAI GPT4 API with following settings: n = 1, temperature=0.0, max_tokens=600, top_p = 1.0, frequency_penalty=0.0, presence_penalty=0.0. Given limitations on the number of calls to OpenAI GPT4 API, we used a random 10% of BookSQL test set for GPT4-based approaches."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                738,
+                885,
+                803
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>12</sup>https://github.com/JSQLParser/JSqlParser"
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                907,
+                401,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "514"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/d86b2447a5da807ca8f1e1926a8408edbbc9468db1a64509d525f6dd4b585f49.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Master Transaction Table"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>busin- ess Id</td><td>Trans- action ID</td><td>Trans- action date</td><td>Trans- action type</td><td>Amount Creat- ed date</td><td>ed</td><td>Creat- user</td><td>Acco- unt</td><td>A/R paid</td><td>A/P paid</td><td>Due date</td><td>Open bal- ance</td><td>Cust- omer name</td><td>Vendor name uct vice</td><td>Prod- Ser-</td><td>Quan- tity</td><td>Rate</td><td>Credit</td><td>Debit</td></tr><tr><td>4</td><td>1867</td><td>2022- 08-31</td><td>credit card credit</td><td>999.58</td><td>2023- 05-11</td><td>Joshua Hud- son</td><td>Visa</td><td></td><td></td><td>2023- 09-17</td><td>232.85</td><td></td><td></td><td></td><td></td><td></td><td></td><td>999.58</td></tr><tr><td>4</td><td>1867</td><td>2022- 08-31</td><td>credit card</td><td>999.58</td><td>2023- 05-11</td><td>Joshua Hud- son</td><td>Savings -</td><td></td><td></td><td>2023- 09-17</td><td>232.85</td><td></td><td></td><td></td><td></td><td></td><td>999.58</td><td></td></tr><tr><td>4</td><td>1716</td><td>2022- 08-15</td><td>Bill</td><td>784.19</td><td>2023- 05-14</td><td>Joshua Hud- son</td><td>Accounts - Payable (A/P)</td><td></td><td>unpaid</td><td>2023- 07-12</td><td>539.03</td><td></td><td>Jade Bar- nett</td><td></td><td></td><td></td><td>784.19</td><td></td></tr><tr><td>4</td><td>1716</td><td>2022- 08-15</td><td>Bill</td><td>784.19</td><td>2023- 05-14</td><td>Joshua Hud- son</td><td>Lawyer</td><td></td><td>unpaid</td><td>2023- 07-12</td><td>539.03</td><td>Jade</td><td>Bar- nett</td><td></td><td></td><td></td><td></td><td>784.19</td></tr><tr><td>4</td><td>1818</td><td>2022- 08-17</td><td>Payment 2204</td><td></td><td>2022- 11-22</td><td>Joshua Hud- son</td><td>prepaid ex- penses</td><td>paid</td><td></td><td>2023- 06-25</td><td>1841.82</td><td>Andrew Rose</td><td></td><td></td><td></td><td></td><td></td><td>2204</td></tr><tr><td>4</td><td>1818</td><td>2022- 08-17</td><td>Payment 2204</td><td></td><td>2022- 11-22</td><td>Joshua Hud- son</td><td>Accounts paid Re- ceiv-</td><td></td><td>2023- 06-25</td><td></td><td>1841.82</td><td>Andrew Rose</td><td></td><td></td><td></td><td>2204</td><td></td><td></td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                93,
+                890,
+                337
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/2e3fea6e0f85843ee4a253736810a98575313d37ddea2db0b9a10e057de9e59b.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 9: Chart of Account"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Business Id</td><td>Account name</td><td>Account Full Name</td><td>Account type</td></tr><tr><td>2</td><td>Accumulated Depreciation</td><td>Accumulated Depreciation</td><td>Fixed Asset</td></tr><tr><td>2</td><td>Furniture and Equipment</td><td>Furniture and Equipment</td><td>Fixed Asset</td></tr><tr><td>2</td><td>Payroll Liabilities</td><td>Payroll Liabilities</td><td>Other Current Liability</td></tr><tr><td>2</td><td>Opening Balance Equity</td><td>Opening Balance Equity</td><td>Equity</td></tr><tr><td>2</td><td>Owners Draw</td><td>Owners Draw</td><td>Equity</td></tr><tr><td>2</td><td>Owners Equity</td><td>Owners Equity</td><td>Equity</td></tr><tr><td>2</td><td>Accounting Service Income</td><td>Accounting Service Income</td><td>Income</td></tr><tr><td></td><td>Consulting Income</td><td>Consulting Income</td><td>Income</td></tr><tr><td>22</td><td>Tax Preparation Services Income</td><td>Tax Preparation Services Income</td><td>Income</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                151,
+                393,
+                847,
+                526
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/ac785e435ffc8052c0153de938cb6dd3fe68106719b599ce8703817262a552ee.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 10: Customer Table"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Business Id</td><td>Customer name</td><td>Customer full name</td><td>Billing address</td><td>Billing city</td><td>Billing state</td><td>Billing ZIP code</td><td>Shipping dress</td><td>ad- Shipping city</td><td>Shipping state</td><td>Shipping ZIP code</td><td></td><td>Balance</td></tr><tr><td>2</td><td>Valerie Kline</td><td>Valerie Kline</td><td>5120 Shelia Val- leys Suite 824</td><td>New Cyn- thiaburgh</td><td>AL</td><td>18662</td><td>40109 Pamela Ex- tension</td><td>West Patrickville</td><td>TN</td><td></td><td>21599</td><td>67.32</td></tr><tr><td>2</td><td>Greg Carde- nas</td><td>Greg Carde- nas</td><td>59614 Margaret Roads</td><td>Transide</td><td>OK</td><td>72668</td><td>3758 Savage Gar- den Suite 126</td><td></td><td>Seanbury</td><td>VT</td><td>7317</td><td>167.00</td></tr><tr><td>2</td><td>Mr. Zachary Levy</td><td>Mr. Zachary Levy</td><td>30939 Brandon Ford Suite 571</td><td>South Joan- ntown</td><td>NV</td><td>71097</td><td>2752 Austin Brooks Suite 864</td><td>Stoutville</td><td>MI</td><td></td><td>51839</td><td>69.34</td></tr><tr><td>2</td><td>Taylor Hughes</td><td>Taylor Hughes</td><td>7945 Soto Point</td><td>Monica- mouth</td><td>ND</td><td>46573</td><td>04225 Edwards Valley Suite 176</td><td></td><td>Taylorton</td><td>DE</td><td>516</td><td>169.34</td></tr><tr><td>2</td><td>Jodi Bishop</td><td>Jodi Bishop</td><td>850 Brent Parks</td><td>Shieldsberg</td><td>AL</td><td>7549</td><td>1558 Brown Hills</td><td>South Robert</td><td></td><td></td><td>94105</td><td>799.37</td></tr><tr><td>2</td><td>Andrew Flores</td><td>Andrew Flores</td><td>3141 Jamie Isle Apt. 494</td><td>South Nicholas- mouth</td><td>OH</td><td>71180</td><td>4662 Peters Park- ways Suite 775</td><td></td><td>Desireebury AR</td><td></td><td>34741</td><td>79.37</td></tr><tr><td>2</td><td>Earl Lee</td><td>Earl Lee</td><td>017 Lisa Skyway</td><td>Lake Kristineb- urgh</td><td>AL</td><td>79642</td><td>8285 Thornton Motorway Suite 926</td><td></td><td>Lawsonville ID</td><td></td><td>12448</td><td>84.75</td></tr><tr><td>2</td><td>Thomas Jackson</td><td>Thomas Jackson</td><td>09653 Christian Stravenue</td><td>North John- town</td><td>MS</td><td>43479</td><td>1205 Fork Suite 756</td><td>Shawna</td><td>Tracymouth</td><td>TX</td><td>77146</td><td>684.7</td></tr><tr><td>2</td><td>Jason John- son</td><td>Jason John- son</td><td>46474 Alan Cove Suite 685</td><td>Michaelside</td><td>VT</td><td>50177</td><td>Unit 0702 Box 5832</td><td></td><td>DPO</td><td>AA</td><td>15548</td><td>747.44</td></tr><tr><td>2</td><td>Craig Greer</td><td>Craig Greer</td><td>496 Moreno Brooks</td><td>Lake Katri- namouth</td><td>NM</td><td>14367</td><td>USNV Gutierrez</td><td></td><td>FPO</td><td>AP</td><td>71930</td><td>47.34</td></tr><tr><td>2</td><td>Jeffrey Fisher</td><td>Jeffrey Fisher</td><td>632 Robert Plains Apt. 260</td><td>Woodardville</td><td>LA</td><td>86396</td><td>Apt. 818</td><td>46671 Joseph Flat</td><td>Sweeneyshire DC</td><td></td><td>70691</td><td>5829.13</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                583,
+                880,
+                881
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "515"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/0d5c745e0a7c4a5c31a23bd43c48bc6cac774e97ff84909ab888dc66cb9ffbb2.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 11: Vendor Table"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Business Id</td><td>Vendor name</td><td>Billing address</td><td>Billing city</td><td>Billing state</td><td>Billing ZIP code</td><td>Balance</td></tr><tr><td>2</td><td>Shelly Ramos</td><td>82768 Dawn Cres- cent</td><td>West Cynthia</td><td>WY</td><td>39877</td><td>4042.15</td></tr><tr><td>2</td><td>Jade Barnett</td><td>782 Mitchell Camp Suite 676</td><td>Grahambury</td><td>KS</td><td>80370</td><td>12949.89</td></tr><tr><td>2</td><td>Nicole Jordan</td><td>14959 Mccullough</td><td>East Kevinfurt</td><td>WI</td><td>42930</td><td>5294.89</td></tr><tr><td>2</td><td>Adam Pena</td><td>Green Suite 029 192 Brenda Gardens</td><td>Erinmouth</td><td>IA</td><td>93008</td><td>6949.89</td></tr><tr><td>2</td><td>Jeffrey Roman</td><td>784 Cameron Parks Apt. 902</td><td>North Gloriafurt</td><td>AR</td><td>48141</td><td>7299.89</td></tr><tr><td>2</td><td>Zachary Butler</td><td>61717 Christopher Cliffs Apt. 122</td><td>Port Joshua</td><td>MT</td><td>44164</td><td>465.09</td></tr><tr><td>2</td><td>Taylor Moses</td><td>19368 Jenny Courts</td><td>Kerristad</td><td>OR</td><td>25430</td><td>65.09</td></tr><tr><td>2</td><td>John Russo</td><td>Apt. 094 Unit 6387 Box 0856</td><td>DPO</td><td>AA</td><td>73133</td><td>1538.8</td></tr><tr><td>2</td><td>Robert Phillips</td><td>USCGC Steele</td><td>FPO</td><td>AA</td><td>91533</td><td>55388.8</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                101,
+                880,
+                305
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/946d2c5a5152e15586b1ebbbc867a9c8cf976e192bfa296be47d6dd4c9ae7837.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 12: Employee Tables"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Business Id</td><td>Employee name</td><td>Employee ID</td><td>Hire date</td><td>Billing rate</td><td>Deleted</td></tr><tr><td>2</td><td>Stephanie Baker</td><td>STE123</td><td>07/17/2022</td><td></td><td>No</td></tr><tr><td>2</td><td>Julia Rivera</td><td>JUL456</td><td>07/31/2002</td><td></td><td>No</td></tr><tr><td>2</td><td>Valerie Kline</td><td>VAL232</td><td>04/15/2012</td><td></td><td>Yes</td></tr><tr><td>2</td><td>Greg Cardenas</td><td>GRE443</td><td>08/27/2013</td><td>一</td><td>No</td></tr><tr><td>2</td><td>Mr. Zachary Levy</td><td>ZAC998</td><td>01/28/2000</td><td></td><td>Yes</td></tr><tr><td>2</td><td>Taylor Hughes</td><td>TAY009</td><td>07/17/2022</td><td></td><td>Yes</td></tr><tr><td>2</td><td>Jodi Bishop</td><td>JOD778</td><td>12/27/2016</td><td></td><td>Yes</td></tr><tr><td>2</td><td>Andrew Flores</td><td>AND667</td><td>05/20/2018</td><td>一</td><td>No</td></tr><tr><td>2</td><td>Earl Lee</td><td>EAR221</td><td>08/19/2002</td><td>一</td><td>No</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                210,
+                376,
+                788,
+                510
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/4fbf163e8af9251c004dfef3ceed71368956c44efc4a7b190e4d93be5b05e4a4.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 13: Product Service Table"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Business Id</td><td>Product_service</td><td>Product_Service_type</td></tr><tr><td>2</td><td>Hours</td><td>Service</td></tr><tr><td>2</td><td>Services</td><td>Service</td></tr><tr><td>2</td><td>Design</td><td>Service</td></tr><tr><td>2</td><td>Installation</td><td>Service</td></tr><tr><td>2</td><td>Lighting</td><td>Service</td></tr><tr><td>2</td><td>Maintenance &amp; Repair</td><td>Service</td></tr><tr><td>2</td><td>Refunds &amp; Allowances</td><td>Service</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                290,
+                581,
+                707,
+                692
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/87558db6f3df47773a44909272e489dbe2487bc9b0d970e7f44be29809cd7a54.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 14: Payment Methods"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Business Id</td><td>Payment method</td><td>Credit card</td></tr><tr><td>1</td><td>Cash</td><td>No</td></tr><tr><td>1</td><td>Check</td><td>No</td></tr><tr><td>1</td><td>Visa</td><td>Yes</td></tr><tr><td>1</td><td>MasterCard</td><td>Yes</td></tr><tr><td>1</td><td>Discover</td><td>Yes</td></tr><tr><td>1</td><td>American Express</td><td>Yes</td></tr><tr><td>1</td><td>Diners Club</td><td>Yes</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                337,
+                763,
+                660,
+                873
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "516"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ]
+]

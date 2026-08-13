@@ -1,0 +1,792 @@
+# Rethinking Tabular Data Understanding with Large Language Models
+
+Tianyang Liu UC San Diego til040@ucsd.edu
+
+Fei Wang   
+USC   
+fwang598@usc.edu
+
+Muhao Chen UC Davis muhchen@ucdavis.edu
+
+## Abstract
+
+Large Language Models (LLMs) have shown to be capable of various tasks, yet their capability in interpreting and reasoning over tabular data remains an underexplored area. In this context, this study investigates from three core perspectives: the robustness of LLMs to structural perturbations in tables, the comparative analysis of textual and symbolic reasoning on tables, and the potential of boosting model performance through the aggregation of multiple reasoning pathways. We discover that structural variance of tables presenting the same content reveals a notable performance decline, particularly in symbolic reasoning tasks. This prompts the proposal of a method for table structure normalization. Moreover, textual reasoning slightly edges out symbolic reasoning, and a detailed error analysis reveals that each exhibits different strengths depending on the specific tasks. Notably, the aggregation of textual and symbolic reasoning pathways, bolstered by a mix self-consistency mechanism, resulted in achieving SOTA performance, with an accuracy of 73.6% on WIKITABLEQUESTIONS, representing a substantial advancement over previous existing table processing paradigms of LLMs.<sup>1</sup>
+
+## 1 Introduction
+
+Large Language Models (LLMs; Brown et al. 2020; Chowdhery et al. 2022; Zhang et al. 2022; OpenAI 2022, 2023a,c; Touvron et al. 2023a,b; Li et al. 2023b; Lozhkov et al. 2024) have revolutionized the field of NLP, demonstrating an extraordinary ability to understand and reason over rich textual data (Wei et al., 2023; Wang et al., 2023; Zhou et al., 2023; Kojima et al., 2023; Li et al., 2023c). On top of LLMs’ existing capabilities for NLP, further bolstering their potential for decision-making by drawing from external knowledge sources remains an exciting research frontier (Nakano et al.,
+
+Marek Plawgo
+<table><tr><td rowspan=1 colspan=1>Year</td><td rowspan=1 colspan=1>1999</td><td rowspan=1 colspan=1>2000</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>2008</td><td rowspan=1 colspan=1>2012</td></tr><tr><td rowspan=1 colspan=1>Competition</td><td rowspan=1 colspan=1>European JuniorChampionships</td><td rowspan=1 colspan=1>World JuniorChampionships</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Olympic Games</td><td rowspan=1 colspan=1>EuropeanChampionships</td></tr><tr><td rowspan=1 colspan=1>Venue</td><td rowspan=1 colspan=1>Riga, Latvia</td><td rowspan=1 colspan=1>Santiago, Chile</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>Beijing, China</td><td rowspan=1 colspan=1>Helsinki, Finland</td></tr><tr><td rowspan=1 colspan=1>Position</td><td rowspan=1 colspan=1>4th</td><td rowspan=1 colspan=1>1st</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>7th</td><td rowspan=1 colspan=1>18th (sf)</td></tr><tr><td rowspan=1 colspan=1>Event</td><td rowspan=1 colspan=1>400 m hurdles</td><td rowspan=1 colspan=1>400 m hurdles</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>4x400 m relay</td><td rowspan=1 colspan=1>400 m hurdles</td></tr><tr><td rowspan=1 colspan=1>Notes</td><td rowspan=1 colspan=1>52.17</td><td rowspan=1 colspan=1>49.23</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>3:00.32</td><td rowspan=1 colspan=1>50.77</td></tr></table>
+
+![](images/abd3b9961e4bf8459df26705339304c31599ab75766357325c4625cdddd16c02.jpg)  
+Figure 1: Demonstration of the challenges faced by LLMs in comprehending and interpreting table structures. In the first example, the LLM correctly identifies table headings but struggles to accurately determine their positions within the table structure. In the second example, the model using Python Shell as an external tool incorrectly interprets headings (located in the first column) as column headers, leading to subsequent errors in the generated code. Some logos in this and subsequent figures are generated using OpenAI’s DALL-E3 (OpenAI, 2023b).
+
+2022; Mialon et al., 2023; Hao et al., 2023; Jiang et al., 2023b). Amongst such knowledge sources, tabular data serve as a ubiquitous kind due to their expressiveness for relations, properties and statistics, and their being easy to construct by human curators (Chen et al., 2020; Wang et al., 2021; Xie et al., 2022).
+
+Like humans, LLMs can also benefit from reading tabular data accompanying text. However, as indicated in Fig. 1, the structural nature of tables presents unique challenges to these models. Inherently designed to parse and process vast expanses of unstructured textual content, LLMs confront a paradigm shift when facing tabular data. Linearizing tables to suit the LLM paradigm can obscure the inherent structural and relational information, making tasks such as precise localization and complex statistical analyses. Additionally, the design variations in tables, whether ‘column tables’ with headers in the first row or ‘row tables’ with headers in the first column, further complicate the interpretation process. Beyond structural concerns, numerical reasoning and aggregation over tabular data present another layer of complexity. While LLMs excel at textual understanding, they occasionally stumble when confronted with tasks necessitating precise numerical computation within tables. Moreover, tables often present a dense amalgamation of textual or numerical data. The sheer volume and intricacy of this information can risk overshadowing crucial details, potentially impeding the LLM’s decision-making abilities (Shi et al., 2023).
+
+![](images/a372dce6c421312e95e6d97eda58e37e3d9746fd16b97f4298386c256050049c.jpg)  
+Figure 2: Illustrative examples sampled from the WIKITABLEQUESTIONS dataset, comparing textual reasoning (via direct prompting) and symbolic reasoning (via python shell interactions). Top: The table and its title. Bottom Left: In the first question example, textual reasoning yields an incorrect interpretation due to limitations in precision localization, while symbolic reasoning accurately locates the answer using Python code. Bottom Right: In the second question example, textual reasoning successfully identifies the answer, but symbolic reasoning incorrectly treats the special total row as the final answer.
+
+With the emergence of instruction fine-tuning techniques (Wei et al., 2022; Chung et al., 2022) and the application of Reinforcement Learning from Human Feedback (RLHF) (Stiennon et al., 2022; Gao et al., 2022; Christiano et al., 2017), LLMs have witnessed significant enhancements in their alignment capabilities, paving the way for transitioning from few-shot to zero-shot learning settings (Kojima et al., 2023). In light of these advancements, this paper delves deep into the the challenges and intricacies of tabular understanding and reasoning by LLMs, exemplified in Fig. 2. We organize our exploration around three pivotal research questions: (1) How well do LLMs perceive table structures and how can we ensure robustness against structural variations? (2) Comparing textual and symbolic reasoning for table data in LLMs, which prevails in effectiveness, and what advantages and challenges manifest in each strategy? (3) Will the aggregation of multiple reasoning pathways enhance the accuracy and reliability of tabular data interpretation by LLMs?
+
+In pursuit of answering the aforementioned research questions, we conduct experiments on SOTA LLMs such as GPT-3.5 (OpenAI, 2023a). Our findings in §4 underscore that while LLMs are adept at semantically interpreting tables, their capability to resist structural variance (§4.1) and understand table structures (§4.2) is suboptimal. Motivated by these findings, we propose a table structure normalization method to enhance LLMs’ resilience against structural table variations in §4.3. Intriguingly, §5.1 reveals that textual reasoning surpasses symbolic reasoning in contexts with limited table content, defying conventional conceptions of symbolic reasoning’s dominance in other domains (Mialon et al., 2023). Both textual and symbolic reasoning strategies encompass different advantages and challenges, which is detailed in §5.2. To harness the unique strengths of each, we implement mix self-consistency mechanism (§6) that remarkably attains SOTA performance on Table QA, exemplifying the synergistic potential when both reasoning strategies are aggregated.
+
+## 2 Related Work
+
+PLMs for Tabular Data Processing. Tabular reasoning presents unique challenges due to the fusion of free-form natural language questions with structured or semi-structured tabular data, for which PLMs jointly trained on tables and text are developed in the past few years, including TaBERT (Yin et al., 2020), TaPas (Herzig et al., 2020), TAPEX (Liu et al., 2022), ReasTAP (Zhao et al., 2022), and PASTA (Gu et al., 2022). The recent development of TableLlama (Zhang et al., 2023a), an open-source model excelling in a variety of tablebased tasks, adds a new dimension to the field. Despite these advancements, recent studies have identified generalization issues under table perturbations (Zhao et al., 2023; Chang et al., 2023), raising concerns regarding the robustness of PLMs. Specific efforts like LETA (Zhao et al., 2023) and LATTICE (Wang et al., 2022) have investigated and mitigated the vulnerabilities related to structural perturbations of tabular data, like row/column shuffling and table transpose, through various techniques, including data augmentation and order-invariant graph attention. However, these approaches require whitebox access to the models, limiting their applicability to SOTA LLMs with only blackbox accessibility, a limitation directly addressed in this work.
+
+Tabular Data Processing with LLMs. Recent advancements in LLMs, notably within few-shot learning, have demonstrated their potential for tabular reasoning. Chen (2023) leveraged the Chain-of-Thought (CoT) technique (Wei et al., 2023) to illustrate LLMs’ effectiveness in this domain. Building upon CoT, Cheng et al. (2023) and Ye et al. (2023) introduced frameworks that incorporate symbolic reasoning for improved comprehension, with Ye et al. emphasizing their ability to adeptly decompose both evidence and questions. The advent of aligned models, such as ChatGPT, has enabled zeroshot table reasoning. However, these models often lack sensitivity to table structures, struggling with structural perturbations. StructGPT (Jiang et al., 2023a), while introducing a promising framework for LLMs to efficiently engage with structured data, has its effectiveness limited by not integrating symbolic reasoning, a critical aspect for enhancing the full capabilities of LLMs in tabular reasoning, which is the focal point of this study. Furthermore, while programming-based approaches can mitigate some challenges, they are limited in addressing free-form queries, creating a gap in the landscape. Innovations like AutoGPT (Significant Gravitas, 2023) have sought to address this, spawning the development of tabular agents like LangChain (Chase, 2022), SheetCopilot (Li et al., 2023a), and Data-Copilot (Zhang et al., 2023b). These agents offer solutions unattainable through conventional programming but still require rigorous evaluation in various scenarios. In our study, we delve into addressing these challenges for enhancing LLMs’ reasoning capabilities within structural perturbations, hence providing insights that facilitate improved accuracy in the current context.
+
+## 3 Preliminaries
+
+This section succinctly introduces the foundational aspects of our study over structurally perturbed tabular data. §3.1 formally defines the problem, delineating the critical notations and conceptual frameworks, and §3.2 explicates our experimental setup details, elucidating dataset choice, model utilization, and evaluation strategy.
+
+## 3.1 Problem Definition
+
+Question answering (QA) over tabular data, commonly known as the TableQA task, is an important challenge in NLP. In this study, we targets TableQA to explore and enhance the proficiency of LLMs, in reasoning over tabular data. Additionally, we probe the robustness and adaptability of these models by introducing structural perturbations to tables.
+
+Let represent a table consisting of rows and columns, and τ represent its title/caption. Each cell in is denoted by $\mathcal { T } _ { i , j }$ , where $i \in [ 0 , \mathcal { R } - 1 ]$ and $j \in [ 0 , \mathcal { C } - 1 ] . \ T _ { 0 , j }$ are headers. Given a question pertaining to the table, our task is to identify an answer ${ \mathcal { A } } .$ This answer is generally a collection of values, denoted as $\{ a _ { 1 } , a _ { 2 } , \ldots , a _ { k } \}$ where $k \in \mathbb { N } ^ { + }$
+
+Furthermore, to delve deeper into the structural comprehension of LLMs, we introduce structural perturbations, which include:<sup>2</sup>
+
+1. Transposed Table $( \tau ^ { \top } ) \colon$ : A table obtained by converting rows to columns and vice-versa, maintaining the row and column order:
+
+$$
+\begin{array} { r } { \mathcal { T } _ { i , j } ^ { \top } = \mathcal { T } _ { j , i } \quad \forall i \in [ 0 , \mathcal { R } - 1 ] , j \in [ 0 , \mathcal { C } - 1 ] . } \end{array}
+$$
+
+2. Row Shuffled Table $( \mathcal { T } _ { \Pi } ) \colon$ A table obtained by randomly shuffling the rows (excluding the headers) with a random permutation function $\pi ,$ while keeping the order of columns unchanged:
+
+$$
+\mathcal { T } _ { \Pi _ { i , j } } = \mathcal { T } _ { \pi ( i ) , j } \quad \forall i \in [ 1 , \mathcal { R } - 1 ] , j \in [ 0 , \mathcal { C } - 1 ]
+$$
+
+3. Row Shuffled and Transposed Table $( \mathcal { T } _ { \Pi } ^ { \top } ) \colon$ A table obtained by first randomly shuffling the rows (excluding headers) and then applying transposition:
+
+$$
+\mathcal { T } _ { \Pi _ { i , j } } ^ { \top } = \mathcal { T } _ { j , \pi ( i ) } \quad \forall i \in [ 1 , \mathcal { R } - 1 ] , j \in [ 0 , \mathcal { C } - 1 ]
+$$
+
+Defining our research problem more formally: our primary objective is to investigate the function, $f ,$ that can appropriately answer the posed question using the provided table. Specifically, this function will take three arguments: the table variant $\mathcal { T } ^ { \prime } \in$ $\{ \mathcal { T } , \mathcal { T } ^ { \top } , \mathcal { T } _ { \Pi } , \mathcal { T } _ { \Pi } ^ { \top } \}$ , its title $\tau ,$ and the question $\mathcal { Q } .$ It will output an answer ${ \mathcal { A } } .$ The entire problem can be formally framed as:
+
+$$
+f ( \mathcal T ^ { \prime } , \tau , \mathcal Q ) \to \mathcal A , \quad \forall \mathcal T ^ { \prime } \in \{ \mathcal T , \mathcal T ^ { \top } , \mathcal T _ { \Pi } , \mathcal T _ { \Pi } ^ { \top } \}
+$$
+
+## 3.2 Experimental Setup
+
+This section details the experimental setup adopted in our study, including the datasets employed, model selection, evaluation metrics, reasoning methods, and other details.
+
+Dataset. We used the WIKITABLEQUESTIONS (WTQ; Pasupat and Liang 2015) dataset for our experiments. The test set comprises 421 tables. Each table provides up to two question-answer pairs; if a table has fewer than two, only one was chosen, totaling 837 unique data points. With our four table configurations (original and three perturbations), the overall evaluation data points amount to $8 3 7 \times 4 = 3 , 3 4 8$
+
+Models. We employ the GPT-3.5 (OpenAI, 2023a) series for our research. Given that tables usually have extensive data, depending on the prompt length, we dynamically use gpt-3.5-turbo-0613 and $\mathrm { g p t } - 3 . 5 \mathrm { - t u r b o - } 1 6 \mathrm { k } \mathrm { - } \theta 6 1 3$ , with a primary aim to optimize cost when querying the API.
+
+Evaluation Metrics. Following prior works (Jiang et al., 2022; Ni et al., 2023; Cheng et al., 2023; Ye et al., 2023), we employ Exact Match Accuracy as the evaluation metric to validate predictions against ground truths, embedding instructions in prompts for consistent and parseable outputs.
+
+Reasoning Methods. Our evaluation hinges on two distinct zero-shot reasoning approaches:
+
+• Direct Prompting (DP) is a textual reasoning method that prompts LLMs to answer questions in a zero-shot manner. Rather than directly providing the answer, LLMs are instructed to reason step-by-step before concluding. More details can be found in Appx. §A.1,
+
+• Python Shell Agent (PyAgent) is a symbolic reasoning approach where the model dynamically interacts with a Python shell. Specifically, LLMs use the Python Shell as an external tool to execute commands, process data, and scrutinize results, particularly within a pandas dataframe, limited to a maximum of five iterative steps. Detailed prompt is presented in Appx. §A.2.
+
+Other Details. Depending on the scenario, we adjust the temperature setting. In cases not employing self-consistency, we set it to 0. For scenarios involving self-consistency, the temperature is set to 0.8. For further granularity, Appx. §A offers an exhaustive list of the prompts implemented in our experiments. Importantly, it should be noted that all prompts are deployed in a zero-shot manner, without any demonstrations or examples.
+
+## 4 LLM Robustness to Structural Perturbations
+
+This section explores how LLMs interpret varied table structures in response to our first research question (§1). We probe the impact of three table perturbations on LLM performance (§4.1), uncover LLMs’ challenges and limitations for direct table transposition and recoganize tranposed tables (§4.2), and introduce a structure normalization strategy (NORM) to mitigate these issues (§4.3).
+
+## 4.1 Impacts of Table Perturbations on LLMs
+
+In §3.1, we present three types of structural table perturbations: transposition $( \mathcal T ^ { \top } )$ , row-shuffling $( \mathcal { T } _ { \Pi } )$ , and their combination $( \mathcal { T } _ { \Pi } ^ { \top } )$ . As demonstrated in Tab. 1, both reasoning methods, DP and PyAgent, exhibit significant performance declines, with more pronounced when transposition is applied. DP consistently outperforms PyAgent largely across perturbations, indicating that textual reasoning tends to be more resilient to these structural changes. This resilience can be attributed to LLMs’ ability to grasp semantic connections and meanings irrespective of structural shifts. In contrast, symbolic reasoning, exemplified by PyAgent, is heavily reliant on table structure, making it more vulnerable, especially to transposition.
+
+<table><tr><td>Perturbation</td><td>DP</td><td>PyAgent</td></tr><tr><td>Original (T)</td><td>59.50</td><td>55.91</td></tr><tr><td rowspan="2">+Shuffle (Tπ)</td><td>52.21</td><td>47.91</td></tr><tr><td>-12.25%</td><td>-14.31%</td></tr><tr><td rowspan="2">+Transpose  $( \tau ^ { \top } )$  +Transpose&amp;Shuffle  $( \mathcal { T } _ { \Pi } ^ { \top } )$ </td><td>51.14 -14.05%</td><td>12.45 -77.73%</td></tr><tr><td>37.51 -36.96%</td><td>8.96 -83.97%</td></tr></table>
+
+Table 1: Accuracy of GPT-3.5 under different table perturbations using Direct Prompting (DP) and Python Shell Agent (PyAgent).
+<table><tr><td>LLMs As</td><td>Task Description</td><td>Accuracy</td></tr><tr><td rowspan="2">Transposer</td><td> $f ( \mathcal T ) \to \mathcal T ^ { \top }$ </td><td>53.68</td></tr><tr><td> $f ( \mathcal { T } ^ { \top } )  \mathcal { T }$ </td><td>51.07</td></tr><tr><td rowspan="2">Detector</td><td> $f ( \mathcal T )  0$ </td><td>93.35</td></tr><tr><td> $f ( \mathcal { T } ^ { \top } )  1$ </td><td>32.54</td></tr><tr><td rowspan="2">Determinator</td><td> $f ( T , \mathcal { T } _ { 0 , * } , \mathcal { T } _ { * , 0 } )  \mathcal { T } _ { 0 , * }$ </td><td>97.39</td></tr><tr><td> $f ( T ^ { \top } , \mathcal { T } _ { 0 , * } , \mathcal { T } _ { * , 0 } )  \mathcal { T } _ { * , 0 }$ </td><td>94.77</td></tr></table>
+
+Table 2: Evaluation results of GPT-3.5 on the 421 distinct tables of the WIKITABLEQUESTIONS (WTQ) dataset, covering three tasks: (1) Transposer, which involves switching between original ( ) and transposed $( \mathcal T ^ { \top } )$ tables directly; (2) Detector, which identifies the need for table transposition (0 for no transposition, 1 for transposition required); and (3) Determinator, which chooses probable table headings either from the first row $( \mathcal { T } 0 , * )$ or the first column ( , 0).
+
+## 4.2 Limitations of Table Transposition with LLMs
+
+To better understand LLMs’ capabilities with regard to table structures, we investigate their ability on detecting tables in need of transposition and performing table transposition.
+
+LLMs as Transposition Detectors. Given a table , the goal is to detect whether a table should be transposed for better comprehension by LLMs. This is formulated as a binary classification task:
+
+$$
+f ( { \cal T } )  0 , \quad f ( { \cal T } ^ { \top } )  1 ,
+$$
+
+Where 0 denotes ‘no need of transposition’ and 1 indicates ‘transposition needed’. Tab. 2 shows the results using the prompt in Appx. §A.4. GPT-3.5 correctly classified 93.35% of original tables as not requiring transposition. However, its accuracy dramatically decreased to 32.54% on transposed tables $\tau ^ { \top }$ . Our observations highlight that LLMs suffer from structural bias in the interpretation of table orientations, predominantly leading to recommendations against transposition.
+
+LLMs as Table Transposers. The objective is to switch between original and transposed table formats. Specifically, the goal is to directly yield $\tau ^ { + }$ given $\tau$ , and vice versa. Formally, the task is:
+
+$$
+f ( T ) \to T ^ { \top } , \quad f ( T ^ { \top } ) \to T
+$$
+
+We observed that GPT-3.5’s proficiency in this task is limited, with an accuracy of 53.68% transposing row tables and 51.07% for the inverse operation, suggesting that LLMs can not transpose tables precisely. For a detailed error case study and further analysis, refer to the Appx. §B.
+
+## 4.3 Table Structure Normalization
+
+In addressing structural variations in tables, our goal is to ensure consistent interpretation and utility across diverse table structures. To normalize various table structures into well-ordered rowtables prior to downstream tasks, we introduce NORM, which is a two-stage normalization strategy: the first stage detects column-tables and transposing them into row-tables, while the second stage sorts the row-tables for enhanced comprehensibility. Through this approach, NORM accommodates for structural perturbations without compromising the understanding of the standardized row-tables.
+
+Content-Aware Transposition Determination In the straightforward methods mentioned in §4.2, LLMs are affected by the loss of structure information of the table. Our approach aims to reduce this structural dependence by introducing a contentaware determination process, which leverages the semantic reasoning capabilities of LLMs, instead of perceiving the table’s structure. Specifically, we analyze the inherent content within the first row $( \mathcal { T } _ { 0 , * } )$ and the first column $( \mathcal { T } _ { * , 0 } )$ of a given table ( ) to decide which is more semantically fitting to serve as the table’s heading. This content-aware approach can be mathematically modeled as:
+
+<table><tr><td>Method</td><td>T</td><td> $\mathcal { T } _ { \Pi }$ </td><td> $\tau ^ { + }$ </td><td> $\mathcal { T } _ { \Pi } ^ { \top }$ </td></tr><tr><td>DP</td><td>59.50</td><td>52.21</td><td>51.14</td><td>37.51</td></tr><tr><td>+NORM</td><td>58.66 -1.41%</td><td>58.66 +12.35%</td><td>58.30 +14.00%</td><td>57.71 +53.85%</td></tr><tr><td>PyAgent</td><td>55.91</td><td>47.91</td><td>12.43</td><td>8.96</td></tr><tr><td>+NORM</td><td>56.87 +1.72%</td><td>57.11 +19.20%</td><td>55.44 +346.02%</td><td>55.08 +514.73%</td></tr></table>
+
+Table 3: Accuracy of GPT-3.5 under different table perturbations for Direct Prompting (DP) and Python Shell Agent (PyAgent) with NORM applied.
+
+$$
+\left\{ \begin{array} { l l } { f ( { \mathcal { T } } , { \mathcal { T } } _ { 0 , * } , { \mathcal { T } } _ { * , 0 } ) \to { \mathcal { T } } _ { 0 , * } } \\ { f ( { \mathcal { T } } ^ { \top } , { \mathcal { T } } _ { 0 , * } , { \mathcal { T } } _ { * , 0 } ) \to { \mathcal { T } } _ { * , 0 } } \end{array} \right.
+$$
+
+Here, a selection of the first row suggests that the current table structure is preferred, whereas opting for the first column signifies a need for transposition. The prompt detailing this method is provided in Appx. §A.5. Results in Tab. 2 highlight capability of GPT-3.5 in discerning table headings semantically, with accuracies of 97.39% and 94.77% respectively for original table and tranposed table.
+
+Row Reordering. Upon transposition, our next objective is to ensure the logical coherence of the table data through reordering the rows. We instruct LLMs to suggest improved reordering strategies using the prompts as detailed in Appx. §A.6. Due to the subjective nature involved in identifying the most suitable order of a tabular data, and given that there are no widely recognized standards for this process, the effectiveness of the proposed sorting strategy will be evaluated based its downstream impact on the results of table QA task. We notice that when the entire well-ordered table is exposed, GPT-3.5 occasionally suggests alternative sorting strategies, leading to unnecessary complexity. To counteract this tendency and ensure a better sorting proposal, we strategically present the model with only the first three and the last three rows of the table. This selective exposure typically allows the model to discern logical ordering patterns without being influenced by existing table configurations.
+
+Tab. 3 underscores the efficacy of NORM when applied prior to the two reasoning methods – DP and PyAgent. Demonstrably, NORM robustly mitigates structural perturbations, optimizing table comprehensibility for LLMs. The results illustrate that applying NORM does not detrimentally affect the original results ( ), and it effectively refines perturbated data, aligning the outcomes closely with the original results, and in some instances, even showing slight improvement. This suggests that NORM as a preprocessing step for preparing tabular data can enhance robust analysis by LLMs.
+
+In addressing our initial research question, the analysis indicates that LLMs’ performance is sensitive to table structural variations, with significant struggles observed in accurately interpreting the same tabular content under transposition and shuffling. While textual reasoning demonstrates some resilience to structural variations, symbolic reasoning is significantly impacted, particularly with transposed tables. The NORM strategy effectively navigates these challenges by eliminating dependency on table structures, providing consistent interpretation across diverse table structures without compromising the integrity or meaning of the original content.
+
+## 5 Comparing Textual and Symbolic Reasoning
+
+In this section, we delve into the comparison of textual and symbolic reasoning methods in LLMs for tabular data understanding (§5.1), further conducting a detailed error analysis (§5.2) to address the second research question (§1). We evaluate the performance of each reasoning strategy using GPT-3.5, shedding light on their strengths and challenges. In §4.3, we explored NORM to mitigate structural perturbations, enhancing generalized LLM performance and successfully restoring perturbed tables to accuracy levels similar to their original states. Therefore, subsequent analyses will exclusively consider the original tables ( ).
+
+## 5.1 Results
+
+Tab. 4 showcases the performance of GPT-3.5 when employed for both direct textual reasoning using DP and interactive symbolic reasoning using PyAgent. By instructing the model with the CoT (Wei et al., 2023) reasoning strategy to think step by step, and then give the final answer, as detailed in Appx. §A.1, we can achieve an accuracy of 58.66%. This surpasses the StructGPT’s Iterative Readingthen-Reasoning method, which concentrates reasoning tasks by continually collecting relevant evidence. For tables with limited tokens, symbolic reasoning via PyAgent offers an accuracy of 56.87%, which is slightly behind the accuracy by DP in a single attempt. A distinct advantage of symbolic reasoning is its ability to only present parts of the table in the prompt. As our experiments revealed, after excluding the central rows and showcasing only the initial and final three rows, we manage to maintain an accuracy of 52.45% with a 4.42% drop compared to the full-table PyAgent results. This makes it possible to deal with larger tables with numerous rows using LLMs with limited context window. In the following sections, we will present a comprehensive analysis of the discrepancies and errors observed across these methods.
+
+<table><tr><td>Method Accuracy</td></tr><tr><td>Few-shot Prompting Methods</td></tr><tr><td>BINDER* (Cheng et al., 2023) 63.61 BINDER (Cheng et al., 2023) 55.07</td></tr><tr><td>DATER w/o  $\mathsf { s c } ^ { \star }$  (Ye et al., 2023) 61.75 DATER w/  $\mathsf { s c } ^ { \star }$  (Ye et al., 2023) 68.99</td></tr><tr><td>Zero-shot Prompting Methods</td></tr><tr><td> $\mathbf { S T R U C T G P T ^ { \bullet } }$  (Jiang et al., 2023a) 51.77</td></tr><tr><td> $\mathrm { \Delta \bar { N O R M + D P } ^ { \bar { \alpha } } }$  58.66</td></tr><tr><td> $\mathrm { N O R M + P Y A G E N T } ^ { \bullet }$  56.87  $\mathrm { N O R M + P Y A G E N T - O M I T T E D } ^ { \bullet }$  52.45</td></tr><tr><td> $\scriptstyle \mathrm { N O R M + D P } \& \mathrm { P Y A G E N T } \ \mathbf { w } / \ \mathrm { E v A L } ^ { \bullet }$  64.22</td></tr><tr><td> $\bar { \bf D P } \bar { \bf w } / \bar { \bf s } \bar { \bf C } ^ { \bar { \bf d } }$  66.39</td></tr><tr><td> $+ \mathrm { N O R M } ^ { \bullet }$  64.10</td></tr><tr><td></td></tr><tr><td>+NORM w/o  $\mathbf { R E S O R T } ^ { \bullet }$  66.99</td></tr><tr><td>PYAGENT  $\mathbf { \Pi } _ { \mathbf { W } } ^ { - } / \mathbf { S } \mathbf { C } ^ { \pmb { \hat { \mathbf { \Phi } } } }$  61.39</td></tr><tr><td> $+ \mathrm { N O R M } ^ { \bullet }$  63.77</td></tr><tr><td>+NORM w/o RESORT 62.84</td></tr><tr><td></td></tr><tr><td> $\mathrm { \bar { D P } \bar { \& } \bar { P } \bar { Y } \bar { A } G E N T \bar { \bf w } / \bar { \bf M } I X - \bar { \bf S } C ^ { \bar { \bf 4 } } }$  73.06  $+ \mathrm { N O R M } ^ { \bullet }$  72.40</td></tr></table>
+
+Table 4: Performance comparison of various methods on a sampled subset ( ) of the WikiTableQuestions dataset. Methods marked with <sup>⋆</sup> are based on Codex, while those marked with ♠ are based on GPT-3.5. SC stands for self-consistency, and the results for SC-based methods are obtained by averaging over 100 shuffles to handle cases of ties during majority voting. In the Mix-SC method, answers from DP are prioritized over those from PyAgent due to $\mathrm { D P s }$ superior performance. This prioritization is followed in all experiments involving SC. NORM W/O RESORT refers to the NORM method without the reordering stage.
+
+## 5.2 Error Analysis
+
+To elucidate the challenges and limitations of DP and PyAgent, this section presents an in-depth error analysis by sampling 50 erroneous outputs for each. Tab. 5 summarizes the predominant error types for DP and PyAgent methods. Table interpretation errors significantly afflict the DP method, comprising 42% of its total errors, highlighting substantial challenges for LLMs in accurately interpreting table data. PyAgent primarily struggles with coding errors, constituting 38% of its total errors. These errors either originate from misunderstandings of table content, often overlooking subtle details, or manifest as inherent deficiencies in coding capabilities. These prevalent errors underscore the intrinsic challenges and limitations each method faces in the reasoning process. Detailed case studies on each error type are delineated in Appx. §C.
+
+In response to the second research question, the analysis indicates DP marginally surpasses PyAgent within single attempts. Despite this, PyAgent can handle larger tables by processing partial table views. Notably, DP encounters difficulties in accurate table interpretation, while PyAgent reveals instability in coding capabilities.
+
+## 6 Reasoning Aggregation
+
+This section examines how combining multiple reasoning pathways can boost LLMs’ accuracy in interpreting tabular data, which is in response to the third research question (§1).
+
+## 6.1 Methods
+
+Self-Consistency. Previous work has highlighted the advantages of generating multiple outputs from LLMs and adopting the most frequent answer, a mechanism known as self-consistency (SC; Wang et al. 2023). Tab. 4 showcases the notable improvements realized through self-consistency (aggregating 10 outputs), with DP achieving an accuracy of 64.84% and PyAgent attaining 63.49%.
+
+Self-Evaluation. Based on our error analysis in §5.2, different reasoning methods excel at specific tasks. For instance, symbolic reasoning tends to outperform textual reasoning in counting and column localization tasks. To optimize the choice between these methods, we strategically use a prompt (referenced in Appx. §A.7), which avoids directly validating answers against tables but guides the LLM to choose between the two reasoning approaches based on the question’s nature and each answer’s clarity. By weighing the problem against the known strengths and weaknesses of each reasoning strategy, this tactic mitigates potential bias towards textual reasoning by LLMs and enhances answer accuracy. As evidenced by Tab. 4, using self-evaluation boosts accuracy to 64.99%. Impressively, this method, using only two reasoning paths, matches the performance of using 10 paths of DP or PyAgent independently.
+
+<table><tr><td>Error Types</td><td>DP</td><td></td><td>PyAgent Description</td><td>Case Study</td></tr><tr><td>Table Misinterpretation 42%</td><td></td><td>_†</td><td>LLMs incorrectly interpret the content in tables.</td><td>Appx. §C.1.1, Appx. §C.1.2</td></tr><tr><td>Coding Errors</td><td></td><td>38%</td><td>LLMs produce inaccurate code, typically due to is- Appx. §C.2.1, Appx. §C.2.2, sues with minor details.</td><td>Appx. §C.2.3</td></tr><tr><td>Misalignment Issue</td><td>24%</td><td>28%</td><td>Outputs are conceptually correct but the answers do not align with the instructions.</td><td>Appx. §C.3.1, Appx. §C.3.2</td></tr><tr><td>Logical Inconsistency</td><td>20%</td><td>10%</td><td>LLMs exhibit failures in reasoning, leading to con- tradictions or inconsistencies.</td><td>Appx. §C.4.1, Appx. §C.4.2</td></tr><tr><td>Execution Issue</td><td></td><td>12%</td><td>Issues emerge related to the execution of Python code.</td><td>Appx. §C.5.1, Appx. §C.5.2</td></tr><tr><td>Resorting Issue</td><td>10%</td><td>8%</td><td>The resorting stage in NoRM changes the answers of some sequence-dependent questions</td><td>Appx. §C.6</td></tr></table>
+
+Table 5: Categorization of error types for the DP and PyAgent methods. †The table interpretation errors is not explicitly used for PyAgent, as these errors are included under coding errors to avoid overlap in categorization. The percentages for each reasoning method may not sum up to 100%, as the remaining percentage points are attributed to other errors, such as issues with dataset labeling, which are not categorized in our analysis.
+
+Mix Self-Consistency. According to §5.1, symbolic and textual reasoning exhibit distinct focuses but deliver similar performance. Consequently, we introduce Mix Self-Consistency, a method that selects a predetermined number of outputs for each type of inference, aiming for self-consistency. This approach hinges on the idea that multiple outputs can reflect the confidence levels of LLMs in answer generation. In scenarios where LLMs are less proficient, they tend to produce a diverse set of answers. Conversely, for tasks that LLMs handle adeptly, consistent answers are often generated across multiple reasoning attempts, converging towards one answer. Such convergence allows for the aggregation of model outputs that align with areas where LLMs exhibit stronger reasoning capabilities, thereby substantially improving accuracy. The detailed mechanics of how this approach is implemented within the framework of Mix Self-Consistency, including the aggregation and interpretation of these outputs, are further elucidated in Appx. §D.2.
+
+Tab. 4 demonstrates that using mix selfconsistency, which involves generating 5 outputs per inference type (totaling 10), enhances performance substantially, achieving an impressive accuracy of 72.40%, which achieves SOTA performance on the sampled WTQ data. The choice of generating 5 outputs per inference type (5+5) is a hyperparameter selection influenced by the dataset’s distribution. We conducted an ablation study regarding this in Appx. §D.1. The decision to use an equal split (5+5) is based on the observed comparable performance between the two reasoning strategies.
+
+## 6.2 Overall Evaluation
+
+To evaluate our method thoroughly, we conduct a comprehensive pass of testing using the complete WTQ test set, integrating both NORM and Mix self-consistency mechanisms. Since re-sorting may change the answers of row index-related questions, we perform NORM without resorting in this evaluation. Originally, the NORM process included a re-sorting step to counteract the row-shuffling perturbation. However, as explored in the error analysis (§5.2) with a detailed case study in Appx. §C.6, re-sorting may inadvertently alter answers reliant on the initial sequence. Despite this limitation, it is noteworthy that re-sorting can be advantageous for questions not dependent on row indexes, particularly when dealing with tables that are initially unorganized or messy.
+
+As illustrated in Tab. 6, our proposed method exhibits outstanding efficacy with an accuracy of 73.6%, significantly outperforming existing models to achieve SOTA performance on the complete WTQ test set. Importantly, our approach is conducted in a fully zero-shot manner.
+
+To further analyze the impact of table size on method performance, we segmented the row numbers into 10 ranges, each containing approximately 430 data points, and calculated the average accuracy within these intervals. Fig. 3 visualizes the average accuracy across these ranges for each method. It is evident that there is a shared trend of diminishing accuracy as the number of rows increases, suggesting that all methods are subject to decreased efficacy in the context of long tables.
+
+![](images/ddd35b258cb2ceb269617c182f302d5d6e5ea00e958106b5f6ca08d680223f61.jpg)
+
+![](images/7a24f6240a7d459264c77b6271bfca7bfe7c643412c4c6a71fe5a03c9f082b71.jpg)
+
+![](images/b46d3ab9a1a2d33384318c86564ce31c0f5e89663402441f63c357d51f26d48a.jpg)  
+Figure 3: The impact of table size on the performance of DP, PyAgent, and Mix-SC (Combining 5 DP and 5 PyAgent) methods on the WikiTableQuestions test set. The horizontal axis represents the number of rows in the tables, divided into ranges, while the vertical axis denotes the average accuracy achieved by each method within the corresponding table size range.
+
+<table><tr><td rowspan=1 colspan=1>Method                                  Accuracy</td></tr><tr><td rowspan=1 colspan=1>Fine-tuning Based Models</td></tr><tr><td rowspan=1 colspan=1>TAPAS (Herzig et al., 2020)              48.8T5-3B (Xie et al., 2022)                  49.3TAPAX (Liu et al., 2022)                 57.5REAsTAP (Zhao et al., 2022)            58.7OMNITAB (Jiang et al., 2022)            63.3</td></tr><tr><td rowspan=1 colspan=1>LLMs Based Methods</td></tr><tr><td rowspan=1 colspan=1>STRUCTGPT* (Jiang et al., 2023a)     48.4BINDER* (Cheng et al., 2023)           55.5BINDER (Cheng et al., 2023)           64.6LEVER (Ni et al., 2023)                 65.8DATER (Ye et al., 2023)                 65.9</td></tr><tr><td rowspan=1 colspan=1>Ours★                                      73.6</td></tr></table>
+
+Table 6: Comparison of various methods on all test data of WTQ. <sup>⋆</sup> denotes methods based on the GPT-3.5 (OpenAI, 2023a); ♠ denotes methods based on the Codex (OpenAI, 2022). Results are directly sourced from the referenced paper.
+
+The decline in performance with larger tables can be attributed to the complexity of handling long-context data and the abundance of potentially interfering information, often resulting in an increased error rate. The insights gained from this analysis point towards a need for the development of better symbolic methods for handling long tables, which might be capable of effectively narrowing down the scope of larger tables, either by selective attention to relevant segments or by intelligently summarizing the data, to mitigate the challenges posed by long-context information.
+
+In response to the third research question, our findings reveal that reasoning path aggregation significantly enhances LLMs’ accuracy in table reasoning tasks. Notably, the Mix Self-Consistency method achieves an accuracy of 73.6% on the WTQ dataset, surpassing the previous SOTA by a considerable margin. The Self-Evaluation strategy also contributes to this remarkable performance by adeptly selecting between reasoning approaches.
+
+## 7 Conclusion
+
+This study investigated the proficiency of LLMs in tabular reasoning. The findings suggest that LLMs are sensitive to the structural variance of tables, but the application of the proposed normalization strategy can stabilize table structures and improve resistance to structural perturbations. When comparing reasoning approaches, textual reasoning demonstrated a slight advantage over symbolic reasoning, with each strategy exhibiting unique strengths. Furthermore, integrating multiple reasoning strategies via mix self-consistency proved beneficial for overall interpretation accuracy, surpassing previous SOTA results on the WIKITABLEQUESTIONS dataset. These observations contribute to the understanding of LLMs’ capabilities in tabular reasoning and provide insights for further improvements.
+
+## Limitation
+
+While this study provides insights into tabular data reasoning with LLMs, it is pertinent to acknowledge its limitations. First, the exclusive utilization of GPT-3.5, due to the budgetary constraints, may limit the generalizability of our findings, as exploration with GPT-4 might offer enhanced outcomes. Second, all table data are sourced from Wikipedia, which may introduce potential data leakage or memorization issues, as certain answers might be implicitly available within the LLMs’ training data, thus potentially biasing results. Lastly, several perturbation-sensitive table-based questions, especially regarding table perturbations like shuffling, may impact the precision of the reported accuracy, as demonstrated answers may change based on the structural modifications of the table.
+
+## Acknowledgment
+
+We appreciate the reviewers for their insightful comments and suggestions. Fei Wang is supported by the Annenberg Fellowship and the Amazon ML Fellowship. Muhao Chen is supported by the NSF Grant IIS 2105329, the NSF Grant ITE 2333736, the Faculty Startup Fund of UC Davis, a Cisco Research Award and two Amazon Research Awards.
+
+## References
+
+Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel M. Ziegler, Jeffrey Wu, Clemens Winter, Christopher Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020, December 6-12, 2020, virtual.
+
+Shuaichen Chang, Jun Wang, Mingwen Dong, Lin Pan, Henghui Zhu, Alexander Hanbo Li, Wuwei Lan, Sheng Zhang, Jiarong Jiang, Joseph Lilien, Steve Ash, William Yang Wang, Zhiguo Wang, Vittorio Castelli, Patrick Ng, and Bing Xiang. 2023. Dr.spider: A diagnostic evaluation benchmark towards text-to-sql robustness.
+
+Harrison Chase. 2022. LangChain.
+
+Wenhu Chen. 2023. Large language models are few(1)- shot table reasoners.
+
+Wenhu Chen, Ming-Wei Chang, Eva Schlinger, William Yang Wang, and William W Cohen. 2020. Open question answering over tables and text. In International Conference on Learning Representations.
+
+Zhoujun Cheng, Tianbao Xie, Peng Shi, Chengzu Li, Rahul Nadkarni, Yushi Hu, Caiming Xiong, Dragomir Radev, Mari Ostendorf, Luke Zettlemoyer, Noah A. Smith, and Tao Yu. 2023. Binding language models in symbolic languages. ICLR, abs/2210.02875.
+
+Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham, Hyung Won Chung, Charles Sutton, Sebastian Gehrmann, Parker Schuh, Kensen Shi, Sasha Tsvyashchenko, Joshua Maynez, Abhishek Rao, Parker Barnes, Yi Tay, Noam Shazeer, Vinodkumar Prabhakaran, Emily Reif, Nan Du, Ben Hutchinson, Reiner Pope, James Bradbury, Jacob Austin, Michael Isard, Guy Gur-Ari, Pengcheng Yin, Toju Duke, Anselm Levskaya, Sanjay Ghemawat, Sunipa Dev, Henryk Michalewski, Xavier Garcia, Vedant Misra, Kevin Robinson, Liam Fedus, Denny Zhou, Daphne Ippolito, David Luan, Hyeontaek Lim, Barret Zoph, Alexander Spiridonov, Ryan Sepassi, David Dohan, Shivani Agrawal, Mark Omernick, Andrew M. Dai, Thanumalayan Sankaranarayana Pillai, Marie Pellat, Aitor Lewkowycz, Erica Moreira, Rewon Child, Oleksandr Polozov, Katherine Lee, Zongwei Zhou, Xuezhi Wang, Brennan Saeta, Mark Diaz, Orhan Firat, Michele Catasta, Jason Wei, Kathy Meier-Hellstern, Douglas Eck, Jeff Dean, Slav Petrov, and Noah Fiedel. 2022. Palm: Scaling language modeling with pathways.
+
+Paul F Christiano, Jan Leike, Tom Brown, Miljan Martic, Shane Legg, and Dario Amodei. 2017. Deep reinforcement learning from human preferences. In Advances in Neural Information Processing Systems, volume 30. Curran Associates, Inc.
+
+Hyung Won Chung, Le Hou, Shayne Longpre, Barret Zoph, Yi Tay, William Fedus, Yunxuan Li, Xuezhi Wang, Mostafa Dehghani, Siddhartha Brahma, Albert Webson, Shixiang Shane Gu, Zhuyun Dai, Mirac Suzgun, Xinyun Chen, Aakanksha Chowdhery, Alex Castro-Ros, Marie Pellat, Kevin Robinson, Dasha Valter, Sharan Narang, Gaurav Mishra, Adams Yu, Vincent Zhao, Yanping Huang, Andrew Dai, Hongkun Yu, Slav Petrov, Ed H. Chi, Jeff Dean, Jacob Devlin, Adam Roberts, Denny Zhou, Quoc V. Le, and Jason Wei. 2022. Scaling instruction-finetuned language models.
+
+Leo Gao, John Schulman, and Jacob Hilton. 2022. Scaling laws for reward model overoptimization.
+
+Zihui Gu, Ju Fan, Nan Tang, Preslav Nakov, Xiaoman Zhao, and Xiaoyong Du. 2022. PASTA: Tableoperations aware fact verification via sentence-table cloze pre-training. In Proceedings ofthe 2022 Conference on Empirical Methods in Natural Language Processing, pages 4971–4983, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.
+
+Shibo Hao, Tianyang Liu, Zhen Wang, and Zhiting Hu. 2023. Toolkengpt: Augmenting frozen language models with massive tools via tool embeddings.
+
+Jonathan Herzig, Pawel Krzysztof Nowak, Thomas Müller, Francesco Piccinno, and Julian Eisenschlos. 2020. TaPas: Weakly supervised table parsing via pre-training. In Proceedings of the 58th Annual Meeting ofthe Associationfor Computational Linguistics. Association for Computational Linguistics.
+
+Jinhao Jiang, Kun Zhou, Zican Dong, Keming Ye, Wayne Xin Zhao, and Ji-Rong Wen. 2023a. Structgpt: A general framework for large language model to reason on structured data.
+
+Zhengbao Jiang, Yi Mao, Pengcheng He, Graham Neubig, and Weizhu Chen. 2022. OmniTab: Pretraining with natural and synthetic data for few-shot tablebased question answering. In Proceedings of the 2022 Conference of the North American Chapter of the Associationfor Computational Linguistics: Human Language Technologies, pages 932–942, Seattle, United States. Association for Computational Linguistics.
+
+Zhengbao Jiang, Frank F. Xu, Luyu Gao, Zhiqing Sun, Qian Liu, Jane Dwivedi-Yu, Yiming Yang, Jamie Callan, and Graham Neubig. 2023b. Active retrieval augmented generation.
+
+Takeshi Kojima, Shixiang Shane Gu, Machel Reid, Yutaka Matsuo, and Yusuke Iwasawa. 2023. Large language models are zero-shot reasoners.
+
+Hongxin Li, Jingran Su, Yuntao Chen, Qing Li, and Zhaoxiang Zhang. 2023a. Sheetcopilot: Bringing software productivity to the next level through large language models.
+
+Raymond Li, Loubna Ben Allal, Yangtian Zi, Niklas Muennighoff, Denis Kocetkov, Chenghao Mou, Marc Marone, Christopher Akiki, Jia Li, Jenny Chim, Qian Liu, Evgenii Zheltonozhskii, Terry Yue Zhuo, Thomas Wang, Olivier Dehaene, Mishig Davaadorj, Joel Lamy-Poirier, João Monteiro, Oleh Shliazhko, Nicolas Gontier, Nicholas Meade, Armel Zebaze, Ming-Ho Yee, Logesh Kumar Umapathi, Jian Zhu, Benjamin Lipkin, Muhtasham Oblokulov, Zhiruo Wang, Rudra Murthy, Jason Stillerman, Siva Sankalp Patel, Dmitry Abulkhanov, Marco Zocca, Manan Dey, Zhihan Zhang, Nour Fahmy, Urvashi Bhattacharyya, Wenhao Yu, Swayam Singh, Sasha Luccioni, Paulo Villegas, Maxim Kunakov, Fedor Zhdanov, Manuel Romero, Tony Lee, Nadav Timor, Jennifer Ding, Claire Schlesinger, Hailey Schoelkopf, Jan Ebert, Tri Dao, Mayank Mishra, Alex Gu, Jennifer Robinson, Carolyn Jane Anderson, Brendan Dolan-Gavitt, Danish Contractor, Siva Reddy, Daniel Fried, Dzmitry Bahdanau, Yacine Jernite, Carlos Muñoz Ferrandis, Sean Hughes, Thomas Wolf, Arjun Guha, Leandro von Werra, and Harm de Vries. 2023b. Starcoder: may the source be with you!
+
+Yifei Li, Zeqi Lin, Shizhuo Zhang, Qiang Fu, Bei Chen, Jian-Guang Lou, and Weizhu Chen. 2023c. Making
+
+large language models better reasoners with stepaware verifier.
+
+Qian Liu, Bei Chen, Jiaqi Guo, Morteza Ziyadi, Zeqi Lin, Weizhu Chen, and Jian-Guang Lou. 2022. Tapex: Table pre-training via learning a neural sql executor.
+
+Anton Lozhkov, Raymond Li, Loubna Ben Allal, Federico Cassano, Joel Lamy-Poirier, Nouamane Tazi, Ao Tang, Dmytro Pykhtar, Jiawei Liu, Yuxiang Wei, Tianyang Liu, Max Tian, Denis Kocetkov, Arthur Zucker, Younes Belkada, Zijian Wang, Qian Liu, Dmitry Abulkhanov, Indraneil Paul, Zhuang Li, Wen-Ding Li, Megan Risdal, Jia Li, Jian Zhu, Terry Yue Zhuo, Evgenii Zheltonozhskii, Nii Osae Osae Dade, Wenhao Yu, Lucas Krauß, Naman Jain, Yixuan Su, Xuanli He, Manan Dey, Edoardo Abati, Yekun Chai, Niklas Muennighoff, Xiangru Tang, Muhtasham Oblokulov, Christopher Akiki, Marc Marone, Chenghao Mou, Mayank Mishra, Alex Gu, Binyuan Hui, Tri Dao, Armel Zebaze, Olivier Dehaene, Nicolas Patry, Canwen Xu, Julian McAuley, Han Hu, Torsten Scholak, Sebastien Paquet, Jennifer Robinson, Carolyn Jane Anderson, Nicolas Chapados, Mostofa Patwary, Nima Tajbakhsh, Yacine Jernite, Carlos Muñoz Ferrandis, Lingming Zhang, Sean Hughes, Thomas Wolf, Arjun Guha, Leandro von Werra, and Harm de Vries. 2024. Starcoder 2 and the stack v2: The next generation.
+
+Grégoire Mialon, Roberto Dessì, Maria Lomeli, Christoforos Nalmpantis, Ram Pasunuru, Roberta Raileanu, Baptiste Rozière, Timo Schick, Jane Dwivedi-Yu, Asli Celikyilmaz, Edouard Grave, Yann LeCun, and Thomas Scialom. 2023. Augmented language models: a survey.
+
+Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu, Long Ouyang, Christina Kim, Christopher Hesse, Shantanu Jain, Vineet Kosaraju, William Saunders, Xu Jiang, Karl Cobbe, Tyna Eloundou, Gretchen Krueger, Kevin Button, Matthew Knight, Benjamin Chess, and John Schulman. 2022. Webgpt: Browserassisted question-answering with human feedback.
+
+Ansong Ni, Srini Iyer, Dragomir Radev, Ves Stoyanov, Wen-tau Yih, Sida I Wang, and Xi Victoria Lin. 2023. Lever: Learning to verify language-to-code generation with execution. In Proceedings of the 40th International Conference on Machine Learning (ICML’23).
+
+OpenAI. 2022. Codex.
+
+OpenAI. 2023a. Chatgpt.
+
+OpenAI. 2023b. Dall·e 3.
+
+OpenAI. 2023c. Gpt-4 technical report.
+
+Panupong Pasupat and Percy Liang. 2015. Compositional semantic parsing on semi-structured tables.
+
+Freda Shi, Xinyun Chen, Kanishka Misra, Nathan Scales, David Dohan, Ed Chi, Nathanael Schärli, and Denny Zhou. 2023. Large language models can be easily distracted by irrelevant context.
+
+Significant Gravitas. 2023. Auto-GPT.
+
+Nisan Stiennon, Long Ouyang, Jeff Wu, Daniel M. Ziegler, Ryan Lowe, Chelsea Voss, Alec Radford, Dario Amodei, and Paul Christiano. 2022. Learning to summarize from human feedback.
+
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al. 2023a. Llama: Open and efficient foundation language models. ArXiv preprint, abs/2302.13971.
+
+Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Dan Bikel, Lukas Blecher, Cristian Canton Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller, Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel Kloumann, Artem Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, Ranjan Subramanian, Xiaoqing Ellen Tan, Binh Tang, Ross Taylor, Adina Williams, Jian Xiang Kuan, Puxin Xu, Zheng Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melanie Kambadur, Sharan Narang, Aurelien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas Scialom. 2023b. Llama 2: Open foundation and fine-tuned chat models.
+
+Fei Wang, Kexuan Sun, Jay Pujara, Pedro Szekely, and Muhao Chen. 2021. Table-based fact verification with salience-aware learning. In Findings ofthe Association for Computational Linguistics: EMNLP 2021, pages 4025–4036, Punta Cana, Dominican Republic. Association for Computational Linguistics.
+
+Fei Wang, Zhewei Xu, Pedro Szekely, and Muhao Chen. 2022. Robust (controlled) table-to-text generation with structure-aware equivariance learning. In Proceedings of the 2022 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies.
+
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc Le, Ed Chi, Sharan Narang, Aakanksha Chowdhery, and Denny Zhou. 2023. Self-consistency improves chain of thought reasoning in language models.
+
+Jason Wei, Maarten Bosma, Vincent Y. Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester, Nan Du, Andrew M. Dai, and Quoc V. Le. 2022. Finetuned language models are zero-shot learners.
+
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed Chi, Quoc Le, and Denny Zhou. 2023. Chain-of-thought prompting elicits reasoning in large language models.
+
+Tianbao Xie, Chen Henry Wu, Peng Shi, Ruiqi Zhong, Torsten Scholak, Michihiro Yasunaga, Chien-Sheng Wu, Ming Zhong, Pengcheng Yin, Sida I. Wang, Victor Zhong, Bailin Wang, Chengzu Li, Connor Boyle, Ansong Ni, Ziyu Yao, Dragomir Radev, Caiming Xiong, Lingpeng Kong, Rui Zhang, Noah A. Smith, Luke Zettlemoyer, and Tao Yu. 2022. Unifiedskg: Unifying and multi-tasking structured knowledge grounding with text-to-text language models. EMNLP.
+
+Yunhu Ye, Binyuan Hui, Min Yang, Binhua Li, Fei Huang, and Yongbin Li. 2023. Large language models are versatile decomposers: Decompose evidence and questions for table-based reasoning.
+
+Pengcheng Yin, Graham Neubig, Wen-tau Yih, and Sebastian Riedel. 2020. TaBERT: Pretraining for joint understanding of textual and tabular data. In Proceedings ofthe 58th Annual Meeting ofthe Association for Computational Linguistics, pages 8413–8426, Online. Association for Computational Linguistics.
+
+Susan Zhang, Stephen Roller, Naman Goyal, Mikel Artetxe, Moya Chen, Shuohui Chen, Christopher Dewan, Mona Diab, Xian Li, Xi Victoria Lin, Todor Mihaylov, Myle Ott, Sam Shleifer, Kurt Shuster, Daniel Simig, Punit Singh Koura, Anjali Sridhar, Tianlu Wang, and Luke Zettlemoyer. 2022. Opt: Open pretrained transformer language models.
+
+Tianshu Zhang, Xiang Yue, Yifei Li, and Huan Sun. 2023a. Tablellama: Towards open large generalist models for tables.
+
+Wenqi Zhang, Yongliang Shen, Weiming Lu, and Yueting Zhuang. 2023b. Data-copilot: Bridging billions of data and humans with autonomous workflow.
+
+Yilun Zhao, Linyong Nan, Zhenting Qi, Rui Zhang, and Dragomir Radev. 2022. ReasTAP: Injecting table reasoning skills during pre-training via synthetic reasoning examples. In Proceedings ofthe 2022 Conference on Empirical Methods in Natural Language Processing, pages 9006–9018, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.
+
+Yilun Zhao, Chen Zhao, Linyong Nan, Zhenting Qi, Wenlin Zhang, Xiangru Tang, Boyu Mi, and Dragomir Radev. 2023. Robut: A systematic study of table qa robustness against human-annotated adversarial perturbations.
+
+Denny Zhou, Nathanael Schärli, Le Hou, Jason Wei, Nathan Scales, Xuezhi Wang, Dale Schuurmans, Claire Cui, Olivier Bousquet, Quoc Le, and Ed Chi. 2023. Least-to-most prompting enables complex reasoning in large language models.
+
+## Appendices
+
+## A Prompts
+
+## A.1 Prompt of Direct Prompting (DP).
+
+You are an advanced AI capable of analyzing and understanding information within tables. Read the table below regarding "[TITLE]".
+
+[TABLE]
+
+Based on the given table, answer the following question:
+
+[QUESTION]
+
+Let's think step by step, and then give the final answer. Ensure the final answer format is only "Final Answer: AnswerName1, AnswerName2..." form, no other form. And ensure the final answer is a number or entity names, as short as possible, without any explanation.
+
+## A.2 Prompt of Python Agent.
+
+You are working with a pandas dataframe in Python. The name of the dataframe is \`df\`. Your task is to use \`python\_repl\_ast\` to answer the question posed to you.
+
+Tool description:
+
+\`python\_repl\_ast\`: A Python shell. Use this to execute python commands. Input should be a valid python command. When using this tool, sometimes the output is abbreviated - ensure it does not appear abbreviated before using it in your answer.
+
+Guidelines:
+
+\- \*\*Aggregated Rows\*\*: Be cautious of rows that aggregate data such as 'total', 'sum', or 'average'. Ensure these rows do not influence your results inappropriately.
+
+\- \*\*Data Verification\*\*: Before concluding the final answer, always verify that your observations align with the original table and question.
+
+Strictly follow the given format to respond:
+
+Question: the input question you must answer
+
+Thought: you should always think about what to do to interact with \`python\_repl\_ast\`
+
+Action: can \*\*ONLY\*\* be \`python\_repl\_ast\`
+
+Action Input: the input code to the action
+
+Observation: the result of the action
+
+... (this Thought/Action/Action Input/Observation can repeat N times)
+
+Thought: after verifying the table, observations, and the question, I am confident in the final answer
+
+Final Answer: the final answer to the original input question (AnswerName1, AnswerName2...)
+
+Notes for final answer:
+
+\- Ensure the final answer format is only "Final Answer: AnswerName1, AnswerName2..." form, no other form.
+
+Ensure the final answer is a number or entity names, as short as possible, without any explanation. Ensure to have a concluding thought that verifies the table, observations and the question before giving the final answer.
+
+You are provided with a table regarding "[TITLE]". This is the result of \`print(df.to\_markdown())\`:
+
+[TABLE]
+
+\*\*Note\*\*: All cells in the table should be considered as \`object\` data type, regardless of their appearance.
+
+Begin!
+
+Question: [QUESTION]
+
+## A.3 Prompt of LLMs as Table Transposer
+
+You are given the following table:
+
+[TABLE]
+
+Please transpose this table. Maintain the format I give, with each row beginning with '|' and each cell separated by ' | '. Do not change the content of any cell. Your response should solely consist of the transposed table, without any additional text.
+
+## A.4 Prompt of LLMs as Table Transposition Detector
+
+Please examine the provided table:
+
+[TABLE]
+
+To enhance readability and facilitate efficient data analysis, it is often suggested that the table headings be horizontally located in the first/topmost row.
+
+Please evaluate the table with this consideration in mind, and provide your response in the following format:
+
+\*\*Table Headings\*\*: List the headings of the table, separated by commas.   
+\*\*Table Evaluation\*\*: Identify whether the headings listed are horizontally located in the   
+first/topmost row. If not, describe the position.   
+\*\*Transpose Recommended\*\*: Indicate if transposing is recommended. Answer with only "YES" or "NO",   
+without any additional explanation.
+
+## A.5 Prompt of Content-Aware Transposition Determination
+
+You are an advanced AI capable of analyzing and understanding information within tables. Read the table below regarding "[TITLE]".
+
+[TABLE]
+
+Headings of a table are labels or titles given to rows or columns to provide a brief description of the data they contain.
+
+Based on the given table, the headings of the table are more likely to be:
+
+(A) [FIRST\_ROW]   
+(B) [FIRST\_COLUMN]   
+(C) None of the above
+
+Directly give your choice. Ensure the format is only "Choice: (A)/(B)/(C)" form, no other form, without any explanation.
+
+## A.6 Prompt of Resorting
+
+You are an advanced AI capable of analyzing and understanding information within tables. Read the table below regarding "[TITLE]":
+
+[TABLE]
+
+Note: Only selected rows from the beginning and end of the table are displayed for brevity. Intermediate rows are omitted and represented by "..." for clarity.
+
+The table column headings are provided below, separated by semicolons:
+
+[HEADINGS]
+
+In order to optimize the interpretability and readability of the data, follow these guidelines to determine the most suitable sorting method:
+
+Sorting Guidelines:
+
+1. Evaluate columns based on data types such as numerical, alphabetical, chronological, categorical, or other relevant sorting methods.
+
+2. Identify any patterns or relationships in the data that would be highlighted by certain sorting methods.
+
+3. Consider column position, as those on the left may sometimes have sorting priority.
+
+4. If applicable, consider sorting by multiple columns in a prioritized sequence.
+
+Provide your decision using one of the following statements:
+
+\- For sorting using a single column: "Sort by: [Name of Column]".
+
+\- For sorting using multiple columns: "Sort by: [Primary Column Name], [Secondary Column Name], ...".
+
+\- If no specific sorting seems advantageous: "Sort by: N/A".
+
+Your response should strictly follow the formats provided.
+
+## A.7 Prompt of Self-Evaluation
+
+Below is a markdown table regarding "[TITLE]":
+
+[TABLE]
+
+You're tasked with answering the following question:
+
+[QUESTION]
+
+You have 2 answers derived by two different methods. Answer A was derived by prompting the AI to think step-by-step. Answer B was derived by interacting with a Python Shell.
+
+Answer A is [COT\_ANSWER].
+
+Answer B is [AGENT\_ANSWER].
+
+Your task is to determine which is the correct answer. It is crucial that you strictly adhere to the following evaluation process:
+
+1. \*\*Preliminary Evaluation\*\*: Begin by evaluating which of the two answers directly addresses the question in a straightforward and unambiguous manner. A direct answer provides a clear response that aligns closely with the query without introducing additional or extraneous details. If one of the answers is not a direct response to the question, simply disregard it.
+
+2. \*\*Nature of the Question\*\*: If both answers appear to be direct answers, then evaluate the nature of the question. For tasks involving computation, counting, and column-locating, especially when for extensive table, the Python Shell (Answer B) might be more precise. However, always remain cautious if the Python Shell's output appears off (e.g., error messages, success notifications, etc.). Such outputs may not be trustworthy for a correct answer.
+
+3. \*\*Final Verdict\*\*: Finally, after thorough evaluation and explanation, provide your verdict strictly following the given format:
+
+\- Use "[[A]]" if Answer A is correct.
+
+\- Use "[[B]]" if Answer B is correct.
+
+## Note:
+
+1. Each method has its own strengths and weaknesses. Evaluate them with an unbiased perspective. When in doubt, consider the nature of the question and lean towards the method that is most suited for such queries.
+
+2. Ensure that your verdict is provided after evaluation, at the end.
+
+## B Analysis for LLMs as Table Transposer
+
+## B.1 Case Study
+
+Original Table
+
+Model Prediction
+<table><tr><td rowspan=1 colspan=1>Year</td><td rowspan=1 colspan=1>1931</td><td rowspan=1 colspan=1>Spring 1932</td><td rowspan=1 colspan=1>Fall 1932</td><td rowspan=1 colspan=1>Spring 1933</td><td rowspan=1 colspan=1>1933/34</td><td rowspan=1 colspan=1>1934/35</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>1951/52</td><td rowspan=1 colspan=1>1952/53</td><td rowspan=1 colspan=1>1953/54</td><td rowspan=1 colspan=1>1954/55</td><td rowspan=1 colspan=1>1955/56</td></tr><tr><td rowspan=1 colspan=1>Division</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>N/A</td></tr><tr><td rowspan=1 colspan=1>League</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>...</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>ASL</td></tr><tr><td rowspan=1 colspan=1>Reg. Season</td><td rowspan=1 colspan=1>6th (Fall)</td><td rowspan=1 colspan=1>5th?</td><td rowspan=1 colspan=1>3rd</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>2nd</td><td rowspan=1 colspan=1>2nd</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>1st</td><td rowspan=1 colspan=1>8th</td><td rowspan=1 colspan=1>6th</td></tr><tr><td rowspan=1 colspan=1>Playoffs</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>Champion (no playoff)</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>No playoff</td></tr><tr><td rowspan=1 colspan=1>National Cup</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>1st Round</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>Final</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>Semifinals</td><td rowspan=1 colspan=1>Champion</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>?</td></tr></table>
+
+<table><tr><td rowspan=1 colspan=1>Year</td><td rowspan=1 colspan=1>Division</td><td rowspan=1 colspan=1>League</td><td rowspan=1 colspan=1>Reg.Season</td><td rowspan=1 colspan=1>Playoffs</td><td rowspan=1 colspan=1>NationalCup</td><td rowspan=1 colspan=1>Year</td><td rowspan=1 colspan=1>Division</td><td rowspan=1 colspan=1>League</td><td rowspan=1 colspan=1>Reg.Season</td><td rowspan=1 colspan=1>Playoffs</td><td rowspan=1 colspan=1>NationalCup</td></tr><tr><td rowspan=1 colspan=1>1931</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th (Fall)</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>1931</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th (Fall)</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>N/A</td></tr><tr><td rowspan=1 colspan=1>Spring1932</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th?</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>1st Round</td><td rowspan=1 colspan=1>Spring1932</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th?</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>1st Round</td></tr><tr><td rowspan=1 colspan=1>Fall 1932</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>Fall 1932</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>N/A</td></tr><tr><td rowspan=1 colspan=1>Spring1933</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>Final</td><td rowspan=1 colspan=1>Spring1933</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>Final</td></tr><tr><td rowspan=1 colspan=1>1933/34</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>2nd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1933/34</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>2nd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1934/35</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>2nd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1934/35</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>2nd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1935/36</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>1st</td><td rowspan=1 colspan=1>Champion (noplayoff)</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1935/36</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>1st</td><td rowspan=1 colspan=1>Champion (noplayoff)</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1936/37</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th, National</td><td rowspan=1 colspan=1>Did not qualify</td><td rowspan=1 colspan=1>Champion</td><td rowspan=1 colspan=1>1936/37</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th, National</td><td rowspan=1 colspan=1>Did not qualify</td><td rowspan=1 colspan=1>Champion</td></tr><tr><td rowspan=1 colspan=1>1937/38</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd(t),National</td><td rowspan=1 colspan=1>1st Round</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1937/38</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd(t),National</td><td rowspan=1 colspan=1>1st Round</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1938/39</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>4th, National</td><td rowspan=1 colspan=1>Did not qualify</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1938/39</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>4th, National</td><td rowspan=1 colspan=1>Did not qualify</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1939/40</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>4th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1939/40</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>4th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1940/41</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1940/41</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1941/42</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1941/42</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1942/43</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1942/43</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1943/44</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>9th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1943/44</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>9th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1944/45</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>9th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1944/45</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>9th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1945/46</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1945/46</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1946/47</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1946/47</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1947/48</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1947/48</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1948/49</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>1st(t)</td><td rowspan=1 colspan=1>Finals</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1948/49</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>1st(t)</td><td rowspan=1 colspan=1>Finals</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1949/50</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1949/50</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>3rd</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1950/51</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1950/51</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>5th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1951/52</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1951/52</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>Semifinals</td></tr><tr><td rowspan=1 colspan=1>1952/53</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>Semifinals</td><td rowspan=1 colspan=1>1952/53</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>Champion</td></tr><tr><td rowspan=1 colspan=1>1953/54</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>1st</td><td rowspan=1 colspan=1>Champion (noplayoff)</td><td rowspan=1 colspan=1>Champion</td><td rowspan=1 colspan=1>1953/54</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>1st</td><td rowspan=1 colspan=1>Champion (noplayoff)</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1954/55</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>8th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1954/55</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>8th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr><tr><td rowspan=1 colspan=1>1955/56</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td><td rowspan=1 colspan=1>1955/56</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>ASL</td><td rowspan=1 colspan=1>6th</td><td rowspan=1 colspan=1>No playoff</td><td rowspan=1 colspan=1>?</td></tr></table>
+
+Figure 4: An example error case of content misalignment occurring within cells when leveraging LLMs directly to transpose a table. Blue Table (Top): The original table subjected to a transposition operation. Green Table (Buttom Left): The ground truth table subsequent to transposition. Purple Table (Buttom Right): GPT-3.5’s output of transposed table. Cells erroneously aligned or displaced are highlighted in red.
+
+Fig. 4 illustrates a typical mistake made by LLMs when transposing tables, a problem that becomes more evident when a table has many identical or similar entries. Take, for example, the ’Nation Cup’ column shown in the figure, which is filled with numerous ? symbols. LLMs, limited in processing structured data, often mishandle such tables, leading to misplacements or misalignments. This highlights the fundamental difficulties and limitations LLMs face in accurately transposing tables containing repetitive or similar data cells.
+
+## B.2 Analysis
+
+A further examination of the results, as shown in Fig. 5, illustrates that transposition accuracy for LLMs as direct table transposer is associated with the table’s dimensions. The accuracy in row-to-column transposition $( \mathcal { T }  \mathcal { T } ^ { \top } )$ is distinctly sensitive to the original table’s row count, whereas column-to-row transposition $( \mathcal T ^ { \top }  \mathcal T )$ accuracy is similarly related on the number of columns. This observation can be potentially attributed to the inherent characteristics and organizational structure of table data. In most of the row tables, cells within a given column often display homogeneous data types, such as numerical or temporal values. This homogeneity can pose significant challenges for LLMs, as the models might struggle to differentiate between semantically similar cells during the transposition process, thereby leading to potential misalignments and misplacements, particularly as the number of rows increases. Conversely, in those column tables, cells within a row may exhibit similar data types, introducing analogous challenges and potential errors during transposition.
+
+![](images/e495c609e7f144cd5663b53bbaaf743176e9043a7de4b2b40d22f9b9371c4cff.jpg)  
+Figure 5: Performance of GPT-3.5 as direct table transposer: from original to transposed tables $( \mathcal { T }  \mathcal { T } ^ { \top } )$ and from transposed to original tables $( \mathcal T ^ { \top }  \mathcal T )$ , with different row and column counts.
+
+## C Error Case Study for WTQ
+
+## C.1 Table Misinterpretation
+
+## C.1.1 Counting Error
+
+Speed skating at the 2006 Winter Olympics - Men's 1000 metres
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Rank</td><td rowspan=1 colspan=1>Pair</td><td rowspan=1 colspan=1>Name</td><td rowspan=1 colspan=1>Country</td><td rowspan=1 colspan=1>Time</td><td rowspan=1 colspan=1>Time behind</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>Dmitry Dorofeyev</td><td rowspan=1 colspan=1>Russia</td><td rowspan=1 colspan=1>1:09.74</td><td rowspan=1 colspan=1>+0.85</td></tr><tr><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>19</td><td rowspan=1 colspan=1>Jeremy Wotherspoon</td><td rowspan=1 colspan=1>Canada</td><td rowspan=1 colspan=1>1:09.76</td><td rowspan=1 colspan=1>+0.87</td></tr><tr><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>Beorn Nijenhuis</td><td rowspan=1 colspan=1>Netherlands</td><td rowspan=1 colspan=1>1:09.85</td><td rowspan=1 colspan=1>+0.96</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>14</td><td rowspan=1 colspan=1>15</td><td rowspan=1 colspan=1>13</td><td rowspan=1 colspan=1>Alexey Proshin</td><td rowspan=1 colspan=1>Russia</td><td rowspan=1 colspan=1>1:10.14</td><td rowspan=1 colspan=1>+1.25</td></tr><tr><td rowspan=1 colspan=1>15</td><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>François-Olivier Roberge</td><td rowspan=1 colspan=1>Canada</td><td rowspan=1 colspan=1>1:10.20</td><td rowspan=1 colspan=1>+1.31</td></tr><tr><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>Choi Jae-bong</td><td rowspan=1 colspan=1>South Korea</td><td rowspan=1 colspan=1>1:10.23</td><td rowspan=1 colspan=1>+1.34</td></tr><tr><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>18</td><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>Petter Andersen</td><td rowspan=1 colspan=1>Norway</td><td rowspan=1 colspan=1>1:10.38</td><td rowspan=1 colspan=1>+1.38</td></tr><tr><td rowspan=1 colspan=1>18</td><td rowspan=1 colspan=1>19</td><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>Denny Morrison</td><td rowspan=1 colspan=1>Canada</td><td rowspan=1 colspan=1>1:10.44</td><td rowspan=1 colspan=1>+1.44</td></tr><tr><td rowspan=1 colspan=1>19</td><td rowspan=1 colspan=1>20</td><td rowspan=1 colspan=1>15</td><td rowspan=1 colspan=1>Yusuke Imai</td><td rowspan=1 colspan=1>Japan</td><td rowspan=1 colspan=1>1:10.48</td><td rowspan=1 colspan=1>+1.59</td></tr><tr><td rowspan=1 colspan=1>一</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>一</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>一</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>26</td><td rowspan=1 colspan=1>27</td><td rowspan=1 colspan=1>14</td><td rowspan=1 colspan=1>Takaharu Nakajima</td><td rowspan=1 colspan=1>Japan</td><td rowspan=1 colspan=1>1:11.10</td><td rowspan=1 colspan=1>+2.21</td></tr><tr><td rowspan=1 colspan=1>27</td><td rowspan=1 colspan=1>28</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>Takahiro Ushiyama</td><td rowspan=1 colspan=1>Japan</td><td rowspan=1 colspan=1>1:11.21</td><td rowspan=1 colspan=1>+2.32</td></tr><tr><td rowspan=1 colspan=1>28</td><td rowspan=1 colspan=1>29</td><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>Steven Elm</td><td rowspan=1 colspan=1>Canada</td><td rowspan=1 colspan=1>1:11.36</td><td rowspan=1 colspan=1>+2.47</td></tr><tr><td rowspan=1 colspan=1>29</td><td rowspan=1 colspan=1>30</td><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>Maurizio Carnino</td><td rowspan=1 colspan=1>Italy</td><td rowspan=1 colspan=1>1:11.44</td><td rowspan=1 colspan=1>+2.55</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…..</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>一</td></tr><tr><td rowspan=1 colspan=1>39</td><td rowspan=1 colspan=1>-</td><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>Ermanno loriatti</td><td rowspan=1 colspan=1>Italy</td><td rowspan=1 colspan=1>DQ</td><td rowspan=1 colspan=1>-</td></tr><tr><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>-</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>Erik Zachrisson</td><td rowspan=1 colspan=1>Sweden</td><td rowspan=1 colspan=1>DQ</td><td rowspan=1 colspan=1>1</td></tr></table>
+
+What is the name of the last manufacturer on this chart?  
+To determine the number of finishers Canada had in the Men's 1000 metres speed skating event at the 2006 Winter Olympics, we need to identify the rows in the table that correspond to Canadian athletes who completed the race.
+
+From the table, we can see that the Canadian athletes are listed in rows10, 15,18,23, 24,27,28, and 36. These rows correspond to the following athletes: Jeremy Wotherspoon, Francois-Olivier Roberge, Denny Morrison, Mun Jun, Janne Hänninen, Takahiro Ushiyama, Steven Elm, and Risto Rosendahl.
+
+Therefore, the number of finishers Canada had is 8.
+
+Final Answer: 8X
+
+Correct Answer: 4
+
+Figure 6: Example of a table misinterpretation error by DP, where the LLMs make mistakes attributable to its deficiency in performing counting tasks effectively.
+
+Fig. 6 highlights a typical error related to table comprehension, emphasizing a common problem in LLMs when dealing with tasks that involve statistical analysis. It points to a weakness in LLMs’ ability to accurately process and respond to questions based on statistical information without the help of external tools.
+
+Final Answer: Andreas Kofler, Matti Hautamäki X
+
+## C.1.2 Locating Error
+
+2005-06 FIS Ski Jumping World Cup
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Rank</td><td rowspan=1 colspan=1>Name                        N</td><td rowspan=1 colspan=1>ationality           1</td><td rowspan=1 colspan=1>st (m)</td><td rowspan=1 colspan=1>2nd (m)</td><td rowspan=1 colspan=1>Points</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>Jakub Janda</td><td rowspan=1 colspan=1>CZE</td><td rowspan=1 colspan=1>123.5</td><td rowspan=1 colspan=1>128.5          2</td><td rowspan=1 colspan=1>52.6</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>Andreas Kofler</td><td rowspan=1 colspan=1>AUT</td><td rowspan=1 colspan=1>126.5</td><td rowspan=1 colspan=1>132           2</td><td rowspan=1 colspan=1>61.3</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>Adam Małysz</td><td rowspan=1 colspan=1>POL</td><td rowspan=1 colspan=1>127</td><td rowspan=1 colspan=1>130.5          2</td><td rowspan=1 colspan=1>61.5</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>Janne Ahonen</td><td rowspan=1 colspan=1>FIN</td><td rowspan=1 colspan=1>127</td><td rowspan=1 colspan=1>130.5</td><td rowspan=1 colspan=1>264</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>Tami Kiuru</td><td rowspan=1 colspan=1>FIN</td><td rowspan=1 colspan=1>128.5</td><td rowspan=1 colspan=1>130.5          2</td><td rowspan=1 colspan=1>64.7</td></tr><tr><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>Matti Hautamäki</td><td rowspan=1 colspan=1>FIN</td><td rowspan=1 colspan=1>132</td><td rowspan=1 colspan=1>131.5</td><td rowspan=1 colspan=1>274.3</td></tr></table>
+
+Question: Who has the top 2nd score?  
+To determine who has the top 2nd score, we need to find the highest value in the "2nd (m)" column of the table  
+Correct Answer: Andreas Kofler
+
+Figure 7: Example of a table misinterpretation error by DP, where the model fails accurately locating the specific cell.
+
+Fig. 7 showcases a common error in table interpretation associated with LLMs. This error originates from the LLMs’ linearization process, which impairs their ability to recognize table structures. Although the model efficiently identifies the highest value, 132, in the 2nd(m) column, it inaccurately associates this value with the 1nd(m) column, assuming it represents the same feature as in the 2nd(m) column. This leads to a misplacement of the value in the table’s interpretation.
+
+## C.2 Coding Error
+
+## C.2.1 Attribute Noise Error
+
+List of The Citadel Bulldogs football seasons
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Season</td><td rowspan=1 colspan=1>Team</td><td rowspan=1 colspan=1>Record</td><td rowspan=1 colspan=1>Head Coach</td><td rowspan=1 colspan=1>Quarterback</td><td rowspan=1 colspan=1>.</td><td rowspan=1 colspan=1>Runner Up</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1970</td><td rowspan=1 colspan=1>Dallas Cowboys</td><td rowspan=1 colspan=1>10-4</td><td rowspan=1 colspan=1>Tom Landry*</td><td rowspan=1 colspan=1>Craig Morton</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>San Francisco 49ers</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>1971</td><td rowspan=1 colspan=1>Dallas Cowboys†</td><td rowspan=1 colspan=1>11-3</td><td rowspan=1 colspan=1>Tom Landry*</td><td rowspan=1 colspan=1>Roger Staubach*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>San Francisco 49ers</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>1972</td><td rowspan=1 colspan=1>Washington Redskins</td><td rowspan=1 colspan=1>11-3</td><td rowspan=1 colspan=1>George Allen*</td><td rowspan=1 colspan=1>Billy Kilmer</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Dallas Cowboys</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>1973</td><td rowspan=1 colspan=1>Minnesota Vikings</td><td rowspan=1 colspan=1>12-2</td><td rowspan=1 colspan=1>Bud Grant*</td><td rowspan=1 colspan=1>Fran Tarkenton*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Dallas Cowboys</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>1974</td><td rowspan=1 colspan=1>Minnesota Vikings</td><td rowspan=1 colspan=1>10-4</td><td rowspan=1 colspan=1>Bud Grant*</td><td rowspan=1 colspan=1>Fran Tarkenton*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Los Angeles Rams</td></tr><tr><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>1975</td><td rowspan=1 colspan=1>Dallas Cowboys</td><td rowspan=1 colspan=1>10-4</td><td rowspan=1 colspan=1>Tom Landry*</td><td rowspan=1 colspan=1>Roger Staubach*</td><td rowspan=1 colspan=1>...</td><td rowspan=1 colspan=1>Los Angeles Rams</td></tr><tr><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>1976</td><td rowspan=1 colspan=1>Minnesota Vikings</td><td rowspan=1 colspan=1>11-2-1</td><td rowspan=1 colspan=1>Bud Grant*</td><td rowspan=1 colspan=1>Fran Tarkenton*</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>Los Angeles Rams</td></tr><tr><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>1977</td><td rowspan=1 colspan=1>Dallas Cowboys†</td><td rowspan=1 colspan=1>12-2</td><td rowspan=1 colspan=1>Tom Landry*</td><td rowspan=1 colspan=1>Roger Staubach*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Minnesota Vikings</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>1978</td><td rowspan=1 colspan=1>Dallas Cowboys</td><td rowspan=1 colspan=1>12-4</td><td rowspan=1 colspan=1>Tom Landry*</td><td rowspan=1 colspan=1>Roger Staubach*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Los Angeles Rams</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>1979</td><td rowspan=1 colspan=1>Los Angeles Rams</td><td rowspan=1 colspan=1>9-7</td><td rowspan=1 colspan=1>Ray Malavasi</td><td rowspan=1 colspan=1>Pat Haden</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>Tampa Bay Buccaneers</td></tr><tr><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>……</td></tr><tr><td rowspan=1 colspan=1>21</td><td rowspan=1 colspan=1>1991</td><td rowspan=1 colspan=1>Washington Redskins†</td><td rowspan=1 colspan=1>14-2</td><td rowspan=1 colspan=1>Joe Gibbs*</td><td rowspan=1 colspan=1>Mark Rypien</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Detroit Lions</td></tr><tr><td rowspan=1 colspan=1>22</td><td rowspan=1 colspan=1>1992</td><td rowspan=1 colspan=1>Dallas Cowboys†</td><td rowspan=1 colspan=1>13-3</td><td rowspan=1 colspan=1>Jimmy Johnson</td><td rowspan=1 colspan=1>Troy Aikman*</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>San Francisco 49ers</td></tr><tr><td rowspan=1 colspan=1>23</td><td rowspan=1 colspan=1>1993</td><td rowspan=1 colspan=1>Dallas Cowboys†</td><td rowspan=1 colspan=1>12-4</td><td rowspan=1 colspan=1>Jimmy Johnson</td><td rowspan=1 colspan=1>Troy Aikman*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>San Francisco 49ers</td></tr><tr><td rowspan=1 colspan=1>24</td><td rowspan=1 colspan=1>1994</td><td rowspan=1 colspan=1>San Francisco 49ers†</td><td rowspan=1 colspan=1>13-3</td><td rowspan=1 colspan=1>George Seifert</td><td rowspan=1 colspan=1>Steve Young*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Dallas Cowboys</td></tr><tr><td rowspan=1 colspan=1>25</td><td rowspan=1 colspan=1>1995</td><td rowspan=1 colspan=1>Dallas Cowboys†</td><td rowspan=1 colspan=1>12-4</td><td rowspan=1 colspan=1>Barry Switzer</td><td rowspan=1 colspan=1>Troy Aikman*</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Green Bay Packers</td></tr><tr><td rowspan=1 colspan=1>26</td><td rowspan=1 colspan=1>1996</td><td rowspan=1 colspan=1>Green Bay Packers†</td><td rowspan=1 colspan=1>13-3</td><td rowspan=1 colspan=1>Mike Holmgren</td><td rowspan=1 colspan=1>Brett Favre</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Carolina Panthers</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>...</td><td rowspan=1 colspan=1>.….</td><td rowspan=1 colspan=1>...</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>43</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>Seattle Seahawks†</td><td rowspan=1 colspan=1>13-3</td><td rowspan=1 colspan=1>Pete Carroll</td><td rowspan=1 colspan=1>Russell Wilson</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>San Francisco 49ers</td></tr></table>
+
+How many times did the cowboys win the nfc championship in the 1970s?
+
+Thought: To answer this question, I need to count the number of times the Cowboys won the NFC championship in the 1970s. I can do this by filtering the dataframe based on the team and season columns.
+
+Action: Use python repl ast to filter the dataframe and count the number of rows.   
+Action Input: df [ (df ['Team'] == 'Dallas Cowboys') & (df['Season'] >= 1970) & (df['Season'] < 1980)].shape[0]   
+Observation:   
+3   
+Final Answer: 3 X  
+Figure 8: Example of a Coding Issue error by PyAgent, where the abnormal variant data entries leads to inaccurate output.
+
+Fig. 8 illustrates a minor issue stemming from a coding mistake. The table shown in the figure features a variety of data under the Team column. Alongside the expected Dallas Cowboy entries, there are cells with a slight variation: Dallas Cowboy†. The Python Shell Agent used failed to recognize these unusual variations. This is evident from the use of the df[‘Team’] = “Dallas Cowboy” command for calculating occurrences, leading to a discrepancy in the final count and resulting in inaccurate outcomes.
+
+C.2.2 Special Row Misinterpretation Error
+<table><tr><td rowspan=1 colspan=10></td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Season</td><td rowspan=1 colspan=1>Class</td><td rowspan=1 colspan=1>Moto</td><td rowspan=1 colspan=1>Races</td><td rowspan=1 colspan=1>Win</td><td rowspan=1 colspan=1>Podiums</td><td rowspan=1 colspan=1>Pole</td><td rowspan=1 colspan=1>Pts</td><td rowspan=1 colspan=1>Position</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>2004</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Aprilia</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>NC</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>2005</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Derbi</td><td rowspan=1 colspan=1>13</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>36th</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>2006</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Derbi</td><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>53</td><td rowspan=1 colspan=1>14th</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>2007</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Derbi</td><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>19</td><td rowspan=1 colspan=1>22nd</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>2008</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Aprilia</td><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>176</td><td rowspan=1 colspan=1>5th</td></tr><tr><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>2009</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Aprilia</td><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>179.5</td><td rowspan=1 colspan=1>3rd</td></tr><tr><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>2010</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Aprilia</td><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>14</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>296</td><td rowspan=1 colspan=1>2nd</td></tr><tr><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>2011</td><td rowspan=1 colspan=1>125cc</td><td rowspan=1 colspan=1>Aprilia</td><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>302</td><td rowspan=1 colspan=1>1st</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>2012</td><td rowspan=1 colspan=1>Moto2</td><td rowspan=1 colspan=1>Suter</td><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>37</td><td rowspan=1 colspan=1>17th</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>Moto2</td><td rowspan=1 colspan=1>Suter</td><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>150</td><td rowspan=1 colspan=1>7th</td></tr><tr><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>2014</td><td rowspan=1 colspan=1>Moto2</td><td rowspan=1 colspan=1>Suter</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0*</td><td rowspan=1 colspan=1>NC*</td></tr><tr><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>Total</td><td rowspan=1 colspan=1>nan</td><td rowspan=1 colspan=1>nan</td><td rowspan=1 colspan=1>147</td><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>39</td><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>1213.5</td><td rowspan=1 colspan=1>nan</td></tr></table>
+
+How many seasons has nicolás won at least 10 races?
+
+![](images/a7caa748b5585a412683e82c856ae6d83d9424e51fd269967a1640f387fac39a.jpg)  
+Figure 9: Example of a coding error by PyAgent, where PyAgent misinterpretes the special row – Total.
+
+Fig. 9 displays an error where the Python Shell Agent incorrectly interprets a special row, treating the Total row as a valid season entry. In this case, while calculating the seasons in which Nicolás won at least 10 races, the Agent did not properly exclude the cumulative Total row in its code for computation. Consequently, it erroneously reported one season as meeting the criteria.
+
+Comparison of Linux distributions
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Distribution</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>x86</td><td rowspan=1 colspan=1>x86-64</td><td rowspan=1 colspan=1>·</td><td rowspan=1 colspan=1>arm</td><td rowspan=1 colspan=1>s390x</td><td rowspan=1 colspan=1>alpha</td><td rowspan=1 colspan=1>m68k</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>OES2-Linux</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>Arch Linux</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>Yes (&gt;=i686)</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>Distribution</td><td rowspan=1 colspan=1>·</td><td rowspan=1 colspan=1>x86</td><td rowspan=1 colspan=1>x86-64</td><td rowspan=1 colspan=1>.</td><td rowspan=1 colspan=1>arm</td><td rowspan=1 colspan=1>s390x</td><td rowspan=1 colspan=1>alpha</td><td rowspan=1 colspan=1>m68k</td></tr><tr><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>Fedora</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td></tr><tr><td rowspan=1 colspan=1>&quot;</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>32</td><td rowspan=1 colspan=1>XBMC</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td></tr><tr><td rowspan=1 colspan=1>33</td><td rowspan=1 colspan=1>Yellow Dog Linux</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td></tr><tr><td rowspan=1 colspan=1>34</td><td rowspan=1 colspan=1>openSUSE</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>Yes</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td><td rowspan=1 colspan=1>No</td></tr></table>
+
+How many distributions support the x86 architecture?
+
+Thought: To answer this question, I need to count the number of distributions that support the x86 architecture   
+Action: I will use the value counts() method on the 'x86' column to count the number of occurrences of 'Yes'.   
+盘Action Input: df ['x86'].value counts ()   
+Observation:   
+x86   
+Yes 28   
+No 4   
+Yes (>=i686) 1   
+x86 1   
+Discontinued\n2.1-6 1   
+Name: count, dtype: int64   
+Thought: The \`value counts() method has counted the number of occurrences of each unique value in the 'x86' column. Now I need to sum the   
+counts of 'Yes' to get the total number of distributions that support the x86 architecture.   
+Action: I will sum the counts of 'Yes' from the previous observation   
+盘Action Input: 28 + 1 + 1   
+Observation:   
+30   
+Final Answer: 30X  
+Figure 10: Example of another coding error by PyAgent, where the PyAgent misinterpretes the special row which is a nested heading.
+
+Fig. 10 depicts an error where the Python Shell Agent incorrectly includes a special row in its calculations. Specifically, when counting the number of Linux distributions supporting the x86 architecture, the agent erroneously counts a nested heading row. As indicated in the figure, the row indexed at 9 is not a valid data entry but rather serves as a nested heading for the table. This row should have been excluded from the count, resulting in an inaccurate calculation (29  30) of distributions supporting the x86 architecture.
+
+C.2.3 Incorrect Coding
+<table><tr><td rowspan=1 colspan=7></td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Construction period</td><td rowspan=1 colspan=1>Cylinder</td><td rowspan=1 colspan=1>Capacity</td><td rowspan=1 colspan=1>Power</td><td rowspan=1 colspan=1>Vmax</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>10 PS (7 kW; 10 hp)</td><td rowspan=1 colspan=1>1901-1902          straight</td><td rowspan=1 colspan=1>-2</td><td rowspan=1 colspan=1>1.527 cc</td><td rowspan=1 colspan=1>18 PS (13,2 kW)</td><td rowspan=1 colspan=1>50 km/h (31 mph)</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>8/14 PS</td><td rowspan=1 colspan=1>1902-1905</td><td rowspan=1 colspan=1>straight-2</td><td rowspan=1 colspan=1>1.527 cc</td><td rowspan=1 colspan=1>14 PS (10,3 kW)</td><td rowspan=1 colspan=1>50 km/h (31 mph)</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>20 PS (15 kW; 20 hp)</td><td rowspan=1 colspan=1>1904-1905</td><td rowspan=1 colspan=1>straight-4</td><td rowspan=1 colspan=1>7.946 cc</td><td rowspan=1 colspan=1>45 PS (33 kW)</td><td rowspan=1 colspan=1>85 km/h (53 mph)</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>P4 (11/22 PS)</td><td rowspan=1 colspan=1>1905-1910</td><td rowspan=1 colspan=1>straight-4.</td><td rowspan=1 colspan=1>3.054 cc</td><td rowspan=1 colspan=1>22 PS (16,2 kW)</td><td rowspan=1 colspan=1>70 km/h (43 mph)</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>19</td><td rowspan=1 colspan=1>D9 (8/32 PS)</td><td rowspan=1 colspan=1>1923-1924</td><td rowspan=1 colspan=1>straight-4</td><td rowspan=1 colspan=1>2.290 cc</td><td rowspan=1 colspan=1>32 PS (23,5 kW)</td><td rowspan=1 colspan=1>90 km/h (56 mph)</td></tr><tr><td rowspan=1 colspan=1>20</td><td rowspan=1 colspan=1>D12 (12/45 PS)</td><td rowspan=1 colspan=1>1923-1924</td><td rowspan=1 colspan=1>straight-6</td><td rowspan=1 colspan=1>3.107 cc</td><td rowspan=1 colspan=1>45 PS (33 kW)</td><td rowspan=1 colspan=1>100 km/h (62 mph)</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>….</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>Greif Junior</td><td rowspan=1 colspan=1>1936-1939          flat</td><td rowspan=1 colspan=1>-4</td><td rowspan=1 colspan=1>1.484 cc</td><td rowspan=1 colspan=1>34 PS (25 kW)</td><td rowspan=1 colspan=1>100 km/h (62 mph)</td></tr><tr><td rowspan=1 colspan=1>41</td><td rowspan=1 colspan=1>Arkona</td><td rowspan=1 colspan=1>1937-1940</td><td rowspan=1 colspan=1>straight-6</td><td rowspan=1 colspan=1>3.610 cc</td><td rowspan=1 colspan=1>80 PS (59 kW)</td><td rowspan=1 colspan=1>120 km/h (75 mph)–140 km/h (87 mph)</td></tr><tr><td rowspan=1 colspan=1>42</td><td rowspan=1 colspan=1>Sedina</td><td rowspan=1 colspan=1>1937-1940</td><td rowspan=1 colspan=1>straight-4</td><td rowspan=1 colspan=1>2.406 cc</td><td rowspan=1 colspan=1>55 PS (40 kW)</td><td rowspan=1 colspan=1>110 km/h (68 mph)</td></tr></table>
+
+![](images/4f45577bcaacf95fe78fd79ff9d4d37e3902cf03c4b969a4efdc78bf552255ac.jpg)  
+Figure 11: Example of a coding error by PyAgent, where the coding is incorrect
+
+Fig. 11 shows an issue that originates from a basic coding mistake. Although the agent correctly grasps the concept, aiming to filter for entries with a maximum velocity of at least 100 km/h, it falters in the implementation stage by using a contains(“100 km/h") statement in the code. This error is akin to the Logical Inconsistency error described in (DP), where a mismatch between the understanding of a concept and its practical execution becomes evident.
+
+## C.3 Misalignment Issue
+
+## C.3.1 Answer Format Issue
+
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Rnd|C</td><td rowspan=1 colspan=1>ircuit</td><td rowspan=1 colspan=1>GTP Winning TeamGTP WinningDrivers</td><td rowspan=1 colspan=1>GTO Winning TeamGTO WinningDrivers</td><td rowspan=1 colspan=1>GTU Winning TeamGTU WinningDrivers</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>Daytona</td><td rowspan=1 colspan=1>#00 Kreepy Krauly Racing</td><td rowspan=1 colspan=1>#4 Stratagraph Inc.</td><td rowspan=1 colspan=1>#76 Malibu Grand Prix</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>..</td><td rowspan=1 colspan=1>.</td><td rowspan=1 colspan=1>….</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>Riverside</td><td rowspan=1 colspan=1>#56 Blue Thunder Racing</td><td rowspan=1 colspan=1>#38 Mandeville Auto Tech</td><td rowspan=1 colspan=1>#87 Performance Motorsports</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>Lana</td><td rowspan=1 colspan=1>#56 Blue Thunder Racing</td><td rowspan=1 colspan=1>#77 Brooks Racing</td><td rowspan=1 colspan=1>#99 All American Racers</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>6L</td><td rowspan=1 colspan=1>uaUa</td><td rowspan=1 colspan=1>Randy Lanier</td><td rowspan=1 colspan=1>John Bauer</td><td rowspan=1 colspan=1>Jim Adams</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>...</td></tr><tr><td rowspan=1 colspan=1>21</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>Portland</td><td rowspan=1 colspan=1>Bill Whittington\n Randy Lanier</td><td rowspan=1 colspan=1>David Schroeder\n Tom Hendrickson</td><td rowspan=1 colspan=1>Jack Baldwin</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1>22</td><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>Sears Point</td><td rowspan=1 colspan=1>#56 Blue Thunder Racing</td><td rowspan=1 colspan=1>#77 Brooks Racing</td><td rowspan=1 colspan=1>#98 All American Racers</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1>23</td><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>Sears Point</td><td rowspan=1 colspan=1>Bill Whittington</td><td rowspan=1 colspan=1>John Bauer</td><td rowspan=1 colspan=1>Dennis Aase</td><td rowspan=1 colspan=1>Results</td></tr><tr><td rowspan=1 colspan=1>...</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>==</td></tr><tr><td rowspan=1 colspan=1>33</td><td rowspan=1 colspan=1>17</td><td rowspan=1 colspan=1>Daytona</td><td rowspan=1 colspan=1>#14 Holbert Racing</td><td rowspan=1 colspan=1>#67 Roush Racing</td><td rowspan=1 colspan=1>#87 Performance Motorsports</td><td rowspan=1 colspan=1>Results</td></tr></table>
+
+![](images/8e853981def29c4066d83b81b11e393bfe496ab52220093e86103d65635382d1.jpg)  
+Correct Answer: 77
+
+Figure 12: Example of a misalignment issue by PyAgent, where the answer format does not follow the instruction in the prompt to give a parsable answer. Note that emojis presented in the figure are purely for visual aid and were not incorporated in actual experiments; the same applies to any figures below.
+
+Fig. 12 displays a scenario in which the final answer produced did not align with the specified prompt instructions. In this instance, the Python Shell Agent correctly executed a series of interactions and accurately identified the final answer as 77. However, the response given was Brooks Racing had the number 77.. Although the reasoning and the result are correct within their respective contexts, the format of the response impedes the parsing of the correct answer.
+
+## C.3.2 Answer Deviation Error
+
+2007-08 Washington Huskies men's basketball team
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>#</td><td rowspan=1 colspan=1>Name</td><td rowspan=1 colspan=1>Height</td><td rowspan=1 colspan=1>Weight (Ibs.)</td><td rowspan=1 colspan=1>Position</td><td rowspan=1 colspan=1>Class</td><td rowspan=1 colspan=1>Hometown</td><td rowspan=1 colspan=1>Previous Team(s)</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>21</td><td rowspan=1 colspan=1>Artem Wallace</td><td rowspan=1 colspan=1>6&#x27;8&quot;</td><td rowspan=1 colspan=1>250</td><td rowspan=1 colspan=1>C</td><td rowspan=1 colspan=1>Jr.</td><td rowspan=1 colspan=1>Toledo, WA, U.S.</td><td rowspan=1 colspan=1>Toledo HS</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>32</td><td rowspan=1 colspan=1>Joe Wolfinger</td><td rowspan=1 colspan=1>7&#x27;0&quot;</td><td rowspan=1 colspan=1>255</td><td rowspan=1 colspan=1>C</td><td rowspan=1 colspan=1>RS So.</td><td rowspan=1 colspan=1>Portland, OR, U.S.</td><td rowspan=1 colspan=1>Northfield Mount Hermon School</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>22</td><td rowspan=1 colspan=1>Justin Holiday</td><td rowspan=1 colspan=1>6&#x27;6&quot;</td><td rowspan=1 colspan=1>170</td><td rowspan=1 colspan=1>F</td><td rowspan=1 colspan=1>Fr.</td><td rowspan=1 colspan=1>Chatsworth, CA, U.S.</td><td rowspan=1 colspan=1>Campbell Hall School</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>24</td><td rowspan=1 colspan=1>Quincy Pondexter</td><td rowspan=1 colspan=1>6&#x27;6&quot;</td><td rowspan=1 colspan=1>210</td><td rowspan=1 colspan=1>F</td><td rowspan=1 colspan=1>So.</td><td rowspan=1 colspan=1>Fresno, CA, U.S.</td><td rowspan=1 colspan=1>San Joaquin Memorial HS</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>Jon Brockman</td><td rowspan=1 colspan=1>6&#x27;7&quot;</td><td rowspan=1 colspan=1>255</td><td rowspan=1 colspan=1>F</td><td rowspan=1 colspan=1>Jr.</td><td rowspan=1 colspan=1>Snohomish, WA, U.S.</td><td rowspan=1 colspan=1>Snohomish Sr. HS</td></tr><tr><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>44</td><td rowspan=1 colspan=1>Darnell Gant</td><td rowspan=1 colspan=1>6&#x27;8&quot;</td><td rowspan=1 colspan=1>215</td><td rowspan=1 colspan=1>F</td><td rowspan=1 colspan=1>Fr.</td><td rowspan=1 colspan=1>Los Angeles, CA, U.S.</td><td rowspan=1 colspan=1>Crenshaw HS</td></tr><tr><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>Matthew Bryan-Amaning</td><td rowspan=1 colspan=1>6&#x27;9&quot;</td><td rowspan=1 colspan=1>235</td><td rowspan=1 colspan=1>F</td><td rowspan=1 colspan=1>Fr.</td><td rowspan=1 colspan=1>London, England, U.K.</td><td rowspan=1 colspan=1>South Kent School</td></tr><tr><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>Venoy Overton</td><td rowspan=1 colspan=1>5&#x27;11&quot;</td><td rowspan=1 colspan=1>180</td><td rowspan=1 colspan=1>G</td><td rowspan=1 colspan=1>Fr.</td><td rowspan=1 colspan=1>Seattle, WA, U.S.</td><td rowspan=1 colspan=1>Franklin HS</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>Justin Dentmon</td><td rowspan=1 colspan=1>5&#x27;11&quot;</td><td rowspan=1 colspan=1>185</td><td rowspan=1 colspan=1>G</td><td rowspan=1 colspan=1>Jr.</td><td rowspan=1 colspan=1>Carbondale, IL, U.S.</td><td rowspan=1 colspan=1>Winchendon School</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>20</td><td rowspan=1 colspan=1>Ryan Appleby</td><td rowspan=1 colspan=1>6&#x27;3&quot;</td><td rowspan=1 colspan=1>170</td><td rowspan=1 colspan=1>G</td><td rowspan=1 colspan=1>Sr.</td><td rowspan=1 colspan=1>Stanwood, WA, U.S.</td><td rowspan=1 colspan=1>Florida</td></tr><tr><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>Joel Smith</td><td rowspan=1 colspan=1>6&#x27;4&quot;</td><td rowspan=1 colspan=1>210</td><td rowspan=1 colspan=1>G</td><td rowspan=1 colspan=1>RS Jr.</td><td rowspan=1 colspan=1>Lompoc, CA, U.S.</td><td rowspan=1 colspan=1>Brewster Academy</td></tr><tr><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>Tim Morris</td><td rowspan=1 colspan=1>6&#x27;4&quot;</td><td rowspan=1 colspan=1>210</td><td rowspan=1 colspan=1>G</td><td rowspan=1 colspan=1>Sr.</td><td rowspan=1 colspan=1>Spokane Wa, U.S.</td><td rowspan=1 colspan=1>Central Valley HS</td></tr></table>
+
+Are there at least 13 names on the chart?  
+Figure 13: Example of a misalignment issue by DP, where the final answer does not directly answer the question.
+
+Fig. 13 shows a DP example where the final answer does not directly address the posed question. Faced with the binary query Are there at least 13 names on the chart?, the anticipated response should be a simple yes or no. However, the LLM responds with 12. Although this answer aligns conceptually with the data in the table and the logic seems accurate, it does not conform to the direct and binary response format required by the question.
+
+List of defunct National Basketball Association teams
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Team</td><td rowspan=1 colspan=1>City</td><td rowspan=1 colspan=1>Years active</td><td rowspan=1 colspan=1>Seasons played</td><td rowspan=1 colspan=1>Win-loss record</td><td rowspan=1 colspan=1>Win%</td><td rowspan=1 colspan=1>Playoffs appearances</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>Detroit Falcons</td><td rowspan=1 colspan=1>Detroit, Michigan</td><td rowspan=1 colspan=1>1946-1947</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>20-40</td><td rowspan=1 colspan=1>.333</td><td rowspan=1 colspan=1>0</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>Toronto Huskies</td><td rowspan=1 colspan=1>Toronto, Ontario</td><td rowspan=1 colspan=1>1946-1947</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>22-38</td><td rowspan=1 colspan=1>.367</td><td rowspan=1 colspan=1>0</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>Pittsburgh Ironmen</td><td rowspan=1 colspan=1>Pittsburgh, Pennsylvania</td><td rowspan=1 colspan=1>1946-1947</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>15-45</td><td rowspan=1 colspan=1>.250</td><td rowspan=1 colspan=1>0</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>Cleveland Rebels</td><td rowspan=1 colspan=1>Cleveland, Ohio</td><td rowspan=1 colspan=1>1946-1947</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>30-30</td><td rowspan=1 colspan=1>.500</td><td rowspan=1 colspan=1>1</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>Providence Steamrollers</td><td rowspan=1 colspan=1>Providence, Rhode Island</td><td rowspan=1 colspan=1>1946-1949</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>46-122</td><td rowspan=1 colspan=1>.274</td><td rowspan=1 colspan=1>0</td></tr><tr><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>St. Louis Bombers</td><td rowspan=1 colspan=1>St. Louis, Missouri</td><td rowspan=1 colspan=1>1946-1950</td><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>122-115</td><td rowspan=1 colspan=1>.515</td><td rowspan=1 colspan=1>3</td></tr><tr><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>Chicago Stags</td><td rowspan=1 colspan=1>Chicago, IIlinois</td><td rowspan=1 colspan=1>1946-1950</td><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>145-92</td><td rowspan=1 colspan=1>.612</td><td rowspan=1 colspan=1>4</td></tr><tr><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>Washington Capitols</td><td rowspan=1 colspan=1>Washington, D.C.</td><td rowspan=1 colspan=1>1946-1951</td><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>157-114</td><td rowspan=1 colspan=1>.579</td><td rowspan=1 colspan=1>4</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>Baltimore Bullets*</td><td rowspan=1 colspan=1>Baltimore, Maryland</td><td rowspan=1 colspan=1>1947-1954</td><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>158-292</td><td rowspan=1 colspan=1>.351</td><td rowspan=1 colspan=1>3</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>Indianapolis Jets</td><td rowspan=1 colspan=1>Indianapolis, Indiana</td><td rowspan=1 colspan=1>1948-1949</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>18-42</td><td rowspan=1 colspan=1>.300</td><td rowspan=1 colspan=1>0</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>一</td></tr><tr><td rowspan=1 colspan=1>16</td><td rowspan=1 colspan=1>BAA Indianapolis</td><td rowspan=1 colspan=1>Indianapolis, Indiana</td><td rowspan=1 colspan=1>Never Played</td><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>0-0</td><td rowspan=1 colspan=1>N/A</td><td rowspan=1 colspan=1>0</td></tr></table>
+
+Which team had the same number of playoffs appearances as the St. Louis Bombers?
+
+Thought: To find the team that had the same number of playoffs appearances as the St. Louis Bombers, I need to compare the "Playoffs appearances" column of each team with the value of the St. Louis Bombers.
+
+Action: Filter the dataframe to get the row corresponding to the St. Louis Bombers.   
+Action Input: df[df['Team'] == 'St. Louis Bombers'   
+Observation:   
+Team City Years active Seasons played Win-loss record Win% Playoffs appearances   
+5 St. Louis Bombers St. Louis, Missouri 1946-1950 4 122-115 0.515 3   
+Thought: Now that I have the row for the St. Louis Bombers, I can extract the number of playoffs appearances.   
+Action: Access the value of the "Playoffs appearances" column for the St. Louis Bombers.   
+Action Input: df [df ['Team'] == 'St. Louis Bombers']['Playoffs appearances']   
+Observation:   
+5 3   
+Name: Playoffs appearances, dtype: int64   
+Final Answer: 3X  
+Figure 14: Example of a misalignment issue by PyAgent, where the final answer does not directly answer the question.
+
+Fig. 14 illustrates a case with the Python Shell Agent where the final response fails to directly answer the posed question. The question Which team has the same number of playoffs appearances as the St. Louis Bombers? clearly requests the identification of a specific team. Yet, it is noted that the agent prematurely delivers an answer upon finding data related to the playoff appearances of the St. Louis Bombers. While the direction of the python shell agent’s reasoning appears correct, the resultant answer ultimately falls short of resolving the question correctly.
+
+## C.4 Logical Inconsistency
+
+## C.4.1 Reasoning Conflict in DP
+
+<table><tr><td rowspan=1 colspan=6></td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Number</td><td rowspan=1 colspan=1>Name</td><td rowspan=1 colspan=1>Service</td><td rowspan=1 colspan=1>From</td><td rowspan=1 colspan=1>To</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>COL Erasmus M. Weaver, Jr.</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>February 14, 1908</td><td rowspan=1 colspan=1>March 14, 1911</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>BG Robert K. Evans</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>March 15, 1911</td><td rowspan=1 colspan=1>August 31, 1912</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>一</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>……</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>MG William G. Everson</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>October 1, 1929</td><td rowspan=1 colspan=1>November 30, 1931</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>MG George E. Leach</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>December 1, 1931</td><td rowspan=1 colspan=1>November 30, 1935</td></tr><tr><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>MG Albert H. Blanding</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>January 31, 1936</td><td rowspan=1 colspan=1>January 30, 1940</td></tr><tr><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>MG John F. Williams</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>January 31, 1940</td><td rowspan=1 colspan=1>January 30, 1944</td></tr><tr><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>12</td><td rowspan=1 colspan=1>MG Butler B. Miltonberger</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>February 1, 1946</td><td rowspan=1 colspan=1>September 29, 1947</td></tr><tr><td rowspan=1 colspan=1>13</td><td rowspan=1 colspan=1>13</td><td rowspan=1 colspan=1>MG Kenneth F. Cramer</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>September 30, 1947</td><td rowspan=1 colspan=1>September 4, 1950</td></tr><tr><td rowspan=1 colspan=1>14</td><td rowspan=1 colspan=1>14</td><td rowspan=1 colspan=1>MG Raymond H. Fleming</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>August 14, 1951</td><td rowspan=1 colspan=1>February 15, 1953</td></tr><tr><td rowspan=1 colspan=1>15</td><td rowspan=1 colspan=1>15</td><td rowspan=1 colspan=1>MG Edgar C. Erickson</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>June 22, 1953</td><td rowspan=1 colspan=1>May 31, 1959</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>一</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>……</td></tr><tr><td rowspan=1 colspan=1>39</td><td rowspan=1 colspan=1>(Acting)</td><td rowspan=1 colspan=1>MG John R. D&#x27;Araujo, Jr.</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>August 1, 1994</td><td rowspan=1 colspan=1>September 30, 1994</td></tr><tr><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>(Acting)</td><td rowspan=1 colspan=1>MG Raymond F. Rees</td><td rowspan=1 colspan=1>USA</td><td rowspan=1 colspan=1>August 4, 2002</td><td rowspan=1 colspan=1>April 10, 2003</td></tr><tr><td rowspan=1 colspan=6>Question: Was george e. leach or kenneth f. cramer the chief of the national guard bureau in 1934?</td></tr><tr><td rowspan=1 colspan=6>To determine whether George E. Leach or Kenneth F. Cramer was the Chief of the National Guard Bureau in 1934, we need to find the individualswho held the position during that time period.From the table, we can see that George E. Leach served as the Chief of the National Guard Bureau from December 1, 1931, to November 30,1935. Kenneth F. Cramer, on the other hand, served as the Chief of the National Guard Bureau from September 30, 1947, to September 4, 1950.Since neither George E. Leach nor Kenneth F. Cramer held the position in 1934, the answer is neither.Final Answer: Neither X</td></tr></table>
+
+Correct Answer: George E. Leach
+
+Figure 15: Example of a logical inconsistency by DP where a problem with logical reasoning leads to a reasoning conflict in the context.
+
+Fig. 15 presents an example of a Logical Inconsistency error occurring during the interpretation of tabulated data. The error in reasoning is occurred in determining whether George E. Leach or Kenneth F. Cramer was the Chief of the National Guard Bureau in 1934. The reasoning text accurately states that George E. Leach served from December 1, 1931, to November 30, 1935, and Kenneth F. Cramer served from September 30, 1947, to September 4, 1950. Despite this, the interpretation erroneously concludes that neither was in the role in 1934, leading to a contradiction between the information and the final answer.
+
+C.4.2 Reasoning Mistakes in PyAgent  
+Wiseman hypothesis
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Tablet</td><td rowspan=1 colspan=1>Genealogy</td><td rowspan=1 colspan=1>Narrative</td><td rowspan=1 colspan=1>Colophon</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>Creation of Universe 1:1</td><td rowspan=1 colspan=1>1:2 to 2:3</td><td rowspan=1 colspan=1>&quot;This is the account of the heavens and of the earth when they were created.&quot; 2:4</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>Heavens and Earth 2:4</td><td rowspan=1 colspan=1>2:5 to 4:26</td><td rowspan=1 colspan=1>&quot;This is the written account of Adam.&quot; 5:1</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>Adam to Noah 5:1 - 32</td><td rowspan=1 colspan=1>6:1 - 8</td><td rowspan=1 colspan=1>&quot;This is the account of Noah.&quot; 6:9</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>一</td><td rowspan=1 colspan=1>….</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>Abraham to Isaac 25:19</td><td rowspan=1 colspan=1>25:20 to 35:29</td><td rowspan=1 colspan=1>&quot;This is the account of Esau.&quot; 36:1 (eldest son)</td></tr><tr><td rowspan=1 colspan=1>9</td><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>Descendants of Esau 36:2 - 5</td><td rowspan=1 colspan=1>36:6 - 8</td><td rowspan=1 colspan=1>&quot;This is the account of Esau.&quot; 36:9</td></tr><tr><td rowspan=1 colspan=1>10</td><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>Descendants of Esau 36:10 to 37:1</td><td rowspan=1 colspan=1>no narrative</td><td rowspan=1 colspan=1>&quot;This is the account of Jacob.&quot; 37:2</td></tr><tr><td rowspan=1 colspan=1>11</td><td rowspan=1 colspan=1>nan</td><td rowspan=1 colspan=1>no genealogy</td><td rowspan=1 colspan=1>37:2 to 50:26</td><td rowspan=1 colspan=1>no colophon</td></tr></table>
+
+Tablets 9 and 10 are each accounted by who?
+
+Thought: To answer this question, I need to find the rows corresponding to Tablets 9 and 10 and check the values in the "Genealogy" column.
+
+Action: Filter the dataframe to include only the rows with Tablets 9 and 10   
+Action Input: df[(df['Tablet'] == 9)  (df['Tablet'] == 10)]   
+Observation:   
+Tablet Genealogy Narrative Colophon   
+8 9.0 Abraham to Isaac25:19 25:20 to 35:29 "This is the account of Esau." 36:1 (eldest son)   
+9 10.0 Descendants of Esau 36:2 - 5 36:6 - 8 "This is the account of Esau." 36:9   
+Thought: The rows corresponding to Tablets 9 and 10 areaccounted by Abraham and the descendants of Esau, respectively   
+Final Answer: Abraham, Descendants of EsauX  
+Correct Answer: Esau
+
+Figure 16: Example of a logical inconsistency error by PyAgent where the LLMs make mistakes in reasoning on the observations.
+
+Fig. 16 depicts an instance of a Logical Inconsistency Error during the Python Shell interaction. In this case, LLMs successfully the necessary steps to gather information about Tablet 9 and Tablet 10, a misinterpretation of the retrieved data results in flawed reasoning. This leads to an error in the conclusion drawn from the interaction.
+
+## C.5 Execution Issue
+
+## C.5.1 Interaction Bound or Looping Error
+
+Comparison of Linux distributions
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>#</td><td rowspan=1 colspan=1>Date</td><td rowspan=1 colspan=1>Venue</td><td rowspan=1 colspan=1>Opponent</td><td rowspan=1 colspan=1>Score</td><td rowspan=1 colspan=1>Result</td><td rowspan=1 colspan=1>Competition</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>27 March 1999</td><td rowspan=1 colspan=1>Mestalla, Valencia, Spain</td><td rowspan=1 colspan=1>Austria       3</td><td rowspan=1 colspan=1>-0   9</td><td rowspan=1 colspan=1>-0</td><td rowspan=1 colspan=1>Euro 2000 qualifying</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>27 March 1999</td><td rowspan=1 colspan=1>Mestalla, Valencia, Spain</td><td rowspan=1 colspan=1>Austria       5</td><td rowspan=1 colspan=1>-0   9</td><td rowspan=1 colspan=1>-0</td><td rowspan=1 colspan=1>Euro 2000 qualifying</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>31 March 1999</td><td rowspan=1 colspan=1>Olimpico, Serravalle, San Marino</td><td rowspan=1 colspan=1>San Marino   0</td><td rowspan=1 colspan=1>-3</td><td rowspan=1 colspan=1>0-6</td><td rowspan=1 colspan=1>Euro 2000 qualifying</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>8 September 1999</td><td rowspan=1 colspan=1>Vivero, Badajoz, Spain</td><td rowspan=1 colspan=1>Cyprus</td><td rowspan=1 colspan=1>1-0</td><td rowspan=1 colspan=1>8-0</td><td rowspan=1 colspan=1>Euro 2000 qualifying</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>8 September 1999</td><td rowspan=1 colspan=1>Vivero, Badajoz, Spain</td><td rowspan=1 colspan=1>Cyprus</td><td rowspan=1 colspan=1>2-0</td><td rowspan=1 colspan=1>8-0</td><td rowspan=1 colspan=1>Euro 2000 qualifying</td></tr><tr><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>8 September 1999</td><td rowspan=1 colspan=1>Vivero, Badajoz, Spain</td><td rowspan=1 colspan=1>Cyprus</td><td rowspan=1 colspan=1>4-0</td><td rowspan=1 colspan=1>8-0</td><td rowspan=1 colspan=1>Euro 2000 qualifying</td></tr><tr><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>26 January 2000</td><td rowspan=1 colspan=1>Cartagonova, Cartagena, Spain</td><td rowspan=1 colspan=1>Poland</td><td rowspan=1 colspan=1>2-0</td><td rowspan=1 colspan=1>3-0</td><td rowspan=1 colspan=1>Friendly</td></tr><tr><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>26 January 2000</td><td rowspan=1 colspan=1>Cartagonova, Cartagena, Spain</td><td rowspan=1 colspan=1>Poland</td><td rowspan=1 colspan=1>3-0</td><td rowspan=1 colspan=1>3-0    F</td><td rowspan=1 colspan=1>riendly</td></tr></table>
+
+Which team competed for the Euro 2000 qualifying the most consecutive years?
+
+![](images/a8fd338b3c006a3780381d2acb9d5203ddbc6fd7a9888db0cb0ac04287429b53.jpg)  
+Correct Answer: Cyprus
+
+Figure 17: An example of an execution issue by PyAgent, where the agent attempts to fix an coding error but falls into a loop.
+
+Fig. 17 demonstrates an instance of Execution Issue error made by the Python Shell Agent. In the process of identifying the team that participated in Euro 2000 qualifying for the most consecutive years, the agent faces difficulties in the data processing phase. Initially, an error occurs due to the Date column not containing datetime objects. Then the agent successfully converts the entries into the appropriate format. However, the agent, in trying to compute the number of consecutive participation years for each team, gets stuck in a loop of continually refining its calculation method without arriving at a conclusive answer within the given interaction steps.
+
+C.5.2 Non-Observable Action Error
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Game</td><td rowspan=1 colspan=1>Date</td><td rowspan=1 colspan=1>Team</td><td rowspan=1 colspan=1>Score</td><td rowspan=1 colspan=1>u</td><td rowspan=1 colspan=1>LocationAttendance</td><td rowspan=1 colspan=1>Record</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>33</td><td rowspan=1 colspan=1>January 2</td><td rowspan=1 colspan=1>@ Detroit</td><td rowspan=1 colspan=1>L92-98</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>The Palace of Auburn Hills\n22,076</td><td rowspan=1 colspan=1>8-25</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>34</td><td rowspan=1 colspan=1>January 3</td><td rowspan=1 colspan=1>@ Indiana</td><td rowspan=1 colspan=1>L 117-122</td><td rowspan=1 colspan=1>……</td><td rowspan=1 colspan=1>Conseco Fieldhouse\n12,765</td><td rowspan=1 colspan=1>8-26</td></tr><tr><td rowspan=1 colspan=1>2</td><td rowspan=1 colspan=1>35</td><td rowspan=1 colspan=1>January 5</td><td rowspan=1 colspan=1>@ New Jersey</td><td rowspan=1 colspan=1>L 90-98</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>Izod Center\n12,314</td><td rowspan=1 colspan=1>8-27</td></tr><tr><td rowspan=1 colspan=1>3</td><td rowspan=1 colspan=1>36</td><td rowspan=1 colspan=1>January 6</td><td rowspan=1 colspan=1>@ Chicago</td><td rowspan=1 colspan=1>L 94-99</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>United Center\n18,060</td><td rowspan=1 colspan=1>8-28</td></tr><tr><td rowspan=1 colspan=1>4</td><td rowspan=1 colspan=1>37</td><td rowspan=1 colspan=1>January 9</td><td rowspan=1 colspan=1>Miami</td><td rowspan=1 colspan=1>L 115–119 (OT)</td><td rowspan=1 colspan=1>….</td><td rowspan=1 colspan=1>ARCO Arena\n12,587</td><td rowspan=1 colspan=1>8-29</td></tr><tr><td rowspan=1 colspan=1>5</td><td rowspan=1 colspan=1>38</td><td rowspan=1 colspan=1>January 11</td><td rowspan=1 colspan=1>Dallas</td><td rowspan=1 colspan=1>W 102–95</td><td rowspan=1 colspan=1>….</td><td rowspan=1 colspan=1>ARCO Arena\n12,294</td><td rowspan=1 colspan=1>9-29</td></tr><tr><td rowspan=1 colspan=1>6</td><td rowspan=1 colspan=1>39</td><td rowspan=1 colspan=1>January 13</td><td rowspan=1 colspan=1>Orlando</td><td rowspan=1 colspan=1>L 107-139</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>ARCO Arena\n11,168</td><td rowspan=1 colspan=1>9-30</td></tr><tr><td rowspan=1 colspan=1>7</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>January 14</td><td rowspan=1 colspan=1>@ Golden State</td><td rowspan=1 colspan=1>W 135–133 (3OT)</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>Oracle Arena\n19,122</td><td rowspan=1 colspan=1>10-30</td></tr><tr><td rowspan=1 colspan=1>8</td><td rowspan=1 colspan=1>41</td><td rowspan=1 colspan=1>January 16</td><td rowspan=1 colspan=1>Milwaukee</td><td rowspan=1 colspan=1>L 122-129</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>ARCO Arena\n11,663</td><td rowspan=1 colspan=1>10-31</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td></tr><tr><td rowspan=1 colspan=1>14</td><td rowspan=1 colspan=1>47</td><td rowspan=1 colspan=1>January 28</td><td rowspan=1 colspan=1>@ Boston</td><td rowspan=1 colspan=1>L 100-119</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>TD Banknorth Garden\n18,624</td><td rowspan=1 colspan=1>10-37</td></tr><tr><td rowspan=1 colspan=1>15</td><td rowspan=1 colspan=1>48</td><td rowspan=1 colspan=1>January 30</td><td rowspan=1 colspan=1>Chicago</td><td rowspan=1 colspan=1>L 88-109</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>ARCO Arena\n13,356</td><td rowspan=1 colspan=1>10-38</td></tr></table>
+
+How many consecutive games were played in the ARCO Arena from January 2nd to January 24th?
+
+Thought: To answer this question, I need to find the consecutive games played in the ARCO Arena from January 2nd to January 24th. I can do this by filtering the dataframe based on the date and location, and then counting the number of rows.
+
+ActionInput: df\_filtered = df[(df['Date'] >= 'January 2') & (df['Date'] <= 'January 24') &   
+(df['LocationAttendance'].str.contains('ARCO Arena'))]   
+Observation:   
+success!   
+Thought: Now that I have filtered the dataframe, I can count the number of rows to determine the number of consecutive games played in the   
+ARCO Arena from January 2nd to January 24th.   
+Action: Count the number of rows in the filtered dataframe.   
+Action Input: consecutive\_games\_count = len(df\_filtered)   
+Observation:   
+success!   
+Thought: Now that I have counted the number of rows in the filtered dataframe, I have the number of consecutive games played in the ARCO   
+Arena from January 2nd to January 24th   
+Final Answer: 4X  
+Figure 18: Example of a Execution Issue error by PyAgent, where the agent inputs non-observable actions into Python Shell.
+
+Fig. 18 illustrates a situation where PyAgent encounters a Non-Observable Action Error. Specifically, the actions given by the PyAgent, for example, consecutive\_games\_count = len(df\_filtered), do not generate any observable output in the Python Shell. Consequently, the agent does not receive any valid observations to aid it in deriving the correct answer, thus, leading to an incorrect count of consecutive games played in the ARCO Arena from January 2nd to January 24th.
+
+## C.6 Resorting Issue
+
+Table Before NoRM
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Year</td><td rowspan=1 colspan=1>Manufacturer</td><td rowspan=1 colspan=1>Model</td><td rowspan=1 colspan=1>Length (feet)</td><td rowspan=1 colspan=1>Quantity</td><td rowspan=1 colspan=1>Fleet Series</td><td rowspan=1 colspan=1>FuelPropulsion</td><td rowspan=1 colspan=1>Powertrain</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1996</td><td rowspan=1 colspan=1>New Flyer</td><td rowspan=1 colspan=1>D60</td><td rowspan=1 colspan=1>60(articulated)</td><td rowspan=1 colspan=1>30</td><td rowspan=1 colspan=1>1901-1930*</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Detroit Diesel Series 50\nAllisonB400R</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>1998</td><td rowspan=1 colspan=1>NABI</td><td rowspan=1 colspan=1>416</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>133</td><td rowspan=1 colspan=1>3001-3067,3101-3166*</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins M11E\nAllison B400R</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>……</td></tr><tr><td rowspan=1 colspan=1>19</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>Gillig</td><td rowspan=1 colspan=1>Low-floorAdvantage</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>65</td><td rowspan=1 colspan=1>1301-1365</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins ISL 280 HP \nAllisonB400 6-speed</td></tr><tr><td rowspan=1 colspan=1>20</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>New Flyer</td><td rowspan=1 colspan=1>Xcelsior D60</td><td rowspan=1 colspan=1>60</td><td rowspan=1 colspan=1>23</td><td rowspan=1 colspan=1>2201-2223</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins ISL 330 HP\nAllisonB400 6-speed</td></tr><tr><td rowspan=1 colspan=1>21</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>Gillig</td><td rowspan=1 colspan=1>Low-floorAdvantage</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>55</td><td rowspan=1 colspan=1>6101-6155</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins ISL 280 HP\nAllisonB400 6-speed</td></tr></table>
+
+Table After NoRm (Sort by Year, Manufacturer, Model)
+<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>Year</td><td rowspan=1 colspan=1>Manufacturer</td><td rowspan=1 colspan=1>Model</td><td rowspan=1 colspan=1>Length (feet)</td><td rowspan=1 colspan=1>Quantity</td><td rowspan=1 colspan=1>Fleet Series</td><td rowspan=1 colspan=1>FuelPropulsion</td><td rowspan=1 colspan=1>Powertrain</td></tr><tr><td rowspan=1 colspan=1>0</td><td rowspan=1 colspan=1>1996</td><td rowspan=1 colspan=1>New Flyer</td><td rowspan=1 colspan=1>D60</td><td rowspan=1 colspan=1>60(articulated)</td><td rowspan=1 colspan=1>30</td><td rowspan=1 colspan=1>1901-1930*</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Detroit Diesel Series 50\nAllisonB400R</td></tr><tr><td rowspan=1 colspan=1>1</td><td rowspan=1 colspan=1>1998</td><td rowspan=1 colspan=1>NABI</td><td rowspan=1 colspan=1>416</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>133</td><td rowspan=1 colspan=1>3001-3067,3101-3166*</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins M11E\nAllison B400R</td></tr><tr><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>…</td><td rowspan=1 colspan=1>.…</td><td rowspan=1 colspan=1>……</td></tr><tr><td rowspan=1 colspan=1>19</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>Gillig</td><td rowspan=1 colspan=1>Low-floorAdvantage</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>65</td><td rowspan=1 colspan=1>1301-1365</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins ISL 280 HP \nAllisonB400 6-speed</td></tr><tr><td rowspan=1 colspan=1>20</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>Gillig</td><td rowspan=1 colspan=1>Low-floorAdvantage</td><td rowspan=1 colspan=1>40</td><td rowspan=1 colspan=1>55</td><td rowspan=1 colspan=1>6101-6155</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins ISL 280 HP\nAllisonB400 6-speed</td></tr><tr><td rowspan=1 colspan=1>21</td><td rowspan=1 colspan=1>2013</td><td rowspan=1 colspan=1>New Flyer</td><td rowspan=1 colspan=1>Xcelsior D60</td><td rowspan=1 colspan=1>60</td><td rowspan=1 colspan=1>23</td><td rowspan=1 colspan=1>2201-2223</td><td rowspan=1 colspan=1>Diesel</td><td rowspan=1 colspan=1>Cummins ISL 330 HP\nAllisonB400 6-speed</td></tr></table>
+
+What is the name of the last manufacturer on this chart?  
+Answer before NoRm (Ground Truth): Gillig  
+Answer after NoRm: New Flyer
+
+Figure 19: Example of a Normalization Issue error by DP, where the correct answer changes due to the resorting stage in NORM.
+
+Fig. 19 shows a case of data inconsistency due to the application of the resorting stage in the NORM procedures. The figure’s upper table displays the original format, with Gillig as the manufacturer in the final row. However, after resorting as suggested by LLMs, the lower table in the figure lists New Flyer as the last row’s manufacturer. This change, while seemingly minor in the broader context of table comprehension, significantly impacts responses to specific queries like “What is the name of the last manufacturer on the chart?”
+
+![](images/934514925b6da361664e1ae45d2f4db2355c219d1fd52ad1086fdfd6c12cf8bf.jpg)  
+Figure 20: Accuracy results for the Mix Self-Consistency method applied to the sampled WTQ dataset, with varying combinations of DP and PyAgent outputs (depicted as DP vs. PyAgent on the x-axis). The combinations range from 10 DP vs. 0 PyAgent to 0 DP vs. 10 PyAgent. Each data point represents the maximum, minimum, and average accuracies obtained from 100 tests per combination, conducted using random sampling. Note that for the 10 DP vs. 0 PyAgent and 0 DP vs. 10 PyAgent combinations, there is no random sampling of paths. However, variance is observed due to the presence of multiple equally probable answer sets generated by the 10 paths, leading to different possible selections of answers even without sampling, thereby introducing randomness into the results.
+
+## D Analysis of Mix Self-Consistency
+
+## D.1 Ablation Study of Output Selection
+
+This section presents an ablation study conducted to elucidate the effect of various combinations of DP and PyAgent outputs on the performance of the Mix Self-Consistency method. For this experiment, we systematically explored different combinations while keeping the total output count constant at ten. Each combination was tested 100 times through random shuffling. For each test, maximum, minimum, and average accuracies were recorded.
+
+Fig. 20 shows the results of the ablation study. The 5+5 combination (5 DP + 5 PyAgent) consistently gives the highest minimum and average accuracies among all tested combinations, making it a robust and reliable choice for this task. The 4+6 combination (4 DP + 6 PyAgent) secured the highest maximum accuracy in our tests
+
+Through this ablation study, we aim to provide insights into how different output selections influence the effectiveness of the Mix Self-Consistency method. Importantly, the choice of output combination should be considered as a hyperparameter that is intimately related to the distribution of the dataset being used. Given that different reasoning strategies exhibit unique strengths and weaknesses, it is crucial to tailor the output combination to align with the characteristics of the specific tasks and datasets in question, thereby maximizing the performance of the Mix Self-Consistency method.
+
+## D.2 Mechanics of Mix Self-Consistency in Output Selection
+
+The effectiveness of the Mix Self-Consistency method in achieving high accuracy largely stems from its ability to harness the strengths of different reasoning methods. Intuitively, the multiple outputs from certain reasoning method can be interpreted as the confidence score for the generated answers. In scenarios where a method excels, its outputs often tend to converge towards a common answer, signifying higher confidence and reliability. In contrast, a method less suited to the problem at hand tends to produce more diverse results, indicative of a lower level of confidence. By aggregating these outputs from different methods and applying majority voting, the Mix Self-Consistency method refines these variations into a more accurate prediction. As shown in Fig. 21, This process leverages the strengths of the employed reasoning methods, thereby enhancing overall performance.
+
+![](images/b297ff6aabb33a7ee144afa079c78e9595cf319d7c65b28abd0f8e63e650cdbb.jpg)  
+Figure 21: An illustration of Mix Self-Consistency by aggreagting outputs from multiple reasoning methods to form a unified, high-confidence prediction..
+
+## E Results of Mix Self-Consistency on TabFact
+
+This section presents the additional results of applying the Mix Self-Consistency method to the Tab-Fact dataset, as part of an extended investigation to verify and evaluate the method’s adaptability and effectiveness in other related tasks beyond WTQ dataset.
+
+For TabFact, a subsample of 500 data points was randomly selected from the test set. The experimental setup mirrored that of the WTQ experiments, employing the same parameters such as temperature settings for model inference. The strategy for output selection in the TabFact experiment also follows the 5+5 combination, which proves to be the best for the WTQ dataset, to aggregate the output answers from 5 instances of DP and 5 instances of PyAgent. Additionally, all
+
+<table><tr><td colspan="2">Method Accuracy</td></tr><tr><td>StructGPT (Jiang et al., 2023a)</td><td>0.708</td></tr><tr><td>Dater (Ye et al., 2023)</td><td>0.874</td></tr><tr><td>Ours</td><td>0.885</td></tr></table>
+
+Table 7: Accuracy results of different methods without fine-tuning on the TabFact dataset.
+
+the prompts (e.g., DP, PyAgent) used in the TabFact experiment were slightly modified to align with the requirements of the fact-checking scenarios.
+
+Tab. 7 summarizes the accuracy results of the Mix Self-Consistency method, StructGPT, and Dater on the TabFact dataset. Mix Self-Consistency can also achieve the highest accuracy, outperforming both StructGPT and Dater in fact-checking.
