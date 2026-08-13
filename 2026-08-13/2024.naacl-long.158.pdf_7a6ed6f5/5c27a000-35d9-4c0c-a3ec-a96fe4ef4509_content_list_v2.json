@@ -1,0 +1,2733 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Measuring Entrainment in Spontaneous Code-switched Speech"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                171,
+                89,
+                825,
+                111
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Debasmita Bhattacharya and Siying Ding and Alayna Nguyen and Julia Hirschberg"
+                    }
+                ]
+            },
+            "bbox": [
+                129,
+                130,
+                873,
+                148
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Department of Computer Science"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                149,
+                640,
+                165
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Columbia University"
+                    }
+                ]
+            },
+            "bbox": [
+                413,
+                166,
+                589,
+                181
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "New York, NY, USA"
+                    }
+                ]
+            },
+            "bbox": [
+                413,
+                181,
+                589,
+                197
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "debasmita.b@cs.columbia.edu, sd3609@barnard.edu, amn2211@columbia.edu, julia@cs.columbia.edu"
+                    }
+                ]
+            },
+            "bbox": [
+                82,
+                200,
+                919,
+                214
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                260,
+                252,
+                342,
+                268
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It is well-known that speakers who entrain to one another have more successful conversations than those who do not. Previous research has shown that interlocutors entrain on linguistic features in both written and spoken monolingual domains. More recent work on code-switched communication has also shown preliminary evidence of entrainment on certain aspects of code-switching (CSW). However, such studies of entrainment in codeswitched domains have been extremely few and restricted to human-machine textual interactions. Our work studies code-switched spontaneous speech between humans, finding that (1) patterns of written and spoken entrainment in monolingual settings largely generalize to code-switched settings, and (2) some patterns of entrainment on code-switching in dialogue agent-generated text generalize to spontaneous code-switched speech. Our findings give rise to important implications for the potentially \"universal\" nature of entrainment as a communication phenomenon, and potential applications in inclusive and interactive speech technology."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                280,
+                462,
+                624
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                636,
+                260,
+                652
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When people speak with one another, they often subconsciously adapt aspects of their communication style to that of their conversational partner. Interlocutors who do so perform what is known as entrainment – also called accommodation, alignment, or coordination. This has been shown to produce more successful conversations than conversations without entrainment (Reitter and Moore, 2007; Nenkova et al., 2008). In written and spoken domains of communication, people entrain on multiple dimensions of language production: diction and syntax (Danescu-Niculescu-Mizil et al., 2011), speaking rate, voice quality, and pause frequency (Giles et al., 1991; Levitan and Hirschberg, 2011; Chen et al., 2023), jokes and laughter (Schmidt et al., 2014), and facial expression and gesture (Maurer and Tindall, 1983; Burgoon et al., 2006; Chartrand and Bargh, 1999), among others. However, most of these findings come from studies on monolingual communication, which is much simpler to analyze than multilingual alternatives since there is no need to identify which language is being spoken for each word or phrase – a challenging task applicable to most multilingual corpora."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                662,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/128f3e7cc50abf80ab205fed39a72d8cd34d3e327b8f49d3991ee4756a438e6c.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: The novelty of our work comes from incorporating acoustic-prosodic features in the study of entrainment in code-switched speech. Here we highlight the value of identifying multiple dimensions and feature sets of entrainment in CSW. While entrainment is evident by inspection of the lexical and CSW strategy features of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A 1 } , S _ { B 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "interaction (top) (blue = entrainment on a frequent word; green = entrainment on alternational CSW), the acoustic-prosodic features are essential for correctly identifying entrainment in the S<sub>A2</sub>, S<sub>B2</sub> interaction (bottom) (yellow = acoustic-prosodic entrainment; pink = entrainment on CSW amount; purple, gray = lack of entrainment on CSW strategy)."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                517,
+                249,
+                882,
+                366
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                595,
+                885,
+                725
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This evidence of monolingual entrainment in prior research suggests that, when multilingual speakers converse, they may also entrain to one another in aspects of multilingual language production such as code-switching (CSW), which occurs when a speaker alternates between one language and another in written or spoken communication (Poplack, 1980). There has been relatively little work on investigating entrainment in code-switched domains, particularly in speech production, leaving open the question of how entrainment occurs in such multilingual settings. Answers to this question would be useful for understanding the conversations of the majority of speakers in the world who speak more than one language (Grosjean and Li, 2013) and could inform future innovation in inclusive and interactive speech technology."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                727,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2865"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 2865–2876 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                945,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                165
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We aim to fill this gap by studying how entrainment manifests itself in naturalistic code-switched speech between humans. We first focus on Spanish-English CSW, which is common in Hispanic communities in the United States, by examining the lexical, acoustic-prosodic, and multilingual characteristics of the Bangor Miami code-switched conversations (Deuchar, 2011) (Figure 1). Our main contributions from doing so are (1) adapting metrics of entrainment previously used in monolingual settings to multilingual ones. We study lexical and acoustic-prosodic entrainment in a code-switched setting and find evidence that entrainment occurs in multilingual domains just as it does in monolingual ones. (2) We identify CSW patterns of entrainment in spontaneous human-human speech to inform the design of interactive speech technology capable of both understanding and appropriately responding to code-switched speech in a human-like way. (3) We also create an updated version of the original Bangor Miami corpus, where the audio data is cleaned of background noise and the textual data includes new annotations. We make this updated corpus publicly available to the research community.<sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                166,
+                490,
+                570
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related work and Research questions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                583,
+                473,
+                601
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Entrainment in monolingual domains. Much work has been done on entrainment in text and speech in monolingual domains. Levitan and Hirschberg (2011) proposed an early framework for measuring entrainment in speech, distinguishing entrainment at the turn-level from entrainment at the conversation-level and identifying multiple ways of entraining, including proximity, convergence, and synchrony. Separate from this framework for measuring acoustic-prosodic entrainment are count-based and probabilistic measures applied often in studies of lexical entrainment. Nenkova et al. (2008) introduced several relative, symmetric metrics for computing lexical entrainment over word classes, which were applied and extended in Weise et al. (2021). Gravano et al. (2014) studied prosodic entrainment over ToBI elements, using a perplexity-based method for calculating asymmetric coordination on the textual form of prosodic features. Greater evidence of entrainment has been correlated with greater task success and improved social outcomes (Reitter and Moore, 2007; Levitan et al., 2012). Analysis of entrainment patterns in relation to speakers’ demographic characteristics has revealed interactions with gender dynamics (Bilous and Krauss, 1988; Levitan et al., 2012; Cabarrão et al., 2016) and power differentials (Danescu-Niculescu-Mizil et al., 2011). Although some work has studied entrainment in languages other than English, few have examined entrainment in multilingual contexts where CSW occurs, giving rise to our first research question: RQ1: Do previously established patterns of entrainment in monolingual settings generalize to code-switched settings – is entrainment a universal phenomenon of spoken communication? Do language behaviors found in monolingual communication also occur in code-switched communication?"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                612,
+                490,
+                871
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                441
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Entrainment for CSW. Recent work on entrainment has begun to explore code-switched domains, but most studies have been restricted to the textual modality. Kootstra et al. (2010) found that Dutch-English speakers entrain on CSW more when their interlocutor has just code-switched, and that they use shared word order in order to code-switch then, focusing entirely on lexical entrainment. Soto et al. (2018) examined only convergence of the amount of CSW that occurs between two Spanish-English speakers over the course of a conversation, analyzing speech transcripts. Similarly, Ahn et al. (2020) and Parekh et al. (2020) studied entrainment of CSW strategies in human-computer communication in Spanish-English and Hindi-English respectively, distinguishing between relatively simple insertional (inserting a single code-switched word or short phrase into an otherwise monolingual utterance, e.g. Todos estamos con un calor y WORK-ING.) and more complex alternational (CSW occurring at grammatical clause boundaries, e.g. No tienes quepagar muchoporque YOU DON’THAVE THE CHECK.) code-switches. Given the nature of human-machine dialogue systems, this work was also restricted to analysis of written interactions. The findings of these studies beg the question: how does entrainment manifest in naturalistic code-switched speech between humans, leading to our second research question: RQ2: Do patterns of entrainment in code-switched text (some of which is produced by virtual dialogue agents) generalize to code-switched spontaneous speech? Do code-switched language behaviors depend on the modality of language production and/or the nature of the interlocutor, and are there similarly generalizable characteristics of CSW that are independent of these conversational factors?"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                453,
+                889,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>https://drive.google.com/drive/ folders/1Ty2WzGwSiolDeN7J9yK5r6XCoMrUowQa? usp=sharing"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                881,
+                499,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2866"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                490,
+                215
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Corpus"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                227,
+                215,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We examine the Bangor Miami corpus of informal conversations (Deuchar, 2011).<sup>2</sup> This corpus is composed of a mix of monolingual and codeswitched English and Spanish spontaneous speech, along with transcripts of these, as produced by 84 unique bilingual Spanish-English speakers living in Miami, Florida. The corpus contains 35 hours of recorded conversation and 242,475 words of transcribed text. The transcribed text comes manually annotated with word-level language identification labels for each utterance in each conversation. The complete corpus consists of 56 conversations, with the number of speakers per conversation ranging between one and four. Of these, 39 are dyadic conversations (i.e. conversations that involve exactly two speakers) that contain code-switched utterances. We restrict our investigation to the 20 hours of these conversations only."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                253,
+                490,
+                546
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Method"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                557,
+                220,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Preprocessing: data annotation. We begin by annotating the Bangor Miami corpus to identify the different CSW strategies used by speakers in the filtered corpus of 39 dyadic conversations. We accomplish this by inspection of the conversation transcripts. We first automatically label each utterance of each conversation’s transcript for whether it is code-switched or monolingual, based on its word-level language tags. Two annotators fluent in Spanish and English then perform additional manual annotations on the code-switched utterances to distinguish between insertional (I), alternational (A), and \"other\" (O) forms of CSW.<sup>3</sup> The annotators define \"other\" CSW as the strategy used in any utterance where a code-switched filler word such as okay or pues appears at the outset or end of a sentence whose remainder is monolingual in the opposite language. We find that 95% of utterances in the filtered corpus are monolingual. Among the 5% of utterances in the corpus that are code-switched, 72% of these use insertional CSW, 13% use alternational CSW, and 18% use \"other\" CSW (some code-switched utterances use more than one CSW strategy)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                585,
+                490,
+                860
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                887,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Preprocessing: denoising audio data. Next, we handle the babble noise (i.e. the kind of background noise often heard in restaurants, bars, or airports) present in most of the corpus’ audio files, to ensure reliable downstream feature extraction and analysis. To achieve this, we create a denoising pipeline. This is a two-step process that consists of first applying to each audio file a Conformerbased Metric Generative Adversarial Network (Cao et al., 2022), which enhances the magnitude and spectrogram features of a speech signal, followed by using Audacity’s publicly-available noise reduction tools. This approach effectively reduces background noise while preserving the integrity of the speech signal,<sup>4</sup> as evidenced by our calculated speech-to-noise (SNR) ratio in each denoised audio file exceeding 30 dB, the threshold for clean speech signals (How is the SNR of a speech example defined?). The mean, mode, and median SNR in the corpus post-denoising are 54.3dB, 74.7dB, and 56.3dB respectively. These are significant improvements over the pre-denoising mean, mode, and median SNR of 29.3dB, 35.6dB, and 29.3dB respectively. We share this newly cleaned version of the corpus with the spoken language processing community."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                199,
+                889,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Measuring entrainment across feature sets. Following the preprocessing of the corpus, we calculate several measures of entrainment across lexical, acoustic-prosodic, and CSW feature sets. The lexical feature set includes the following word classes, as in Nenkova et al. (2008): most frequent words within the corpus (top-100 and top-25), most frequent words within each conversation (top-25), affirmative cue words (e.g. alright, gotcha, okay, uh-huh, yeah, and their respective Spanish equivalents), and filled pauses (e.g. uh, um, mm, and their respective Spanish equivalents). See Appendix A for the full list of affirmative cue words and filled pauses considered. Note that both Spanish and English words are members of each of the above word classes. Our experiments on these lexical features of the corpus use Equation 1 to calculate entrainment in each of the word classes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W"
+                    },
+                    {
+                        "type": "text",
+                        "content": "under investigation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                620,
+                889,
+                831
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>This corpus is made available under the GNU General Public License version 3 or later."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                869,
+                489,
+                895
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>When the annotators disagree on a label, they discuss their reasoning with each other until the disagreement is resolved."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                894,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>Note that we conducted spot checks during data preprocessing where the first three authors listened to a subset of individual cleaned audio files, visually compared noisy and denoised waveforms for consistency, and ensured that extracted acoustic-prosodic features were consistent with the waveforms before and after denoising."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                846,
+                885,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2867"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                84,
+                489,
+                181
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "e n t r ( S _ { A } , S _ { B } ) = - \\sum _ { w \\in W } | \\frac { c o u n t _ { S _ { A } } ( w ) } { A L L _ { S _ { A } } } - \\frac { c o u n t _ { S _ { B } } ( w ) } { A L L _ { S _ { B } } } |\\tag{1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9fb2b8b130b29d834be9821d703cd7a40371fbe40d09291fac80bbb336a6fd1e.jpg"
+                }
+            },
+            "bbox": [
+                119,
+                198,
+                478,
+                231
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This equation was first proposed in Nenkova et al. (2008). It defines entrainment between two speakers "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on a particular word class W as the negated absolute value of the difference between the fraction of times a particular word "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w \\in W"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is used by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", summed over all the words in W."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                243,
+                489,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also compute lexical entrainment on overall language use in the corpus, adopting the method used by Gravano et al. (2014). We use the speech transcripts of each speaker as training data for estimating a Kneser-Essen-Ney smoothed trigram model, using the KenLM toolkit for this task, and resulting in 78 such trigram models — two for each conversation in the corpus. For each conversation, we evaluate the trained model for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by computing its perplexity on the speech transcripts of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The negated perplexity value produces an entrainment score reflecting how much "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "entrains to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We do the same perplexity calculations in the opposite direction to obtain an entrainment score for how much "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "entrains to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The lower the perplexity, the greater the entrainment."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                356,
+                489,
+                614
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The members of the acoustic-prosodic feature set for each utterance are: minimum, mean, maximum, and standard deviation in pitch; minimum, mean, maximum, and standard deviation in intensity; jitter; shimmer; harmonics-tonoise ratio (HNR); and speaking rate, measured in syllables per second. We extract these acousticprosodic features automatically using the Parselmouth Python library (Jadoul et al., 2018) for the Praat software (Boersma and Weenink, 2021), with all parameters set to their default values. We define the set of CSW features such that, for each utterance, we examine the binary presence of CSW (coded as 0 for monolingual utterances or 1 for code-switched ones), the amount of CSW (normalized by the word length of the utterance; this produces a CSW ratio), and the strategy of CSW used (I, A, or O for code-switched utterances; -1 for monolingual utterances). For our experiments on the acoustic-prosodic and CSW feature sets, we calculate entrainment in terms of proximity (the absolute similarity of a feature over an entire turn/conversation), convergence (the degree to which a feature becomes more similar over the course of a conversation), and synchrony (turn-byturn relative coordination between interlocutors, as when speakers have different pitch ranges but raise and lower their pitch similarly to their partner) at the turn- and conversation-level, following the methods used in Levitan and Hirschberg (2011)."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                614,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                261
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For turn-level proximity, we perform calculations in the following way. For each target speaker turn, we compute a partner difference (Equation 2) and other difference (Equation 3), such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t u r n _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is adjacent to the target turn and uttered by the target turn speaker’s conversational partner, and tur "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\cdot _ { n _ { i } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is uttered by the target turn speaker’s conversational partner but is not adjacent to the target turn, for ten random turns. We compare partner differences and other differences with a paired t-test. We infer proximity when partner differences from the prior speaker turn are smaller than differences from other speaker turns."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                262,
+                887,
+                472
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "d i f f e r e n c e _ { p a r t n e r } = | t u r n _ { t } - t u r n _ { p } |\\tag{2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9c40f80ca9d26b670661393e7c570253391697e24c4b29ce9184254eecebed0d.jpg"
+                }
+            },
+            "bbox": [
+                569,
+                481,
+                823,
+                498
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "d i f f e r e n c e _ { o t h e r } = \\frac { \\sum _ { i = 1 } ^ { 1 0 } \\left| t u r n _ { t } - t u r n _ { i } \\right| } { 1 0 }\\tag{3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1bc17b8667bcfa05530a111b4301f03a8a6d21f377a4c7c8c86115f4e0b937c7.jpg"
+                }
+            },
+            "bbox": [
+                554,
+                513,
+                835,
+                543
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For turn-level convergence, we compute the Pearson’s correlation coefficient between the absolute value of the difference between adjacent turns and the turn number, which effectively measures time elapsed in the conversation. We infer strong, moderate, or weak convergence from Pearson’s coefficients "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\geq 0 . 7 , 0 . 5 \\leq r < 0 . 7 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 < r < 0 . 5"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively. We infer strong, moderate, and weak divergence from Pearson’s coefficients "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\leq - 0 . 7 ."
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 7 < r \\leq - 0 . 5"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 5 < r < 0 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                549,
+                885,
+                726
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For turn-level synchrony, we compute the Pearson’s correlation coefficient between adjacent turns from different speakers, testing for significance with a two-sided t-test. We infer strong, moderate, and weak synchrony from Pearson’s coefficients "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\geq 0 . 7 , 0 . 5 \\leq r < 0 . 7"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 < r < 0 . 5"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively. We infer strong, moderate, and weak asynchrony from Pearson’s coefficients "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\leq - 0 . 7 ,"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 7 < r \\leq - 0 . 5"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "- 0 . 5 < r < 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                727,
+                887,
+                888
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For conversation-level proximity, we use paired t-tests on two sets of differences. For each speaker, we calculate a partner difference (the difference between the speaker’s value for a particular feature and that of their partner) and an other difference (the mean of the differences between the speaker’s value and the values of each speaker in the corpus who was not their interlocutor). We infer proximity when partner differences are smaller than other differences."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                889,
+                885,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2868"
+                    }
+                ]
+            },
+            "bbox": [
+                478,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                214
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For conversation-level convergence, we split each conversation into two halves. In each half, we calculate each speaker’s mean value for a particular feature. We then compare differences in speaker mean values in the first half to their differences in mean values in the second half using a paired t-test. We infer convergence when the differences in the second half are significantly smaller."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                214,
+                489,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We perform z-score normalization by speaker on all acoustic-prosodic features prior to any entrainment calculation to account for each individual speaker’s natural pitch range and voice qualities."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                343,
+                489,
+                409
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                420,
+                260,
+                437
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 Interlocutors entrain on lexical features of CSW conversations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                447,
+                489,
+                479
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We begin our investigation of lexical entrainment on the conversations of the Bangor Miami corpus by using Equation 1 to compute a single entrainment score for each conversation, aggregated over each word class. We test for statistical significance using paired t-tests for each word class and compare entrainment scores between conversational partners to mean entrainment scores between nonpartners. For the top-100 words within the corpus and affirmative cues, all 39 conversations in the corpus show significant evidence of lexical entrainment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t = 1 9 . 2 ; p = 4 . 5 0 e - 3 1 \\mathrm { a n d } t = 8 . 2 6 ; p ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 . 2 1 e \\mathrm { ~ - ~ } 1 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively). For the top-25 words within the corpus, most frequent words within each conversation, and filled pauses, 38 conversations in the corpus show significant evidence of lexical entrainment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t = 1 8 . 6 , p = 3 . 1 4 e - 3 0 ; t"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 3 . 4 , p = 7 . 2 0 e - 2 2 ; t = 8 . 8 4 , p = 2 . 4 2 e - 1 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                485,
+                490,
+                791
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Having considered several pre-defined word classes, we next investigate entrainment on overall language use. When including out-of-vocabulary (OOV) words in our calculations, we find that all but one conversation in the corpus shows evidence of each speaker entraining to their partner’s overall language use as quantified by perplexity. We test the significance of this result using a paired t-test to compare perplexity scores between conversational partners to the mean of perplexity scores between non-partners for each speaker in the corpus, yielding "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t = - 1 1 . 9 \\mathrm { a n d } p = 3 . 5 8 e - 1 9"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When excluding OOV words in our calculations, we find that 68 of out 78 possible (conversation, partner) combinations show evidence of within-conversation entrainment on overall language use. In other words, in 29 out of 39 conversations both speakers are entraining to their conversational partner, while in the remaining 10 conversations only one speaker is entraining to their interlocutor. As above, we test the significance of this result using a paired t-test, yielding "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t = - 8 . 7 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p = 4 . 0 6 e - 1 3"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                793,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/ef45a96dda4306109e0154934e76a94b1955afbc5ca077af48d2809e454255b5.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Proximity at the turn-level. Significant acoustic-prosodic features are indicated by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ *"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and dark orange bars. See Table 7 in Appendix "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for t and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\mathrm { - }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "values corresponding to each feature."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                519,
+                80,
+                882,
+                250
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                348,
+                885,
+                575
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 Interlocutors entrain on most acoustic-prosodic features of CSW conversations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                589,
+                826,
+                637
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following our investigation of lexical features, we perform experiments to measure acoustic-prosodic entrainment on the conversations of the Bangor Miami corpus. In terms of proximity at the turnlevel, we find that the majority of conversations show statistically significant evidence of entrainment in terms of proximity on the majority of acoustic-prosodic features (Figure 2). Similarly, in terms of convergence at the turn-level, the majority of conversations show statistically significant evidence of entrainment in the same direction on all of the acoustic-prosodic features under investigation (Figure 3). However, we do not find significant evidence of turn-level synchrony nor conversation-level proximity or convergence of the acoustic-prosodic features."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                645,
+                887,
+                902
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since we mainly find evidence of turn-level entrainment on the acoustic-prosodic features, we additionally compare entrainment between turns at the start, middle, and end of conversations. Doing so, we find greater entrainment in terms of turnlevel proximity in the initial third of conversations (i.e. greater number of conversations satisfying entrainment conditions) compared to the final third of conversations; these results are significant for minimum, mean, and maximum pitch, and maximum intensity. We also find greater entrainment in terms of turn-level convergence in both the initial and middle third of conversations (i.e. greater Pearson correlation coefficients) compared to the final third of conversations, across acoustic-prosodic features, all of which are significant. These more granular turn-level results align with our expectations and previous conversation-level convergence results, as greater entrainment in earlier parts of a conversation compared to later parts indicates an absence of conversation-level convergence by definition."
+                    }
+                ]
+            },
+            "bbox": [
+                527,
+                904,
+                885,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2869"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d25953ebd13f840d44417c40a70f9f04eb8b2fcb3b14608814acb50dfa65b46f.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: Convergence at the turn-level. All acoustic prosodic features are significant. The percentage of weakly diverging conversations for each acousticprosodic feature is the difference between the percentage of weakly converging conversations and 100."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                115,
+                79,
+                480,
+                249
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                357,
+                490,
+                680
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 Interlocutors entrain on most CSW features of CSW conversations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                690,
+                440,
+                721
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our final set of quantitative experiments measure entrainment in terms of a number of CSW characteristics of the conversations of the Bangor Miami corpus. We start with entrainment on the presence of CSW. In terms of proximity at the turn-level, we find that 29 of the 39 conversations in the corpus show evidence of entrainment on the presence of CSW. A paired t-test shows that this is statistically significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t = - 2 . 4 2 0 ; p = 0 . 0 1 5 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We similarly find that 21 conversations are weakly synchronous at the turn-level (two-sided t-test "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\ = \\ 0 . 0 0 0 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and 32 conversations show proximity at the conversation-level "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t ~ = ~ - 3 . 4 0 2 ;"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p = 0 . 0 0 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, we find limited evidence of convergence at the turn- or conversation-level, likely because speakers entrain in proximity quite rapidly."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                727,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                885,
+                166
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, we turn to entrainment on the amount of CSW used in the Bangor Miami conversations. We find proximity at the turn-level, where 33 conversations show statistically significant evidence of entrainment on the amount of CSW performed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t = - 2 . 1 5 3 ; p = 0 . 0 3 1 4 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and proximity at the conversation-level, where 34 conversations show significant evidence of entrainment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t = - 2 . 4 7 0 ;"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p = 0 . 0 1 5 7 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We also find that 1 conversation is moderately synchronous and 21 others are weakly synchronous, however this result is not statistically significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p \\ : = \\ : 0 . 5 9 0 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". As above, we find no significant evidence of turn- or conversation-level convergence on amount of CSW, as these conversational partners entrain in proximity quite rapidly."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                171,
+                885,
+                412
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, we consider entrainment on CSW strategies. In this set of experiments, we perform separate calculations for each possible strategy (insertional, alternational, or \"other\" CSW). We find proximity at the conversation-level on alternational CSW only, with 29 conversations showing statistically significant evidence of entrainment on this particular strategy "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t = - 3 . 3 7 8 ; p = 0 . 0 0 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "We also find significant synchrony at the turnlevel on insertional CSW, with 22 weakly synchronous conversations "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p = 1 . 5 2 8 e - 0 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We do not find significant evidence of turn-level proximity or convergence nor evidence of conversation-level convergence for any of the CSW strategies. As a whole, our set of results on strategies of CSW is largely consistent with those on the other characteristics of code-switched conversations."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                416,
+                887,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As with the acoustic-prosodic features, we compare entrainment between turns at the start, middle, and end of conversations. We find greater entrainment in terms of turn-level proximity and synchrony in the middle third of conversations compared to the final third of conversations for CSW presence and CSW amount. We also find greater entrainment in terms of turn-level synchrony in both the initial and middle third of conversations compared to the final third of conversations across all CSW strategies, all of which at least approach significance. As before, these granular turn-level results are reasonable as they align with a lack of conversation-level convergence on CSW features."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                695,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2870"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 Same-gender interlocutors entrain more than opposite-gender interlocutors"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                477,
+                117
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We finally perform a qualitative analysis of our results in relation to the gender of the speakers in conversations that showed significant evidence of entrainment. We particularly distinguish between same-gender (FF or MM) conversations and mixedgender (FM) conversations. Our comparisons are weighted to account for there being 24 same-gender conversations, but only 15 mixed-gender ones.<sup>5</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                122,
+                489,
+                252
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Across all three feature sets, we generally find that there are equal or more same-gender conversations than mixed-gender conversations among those conversations that show evidence of entrainment on all lexical features except fillers (Table 1), turn-level convergence on acoustic-prosodic features (Table 2), conversation-level proximity on all CSW features (Table 4), and turn-level synchrony on amount of CSW (Table 5). An example conversation snippet from a pair of interlocutors showing some of these entraining characteristics is the interaction in Figure 1 between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { B 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", who are both female, where we see lexical entrainment on a frequent word and proximity on presence and strategy of CSW."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                253,
+                490,
+                494
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "However, the opposite is true for conversations that show evidence of turn-level proximity on acoustic-prosodic features (Table 3), turn-level proximity on binary presence and amount of CSW (Table 6), and turn-level synchrony on presence and strategy of CSW. An example conversation snippet from a pair of interlocutors showing some of these entraining characteristics is the interaction in Figure 1 between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { A 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", who is female, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { B 2 } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", who is male, where we see proximity on acoustic-prosodic features and presence and amount of CSW."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                494,
+                489,
+                671
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Examining same-gender conversations more granularly, we notice that when there are more same-gender conversations than mixed-gender conversations among the significantly entraining conversations, either the proportion of FF conversations is greater than MM conversations or these are roughly equal within same-gender conversations. No such obvious pattern exists when there are more mixed-gender conversations than same-gender conversations among the significantly entraining conversations.<sup>6</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                673,
+                490,
+                850
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/97a7099ce18f3da52568b7957097644421f11c64591f5f18b41cbbd233fb26ec.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Weighted percentage "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\% _ { w } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of same-gender (FF+MM) and mixed-gender (FM) conversations among significantly entraining conversations, separated by lexical feature."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Feature</td><td> $\\% _ { w }$  (FF+MM)</td><td> $\\% _ { w }$  FM</td></tr><tr><td>Top-100 (corpus)</td><td>50</td><td>50</td></tr><tr><td>Top-25 (corpus)</td><td>50</td><td>46.7</td></tr><tr><td>Top-25 (conv)</td><td>50</td><td>46.7</td></tr><tr><td>Cues</td><td>50</td><td>50</td></tr><tr><td>Fillers</td><td>47.9</td><td>50</td></tr><tr><td>Overall incl. OOVs</td><td>50</td><td>46.7</td></tr><tr><td>Overall excl. OOVs</td><td>41.7</td><td>30</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                514,
+                103,
+                882,
+                236
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/7802bc20e2534fc52a806c573bbd0a28c2b250b1732cd4aae6ac9e4de8b3ca64.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: Weighted percentage "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\% _ { w } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of same-gender (FF+MM) and mixed-gender (FM) conversations among significantly converging conversations at the turn-level, separated by acoustic-prosodic feature."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Feature</td><td rowspan=1 colspan=1> $\\% _ { w }$ (FF+MM)</td><td rowspan=1 colspan=1> $\\% _ { w } \\mathrm { F M }$ </td></tr><tr><td rowspan=6 colspan=1>Min. pitchMean pitchMax. pitchSD pitchMin. intens.Mean intens.</td><td rowspan=1 colspan=1>37.5</td><td rowspan=1 colspan=1>23.3</td></tr><tr><td rowspan=1 colspan=1>41.7</td><td rowspan=1 colspan=1>23.3</td></tr><tr><td rowspan=1 colspan=1>31.3</td><td rowspan=1 colspan=1>30</td></tr><tr><td rowspan=1 colspan=1>27.1</td><td rowspan=1 colspan=1>43.3</td></tr><tr><td rowspan=1 colspan=1>29.2</td><td rowspan=1 colspan=1>36.7</td></tr><tr><td rowspan=1 colspan=1>35.4</td><td rowspan=1 colspan=1>23.3</td></tr><tr><td rowspan=1 colspan=1>Max. intens.</td><td rowspan=1 colspan=1>33.3</td><td rowspan=1 colspan=1>33.3</td></tr><tr><td rowspan=2 colspan=1>SD intens.Jitter</td><td rowspan=1 colspan=1>27.1</td><td rowspan=1 colspan=1>43.3</td></tr><tr><td rowspan=1 colspan=1>33.3</td><td rowspan=1 colspan=1>20</td></tr><tr><td rowspan=3 colspan=1>ShimmerHNRSR</td><td rowspan=1 colspan=1>33.3</td><td rowspan=1 colspan=1>13.3</td></tr><tr><td rowspan=1 colspan=1>35.4</td><td rowspan=1 colspan=1>13.3</td></tr><tr><td rowspan=1 colspan=1>31.3</td><td rowspan=1 colspan=1>16.7</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                534,
+                357,
+                857,
+                570
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/e9ddd40cb37f34827017167165539646bba6aa2b6f422d73a86b929b3fdf0163.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Weighted percentage "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\% _ { w } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of same-gender (FF+MM) and mixed-gender (FM) conversations among significantly proximate conversations at the turn-level, separated by acoustic-prosodic feature."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Feature</td><td> $\\% _ { w }$  (FF+MM)</td><td> $\\% _ { w }$  FM</td></tr><tr><td>Min. pitch</td><td>37.5</td><td>40</td></tr><tr><td>Mean pitch</td><td>39.6</td><td>50</td></tr><tr><td>Min. intens.</td><td>25</td><td>26.7</td></tr><tr><td>Mean intens.</td><td>35.4</td><td>36.7</td></tr><tr><td>Max. intens.</td><td>35.4</td><td>36.7</td></tr><tr><td>HNR</td><td>27.1</td><td>33.3</td></tr><tr><td>SR</td><td>35.4</td><td>33.3</td></tr><tr><td>Feature</td><td> $\\% _ { w }$  (FF+MM)</td><td> $\\overline { { { \\bf \\Lambda } } } \\overline { { { \\bf \\Lambda } } }$ </td></tr><tr><td>CSW pres.</td><td>45.8</td><td>33.3</td></tr><tr><td>CSW amt.</td><td>47.9</td><td>36.7</td></tr><tr><td>CSW strat.</td><td>39.6</td><td>33.3</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                536,
+                692,
+                855,
+                824
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>5</sup>If all conversations in the corpus are significantly entraining on a particular feature, same-gender conversations and mixed-gender conversations would each get a maximum weighted percentage of 50."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                857,
+                489,
+                906
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>6</sup>Within the set of mixed-gender conversations, female and"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                906,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2871"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                146,
+                82,
+                453,
+                149
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/8fb6d63ffcbfec6aff5e7028034793ecb9ee8686a809232eaac5416f47298056.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: Weighted percentage "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\% _ { w } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of same-gender (FF+MM) and mixed-gender (FM) conversations among significantly proximate conversations at the conversation-level, separated by CSW feature."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 5: Weighted percentage "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\% _ { w } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of same-gender (FF+MM) and mixed-gender (FM) conversations among significantly synchronous conversations at the turn-level, separated by CSW feature."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Feature</td><td> $\\% _ { w }$  (FF+MM)</td><td> $\\overline { { \\% _ { w } } }$  FM</td></tr><tr><td>CSW pres.</td><td>25</td><td>30</td></tr><tr><td>CSW amt</td><td>31.3</td><td>23.3</td></tr><tr><td>CSW strat.</td><td>27.1</td><td>30</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                146,
+                230,
+                453,
+                298
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Discussion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                392,
+                242,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "From our experiments on the lexical features of code-switched conversations, we find statistically significant evidence of lexical entrainment across all of the word classes considered, as well as on overall language use within the corpus. We now briefly discuss why some speakers do not entrain to their interlocutors’ overall language use even though their interlocutors entrain to theirs. Prior research suggests that power differentials between speakers and other sociolinguistic factors tend to have an influence on such asymmetric entraining behavior, e.g. Danescu-Niculescu-Mizil et al. (2011). We suspect that L2 speaker proficiency could additionally play a role in this, although this has not yet been explored, to our knowledge, because existing data sets do not include this information. This is an interesting direction for further work, and we plan to collect the relevant demographic data for inclusion in our future studies of entrainment in code-switching between different language pairs. Overall, our findings are consistent with prior work on lexical entrainment in monolingual settings, e.g. Weise et al. (2021), suggesting that the expected entraining behaviors previously observed in monolingual conversations also occur in code-switched settings, with potential implications for the cross-lingual nature of entrainment as a linguistic phenomenon."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                418,
+                490,
+                741
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/f85bb4e990d4cf07600af16a8a492c617712ab96a87b13a8b83527dcd4469825.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "male speakers were about equally likely to initiate CSW, with female interlocutors doing so in 8 of 15 such conversations."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 6: Weighted percentage "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\% _ { w } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of same-gender (FF+MM) and mixed-gender (FM) conversations among significantly proximate conversations at the turn-level, separated by CSW feature."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Feature</td><td> $\\overline { { \\% _ { w } } }$  (FF+MM)</td><td> $\\overline { { \\% _ { w } } }$  FM</td></tr><tr><td>CSW pres.</td><td>35.4</td><td>40</td></tr><tr><td>CSW amt</td><td>39.6</td><td>46.7</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                147,
+                795,
+                455,
+                847
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                215
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our experiments on acoustic-prosodic features provide evidence of entrainment in terms of turnlevel proximity and convergence. As with the lexical features we investigated, this finding aligns with prior work on monolingual domains, e.g. Levitan and Hirschberg (2011), though we acknowledge that these authors additionally found varying degrees of significant entrainment in terms of conversation-level proximity and convergence and turn-level synchrony. We suspect that this difference might be due to the undirected nature of the data we use, unlike the task-oriented conversations Levitan and Hirschberg studied. Nevertheless, we still see indications of patterns of local entrainment in monolingual conversations generalizing to codeswitched conversations."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                221,
+                887,
+                479
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We generally find consistent evidence of proximity at the turn- and conversation-level on the CSW features of the Bangor Miami conversations. With respect to the presence of CSW, we find turn- and conversation-level proximity and turn-level synchrony. Though we find limited evidence of convergence at the turn- or conversation-level on CSW presence, our results suggest that speakers are entraining to one another in a way that surfaces as one speaker’s choice to code-switch in speech encouraging the other to choose the same and vary in turn. These results are mirrored in our experiments on the amount of CSW, where we continue to observe that speakers seem to match one another’s CSW behavior, specifically in terms of the quantity of code-switched utterances used within a turn, and the variation of the same across turns. Finally, from our experiments on CSW strategies, we find significant synchrony at the turn-level on insertional CSW, and significant proximity at the conversation-level on alternational CSW. The first of these findings mirrors the trend we see in entrainment with respect to the presence of CSW. Since insertional CSW is a strategy lacking strict syntactic structure, when speakers mimic their interlocutors’ variation in CSW in conversation, using insertional CSW is a simple way to achieve this kind of entrainment. This finding also aligns with that of Ahn et al. (2020), who similarly found this CSW strategy to show the most entrainment in human-machine written interaction. The second of these findings is more interesting, however, because alternational CSW requires knowledge of both languages’ syntax and is, by definition, the most structured strategy for speakers to employ. This probably makes it easier for interlocutors to notice and mimic in comparison to insertional or other CSW. We particularly highlight this finding because significant evidence of entrainment on alternational CSW has not been found in previous work on written CSW, which suggests that there may be a key difference in how CSW and subsequent entrainment behaviors are produced in the spoken versus written modality."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                485,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2872"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                490,
+                360
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, our preliminary qualitative gender analysis shows a slight skew toward entrainment taking place in same-gender conversations over mixed-gender ones. Compared to prior work that has considered the role of speaker gender in entrainment behavior, both Bilous and Krauss (1988) and Levitan et al. (2012) found more entrainment in mixed-gender pairs than same-gender pairs, but these were on task-oriented monolingual conversations. Our opposing results may suggest that the linguistic differences between task-oriented and undirected spontaneous speech (e.g. as detailed in Pilán et al. (2023)) carry through to differences in entrainment behaviors in these differing conversational settings, but further work is required to confirm or refute this."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                360,
+                490,
+                619
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                633,
+                247,
+                650
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this work, we have found that patterns of entrainment originally seen in monolingual domains are also present in a code-switched setting (RQ1). This is shown in particular by our experiments on lexical and acoustic-prosodic features of a corpus of code-switched conversations.We also find evidence of entrainment on measures of CSW — our work is the first to study entrainment in the context of spontaneous code-switched speech. While some patterns of entrainment previously found in code-switched written interactions are also present in spontaneous speech (RQ2), we have found additional ones that suggest a fundamental difference in CSW and corresponding entraining behaviors between modalities. We particularly find differences in the dimensions over which entrainment occurs in code-switched settings depending on the aspect of language production under consideration — i.e. turn-level proximity and convergence on acousticprosodic features, versus turn- and conversationlevel proximity on CSW features — which points to the importance of examining multiple dimensions of entrainment when conducting analyses across feature sets. Our preliminary gender analysis similarly shows possible differences in entrainment between undirected and task-oriented speech. While we have uncovered these distinctions, we plan to study them further in order to identify the reasons behind them in future work. Overall, these results provide promising implications for the potential \"universal\" nature of entrainment as a paralinguistic communication phenomenon that may be independent of monolingual versus multilingual language production.<sup>7</sup> We hope this work will serve as a stepping stone for informing the design of spoken language technology applications, particularly in the generation of more naturalistic and context-appropriate code-switched utterances by voice assistants."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                662,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                456
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                468,
+                616,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our work, we focused only on a single language pair, Spanish-English. Though we are excited about the potential implications of our findings, we acknowledge the need to extend our method to additional language pairs, ideally involving different language families, in order to test the robustness of our claim of generalizability. We intend to carry out this work in a future study."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                494,
+                887,
+                623
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also acknowledge that there are alternative ways of operationalizing certain measures of entrainment, e.g. synchrony as done in Reichel et al. (2018), as well as alternative frameworks of entrainment, e.g. the static versus dynamic entrainment framework of Wynn and Borrie (2022). We chose to follow Levitan and Hirschberg (2011) most closely for this first step towards understanding entrainment in CSW contexts, and will consider these alternatives in future work."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                624,
+                887,
+                784
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Separately, it could have been interesting to include the semantic dimension of entrainment in our work, as did Kejriwal and Štefan Benušˇ (2023). However, reliable embeddings are difficult to obtain for code-switched language. Future work might address this difficulty and investigate the incorporation of representations such as mBERT embeddings for this."
+                    }
+                ]
+            },
+            "bbox": [
+                527,
+                785,
+                887,
+                802
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>7</sup>We acknowledge that the findings of previous work such as Levitan (2020) add nuance to the interpretation of our findings and to this claim, as entrainment is not guaranteed across all dimensions studied, even in monolingual data sets. However, we also note that it is typical of entrainment studies to find evidence of entrainment along some, but not all, features under investigation (e.g. Levitan and Hirschberg (2011), Weise et al. (2021), Chen et al. (2023)), as in both Levitan (2020) and our work."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                809,
+                887,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2873"
+                    }
+                ]
+            },
+            "bbox": [
+                478,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                197
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Ethics Statement"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                209,
+                267,
+                224
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This study was conducted on secondary data only, and did not require human experiments. We did not access any information that could uniquely identify individual users within the corpus, as its original creators had de-identified all speakers as outlined in the documentation of the data set. Though we did not collect the data used in this work, we note that all participants in the original corpus had explicitly consented to sharing the data that we analyze in our study."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                235,
+                489,
+                394
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We believe this work is important because of its potential to inform the improvement of interactive speech technology that is capable of entraining to multilingual speakers in an appropriate and natural way, a quality of speech technology that users have been shown to prefer (e.g., as in Branigan et al. (2010))."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                395,
+                489,
+                508
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                520,
+                278,
+                537
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This work was supported in part by the National Science Foundation under Grant IIS 2327564."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                545,
+                487,
+                577
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                84,
+                610,
+                99
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Emily Ahn, Cecilia Jimenez, Yulia Tsvetkov, and Alan W Black. 2020. What code-switching strategies are effective in dialog systems? In Proceedings of the Society for Computation in Linguistics 2020, pages 254–264, New York, New York. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Frances R. Bilous and Robert M. Krauss. 1988. Dominance and accommodation in the conversational behaviours of same- and mixed-gender dyads. Language and Communication, 8(3):183–194. Special Issue Communicative Accomodation: Recent Developments."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Paul Boersma and David Weenink. 2021. Praat: doing phonetics by computer [Computer program]. Version 6.1.38, retrieved 2 January 2021 http://www. praat.org/."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Holly P. Branigan, Martin J. Pickering, Jamie Pearson, and Janet F. McLean. 2010. Linguistic alignment between people and computers. Journal ofPragmatics, 42(9):2355–2368. How people talk to Robots and Computers."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Judee K. Burgoon, David B. Buller, Jerold L. Hale, and Mark A. de Turck. 2006. Relational Messages Associated with Nonverbal Behaviors. Human Communication Research, 10(3):351–378."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Vera Cabarrão, Isabel Trancoso, Ana Mata, Helena Moniz, and Fernando Batista. 2016. Global analysis of entrainment in dialogues. In Advances in Speech and Language Technologiesfor Iberian Languages., pages 215–223."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ruizhe Cao, Sherif Abdulatif, and Bin Yang. 2022. Cmgan: Conformer-based Metric GAN for Speech Enhancement. In Proc. Interspeech 2022."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tanya L. Chartrand and John A. Bargh. 1999. The chameleon effect: the perception-behavior link and social interaction. Journal ofpersonality and social psychology, 76 6:893–910."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Run Chen, Seokhwan Kim, Alexandros Papangelis, Julia Hirschberg, Yang Liu, and Dilek Hakkani-Tür. 2023. Identifying entrainment in task-oriented conversations. In ICASSP 2023 - 2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), pages 1–5."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Cristian Danescu-Niculescu-Mizil, Michael Gamon, and Susan Dumais. 2011. Mark my words! linguistic style accommodation in social media. In Proceedings ofthe 20th International Conference on World Wide Web. ACM."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Margaret Deuchar. 2011. Miami corpus: Preliminary documentation - bangortalk."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Howard Giles, Nikolas Coupland, and Justine Coupland. 1991. Accommodation theory: Communication, context, and consequence, Studies in Emotion and Social Interaction, page 1–68. Cambridge University Press."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                107,
+                885,
+                185
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2874"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Agustín Gravano, Štefan Benuš, Rivka Levitan, andˇ Julia Hirschberg. 2014. Three tobi-based measures of prosodic entrainment and their correlations with speaker engagement. In 2014 IEEE Spoken Language Technology Workshop (SLT), pages 578–583."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "François Grosjean and Ping Li. 2013. The Psycholinguistics ofBilingualism. Wiley-Blackwell."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "How is the SNR of a speech example defined? 2000. ISCI Speech FAQ: 4.1 How is the SNR of a speech example defined?"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yannick Jadoul, Bill Thompson, and Bart de Boer. 2018. Introducing Parselmouth: A Python interface to Praat. Journal ofPhonetics, 71:1–15."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jay Kejriwal and Štefan Benuš. 2023.ˇ Relationship between auditory and semantic entrainment using Deep Neural Networks (DNN). In Proc. INTERSPEECH 2023, pages 2623–2627."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Gerrit Jan Kootstra, Janet G. van Hell, and Ton Dijkstra. 2010. Syntactic alignment and shared word order in code-switched sentence production: Evidence from bilingual monologue and dialogue. Journal of Memory and Language, 63(2):210–231."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rivka Levitan. 2020. Developing an integrated model of speech entrainment. In Proceedings ofthe Twenty-Ninth International Joint Conference on Artificial Intelligence, IJCAI-20, pages 5159–5163. International Joint Conferences on Artificial Intelligence Organization. Early Career."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rivka Levitan, Agustin Gravano, Laura Willson, Stefan Benus, Julia Hirschberg, and Ani Nenkova. 2012. Acoustic-prosodic entrainment and social behavior. In Proceedings ofthe 2012 Conference ofthe North American Chapter of the Association for Computational Linguistics: Human Language Technologies, pages 11–19, Montréal, Canada. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rivka Levitan and Julia Hirschberg. 2011. Measuring acoustic-prosodic entrainment with respect to multiple levels and dimensions. In Proc. Interspeech 2011, pages 3081–3084."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Richard E. Maurer and Jeffrey H. Tindall. 1983. Effect of postural congruence on client’s perception of counselor empathy. Journal of Counseling Psychology, 30(2):158–163."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ani Nenkova, Agustin Gravano, and Julia Hirschberg. 2008. High frequency word entrainment in spoken dialogue. In Proceedings of ACL-08: HLT, Short Papers, pages 169–172, Columbus, Ohio. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tanmay Parekh, Emily Ahn, Yulia Tsvetkov, and Alan W Black. 2020. Understanding linguistic accommodation in code-switched human-machine dialogues. In Proceedings of the 24th Conference on Computational Natural Language Learning, pages 565–577, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ildikó Pilán, Laurent Prévot, Hendrik Buschmeier, and Pierre Lison. 2023. Conversational feedback in scripted versus spontaneous dialogues: A comparative analysis."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shana Poplack. 1980. Sometimes I’ll start a sentence in Spanish Y TERMINO EN ESPAÑOL: toward a typology of code-switching. Linguistics, 18:581– 618."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Uwe D. Reichel, Štefan Benuš, and Katalin Mády. 2018.ˇ Entrainment profiles: Comparison by gender, role, and feature set. Speech Communication, 100:46–57."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "David Reitter and Johanna D. Moore. 2007. Predicting success in dialogue. In Proceedings ofthe 45th Annual Meeting of the Association of Computational Linguistics, pages 808–815, Prague, Czech Republic. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Richard Schmidt, Lin Nie, Alison Franco, and Michael Richardson. 2014. Bodily synchronization underlying joke telling. Frontiers in human neuroscience, 8:633."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Victor Soto, Nishmar Cestero, and Julia Hirschberg. 2018. The Role of Cognate Words, POS Tags and Entrainment in Code-Switching. In Proc. Interspeech 2018, pages 1938–1942."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Andreas Weise, Vered Silber-Varod, Anat Lerner, Julia Hirschberg, and Rivka Levitan. 2021. “talk to me with left, right, and angles”: Lexical entrainment in spoken Hebrew dialogue. In Proceedings ofthe 16th Conference of the European Chapter of the Associationfor Computational Linguistics: Main Volume, pages 292–299, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Camille J. Wynn and Stephanie A. Borrie. 2022. Classifying conversational entrainment of speech behavior: An expanded framework and review. Journal ofPhonetics, 94:101–173."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                487,
+                153
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2875"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Appendix"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                238,
+                101
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.1 Lexical word classes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                109,
+                326,
+                124
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The members of the affirmative cues word class are: alright, gotcha, huh, mm-hm, okay, right, uh-huh, yeah, yep, yes, yup, aja, claro, dale, ooh, sí, vale, venga, as well as their spelling variants, e.g. uhuh and aha for uh-huh, yah for yeah, etc."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                130,
+                489,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The members of the filled pauses word class are: ah, ahem, ay, eh, ehm, er, hmm, hmf, mm, pues, uff, uh, um, as well as their spelling variants, e.g. mmm for mm, errr for er, etc."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                211,
+                490,
+                275
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/ec9f2b2c590bf0668c84766c982b74ab553be4cf7868e7ecd5f3921e9c50d1fe.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Proximity at the turn-level. Significant acousticprosodic features are bolded."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Feature</td><td colspan=\"2\">% of entraining convs (t-, p-val)</td></tr><tr><td>Min. pitch Mean pitch Max. pitch SD pitch Min. intensity Mean intensity Max. intensity SD intensity Jitter Shimmer HNR Speaking rate</td><td>76.9 87.2 84.6 71.8 51.3 71.8 71.8 69.2 89.7 82.1 59.0</td><td>(-2.14, 0.032) (-3.69, 0.000) (-1.71, 0.088) (-0.928, 0.353) (-2.04, 0.041) (-3.93, 8.49e-5) (-4.45, 8.79e-6) (-1.15, 0.249) (-0.90, 0.37) (-1.46, 0.14) (-2.61, 0.009)</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                286,
+                509,
+                498
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2876"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ]
+]

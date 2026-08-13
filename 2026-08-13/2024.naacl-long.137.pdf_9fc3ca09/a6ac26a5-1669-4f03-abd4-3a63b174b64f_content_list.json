@@ -1,0 +1,2081 @@
+[
+    {
+        "type": "text",
+        "text": "FREB-TQA: A Fine-Grained Robustness Evaluation Benchmark for Table Question Answering",
+        "text_level": 1,
+        "bbox": [
+            163,
+            89,
+            835,
+            129
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Wei Zhou<sup>1,3</sup> Mohsen Mesgar<sup>1</sup> Heike Adel<sup>2</sup> Annemarie Friedrich<sup>3</sup>",
+        "bbox": [
+            174,
+            146,
+            826,
+            164
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>1</sup>Bosch Center for Artificial Intelligence, Renningen, Germany",
+        "bbox": [
+            245,
+            164,
+            757,
+            180
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>2</sup>Hochschule der Medien, Stuttgart, Germany <sup>3</sup>University of Augsburg, Germany",
+        "bbox": [
+            151,
+            180,
+            836,
+            198
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "{wei.zhou|mohsen.mesgar}@de.bosch.com",
+        "bbox": [
+            312,
+            198,
+            694,
+            214
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "annemarie.friedrich@informatik.uni-augsburg.de",
+        "bbox": [
+            267,
+            215,
+            736,
+            230
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            260,
+            260,
+            342,
+            275
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Table Question Answering (TQA) aims at composing an answer to a question based on tabular data. While prior research has shown that TQA models lack robustness, understanding the underlying cause and nature of this issue remains predominantly unclear, posing a significant obstacle to the development of robust TQA systems. In this paper, we formalize three major desiderata for a fine-grained evaluation of robustness of TQA systems. They should (i) answer questions regardless of alterations in table structure, (ii) base their responses on the content of relevant cells rather than on biases, and (iii) demonstrate robust numerical reasoning capabilities. To investigate these aspects, we create and publish a novel TQA evaluation benchmark in English. Our extensive experimental analysis reveals that none of the examined state-of-the-art TQA systems consistently excels in these three aspects. Our benchmark is a crucial instrument for monitoring the behavior of TQA systems and paves the way for the development of robust TQA systems. We release our benchmark publicly.<sup>1</sup>",
+        "bbox": [
+            141,
+            285,
+            462,
+            627
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            115,
+            634,
+            260,
+            650
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Table Question Answering (TQA) deals with answering natural language questions related to information organized in a table. TQA systems serve as a fundamental component for interacting with relational databases (Zhong et al., 2017; Yu et al., 2018) through natural language and for processing information across diverse domains, e.g., science (Desai et al., 2021) and finance (Zhu et al., 2021).",
+        "bbox": [
+            112,
+            659,
+            489,
+            788
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Processing tabular knowledge poses notable challenges. While tables are structured, there are no standard table layouts for representing a particular type of data. Table cells may contain various data types, including text and numbers. Moreover, tables can have nested structures. Thus, TQA systems should be able to robustly integrate textual commonsense understanding with numerical reasoning applied to structured data.",
+        "bbox": [
+            112,
+            788,
+            490,
+            901
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/ec9581b27e1fa0e48add5c64f5721cdd496801b70a146ab7fffcbb59896f25ae.jpg",
+        "image_caption": [
+            "Q: Who received the least amount of votes?",
+            "Figure 1: Our benchmark addresses three aspects of robustness shown in the yellow boxes. Answers are bold in tables. Original tables (left) are what exist in a TQA dataset and changed tables (right) show tables after perturbations. We demonstrate three perturbations in this figure (top to bottom): table transposing, removing relevant cells and modifying values to change answers."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            517,
+            265,
+            875,
+            470
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            624,
+            885,
+            656
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Recent benchmarks for TQA systems (Zhao et al., 2023; Yang et al., 2022) reveal that current TQA systems generate inconsistent responses by performing coarse-grained changes in tables and questions. However, these benchmarks contain a mix of questions requiring different levels of retrieval and aggregation capabilities.",
+        "bbox": [
+            507,
+            659,
+            885,
+            771
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "As a result, these benchmarks fail to differentiate between various aspects of robustness, such as errors stemming from incorrect cell retrieval versus those arising from failures in value aggregation steps. Pinpointing the exact failures of TQA systems, however, is a necessary diagnostic step towards enhancing their robustness.",
+        "bbox": [
+            507,
+            775,
+            887,
+            888
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we lay the groundwork for a more fine-grained systematic evaluation of TQA systems.",
+        "bbox": [
+            509,
+            890,
+            885,
+            922
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>https://github.com/boschresearch/FREB-TQA",
+        "bbox": [
+            136,
+            907,
+            457,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "2479",
+        "bbox": [
+            480,
+            928,
+            521,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 2479–2497 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            946,
+            857,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "To foster the development of robust TQA systems, we address three<sup>2</sup> important desiderata, as illustrated in Figure 1. With these aspects, we intend to separate several steps required when answering questions based on tabular data, i.e., identifying the relevant table cells and aggregating over or comparing them. In particular, we propose to evaluate TQA systems according to three aspects: (1) Retrieval robustness in case of table structure changes: Systems should retrieve the correct relevant cells regardless of table structure changes; (2) Attention to relevant cells: The system should use the relevant cell values from retrieval instead of exploiting shortcuts, such as model-internal knowledge or positional biases, when composing answers; and (3) Aggregation/comparison robustness in case of value changes: The system should aggregate the values of relevant cells correctly regardless of cell value changes. Aggregation can involve different types of reasoning. In this study, we focus on numerical operations, such as counting and comparisons, as they are the most common reasoning types in TQA (Zhu et al., 2021).",
+        "bbox": [
+            110,
+            85,
+            490,
+            456
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "To evaluate TQA systems with regard to these aspects, we create FREB-TQA, a new benchmark based on four well-studied TQA datasets using seven novel automatic perturbations, one perturbation from previous work (Zhao et al., 2023), and extensive manual annotations.",
+        "bbox": [
+            112,
+            457,
+            489,
+            554
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In our extensive experiments, we study pipeline and end-to-end state-of-the-art TQA systems (Liu et al., 2021; Jiang et al., 2022a; Herzig et al., 2020; Cheng et al., 2022), as well as large language models (LLMs) (Touvron et al., 2023) using our benchmark. The fine-grained results uncover shortcomings of these systems that have not been previously explored. For example, we show that model performance diminishes substantially when column order changes, or when cells containing the answer are positioned at the bottom of the table. This finding indicates a strong positional bias in TQA systems, motivating more informative table encodings.",
+        "bbox": [
+            112,
+            556,
+            490,
+            766
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Our main contributions are: (1) We propose a novel benchmark of 8,590 selected and partially manually annotated questions and tables, resulting in a total of 75,205 instances using seven perturbation methods; (2) using several inter-annotator agreement studies, we demonstrate the solidness of our benchmark; and (3) using our benchmark, we experiment extensively with state-of-the-art TQA systems, discovering that for almost all robustness tests, system performances drop, demonstrating the difficulty of our benchmark for TQA systems.",
+        "bbox": [
+            112,
+            768,
+            490,
+            881
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            151
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work",
+        "text_level": 2,
+        "bbox": [
+            509,
+            174,
+            667,
+            191
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We provide an overview of previous research on TQA systems and their evaluation for robustness.",
+        "bbox": [
+            507,
+            211,
+            884,
+            244
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "TQA systems. End-to-end TQA systems (Liu et al., 2021; Jiang et al., 2022b) compose an answer given a question and a serialized version of the table without intermediate steps or using additional tools. Pipeline systems convert questions into a command language, e.g., SQL (Cheng et al., 2022; Ni et al., 2023), filtered tables (Glass et al., 2021; Lei et al., 2022; Ye et al., 2023; Herzig et al., 2020), and then generate answers either via executing the commands (Ni et al., 2023; Zhang et al., 2023) or via using a trained neural network (Lei et al., 2023). Our benchmark reveals the key strengths and weaknesses of these types of systems.",
+        "bbox": [
+            507,
+            266,
+            887,
+            478
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Robustness evaluation. Several studies have shown that recently proposed TQA systems suffer from robustness issues (Yang et al., 2022; Zhao et al., 2023; Lin et al., 2023). Zhao et al. (2023) provide a robustness evaluation dataset for TQA, which includes header perturbations, content perturbations, and question perturbations. Their work is closely related to ours. However, they do not further disentangle the various aspects of robustness, thus not providing detailed insights into why systems are not robust. As we show in our experiments, the fine-grained aspects formulated in FREB-TQA contribute to a deeper understanding of TQA systems.",
+        "bbox": [
+            507,
+            499,
+            887,
+            726
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "To the best of our knowledge, no previous work on TQA provides analyses of models for our proposed aspects. However, there are several studies looking into those aspects for other tasks. In the context of tabular natural language inference, Gupta et al. (2022a,b) study to what extent models pay attention to relevant cells. The robustness of large language models in case of numerical value changes has primarily been studied in the context of solving math world problems (Stolfo et al., 2022) and tabular natural language inference (Akhtar et al., 2023).",
+        "bbox": [
+            507,
+            730,
+            887,
+            922
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup>We acknowledge that there are additional aspects that future work should address.",
+        "bbox": [
+            112,
+            895,
+            489,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "2480",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "images/0a8736521a83f7fb10ced182afff39b5758634f88aa33faa16fdcf818f6f88bf.jpg",
+        "table_caption": [
+            "Table 1: The first two columns show the total number of questions selected from the dev part of each source dataset for extraction questions (EQs) and reasoning questions (RQs). The last column shows the original number of questions in each source dev set."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Source Dataset</td><td># EQs</td><td>#RQs</td><td># ORI</td></tr><tr><td>WTQ (Pasupat and Liang, 2015)</td><td>205</td><td>1562</td><td>2831</td></tr><tr><td>WikiSQL (Zhong et al., 2017)</td><td>6013</td><td>0</td><td>8418</td></tr><tr><td>SQA (Iyyer et al., 2017)</td><td>157</td><td>0</td><td>2265</td></tr><tr><td>TAT (Zhu et al., 2021)</td><td>114</td><td>539</td><td>1668</td></tr></table>",
+        "bbox": [
+            114,
+            83,
+            495,
+            155
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3 Our Benchmark: FREB-TQA",
+        "text_level": 2,
+        "bbox": [
+            112,
+            265,
+            416,
+            280
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "FREB-TQA is a Fine-grained Robustness Evaluation Benchmark for Table Question Answering. From four TQA datasets (Table 1), we first classify questions with regard to whether questions merely require cell value retrieval or further reasoning. We then generate perturbations for evaluating each aspect of robustness by making use of seven perturbation methods and collecting human annotations.",
+        "bbox": [
+            110,
+            291,
+            489,
+            437
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 Source Datasets",
+        "text_level": 2,
+        "bbox": [
+            112,
+            448,
+            287,
+            463
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "For building FREB-TQA, we leverage the development sets of four well-studied TQA datasets: WikiTableQuestions (WTQ, Pasupat and Liang, 2015), WikiSQL (Zhong et al., 2017), Sequential Question Answering (SQA, Iyyer et al., 2017), and Tabular And Textual dataset for Question Answering (TAT, Zhu et al., 2021). The first three datasets feature tables from Wikipedia, TAT addresses the financial domain. See Appendix A.1 for detailed statistics. For all source datasets, we eliminate questions that relate to the table structure, such as “What is the name of the actor in the first row?” To identify such questions, we use a word list provided in Appendix A.3. Around 10% of the questions in WTQ and 3% of TAT questions are filtered out by this criterion.",
+        "bbox": [
+            110,
+            470,
+            490,
+            728
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.2 Extraction and Reasoning Questions",
+        "text_level": 2,
+        "bbox": [
+            112,
+            739,
+            448,
+            756
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "To decouple the robustness aspects in TQA, we group questions from the source datasets into extraction questions (EQs) and reasoning questions (RQs) by applying heuristics and classification models. The answer to an EQ can be retrieved from a single cell of the table. The answer to an RQ additionally requires aggregating over several cell values. In Figure 1, the question “How many floors does the Fosh Tower have?” is an EQ since it only requires retrieving a cell value. The question “Who received the least amount of votes?” is an RQ as it requires comparing values of several cells.",
+        "bbox": [
+            110,
+            760,
+            490,
+            923
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "images/0c3b72980c5efeea242a84e5ca2385ad718c4d3b7ad6cc549fd95b7a67c6884f.jpg",
+        "table_caption": [
+            "Table 2: The precision of examined models for question type classification on 200 questions from WTQ."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>EQ</td><td>RQ</td></tr><tr><td>LLaMA2</td><td>74.27</td><td>57.02</td></tr><tr><td>Rule-based</td><td>75.23</td><td>83.42</td></tr><tr><td>Combined</td><td>93.81</td><td>60.17</td></tr></table>",
+        "bbox": [
+            606,
+            82,
+            788,
+            145
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            210,
+            885,
+            243
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Question type classification for WTQ. WTQ provides a diverse set of questions. We group them into EQs and RQs using two different methods. Each method is tuned to identify either EQs or RQs with high precision, as our final benchmark will only contain the set of questions identified as EQ or RQ by the respective method.<sup>3</sup>",
+        "bbox": [
+            507,
+            250,
+            885,
+            363
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Given a table, a question, and an answer, the lexical rule-based method conducts a string match between the answer and the table’s cell values. If there is no match, the corresponding question is labeled as RQ. Otherwise, we detect if the question contains any comparative or superlative words using POS tags.<sup>4</sup> Since these words are signals for aggregation over table cells, we mark the question as RQ. Otherwise, the question’s type is set to EQ. We also prompt LLaMA2-13b (Touvron et al., 2023) to label the question type (The prompt is provided in Appendix A.4). Finally, we combine the lexical rule-based and LLaMA2 models. If the lexical rule-based model labels a question as EQ, we obtain the LLaMA’s prediction in addition. If they agree, the question type is set to EQ. Otherwise, it is set to RQ. To estimate the quality of these methods, we manually annotate questions sampled randomly from WTQ (100 EQs and 100 RQs). Details are given in Appendix A.2.",
+        "bbox": [
+            507,
+            363,
+            887,
+            686
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Table 2 shows the results achieved by these models. As we aim for a high-precision question-type classification, we apply the combined model for identifying EQs and the lexical rule-based method for identifying RQs on all questions in WTQ.",
+        "bbox": [
+            507,
+            686,
+            887,
+            766
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Question type classification for WikiSQL. Questions in WikiSQL do not require complex reasoning (Zhao et al., 2023; Lin et al., 2023). In WikiSQL, questions are labeled with regard to the operations required to answer them. We select the questions that can be answered without performing aggregation operations and label them as EQs.",
+        "bbox": [
+            507,
+            766,
+            887,
+            864
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>3</sup>Around 20% of questions are selected by neither of the models and thus eliminated from our benchmark. We also found that the final set of EQ and RQ cases do not overlap.",
+        "bbox": [
+            509,
+            870,
+            885,
+            908
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>4</sup>https://www.nltk.org",
+        "bbox": [
+            531,
+            908,
+            668,
+            922
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "2481",
+        "bbox": [
+            478,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            114,
+            85,
+            460,
+            101
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Question type classification for SQA. The SQA dataset consists of dialogues in the form of questions and answers related to the information in a table. The answers to all questions except for the first question in a dialog rely on the dialog history. Thus, we select only the first question from each sequence, which usually asks for retrieving information from the table (Iyyer et al., 2017). Hence, we mark them as EQs.",
+        "bbox": [
+            112,
+            101,
+            490,
+            246
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Question type classification for TAT. TAT consists of questions about tables and text snippets and requires numerical reasoning. The dataset also features annotations about how an answer is derived, whether the answer is based on the table or the text, and which operations are required to answer a question. We leverage these annotations to identify EQs and RQs. More specifically, we first select questions that can be answered only based on tables. Next, if a question needs derivation or comparison, we classify them as RQ. Otherwise, we classify them as EQ.",
+        "bbox": [
+            112,
+            246,
+            490,
+            439
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.3 Perturbations for Testing Retrieval Robustness against Table Structure Changes",
+        "text_level": 2,
+        "bbox": [
+            112,
+            449,
+            438,
+            498
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "A robust TQA system should answer an EQ by retrieving the answer from a table, regardless of table structure changes. We perturb the structure of tables associated with extraction questions. We replicate one perturbation type from previous work and introduce two new perturbation types for measuring this robustness aspect.",
+        "bbox": [
+            112,
+            502,
+            489,
+            617
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Shuffle all rows (columns). Following Zhao et al. (2023), we randomly shuffle all rows (columns) in a table. This perturbation allows us to study if TQA systems are robust against changes in re-arranging all rows (columns). However, it does not reveal which biases may impact the robustness of TQA systems. Thus, we introduce the following two new perturbation methods for this aspect.",
+        "bbox": [
+            110,
+            624,
+            489,
+            755
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Shift target rows (columns). For each EQ, the target row (column) in a table contains the cell that corresponds to the answer. This perturbation type shifts target rows (columns) either to the top, to the middle, or to the bottom part of a table. We identify the target cell by applying exact match between the answer and table cell value. For shifting target rows, we partition a table into three equal-length parts, referred to as top, middle, and bottom. For shifting target columns, we partition a table into two equal-length parts: front and back. We use more partitions for rows because on average tables include more rows than columns (Table 3). For our benchmark, we remove the target rows (columns) from the table and re-insert them at a random position in each partition. This perturbation method allows us to study whether TQA systems exhibit any positional biases.",
+        "bbox": [
+            112,
+            760,
+            490,
+            923
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            215
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Transpose. This perturbation type transposes the table, i.e., it rotates the table by 90 degrees and turns rows into columns and columns into rows. This perturbation allows us to study if TQA systems have a bias towards particular table layouts.",
+        "bbox": [
+            507,
+            225,
+            887,
+            306
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.4 Perturbations for Testing Attention to Relevant Cells",
+        "text_level": 2,
+        "bbox": [
+            509,
+            318,
+            855,
+            350
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "TQA systems may answer a question by exploiting shortcuts (model-internal knowledge or positional biases) without paying attention to relevant cells (cells that are important to compose an answer). We propose three new perturbation methods for reasoning questions (RQs) to study this aspect of TQA robustness.",
+        "bbox": [
+            507,
+            356,
+            885,
+            470
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Remove relevant cells. We perturb a table by removing relevant cells from tables. The relevant cell annotations associated with RQs in our benchmark have been created by Zhu et al. (2021) and Ye et al. (2023) for TAT and WTQ, respectively. We test the validity of the latter since the annotations are gathered from LLMs (see Appendix A.2). This perturbation lets us investigate to what extent TQA systems bypass relevant cells to derive their answers. We observe that 70% of relevant cells contain non-numerical values for WTQ. For TAT, all relevant cells contain numerical values.",
+        "bbox": [
+            507,
+            481,
+            887,
+            675
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Remove table. TQA systems may bypass the whole table and use their internal knowledge to answer a question. To test for this behavior, for any RQs, we replace the table with a dummy table, consisting of one cell with a “None” value.",
+        "bbox": [
+            507,
+            686,
+            887,
+            768
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Shift relevant rows. This perturbation evaluates to what extent TQA systems bypass table cell values and rely on the position of relevant cells. For instance, to answer the question “Who received the least amount of votes?” in Figure 1, a TQA system may exploit a shortcut between the last row and the question since in most cases, rows in tables from TQA datasets are sorted. Because of the correlation between cell values and positions, this type of shortcut mostly occurs for RQs that require comparing cell values. In this perturbation type, for each RQ, we remove relevant rows and re-insert them at a random position of the table.",
+        "bbox": [
+            505,
+            777,
+            887,
+            923
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "2482",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/b0faa049ace177f4e0e2649a22d66a9abe23c5d33b0a5ecaee95b3f55b625545.jpg",
+        "image_caption": [
+            "Q: how many album entries are there?",
+            "Figure 2: An example of aggregation/comparison robustness in case of string change. ① illustrates shortening an original table to table cells on which numerical aggregations or comparisons operate. ② illustrates modifications on a shortened table, leading either to a change in answer or not. The orange parts mark changed strings."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            142,
+            84,
+            465,
+            237
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            374,
+            490,
+            439
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.5 Perturbations for Testing Robustness when Aggregating/Comparing Values",
+        "text_level": 2,
+        "bbox": [
+            114,
+            449,
+            455,
+            482
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "TQA systems should compose a correct answer to an RQ by aggregating over or comparing values in the provided table independent of value changes. To evaluate this capability, for RQs, we manually modify cell values that should be aggregated to answer questions. We ask three human annotators to first identify the table cells that numerical aggregations or comparisons operate on (step ① in Figure 2). We refer to the part of the table relevant to answering the question as the shortened table. We use the shortened table versions in our experiments to minimize the effect of table length in this test. Then, annotators are asked to change one or two cell values per question, once resulting in an answer change and once not resulting in an answer change (step ② in Figure 2). We define two types of perturbations.",
+        "bbox": [
+            112,
+            487,
+            490,
+            760
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Modify values to change answers. This perturbation allows us to study to what extent TQA systems perform correct aggregations and adapt answers to the value changes accordingly. An example of numeric value changes is shown in Figure 1. The votes for Olsson is changed from 4 to 361, resulting in a change of the answer (from Olsson to Leslie). Figure 2 shows an example of string value changes. The first entry Go West Young Man is removed, changing the answer from 2 to 1.",
+        "bbox": [
+            110,
+            762,
+            490,
+            923
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "table",
+        "img_path": "images/9c86207f465ef7876df34313450ecc4eefd27a9a57d919c1d4e0c40257c16547.jpg",
+        "table_caption": [
+            "Table 3: Benchmark statistics grouped by robustness aspects: retrieval robustness in case of table structure changes (RR-TSC), attention to relevant cells (Rel-Cel), and aggregation/comparison robustness in case of value changes (ACR-VC). #P and #Q show the number of perturbations and questions, respectively. # QT, #R, #C, and #A show the average question length in tokens, the number of table rows, the number of table columns and the number of cells for composing an answer."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Aspect</td><td>#P</td><td>#Q</td><td>#QT</td><td>#R</td><td>#C</td><td>#A</td></tr><tr><td>RR-TSC</td><td>64890</td><td>6489</td><td>10.05</td><td>12.14</td><td>7.18</td><td>1.02</td></tr><tr><td>Rel-Cel</td><td>6303</td><td>2101</td><td>14.75</td><td>21.44</td><td>5.77</td><td>1.05</td></tr><tr><td>ACR-VC</td><td>4012</td><td>2006</td><td>14.62</td><td>21.70</td><td>5.61</td><td>1.05</td></tr><tr><td>Total</td><td>75205</td><td>8590</td><td>10.28</td><td>14.42</td><td>6.85</td><td>1.03</td></tr></table>",
+        "bbox": [
+            510,
+            83,
+            882,
+            161
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Modify values without changing answers. This perturbation aims to study if systems articulate correct answers because of their biases to certain values. For instance, in Figure 1, systems might be capable of comparing 15 and 4. However, if we change the votes for Leslie from 15 to 1500, without changing the answer, systems might face difficulties as 1500 might not fall into the cell values distribution during pre-training. Figure 2 shows an example of string value changes: West is changed to East without changing the answer (2).",
+        "bbox": [
+            507,
+            330,
+            887,
+            507
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We filter out instances that annotators find unanswerable. In the case of TAT, all modified values are numeric. In the case of WTQ, 50% of the modified cell values are numeric, the others are string-based.",
+        "bbox": [
+            507,
+            508,
+            885,
+            589
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "To assess the quality of the output of these perturbations, for each perturbation type, we randomly sample 50 instances created using this type from each dataset, resulting in 200 instances in total. Then, we ask two annotators who were not involved in the perturbation creation to provide the answers given the changed tables and questions. We compute the exact match accuracy of answers provided by the two annotators, which amount to 92.5% and 93.5%. We find that most wrong cases are related to questions asking for percentage changes: here, annotators sometimes neglected to add the minus symbol to negative percentage changes.",
+        "bbox": [
+            507,
+            590,
+            887,
+            801
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4 Experimental Settings",
+        "text_level": 2,
+        "bbox": [
+            509,
+            813,
+            737,
+            831
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We use our benchmark to evaluate the robustness of state-of-the-art TQA systems with regard to our proposed aspects. Table 3 shows the main statistics of our benchmark grouped by the robustness aspects for which TQA systems are evaluated.",
+        "bbox": [
+            507,
+            841,
+            885,
+            922
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "2483",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.1 Examined TQA Systems",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            354,
+            99
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We analyze the robustness of three types of systems: end-to-end systems that are fine-tuned for the TQA task; pipeline systems that generate relevant cells or SQL queries which are then executed on a table, and off-the-shelf LLMs. In particular, we compare the following TQA systems. TAPEX (Liu et al., 2021) is an end-to-end TQA system based on BART (Lewis et al., 2019). OmniTab (Jiang et al., 2022b) further fine-tunes TAPEX on both more natural and synthetic data. TaPas (Herzig et al., 2020) first predicts relevant cells and an aggregation function, backboned by BERT (Devlin et al., 2019). Then, it articulates answers based on outputs from the previous step with a numeric tool. We categorize it as a pipeline model as answers are not directly generated. Binder (Cheng et al., 2022) is a pipeline model consisting of a parsing and an executing step. First, intermediate representations (e.g., SQL queries) are generated by GPT-3.5, and then the queries are executed by a program interpreter. GPT-3.5 is an LLM and the backbone of various TQA models (Ye et al., 2023; Zhang et al., 2023). In the prompt to GPT-3.5, we use a three-shot demonstration to obtain answers (see Appendix A.7). LLaMA (Touvron et al., 2023) is an open-source LLM. We fine-tune its 7b chat version with LoRA (Hu et al., 2021). We describe details of fine-tuning in Appendix A.5.",
+        "bbox": [
+            110,
+            105,
+            490,
+            557
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.2 Evaluation Metrics",
+        "text_level": 2,
+        "bbox": [
+            114,
+            567,
+            314,
+            582
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "To compare results on our benchmark, we use the following metrics.",
+        "bbox": [
+            112,
+            588,
+            487,
+            619
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Exact match accuracy (Em) checks if the predicted answers and the ground truth are the same. It is a widely used metric for evaluating TQA systems (Pasupat and Liang, 2015; Yang et al., 2022; Jiang et al., 2022b).",
+        "bbox": [
+            112,
+            620,
+            490,
+            700
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Exact match difference (Emd, Zhao et al., 2023) measures system performance change before and after perturbations (negative values indicate performances drop). Both Em and Emd focus on overall system performance.",
+        "bbox": [
+            112,
+            701,
+            489,
+            781
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Variation percentage (VP, Yang et al., 2022) measures to what extent predictions change before and after performing perturbations from an instancelevel perspective. It is defined as follows:",
+        "bbox": [
+            112,
+            781,
+            490,
+            846
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "img_path": "images/3ef4e0ffd802138c78082c320c96c6fb802a6b36e0763076584ae3993517ddf3.jpg",
+        "text": "$$\n\\mathrm { V P } = { \\frac { \\mathrm { C } 2 \\mathrm { W } + \\mathrm { W } 2 \\mathrm { C } } { \\mathrm { N } } }\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            221,
+            856,
+            379,
+            887
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "where C2W counts the number of instances whose predictions change from correct to wrong and",
+        "bbox": [
+            112,
+            890,
+            489,
+            923
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "W2C is the number of instances whose predictions change from wrong to correct. N is the total number of instances. For perturbations involving randomness, we report the mean and standard deviation of scores over five runs with different random seeds.",
+        "bbox": [
+            507,
+            84,
+            885,
+            166
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5 Experimental Results",
+        "text_level": 2,
+        "bbox": [
+            509,
+            179,
+            732,
+            196
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In this section, we discuss the performance of TQA systems on our benchmark, and provide a detailed analysis of these models for each robustness aspect.",
+        "bbox": [
+            507,
+            208,
+            885,
+            256
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.1 Retrieval robustness in case of table structure changes",
+        "text_level": 2,
+        "bbox": [
+            509,
+            269,
+            836,
+            302
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "To study this aspect of robustness, we use the first part of our benchmark (see Section 3.3) which consists of shuffling rows (columns), shifting target rows (columns), and transposing tables for EQs. To rule out the effect of different maximum input lengths of the models in this test, we use only instances that are within the maximum input length (512) of TaPas, the model accepting the smallest input. This means we make use of 91% of the EQs.",
+        "bbox": [
+            507,
+            309,
+            887,
+            453
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Figure 3 and Figure 4 show Emd and VP scores for row and column shuffling, respectively, averaged across all source datasets. We report the detailed results for each dataset in Appendix A.6. In addition, the first column of Table 4 provides the model performance in terms of Em on the original data (without perturbations).",
+        "bbox": [
+            507,
+            454,
+            887,
+            567
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Figure 3 shows that the performance of almost all systems drops when evaluating them on row (column) shuffling, which is consistent with prior results (Zhao et al., 2023). However, our finegrained benchmark enables us to draw more conclusions beyond this general observation. First, systems are more vulnerable to column shuffling than to row shuffling. This is apparent for LLMs (GPT-3.5 and LLaMA2). When comparing model types, LLMs are most affected by row and column shuffling, followed by pipeline systems. The endto-end TQA systems (TAPEX and OmniTab) are more robust in this regard. Second, regarding row perturbations, systems are highly impacted by the position of the target row. The more it is moved down the table (TM and TB), the more the performance drops. Notably, moving the target row to the top (TT) even leads to performance improvements for some of the systems, confirming that the systems have encoded some positional biases. It further reveals that systems are likely to fail on tables with many rows, where the target row can be located anywhere. Similar observations are found by Lin et al. (2023). However, we show that even within the maximum input window of a model, the positional bias exists during cell retrieval.",
+        "bbox": [
+            507,
+            568,
+            887,
+            923
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "2484",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "chart",
+        "img_path": "images/1d754e09c0c43afd6e757b1f2c8572de21245d50891a2fffb45ec8707bd726c2.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 3: Exact match difference (Emd) on retrieval robustness against table structure changes perturbations for extraction questions, averaged across four datasets and seeds. R, C and stand for row and column. SA, TT,TM, TB and TF stand for shuffle all, target top, target middle, target bottom/back, target front, respectively."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            159,
+            87,
+            867,
+            206
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "chart",
+        "img_path": "images/867bd6c34921d6649743a163ef28fcd8f3cd650286a91691ef09ecc40848c1aa.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 4: Variation percentage (VP) on retrieval robustness against table structure changes perturbations for extraction questions, averaged across four datasets and seeds. R, C and stand for row and column. SA, TT,TM, TB and TF stand for shuffle all, target top, target middle, target bottom/back, target front, respectively."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            161,
+            279,
+            868,
+            400
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/3d6fc52c1f0d67791f62e1be5a60df83e746f2d0b3324e73a59b7223fb8a852c.jpg",
+        "table_caption": [
+            "Table 4: Exact match difference (Emd) and variation percentage (VP) for table transposing. Emd-Ft stands for Emd after fine-tuned with transposed tables. Bold values suggest best performances."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>Original Data</td><td>Emd</td><td>VP</td><td>Emd-Ft</td></tr><tr><td>TAPEX</td><td>79.83</td><td>-55.36</td><td>59.64</td><td>-43.11</td></tr><tr><td>OmniTab</td><td>82.24</td><td>-57.84</td><td>60.21</td><td>-41.71</td></tr><tr><td>TaPas</td><td>71.82</td><td>-60.98</td><td>65.59</td><td>-46.83</td></tr><tr><td>Binder</td><td>67.55</td><td>-51.86</td><td>62.70</td><td></td></tr><tr><td>GPT-3.5</td><td>71.77</td><td>-17.32</td><td>26.15</td><td></td></tr><tr><td>LLaMA2</td><td>61.10</td><td>-30.58</td><td>38.42</td><td>一</td></tr></table>",
+        "bbox": [
+            117,
+            478,
+            487,
+            574
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            676,
+            489,
+            741
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Third, Table 4 shows that systems fail on transposed tables as well (see columns Emd and VP). Only GPT-3.5 suffers less. We assume that this model has seen a larger variety of tables during its pre-training. Since our analysis of table transposing is new and especially the fine-tuned end-to-end TQA systems perform considerably worse on that perturbed data, we look into this aspect in more detail and investigate their ability to adapt to new table structures (here: transposed tables). For this, we further fine-tune them on transposed table data.",
+        "bbox": [
+            112,
+            745,
+            490,
+            922
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "The last column of Table 4 shows the results. By fine-tuning on transposed data, the performance of these models improves. However, the gap to GPT-3.5 is still large, showing TQA systems might need architectural changes or pre-training datasets that feature more diverse table structures.",
+        "bbox": [
+            507,
+            479,
+            885,
+            576
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.2 Attention to relevant cells",
+        "text_level": 2,
+        "bbox": [
+            509,
+            590,
+            759,
+            607
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "To investigate if systems use relevant cell values to compose answers or rather use shortcuts, such as implicit knowledge or biases, we use the second part of our benchmark (see Section 3.4). To the best of our knowledge, this aspect has never been tested in prior work on TQA robustness. We split our analysis into two parts. First, we investigate system behavior when removing relevant information (relevant cells or the whole table). Second, we examine to what extent systems exploit linkages between questions and relevant cell positions rather than paying attention to cell content.",
+        "bbox": [
+            507,
+            614,
+            885,
+            808
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Table 5 shows the Em results for the first part, analysing the behavior of systems when removing relevant information. The column ORI shows the original performance of systems, the column RRel shows the performance when removing relevant cells and the column RT shows results when removing the whole table and replacing it with a dummy table. The results indicate that TaPas pays most attention to the cell values, i.e., its Em score is the lowest among the systems when removing the relevant information, which is the desired behavior.",
+        "bbox": [
+            507,
+            809,
+            887,
+            923
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "2485",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/bbf0065570e9a5a829809f5beb67eec4837f4cfb600de306e36045deb0fb80f4.jpg",
+        "table_caption": [
+            "Table 5: The exact match (Em) of examined TQA systems regarding attention to relevant cells. ORI shows results on original tables. RT and RRel show the results when the removing table perturbation and removing relevant cells are used, respectively. We do not report results for TaPas and LLaMA2 on perturbations for the TAT subset as their ORI accuracy scores are too low (<4%) to draw conclusions from them."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"3\">WTQ</td><td colspan=\"3\">TAT</td></tr><tr><td>ORI</td><td>RT</td><td>RRel</td><td>ORI</td><td>RT</td><td>RRel</td></tr><tr><td>TAPEX*</td><td>52.26</td><td>8.84</td><td>9.57</td><td>9.65</td><td>3.53</td><td>5.38</td></tr><tr><td>OmniTab*</td><td>58.12</td><td>7.76</td><td>12.55</td><td>10.02</td><td>3.90</td><td>6.12</td></tr><tr><td>TaPas**</td><td>47.02</td><td>2.80</td><td>8.21</td><td></td><td></td><td></td></tr><tr><td>Binder**</td><td>45.67</td><td>6.86</td><td>11.62</td><td>37.65</td><td>0</td><td>1.01</td></tr><tr><td>GPT-3.5</td><td>42.06</td><td>6.95</td><td>16.52</td><td>36.17</td><td>0</td><td>1.73</td></tr><tr><td>LLaMA2</td><td>35.92</td><td>7.44</td><td>11.91</td><td></td><td>-</td><td>-</td></tr></table>",
+        "bbox": [
+            114,
+            82,
+            490,
+            197
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            378,
+            489,
+            443
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In general, the pipeline models are more robust against changes in the position of the relevant cells than end-to-end models. This intuitively makes sense as they consist of an executing component that performs a function or query directly on the structured table. For a deeper investigation, we analyze instances which the end-to-end systems TAPEX and OmniTab still predict correctly after removing relevant information in tables for TAT. All of them feature the same answer “2019”, indicating that answer values are not well distributed in the TQA benchmarks and systems learn this bias during fine-tuning.",
+        "bbox": [
+            112,
+            456,
+            490,
+            669
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "For investigating the second question, i.e., to what extent systems exploit positional biases when answering questions, we analyze the variation percentage (VP) with and without shuffling relevant rows or columns. To account for the effect that shuffling data leads to challenges on its own (the first robustness aspect we analyzed before), we compare VP for comparison questions (involving cues, such as “least”) with VP for non-comparison questions. Table 6 shows the results. For all systems, the gaps are larger than zero, indicating that they all use question-related shortcuts. Among them, TaPas features the largest gap, suggesting that among the tested systems, it exploits the most question-related shortcuts.",
+        "bbox": [
+            110,
+            680,
+            490,
+            922
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/1d4e40a1b951bde5b13170cb1177d4753d283c1352c5d33e843882e181cca04a.jpg",
+        "table_caption": [
+            "Table 6: VP of instances (not) requiring value comparisons on WTQ. Compare refers to instances requiring comparison of cells to be solved (e.g., questions contain “highest”, “lowest”) and Non\\_compare refers to instances do not require comparisons. Gap refers to the gap between the two settings."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td>Compare</td><td>Non_compare</td><td>Gap</td></tr><tr><td>TAPEX</td><td>10.24</td><td>9.70</td><td>0.54</td></tr><tr><td>OmniTab</td><td>7.37</td><td>6.02</td><td>1.35</td></tr><tr><td>TaPas</td><td>10.98</td><td>4.04</td><td>6.94</td></tr><tr><td>Binder</td><td>9.47</td><td>9.07</td><td>0.40</td></tr><tr><td>GPT-3.5</td><td>16.62</td><td>16.40</td><td>0.22</td></tr><tr><td>LLaMA2</td><td>17.11</td><td>12.89</td><td>4.22</td></tr></table>",
+        "bbox": [
+            539,
+            83,
+            855,
+            179
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "5.3 Aggregation/comparison robustness in case of value changes",
+        "text_level": 2,
+        "bbox": [
+            509,
+            302,
+            858,
+            334
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We investigate the numerical reasoning abilities of TQA systems, i.e., their robustness against value changes. As many tables contain numeric data and questions might require the aggregation of several numeric values, this aspect is of utmost importance for real-world applications. While numerical reasoning abilities of models have been analyzed for other domains or tasks (Stolfo et al., 2022; Akhtar et al., 2023), a targeted analysis for TQA is missing in prior work. We analyze this aspect using the third part of our benchmark (Section 3.5). Table 7 shows the Em results for tables with original values (ORI) and shortened tables (ST) that contain only the part of the cell necessary for composing the answer. Additionally, the VP between the results before modifying the cell values and those after changing values is provided, once for the case where answers change (AC) and once where they do not (NC). For shortened tables, performance increases compared to original tables for all systems, again indicating that systems might perform a decent job on tables with a few rows but strongly fail on tables with many rows. When changing values, the pipeline systems TaPas and Binder are among the most robust for both AC and NC settings. We account this to the fact that they execute a predicted function or query on the table and, thus, directly involve the cell values when deriving the final answer. End-to-end systems (TAPEX and OmniTab) show small VP on TAT. However, they do not outperform LLMs, e.g., GPT-3.5.",
+        "bbox": [
+            507,
+            337,
+            887,
+            838
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6 Discussion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            848,
+            638,
+            865
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In our experiments, we use our new FREB-TQA benchmark to analyze end-to-end, pipeline, and LLM-based TQA systems. Our experimental results show that all examined systems suffer from substantial issues when it comes to robustness. However, different system types show different patterns. End-to-end TQA systems, for instance, seem to be more robust against changes in the row/column arrangement. However, they are more likely to fail on numerical reasoning questions. This might be because the datasets these models are pre-trained on do not feature complex questions requiring numerical reasoning.",
+        "bbox": [
+            507,
+            875,
+            885,
+            922
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "2486",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/07b6b94cefb9d553223e69cf51a4936c8175870f50c45bd03a70e00b31b8dbeb.jpg",
+        "table_caption": [
+            "Table 7: System evaluation on aggregation/comparison robustness in case of value changes. ORI stands for origina performance without perturbations. ST stands for passing short tables on which numerical aggregations operate. We report Em for the ORI and ST settings. AC-VP and NC-VP stand for variation percentage for the answers change and not change settings. We do not report results for TaPas and LLaMA2 on the TAT subset, as the performances are too low (<4%) to derive reasonable analysis from. Bold values suggest best performances."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Model</td><td colspan=\"4\">WTQ</td><td colspan=\"4\">TAT</td></tr><tr><td>ORI</td><td>ST</td><td>AC-VP</td><td>NC-VP</td><td>ORI</td><td>ST</td><td>AC-VP</td><td>NC-VP</td></tr><tr><td>TAPEX</td><td>47.55</td><td>48.03</td><td>30.00</td><td>5.65</td><td>9.68</td><td>10.17</td><td>8.38</td><td>2.23</td></tr><tr><td>OmniTab</td><td>52.79</td><td>54.69</td><td>26.46</td><td>4.76</td><td>10.06</td><td>12.96</td><td>6.33</td><td>2.05</td></tr><tr><td>TaPas</td><td>41.09</td><td>48.57</td><td>16.39</td><td>3.81</td><td></td><td></td><td></td><td></td></tr><tr><td>Binder</td><td>42.99</td><td>50.88</td><td>14.56</td><td>7.96</td><td>37.78</td><td>41.19</td><td>9.50</td><td>8.19</td></tr><tr><td>GPT-3.5</td><td>38.91</td><td>51.70</td><td>23.20</td><td>8.78</td><td>36.30</td><td>46.37</td><td>26.82</td><td>14.71</td></tr><tr><td>LLAMA2</td><td>32.59</td><td>33.88</td><td>32.45</td><td>6.31</td><td></td><td></td><td>一</td><td></td></tr></table>",
+        "bbox": [
+            215,
+            82,
+            781,
+            198
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            306,
+            490,
+            468
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "LLMs are more affected by row or column perturbations but much more robust against transposing tables. Their performance in performing aggregations or comparisons is highly dependent on the length of the serialized tables, i.e., they perform much better on tables that can be serialized to fewer tokens.",
+        "bbox": [
+            112,
+            468,
+            490,
+            580
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Finally, the pipeline models in our study are more robust against changes in relevant cells, including value changes. This is likely due to their symbolic execution component, which executes a predicted function or query on the given structured table. However, the prediction of the function or query itself still suffers from various perturbations of table data, including changes in table structure. Yet, another benefit of pipeline TQA systems is that the intermediate representation, i.e., the predicted function or query, makes the model explainable to a certain extent. We hence argue that more research in the pipeline-based paradigm is a promising step towards more robust TQA.",
+        "bbox": [
+            110,
+            581,
+            490,
+            808
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "7 Conclusion and Outlook",
+        "text_level": 2,
+        "bbox": [
+            114,
+            816,
+            361,
+            833
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we have proposed to evaluate three aspects of robustness of TQA systems: retrieval robustness in case of table structure changes, attention to relevant cells, and aggregation/comparison robustness in case of value changes. We have presented a novel benchmark for a fine-grained analysis of those aspects. The main building blocks of our benchmark are targeted table perturbation methods and high-quality human annotations. Finally, we have evaluated a range of architecturally varied state-of-the-art TQA systems, as well as offthe-shelf LLMs. Our study has shown that while none of the systems was consistently robust, their weaknesses and strengths differ from each other. Systems trained in an end-to-end fashion are able to deal with changes in row/column arrangement but LLMs perform better when it comes to numeric operations. The answers of pipeline-based models, which use symbolic methods for part of their computations, are more faithful towards the table they are supposed to use when composing their output.",
+        "bbox": [
+            112,
+            843,
+            490,
+            922
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            306,
+            887,
+            567
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Our new benchmark constitutes an important first step for evaluating TQA systems in a finegrained way, thereby directing research efforts towards building more robust TQA systems. As pipeline systems offer at least some explainability, we argue that research should concentrate on these types of systems. In particular, future work could explore the possibility of utilizing LLMs in a pipeline manner to build more robust TQA systems. Further, aggregating or extracting information from long tables is an important next step given the shortcomings of current systems in this regard which our analysis revealed.",
+        "bbox": [
+            507,
+            574,
+            887,
+            784
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgments",
+        "text_level": 2,
+        "bbox": [
+            509,
+            826,
+            673,
+            843
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We thank the anonymous reviewers for their helpful feedback. We also thank Tianxing Liu, Xinyue Shi and Yidan Chen for their annotations.",
+        "bbox": [
+            507,
+            873,
+            885,
+            922
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "2487",
+        "bbox": [
+            478,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Limitations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            83,
+            220,
+            99
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "This work focuses on building a benchmark for analyzing the robustness of TQA systems in three fine-grained aspects. In terms of the reasoning type, we mainly discuss numerical reasoning. However, other types of reasoning, e.g., commonsense reasoning or temporal reasoning can also occur during the aggregation phase of TQA. Future studies can explore these aspects and extend our benchmark. We build our benchmark with English TQA datasets, this could also be extended by incorporating TQA datasets in other languages. Additionally, though we report statistics about percentages of numeric and non-numeric values when removing relevant cells, our benchmark does not distinguish these two value types explicitly. Future work could extend our benchmark on this aspect to explore how non-numeric value changes affect model performance.",
+        "bbox": [
+            112,
+            112,
+            490,
+            401
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Ethical Considerations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            416,
+            317,
+            432
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "The development sets of the source datasets we use: WTQ (Pasupat and Liang, 2015), WikiSQL (Zhong et al., 2017), SQA (Iyyer et al., 2017) and TAT (Zhu et al., 2021) are publicly available under the licenses of CC-BY-SA-4.0<sup>5</sup>, BSD-3 CLAUSE<sup>6</sup>, MIT<sup>7</sup> and MIT, respectively. These licenses all permit us to compose, modify, publish, and distribute additional annotations upon the original dataset. Experiments in this paper are run on a single NVIDIA Tesla V100-32G GPU. Benchmark and code will be released along with the paper. For annotation tasks where humans are involved, we recruit 5 undergraduate students (3 females and 2 males) studying Linguistics in China. All 5 annotators voluntarily participate in the annotation tasks. Three out of four of our annotation tasks requires less than 2 hours to finish. The other one took two weeks and we suggest annotators to spend less than three hours per day to ensure enough rest.",
+        "bbox": [
+            110,
+            444,
+            490,
+            751
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            114,
+            780,
+            215,
+            795
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Mubashara Akhtar, Abhilash Shankarampeta, Vivek Gupta, Arpit Patil, Oana Cocarascu, and Elena Simperl. 2023. Exploring the numerical reasoning capabilities of language models: A comprehensive analysis on tabular data. ArXiv, abs/2311.02216.",
+            "Zhoujun Cheng, Tianbao Xie, Peng Shi, Chengzu Li, R.K. Nadkarni, Yushi Hu, Caiming Xiong, Dragomir R. Radev, Marilyn Ostendorf, Luke Zettlemoyer, Noah A. Smith, and Tao Yu. 2022. Binding language models in symbolic languages. ArXiv, abs/2210.02875.",
+            "Harsh Desai, Pratik Kayal, and Mayank Kumar Singh. 2021. Tablex: A benchmark dataset for structure and content information extraction from scientific tables. In IEEE International Conference on Document Analysis and Recognition.",
+            "Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. Bert: Pre-training of deep bidirectional transformers for language understanding. In North American Chapter ofthe Association for Computational Linguistics.",
+            "Joseph L. Fleiss. 1971. Measuring nominal scale agreement among many raters. Psychological Bulletin, 76:378–382.",
+            "Michael R. Glass, Mustafa Canim, A. Gliozzo, Saneem A. Chemmengath, Rishav Chakravarti, Avirup Sil, Feifei Pan, Samarth Bharadwaj, and Nicolas Rodolfo Fauceglia. 2021. Capturing row and column semantics in transformer based question answering over tables. In North American Chapter of the Associationfor Computational Linguistics.",
+            "Vivek Gupta, Riyaz A. Bhat, Atreya Ghosal, Manish Shrivastava, Maneesh Singh, and Vivek Srikumar. 2022a. Is my model using the right evidence? systematic probes for examining evidence-based tabular reasoning. Transactions ofthe Associationfor Computational Linguistics, 10:659–679.",
+            "Vivek Gupta, Shuo Zhang, Alakananda Vempala, Yujie He, Temma Choji, and Vivek Srikumar. 2022b. Right for the right reason: Evidence extraction for trustworthy tabular reasoning. In Annual Meeting of the Associationfor Computational Linguistics.",
+            "Jonathan Herzig, Pawel Krzysztof Nowak, Thomas Müller, Francesco Piccinno, and Julian Martin Eisenschlos. 2020. Tapas: Weakly supervised table parsing via pre-training. In Annual Meeting of the Associationfor Computational Linguistics.",
+            "Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2021. Lora: Low-rank adaptation of large language models.",
+            "Mohit Iyyer, Wen tau Yih, and Ming-Wei Chang. 2017. Search-based neural structured learning for sequential question answering. In Annual Meeting of the Associationfor Computational Linguistics.",
+            "Zhengbao Jiang, Yi Mao, Pengcheng He, Graham Neubig, and Weizhu Chen. 2022a. OmniTab: Pretraining with natural and synthetic data for few-shot tablebased question answering. In Proceedings of the 2022 Conference of the North American Chapter of"
+        ],
+        "bbox": [
+            115,
+            804,
+            489,
+            870
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>5</sup>https://creativecommons.org/licenses/by-sa/4.0/",
+        "bbox": [
+            134,
+            882,
+            436,
+            896
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>7</sup>https://opensource.org/license/mit/",
+        "bbox": [
+            136,
+            908,
+            359,
+            922
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "2488",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "the Associationfor Computational Linguistics: Human Language Technologies, pages 932–942, Seattle, United States. Association for Computational Linguistics.",
+            "Zhengbao Jiang, Yi Mao, Pengcheng He, Graham Neubig, and Weizhu Chen. 2022b. Omnitab: Pretraining with natural and synthetic data for few-shot tablebased question answering. In North American Chapter ofthe Associationfor Computational Linguistics.",
+            "J Richard Landis and Gary G Koch. 1977. An application of hierarchical kappa-type statistics in the assessment of majority agreement among multiple observers. Biometrics, pages 363–374.",
+            "Fangyu Lei, Xiang Lorraine Li, Yifan Wei, Shizhu He, Yiming Huang, Jun Zhao, and Kang Liu. 2023. S3hqa: A three-stage approach for multi-hop texttable hybrid question answering. In Annual Meeting of the Association for Computational Linguistics.",
+            "Weixian Lei, Difei Gao, Yuxuan Wang, Dongxing Mao, Zihan Liang, Lingmin Ran, and Mike Zheng Shou. 2022. AssistSR: Task-oriented video segment retrieval for personal AI assistant. In Findings of the Associationfor Computational Linguistics: EMNLP 2022, pages 319–338, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics.",
+            "Mike Lewis, Yinhan Liu, Naman Goyal, Marjan Ghazvininejad, Abdel rahman Mohamed, Omer Levy, Veselin Stoyanov, and Luke Zettlemoyer. 2019. Bart: Denoising sequence-to-sequence pre-training for natural language generation, translation, and comprehension. In Annual Meeting of the Association for Computational Linguistics.",
+            "Weizhe Lin, Rexhina Blloshmi, Bill Byrne, Adrià de Gispert, and Gonzalo Iglesias. 2023. An inner table retriever for robust table question answering. In Annual Meeting ofthe Associationfor Computational Linguistics.",
+            "Qian Liu, Bei Chen, Jiaqi Guo, Zeqi Lin, and Jian-Guang Lou. 2021. Tapex: Table pretraining via learning a neural sql executor. ArXiv, abs/2107.07653.",
+            "Ansong Ni, Srini Iyer, Dragomir R. Radev, Ves Stoyanov, Wen tau Yih, Sida I. Wang, and Xi Victoria Lin. 2023. Lever: Learning to verify language-to-code generation with execution. ArXiv, abs/2302.08468.",
+            "Panupong Pasupat and Percy Liang. 2015. Compositional semantic parsing on semi-structured tables. In Annual Meeting ofthe Associationfor Computational Linguistics.",
+            "Alessandro Stolfo, Zhijing Jin, Kumar Shridhar, Bernhard Scholkopf, and Mrinmaya Sachan. 2022. A causal framework to quantify the robustness of mathematical reasoning with language models. In Annual Meeting of the Association for Computational Linguistics.",
+            "Hugo Touvron, Louis Martin, Kevin R. Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Daniel M. Bikel, Lukas Blecher, Cristian Cantón Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller, Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony S. Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel M. Kloumann, A. V. Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, R. Subramanian, Xia Tan, Binh Tang, Ross Taylor, Adina Williams, Jian Xiang Kuan, Puxin Xu, Zhengxu Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melanie Kambadur, Sharan Narang, Aurelien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas Scialom. 2023. Llama 2: Open foundation and fine-tuned chat models. ArXiv, abs/2307.09288.",
+            "Jingfeng Yang, Aditya Gupta, Shyam Upadhyay, Luheng He, Rahul Goel, and Shachi Paul. 2022. Tableformer: Robust transformer modeling for tabletext encoding. In Annual Meeting ofthe Association for Computational Linguistics.",
+            "Yunhu Ye, Binyuan Hui, Min Yang, Binhua Li, Fei Huang, and Yongbin Li. 2023. Large language models are versatile decomposers: Decomposing evidence and questions for table-based reasoning. Proceedings ofthe 46th International ACM SIGIR Conference on Research and Development in Information Retrieval.",
+            "Tao Yu, Rui Zhang, Kai Yang, Michihiro Yasunaga, Dongxu Wang, Zifan Li, James Ma, Irene Li, Qingning Yao, Shanelle Roman, Zilin Zhang, and Dragomir Radev. 2018. Spider: A large-scale human-labeled dataset for complex and cross-domain semantic parsing and text-to-SQL task. In Proceedings ofthe 2018 Conference on Empirical Methods in Natural Language Processing, pages 3911–3921, Brussels, Belgium. Association for Computational Linguistics.",
+            "Yunjia Zhang, Jordan Henkel, Avrilia Floratou, Joyce Cahoon, Shaleen Deep, and Jignesh M. Patel. 2023. Reactable: Enhancing react for table question answering. ArXiv, abs/2310.00815.",
+            "Yilun Zhao, Chen Zhao, Linyong Nan, Zhenting Qi, Wenlin Zhang, Xiangru Tang, Boyu Mi, and Dragomir R. Radev. 2023. Robut: A systematic study of table qa robustness against human-annotated adversarial perturbations. In Annual Meeting of the Association for Computational Linguistics.",
+            "Victor Zhong, Caiming Xiong, and Richard Socher. 2017. Seq2sql: Generating structured queries from natural language using reinforcement learning. ArXiv, abs/1709.00103."
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            140
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "2489",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Fengbin Zhu, Wenqiang Lei, Youcheng Huang, Chao Wang, Shuo Zhang, Jiancheng Lv, Fuli Feng, and Tat seng Chua. 2021. Tat-qa: A question answering benchmark on a hybrid of tabular and textual content in finance. ArXiv, abs/2105.07624."
+        ],
+        "bbox": [
+            115,
+            85,
+            487,
+            151
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "2490",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "A Appendix",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            238,
+            101
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A.1 Source Dataset Overview",
+        "text_level": 2,
+        "bbox": [
+            114,
+            110,
+            363,
+            126
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/cf7b3739bdf9033faa2500350141c90b2388458422cfbb4b2587502afb389e7c.jpg",
+        "table_caption": [
+            "Table 8: Overview of development set of source data."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Name</td><td>Domain</td><td>Feature</td><td>#Questions</td><td>#Table</td></tr><tr><td>WTQ</td><td>Wikipedia</td><td>complex QA</td><td>2831</td><td>346</td></tr><tr><td>WikiSQL</td><td>Wikipedia</td><td>simple QA</td><td>8418</td><td>2628</td></tr><tr><td>SQA</td><td>Wikipedia</td><td>conversational QA</td><td>2265</td><td>148</td></tr><tr><td>TAT</td><td>Finance</td><td>complex QA</td><td>1668</td><td>278</td></tr></table>",
+        "bbox": [
+            117,
+            141,
+            448,
+            215
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A.2 Human Annotations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            271,
+            326,
+            286
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Three annotators, all undergraduate students studying Linguistics in China, were involved in the annotation process.",
+        "bbox": [
+            112,
+            292,
+            490,
+            341
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "To distinguish between extraction and reasoning questions. They are told to classify whether a question is of type extraction or reasoning after giving the definitions and examples of each question type. The instructions are listed as follow:",
+        "bbox": [
+            112,
+            350,
+            490,
+            432
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Thank you for participating in this annotation task! In this task, you will be given a pair of question, answer and table and to determine if a question is extraction-based [1] or reasoning-based [0], or neither of them [-1]. We define extraction-based as: answers of the questions can be retrieved from table without numerical reasoning abilities. For instance, for the question: what is the sale number of 2018, given the rows showing the year and the column showing the sale number, the answer can be obtained by looking at certain cells without needing operations on numerical levels. We define reasoning-based as: answers of the questions should be firstly retrieved from table and then numerical reasoning abilities are needed to obtain the answer. For instance, for the question: how many countries have received 4 goals. Entries of countries receiving 4 goals should be retrieved, then, counting is needed to obtain the answer. Common numerical operations are: counting, comparing (date or number), summing, averaging, subtracting, etc. If you find the question unanswerable given the table information, please put a [-1] in the annotation field.",
+        "bbox": [
+            134,
+            443,
+            490,
+            863
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Agreement on the binary question type classification of the 200 questions amounts to a κ- score (Fleiss, 1971) of 0.85, which shows good agreement among the annotators (Landis and Koch, 1977).",
+        "bbox": [
+            112,
+            875,
+            490,
+            922
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            509,
+            85,
+            885,
+            117
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "To test the validity of relevant cells annotations. We randomly sample 100 annotations for WTQ and ask the same 3 annotators to decide if removing the relevant cells prevents one from answering the questions or not. The instruction is listed as follows:",
+        "bbox": [
+            507,
+            124,
+            887,
+            222
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Thank you to participate in this annotation task! In this task, you will be given a pair of question, answer, table and relevant cells from the table to determine if removing the relevant cells prevent one from answering the question (and deriving the same correct answers) or not. If you find removing the relevant cells prevent one from answering the question, please put [1] in the annotation field. Otherwise, please put [0]. If you find a question unanswerable or strange, please put [-1] in the annotation field.",
+        "bbox": [
+            529,
+            231,
+            885,
+            424
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "The Fleiss’ κ-score is 0.53, which shows moderate agreement.",
+        "bbox": [
+            507,
+            432,
+            884,
+            466
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A.3 Eliminating Questions Related to Table Structures",
+        "text_level": 2,
+        "bbox": [
+            509,
+            475,
+            868,
+            507
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "We collect common positional prepositions (suggesting positions) and ordinal numbers (suggesting order) in English. The list we use is as follows: [’first’, ’second’,’third’, ’last’, ’top’, ’bottom’, ’before’, ’previous’, ’latter’, ’after’, ’next’, ’below’, ’above’]. We eliminate questions containing words in the list.",
+        "bbox": [
+            507,
+            513,
+            887,
+            625
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A.4 LLMs prompt",
+        "text_level": 2,
+        "bbox": [
+            509,
+            636,
+            675,
+            652
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "You are a helpful, respectful and honest assistant and always follow the instructions.You are given a table and a question asking information from the table. To answer the question, first retrieve relevant cells from the table. If you need to count, compare, sum, average, or apply other operations to derive the answers from the retrieved cells, return the operations in a list: [operation:]. If answers are in the retrieved cells, return [retrieved]. For instance, for the question 'How many countries won 4 medals', you retrieve the countries won 4 medals and count the number of retrieved countries. So you return [operation: count]. For the question 'What is the total number of sales from 2015-2018?', you need to first retrieve the sales of the year 2015, 2016 and 2018, then sum the retrieved values. So you return [operation:sum].   \nQuestion:\\`\\`\\`question\\`\\`\\`   \nTable:\\`\\`\\`table\\`\\`\\`",
+        "bbox": [
+            547,
+            670,
+            843,
+            863
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Figure 5: LLaMA2 Prompt for classifying extraction and reasoning questions.",
+        "bbox": [
+            509,
+            875,
+            884,
+            904
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "2491",
+        "bbox": [
+            478,
+            928,
+            519,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A.5 Training/Prompting Details",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            383,
+            101
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Similar as in Zhao et al. (2023), we fine-tuned the Large version of pre-trained end-to-end TQA systems for 20 epochs and use the random-split-1- train if multiple train-dev splits are provided. For TAT, the training epochs is increased to 50 epochs. We then split the training set further into training and development sets with the ratio of 80:20. The batch size we use are 32 and gradient accumulation is 4. The best model is selected based on validation loss. As for fine-tuning LLaMA2, we use the 7B chat-hf version. We use the code provided in LLaMA-Factory<sup>8</sup> and keeps the default settings of all parameters in the code. In terms of GPT-3.5, we use three-shots demonstrations. The demonstrations can be found in Appendix A.7. As for Binder, since the systems used in the original paper (Codex) is no longer provided by OpenAI, we use GPT-3.5 as the backbone. The performance might degrade due to the switch, as what is observed in Zhang et al. (2023).",
+        "bbox": [
+            112,
+            104,
+            490,
+            429
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "A.6 Results for Robustness Against Table Structural Change for Different Datasources",
+        "text_level": 2,
+        "bbox": [
+            114,
+            438,
+            455,
+            485
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "The following four tables show the exact match difference and variation percentage for each subset on retrieval robustness against table structure changes perturbations.",
+        "bbox": [
+            112,
+            492,
+            489,
+            556
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "A.7 LLM prompts for GPT3.5",
+        "text_level": 2,
+        "bbox": [
+            114,
+            565,
+            371,
+            581
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Figure 6, Figure 7, Figure 8 and Figure 9 shows the prompts we used for prompting GPT-3.5 for WTQ, WikiSQL, SQA and TAT, respetively.",
+        "bbox": [
+            112,
+            587,
+            489,
+            636
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>8</sup>https://github.com/hiyouga/LLaMA-Factory",
+        "bbox": [
+            136,
+            907,
+            415,
+            922
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "2492",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "table",
+        "img_path": "images/4d539a3a9bd3584283d529049f80bda5c032fc4c0ce1a53da2381464c1a14260.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ps</td><td colspan=\"6\">Exact match difference</td><td colspan=\"6\">Variation percentage</td></tr><tr><td></td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td></tr><tr><td>NP</td><td>84</td><td>84.57</td><td>69.71</td><td>77.71</td><td>63.43</td><td>72.57</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>R-SA</td><td> $- 3 . 0 9 \\pm 0 . 4 6$ </td><td> $- 1 . 0 3 \\pm 0 . 9 8$ </td><td> $- 0 . 9 1 \\pm 1 . 0 6$  一</td><td> $- 0 . 5 7 { \\pm } 1 . 2 0 $  1</td><td> $- 3 . 4 3 \\pm 2 . 2 0$ </td><td> $- 2 . 8 6 \\pm 1 . 3 0$ </td><td>7.43 ± 1.14</td><td>4.46±0.98</td><td> $7 . 5 4 \\pm 1 . 1 1$ </td><td> $1 1 . 3 1 \\pm 1 . 4 2$ </td><td>16.46 ± 2.03</td><td> $9 . 0 3 \\pm 1 . 5 1$ </td></tr><tr><td>R-TT</td><td> $- 2 . 1 7 \\pm 1 . 1 7$ </td><td>0.00±0.36</td><td> $0 . 5 7 \\pm 0 . 8 9$ </td><td> $- 0 . 6 9 \\pm 1 . 7 1$ </td><td>1.26 ± 1.27</td><td>−3.89 ± 1.75</td><td> $3 . 3 1 \\pm 0 . 2 3$ </td><td>2.51±0.58</td><td> $4 . 4 6 \\pm 0 . 2 3$ </td><td> $1 2 . 8 0 \\pm 1 . 8 3$ </td><td>10.40 ± 0.91</td><td> $1 1 . 4 3 \\pm 2 . 9 6$ </td></tr><tr><td>R-TM</td><td>−1.03 ± 0.56</td><td>0.00±0.81</td><td>−1.71 ± 0.36 </td><td>−1.49 ± 0.78</td><td> $- 2 . 4 0 \\pm 0 . 5 6$ </td><td> $- 3 . 5 4 \\pm 2 . 2 1$ </td><td>1.71±0.00</td><td>3.43 ± 0.36</td><td> $3 . 5 4 \\pm 1 . 1 1$ </td><td> $1 1 . 0 9 \\pm 1 . 7 8$ </td><td> $9 . 7 1 \\pm 0 . 7 2$ </td><td> $1 0 . 8 6 \\pm 2 . 9 1$ </td></tr><tr><td>R-TB</td><td> $- 2 . 6 3 \\pm 0 . 6 9$ </td><td> $- 1 . 0 3 \\pm 0 . 8 4$ </td><td> $- 0 . 6 9 \\pm 0 . 4 3$ </td><td> $- 0 . 4 6 { \\pm } 1 . 3 7$ </td><td> $- 2 . 9 7 \\pm 1 . 7 5$ </td><td> $- 3 . 4 3 \\pm 1 . 2 0$ </td><td> $4 . 2 3 \\pm 1 . 4 3$ </td><td> $3 . 0 9 { \\pm } 0 . 2 8 $ </td><td> $4 . 5 7 \\pm 0 . 3 6$ </td><td> $1 0 . 5 1 \\pm 0 . 8 6$ </td><td> $1 4 . 4 0 \\pm 0 . 4 3$ </td><td> $1 0 . 0 6 \\pm 2 . 1 9$ </td></tr><tr><td>C-SA</td><td> $- 4 . 9 1 \\pm 0 . 9 3$ </td><td>-0.91±1.28</td><td> $- 2 . 5 1 \\pm 1 . 1 8$ </td><td> $- 7 . 3 1 \\pm 1 . 5 1$ </td><td> $- 6 . 7 4 \\pm 2 . 9 2$ </td><td> $- 4 . 1 1 \\pm 1 . 7 5$ </td><td> $1 1 . 0 9 \\pm 2 . 3 0$ </td><td>5.94±0.78</td><td> $6 . 1 7 \\pm 0 . 8 4$ </td><td> $1 8 . 5 1 \\pm 1 . 9 3$ </td><td> $1 1 . 0 9 \\pm 2 . 3 0$ </td><td> $1 0 . 9 7 \\pm 1 . 4 2$ </td></tr><tr><td>C-TF</td><td> $- 3 . 7 7 \\pm 0 . 4 6$ </td><td>-1.03±0.56</td><td> $- 1 . 3 7 \\pm 0 . 2 8$ </td><td> $- 5 . 6 0 \\pm 2 . 2 1$ </td><td> $- 5 . 4 6 \\pm 3 . 8 5$ </td><td> $- 2 . 8 6 \\pm 1 . 2 0$ </td><td> $6 . 5 1 \\pm 1 . 0 0$ </td><td>3.77±1.12</td><td> $4 . 3 4 \\pm 0 . 2 8$ </td><td> $1 6 . 1 1 \\pm 2 . 7 9$ </td><td> $1 5 . 7 7 \\pm 2 . 5 7$ </td><td> $1 0 . 8 6 \\pm 2 . 4 8$ </td></tr><tr><td>C-TB</td><td> $- 6 . 9 7 \\pm 2 . 7 1$ </td><td>-1.26±0.56</td><td> $- 2 . 4 0 \\pm 0 . 9 1$ </td><td> $- 6 . 1 7 \\pm 1 . 1 1$ </td><td> $- 4 . 8 0 \\pm 1 . 4 7$ </td><td> $- 2 . 9 7 \\pm 2 . 4 1$ </td><td> $9 . 4 9 \\pm 2 . 4 4$ </td><td>5.83 ± 0.56</td><td> $4 . 4 6 { \\pm } 1 . 3 7$ </td><td> $1 6 . 2 3 \\pm 2 . 0 0$ </td><td> $1 2 . 9 1 \\pm 2 . 0 0$ </td><td> $1 0 . 9 7 \\pm 1 . 9 3$ </td></tr><tr><td>Tr</td><td>-65.14</td><td>-64.57</td><td>-54.86</td><td>-18.86</td><td> $- 3 4 . 2 9 $ </td><td>-70.86</td><td>68.57</td><td>70.29</td><td>61.71</td><td>25.71</td><td> $4 2 . 2 9$ </td><td>70.86</td></tr></table>",
+        "bbox": [
+            114,
+            82,
+            878,
+            204
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/e42c1d00716e2af0640b1511ff697d43021344d7f0b340625e56665a6633b0bf.jpg",
+        "table_caption": [
+            "Table 9: WTQ: system performance on extraction data set. Ps stands for perturbations. NP stands for no perturbation. R, C and Tr stand for row, column and transpose perturbations. SA, TT, TF, TM and TB stand for shuffle all, target top, target front, target middle, target bottom/back respectively. We shade the best performances (minimal absolute values) with blue."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ps</td><td colspan=\"6\">Exact match difference</td><td colspan=\"6\">Variation percentage</td></tr><tr><td></td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td></tr><tr><td>NP</td><td>89.27</td><td>91.33</td><td>92.59</td><td>63.06</td><td>56.45</td><td>66.70</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>R-SA</td><td>−0.08 ± 0.04</td><td>0 ± 0.06</td><td>0.08 ± 0.04</td><td> $- 0 . 2 7 \\pm 0 . 1 3$ </td><td> $- 1 . 8 2 \\pm 0 . 2 2$ </td><td>−1.14 ± 0.11</td><td>1.08 ± 0.06</td><td>0.63 ± 0.02</td><td>0.63 ± 0.04</td><td> $1 0 . 3 7 \\pm 1 . 1 1$ </td><td>12.26 ± 0.88</td><td>9.21 ± 0.63</td></tr><tr><td>R-TT</td><td>0.02 ± 0.01</td><td> $0 . 0 4 \\pm 0 . 0 2$ </td><td> $0 . 0 3 \\pm 0 . 0 3$ </td><td> $0 . 1 2 \\pm 0 . 0 7$ </td><td> $1 . 0 1 \\pm 0 . 5 2$ </td><td> $- 0 . 9 3 \\pm 0 . 0 5$ </td><td> $0 . 5 7 \\pm 0 . 0 6$ </td><td> $0 . 3 0 \\pm 0 . 0 1$ </td><td> $0 . 4 2 \\pm 0 . 0 2$ </td><td> $1 1 . 5 0 \\pm 0 . 5 6$ </td><td> $1 3 . 7 5 \\pm 1 . 2 1$ </td><td> $1 0 . 7 7 \\pm 0 . 9 4$ </td></tr><tr><td>R-TM</td><td> $- 0 . 0 8 \\pm 0 . 0 4$ </td><td> $0 . 1 1 \\pm 0 . 0 1$ </td><td> $0 . 0 4 \\pm 0 . 0 2$  </td><td> $- 1 . 0 4 \\pm 0 . 1 1$ </td><td> $- 1 . 2 4 \\pm 0 . 4 4$ </td><td> $- 1 . 2 3 \\pm 0 . 0 5$ </td><td> $0 . 5 7 \\pm 0 . 0 6$ </td><td> $0 . 3 0 \\pm 0 . 0 2$ </td><td> $0 . 4 4 \\pm 0 . 0 2$ </td><td> $1 3 . 6 1 \\pm 0 . 1 1$ </td><td> $1 4 . 4 \\pm 0 . 4 2$ </td><td> $1 2 . 8 4 \\pm 0 . 4 7$ </td></tr><tr><td>R-TB</td><td> $- 0 . 1 2 \\pm 0 . 0 3$ </td><td> $- 0 . 0 6 \\pm 0 . 0 4$ </td><td> $- 0 . 0 8 \\pm 0 . 0 3$ </td><td> $- 0 . 2 2 \\pm 0 . 1 3$ </td><td> $- 1 . 8 8 \\pm 0 . 7 9$ </td><td> $- 1 . 1 5 \\pm 0 . 0 7$ </td><td> $0 . 6 8 \\pm 0 . 0 5$ </td><td> $0 . 4 3 \\pm 0 . 0 2$ </td><td> $0 . 5 1 \\pm 0 . 0 8$ </td><td> $1 2 . 2 4 \\pm 0 . 7 7$ </td><td>14.61 ± 0.68</td><td> $1 0 . 4 5 \\pm 0 . 7 9$ </td></tr><tr><td>C-SA</td><td>−0.45 ± 0.12</td><td> $- 0 . 1 2 \\pm 0 . 0 4$ </td><td> $- 0 . 0 6 \\pm 0 . 0 6$ </td><td> $- 2 . 2 2 \\pm 0 . 2 8$ </td><td>−1.53 ± 0.26</td><td>−2.06 ± 0.22</td><td>2.35 ± 0.10</td><td> $1 . 7 3 \\pm 0 . 1 2$ </td><td> $1 . 0 2 \\pm 0 . 0 2$ </td><td> $1 9 . 0 9 \\pm 0 . 5 9$ </td><td> $1 5 . 4 3 \\pm 0 . 9 0$ </td><td> $1 6 . 7 2 \\pm 0 . 8 5$ </td></tr><tr><td>C-TF</td><td> $- 0 . 6 0 \\pm 0 . 0 3$ </td><td> $0 . 0 6 \\pm 0 . 0 1$ </td><td>−0.01 ± 0.01</td><td>−3.26 ± 0.37</td><td> $- 4 . 0 1 \\pm 0 . 5 2$ </td><td> $- 3 . 0 3 \\pm 0 . 2 2$ </td><td> $1 . 5 5 \\pm 0 . 1 4$ </td><td>0.79 ± 0.05</td><td>0.62 ± 0.07</td><td>18.26 ± 0.60</td><td> $1 5 . 4 0 \\pm 0 . 3 7$ </td><td>13.11 ± 0.79</td></tr><tr><td>C-TB</td><td> $- 0 . 2 6 \\pm 0 . 1 0$ </td><td> $- 0 . 2 0 \\pm 0 . 0 7$ </td><td> $- 0 . 1 1 \\pm 0 . 0 4$ </td><td> $- 3 . 4 3 \\pm 0 . 3 3$ </td><td> $- 2 . 3 7 \\pm 0 . 7 7$ </td><td> $- 3 . 0 2 \\pm 0 . 2 1$ </td><td> $1 . 1 7 \\pm 0 . 0 5$ </td><td> $0 . 5 7 \\pm 0 . 0 9$ </td><td> $0 . 4 3 \\pm 0 . 0 6$ </td><td>17.14 ± 0.52</td><td> $1 5 . 2 6 \\pm 0 . 5 8$ </td><td> $1 1 . 4 7 \\pm 0 . 6 1$ </td></tr><tr><td>Tr</td><td>-76.13</td><td>-78.72</td><td>-88.13</td><td>-15.95</td><td>-32.72</td><td>-56.07</td><td>76.99</td><td>79.34</td><td>88.17</td><td>30.15</td><td>40.72</td><td>73.69</td></tr></table>",
+        "bbox": [
+            114,
+            284,
+            878,
+            407
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/a582676542211104f992524946fbf797232b713f6ab311e67800191622476fad.jpg",
+        "table_caption": [
+            "Table 10: WikiSQL: system performance on extraction data set. Ps stands for perturbations. NP stands for no perturbation. R, C and Tr stand for row, column and transpose perturbations. SA, TT, TF, TM and TB stand for shuffle all, target top, target front, target middle, target bottom/back respectively. We shade the best performances (minimal absolute values) with blue.",
+            "Table 11: SQA: system performance on extraction data set. Ps stands for perturbations. NP stands for no perturbation. R, C and Tr stand for row, column and transpose perturbations. SA, TT, TF, TM and TB stand for shuffle all, target top, target front, target middle, target bottom/back respectively. We shade the best performances (minimal absolute values) with blue."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ps</td><td colspan=\"6\">Exact match difference</td><td colspan=\"6\">Variation percentage</td></tr><tr><td></td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td></tr><tr><td>NP</td><td>67.39</td><td>70.29</td><td>68.84</td><td>71.74</td><td>57.25</td><td>63.89</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>R-SA</td><td>−1.21 ± 1.46</td><td>−1.45 ± 0.57</td><td>−2.90 ± 1.18</td><td>−1.45 ± 0.78</td><td> $- 2 . 1 7 \\pm 0 . 9 8$ </td><td>−1.39 ± 0.90</td><td>5.56 ± 1.18</td><td>4.35±1.17</td><td>7.25 ± 1.69</td><td>8.78 ± 1.40</td><td>9.98 ± 1.04</td><td> $8 . 5 4 \\pm 1 . 1 4$ </td></tr><tr><td>R-TT</td><td> $0 . 4 5 \\pm 1 . 1 2$ </td><td>0.24 ± 0.90</td><td> $- 1 . 4 5 \\pm 0 . 5 9$ </td><td> $- 0 . 7 2 \\pm 0 . 9 7$ </td><td> $- 2 . 1 7 \\pm 1 . 2 4$ </td><td> $- 1 . 4 3 \\pm 0 . 5 7$ </td><td> $3 . 8 6 \\pm 1 . 3 7$ </td><td> $2 . 6 6 \\pm 0 . 3 4$ </td><td> $3 . 3 8 \\pm 0 . 3 4$ </td><td>10.82 ± 1.87</td><td> $9 . 4 2 \\pm 1 . 2 4$ </td><td> $9 . 4 3 \\pm 1 . 8 3$ </td></tr><tr><td>R-TM</td><td> $- 3 . 4 8 \\pm 0 . 4 9$ </td><td>−3.42 ±0.34</td><td> $- 5 . 0 7 \\pm 0 . 5 9$ </td><td> $- 5 . 1 2 \\pm 0 . 8 8$ </td><td> $- 3 . 7 1 \\pm 1 . 5 3$ </td><td> $- 4 . 8 4 \\pm 1 . 0 1$ </td><td> $3 . 8 6 \\pm 0 . 4 9$ </td><td> $3 . 8 6 \\pm 0 . 3 4$ </td><td> $5 . 5 6 \\pm 0 . 3 4$ </td><td> $9 . 3 7 \\pm 1 . 2 2$ </td><td> $1 0 . 2 2 \\pm 0 . 9 3$ </td><td> $9 . 4 6 \\pm 1 . 2 7$ </td></tr><tr><td>R-TB</td><td> $- 4 . 6 6 \\pm 0 . 7 3$ </td><td> $- 4 . 5 9 \\pm 0 . 3 4$ </td><td> $- 4 . 8 3 \\pm 0 . 3 4$ </td><td> $- 5 . 8 0 \\pm 0 . 4 3$ </td><td> $- 4 . 9 0 \\pm 1 . 5 7$ </td><td> $- 6 . 1 2 \\pm 0 . 6 7$ </td><td> $3 . 4 2 \\pm 1 . 7 0$ </td><td> $4 . 3 4 \\pm 0 . 9 7$ </td><td> $6 . 0 2 \\pm 0 . 3 5$ </td><td>11.39 ± 1.66</td><td> $1 3 . 6 8 \\pm 2 . 5 4$ </td><td> $1 0 . 8 7 \\pm 1 . 2 1 $ </td></tr><tr><td>C-SA</td><td> $- 3 . 1 4 \\pm 1 . 2 6$ </td><td> $- 0 . 9 7 \\pm 1 . 0 7$ </td><td> $- 3 . 1 4 \\pm 0 . 8 6$ </td><td> $- 5 . 2 1 \\pm 1 . 3 4$ </td><td> $- 7 . 6 5 \\pm 1 . 7 0$ </td><td> $- 3 . 7 9 \\pm 1 . 0 5$ </td><td> $1 2 . 3 2 \\pm 1 . 5 7$ </td><td> $8 . 2 1 \\pm 1 . 3 7$ </td><td> $7 . 9 7 \\pm 1 . 0 5$ </td><td> $1 4 . 2 1 \\pm 1 . 8 7$ </td><td> $1 6 . 2 1 \\pm 1 . 6 3$ </td><td> $7 . 6 9 { \\pm } 1 . 3 7$ </td></tr><tr><td>C-TF</td><td> $- 2 . 1 7 \\pm 1 . 0 2$ </td><td> $- 2 . 1 7 \\pm 0 . 9 6$ </td><td>−0.24 ± 0.31</td><td> $- 6 . 3 8 \\pm 1 . 5 4$ </td><td> $- 7 . 5 7 \\pm 1 . 3 9$ </td><td> $- 5 . 2 5 \\pm 0 . 7 7$ </td><td> $7 . 0 0 \\pm 1 . 3 4$ </td><td> $5 . 1 7 \\pm 1 . 0 2$ </td><td> $5 . 2 4 \\pm 1 . 7 1$ </td><td> $1 4 . 4 9 \\pm 1 . 9 2$ </td><td> $1 3 . 1 4 \\pm 2 . 3 8$ </td><td> $6 . 2 9 \\pm 1 . 5 1$ </td></tr><tr><td>C-TB</td><td> $- 2 . 9 0 \\pm 1 . 5 7$ </td><td>−3.14 ± 0.68</td><td>−1.21 ± 0.68</td><td> $- 5 . 1 1 \\pm 1 . 7 9$ </td><td> $- 4 . 3 8 \\pm 1 . 1 3$ </td><td>−3.58 ± 1.11</td><td> $1 0 . 1 4 \\pm 1 . 0 5$ </td><td>7.49 ± 0.68</td><td>3.66 ± 0.68</td><td> $1 1 . 6 2 \\pm 2 . 7 8$ </td><td> $1 2 . 8 0 \\pm 2 . 2 5$ </td><td> $5 . 5 7 \\pm 1 . 1 2$ </td></tr><tr><td>Tr</td><td>-51.45</td><td>-58.70</td><td>-63.04</td><td>-21.01</td><td>-34.78</td><td>-53.48</td><td>57.25</td><td>60.14</td><td>64.49</td><td>25.36</td><td>39.13</td><td>68.24</td></tr></table>",
+        "bbox": [
+            114,
+            487,
+            880,
+            611
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/e175a2650dcaaf445ace30a23e39f851505d08fb55b1c012bbfee43962aa2eec.jpg",
+        "table_caption": [
+            "Table 12: TAT: system performance on extraction data set. Ps stands for perturbations. NP stands for no perturbation. R, C and Tr stand for row, column and transpose perturbations. SA, TT, TF, TM and TB stand for shuffle all, target top, target front, target middle, target bottom/back respectively. We shade the best performances (minimal absolute values) with blue."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Ps</td><td colspan=\"6\">Exact match difference</td><td colspan=\"6\">Variation percentage</td></tr><tr><td></td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td><td>TAPEX</td><td>OmniTab</td><td>TaPas</td><td>GPT-3.5</td><td>LLaMA2</td><td>Binder</td></tr><tr><td>NP</td><td>78.65</td><td>82.75</td><td>56.14</td><td> $7 4 . 5 6$ </td><td>67.25</td><td>67.02</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>R-SA</td><td>−3.43 ± 0.41</td><td>−2.71 ± 2.07</td><td> $- 4 . 0 2 \\pm 0 . 7 2$ </td><td> $- 2 . 0 6 \\pm 1 . 0 9$ </td><td>−3.05 ± 1.09</td><td>−2.05 ± 1.41</td><td>10.53 ± 1.89</td><td>8.77±1.24</td><td>10.04 ± 1.89</td><td>15.50 ± 1.80</td><td> $1 5 . 5 6 \\pm 1 . 8 0$ </td><td> $1 6 . 7 3 \\pm 1 . 0 9$ </td></tr><tr><td>R-TT</td><td> $0 . 2 9 \\pm 0 . 4 1$ </td><td>0.29 ± 0.83</td><td> $- 4 . 0 9 \\pm 0 . 8 3$ </td><td> $- 5 . 8 5 \\pm 2 . 1 9$ </td><td> $- 3 . 0 5 \\pm 2 . 0 7$ </td><td> $- 4 . 4 6 \\pm 2 . 4 1$ </td><td> $2 . 6 3 \\pm 1 . 2 4$ </td><td> $2 . 0 5 \\pm 1 . 6 5$ </td><td> $4 . 0 9 \\pm 0 . 8 3$ </td><td> $1 0 . 5 3 \\pm 3 . 7 9$ </td><td> $1 0 . 9 7 \\pm 2 . 8 9$ </td><td> $1 0 . 9 7 \\pm 1 . 4 9$ </td></tr><tr><td>R-TM</td><td> $- 3 . 3 9 \\pm 0 . 8 2$ </td><td> $- 2 . 7 2 \\pm 0 . 4 1$ </td><td> $- 2 . 8 8 \\pm 1 . 2 4$ </td><td> $- 3 . 7 4 \\pm 1 . 6 5$ </td><td> $- 2 . 8 5 \\pm 0 . 4 1$ </td><td> $- 2 . 8 8 \\pm 0 . 7 2$ </td><td> $5 . 5 6 \\pm 1 . 6 5$ </td><td> $4 . 0 9 \\pm 1 . 0 1$ </td><td> $6 . 1 4 \\pm 1 . 2 4$ </td><td> $9 . 0 1 \\pm 2 . 5 6$ </td><td> $1 0 . 3 9 \\pm 1 . 8 9$ </td><td> $8 . 5 6 \\pm 1 . 0 9$ </td></tr><tr><td>R-TB</td><td> $- 3 . 0 6 \\pm 2 . 7 3$ </td><td> $- 2 . 5 9 \\pm 0 . 3 4$ </td><td> $- 3 . 8 3 \\pm 0 . 3 4$ </td><td> $- 3 . 8 0 \\pm 1 . 4 3$ </td><td> $- 3 . 9 0 \\pm 2 . 5 7$ </td><td> $- 3 . 1 2 \\pm 1 . 6 7$ </td><td> $6 . 4 2 \\pm 2 . 7 0$ </td><td> $4 . 2 7 \\pm 1 . 9 7$ </td><td> $7 . 1 3 \\pm 2 . 3 5$ </td><td> $1 1 . 1 9 \\pm 2 . 3 7$ </td><td> $1 3 . 6 8 \\pm 2 . 5 4$ </td><td> $9 . 9 5 \\pm 2 . 2 0 $ </td></tr><tr><td>C-SA</td><td> $- 4 . 9 7 \\pm 2 . 0 7$ </td><td> $- 4 . 9 2 \\pm 2 . 8 9$ </td><td> $- 4 . 9 7 \\pm 2 . 4 1$ </td><td> $- 5 . 7 0 \\pm 2 . 4 1$ </td><td> $- 5 . 5 8 \\pm 2 . 4 7$ </td><td> $- 5 . 2 9 \\pm 1 . 4 9$ </td><td> $6 . 1 4 \\pm 1 . 2 4$ </td><td> $6 . 4 3 \\pm 0 . 4 1$ </td><td> $7 . 8 9 \\pm 1 . 2 4$ </td><td> $1 1 . 7 1 \\pm 3 . 8 0$ </td><td> $1 2 . 6 0 \\pm 2 . 0 7$ </td><td> $1 0 . 5 6 \\pm 2 . 5 4$ </td></tr><tr><td>C-TF</td><td> $- 5 . 3 1 \\pm 1 . 2 4$ </td><td> $- 4 . 6 8 \\pm 1 . 6 5$ </td><td>−4.31 ± 0.41</td><td> $- 4 . 9 1 \\pm 1 . 2 4$ </td><td> $- 4 . 8 0 \\pm 1 . 6 5$ </td><td> $- 4 . 7 5 \\pm 0 . 7 9$ </td><td> $6 . 7 3 \\pm 2 . 0 7$ </td><td> $5 . 1 1 \\pm 1 . 6 5$ </td><td> $4 . 8 2 \\pm 1 . 4 1$  </td><td> $1 3 . 9 3 \\pm 2 . 2 4$ </td><td> $1 2 . 8 9 \\pm 2 . 8 0$ </td><td> $1 0 . 8 5 \\pm 0 . 8 3$ </td></tr><tr><td>C-TB</td><td> $- 4 . 9 7 \\pm 2 . 0 7$ </td><td> $- 4 . 8 8 \\pm 1 . 0 3$ </td><td> $- 4 . 7 5 { \\pm } 0 . 8 2$ </td><td> $- 5 . 5 0 \\pm 1 . 0 9$ </td><td> $- 5 . 5 8 \\pm 2 . 4 1$ </td><td> $- 5 . 7 5 \\pm 1 . 2 4$ </td><td> $7 . 3 1 \\pm 1 . 4 1$ </td><td> $7 . 2 7 \\pm 0 . 8 1$ </td><td> $6 . 4 3 \\pm 0 . 8 3$ </td><td> $1 4 . 9 3 \\pm 3 . 7 2$ </td><td> $1 2 . 3 4 \\pm 2 . 7 0$ </td><td> $1 2 . 8 5 \\pm 2 . 4 1$ </td></tr><tr><td>Tr</td><td>-28.71</td><td>-29.36</td><td>-37.89</td><td>-13.45</td><td>-20.51</td><td>-27.02</td><td>35.73</td><td>31.05</td><td>47.98</td><td>23.39</td><td>31.53</td><td>38.02</td></tr></table>",
+        "bbox": [
+            114,
+            689,
+            880,
+            810
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "2493",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "image",
+        "img_path": "images/99983c94cf754b6ad55c8fc90cc6a5656e106be9aaee8f0426198bbb13c1abe2.jpg",
+        "image_caption": [
+            "Figure 6: Prompt for GPT-3.5 for WTQ."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            115,
+            170,
+            880,
+            802
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "2494",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "image",
+        "img_path": "images/b29faf9acc21eb3a6b89c9ea8d52198aff223b0dd85c31597e51b4a6b5efb169.jpg",
+        "image_caption": [
+            "Figure 7: Prompt for GPT-3.5 for WikiSQL."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            115,
+            224,
+            882,
+            747
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "2495",
+        "bbox": [
+            478,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "image",
+        "img_path": "images/e92ff2aa3021d897d622ce4eac4adcc90b9b53c275c7292f596c0706f653e2f6.jpg",
+        "image_caption": [
+            "Figure 8: Prompt for GPT-3.5 for SQA."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            115,
+            168,
+            882,
+            802
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "2496",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "image",
+        "img_path": "images/b6a7050df32576e825172a3cc5eeea72a5104988a510f69bd417aee07ce548e2.jpg",
+        "image_caption": [
+            "Figure 9: Prompt for GPT-3.5 for TAT."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            115,
+            224,
+            882,
+            747
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "2497",
+        "bbox": [
+            478,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 18
+    }
+]

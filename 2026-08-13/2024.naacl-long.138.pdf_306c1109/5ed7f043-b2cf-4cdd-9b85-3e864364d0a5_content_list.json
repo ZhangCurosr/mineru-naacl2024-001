@@ -1,0 +1,2549 @@
+[
+    {
+        "type": "text",
+        "text": "MILL: Mutual Verification with Large Language Models for Zero-Shot Query Expansion",
+        "text_level": 1,
+        "bbox": [
+            129,
+            82,
+            868,
+            122
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Pengyue Jia<sup>1</sup>, Yiding Liu<sup>2</sup>, Xiangyu Zhao<sup>1</sup>∗, Xiaopeng Li<sup>2</sup> Changying Hao<sup>2</sup>, Shuaiqiang Wang<sup>2</sup>, Dawei Yin<sup>2</sup> <sup>1</sup>City University of Hong Kong, <sup>2</sup>Baidu Inc. {jia.pengyue,xiaopli2-c}@my.cityu.edu.hk   \n{liuyiding.tanh,cyhaocn,shqiang.wang}@gmail.com xianzhao@cityu.edu.hk, yindawei@acm.org",
+        "bbox": [
+            255,
+            130,
+            746,
+            231
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            260,
+            252,
+            342,
+            268
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Query expansion, pivotal in search engines, enhances the representation of user information needs with additional terms. While existing methods expand queries using retrieved or generated contextual documents, each approach has notable limitations. Retrieval-based methods often fail to accurately capture search intent, particularly with brief or ambiguous queries. Generation-based methods, utilizing large language models (LLMs), generally lack corpus-specific knowledge and entail high fine-tuning costs. To address these gaps, we propose a novel zero-shot query expansion framework utilizing LLMs for mutual verification. Specifically, we first design a queryquery-document generation method, leveraging LLMs’ zero-shot reasoning ability to produce diverse sub-queries and corresponding documents. Then, a mutual verification process synergizes generated and retrieved documents for optimal expansion. Our proposed method is fully zero-shot, and extensive experiments on three public benchmark datasets are conducted to demonstrate its effectiveness over existing methods. Our code is available online at https://github.com/Applied-Machine-Learning-Lab/MILL to ease reproduction.",
+        "bbox": [
+            141,
+            274,
+            462,
+            659
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            114,
+            667,
+            260,
+            683
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Query expansion is a critical technique in search systems, aiming to effectively capture and represent users’ information needs (Zhu et al., 2023; Efthimiadis, 1996). Search engines employ query expansion to resolve ambiguities in queries and align the vocabulary of queries and documents. Central to this task is the development of contextual documents, comprising additional query terms, to enhance effectiveness (Azad and Deepak, 2019).",
+        "bbox": [
+            112,
+            692,
+            489,
+            837
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Specifically, existing research predominantly falls into two categories: retrieval-based and generation-based methods. Retrieval-based methods (Lv and Zhai, 2010; Yan et al., 2003; Li et al.,",
+        "bbox": [
+            112,
+            837,
+            490,
+            901
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "2022) typically construct contextual documents from the targeted corpus, assuming that the topretrieved documents (i.e., pseudo-relevance feedback (PRF)) are reasonable expansions of a given query. Generation-based methods (Jagerman et al., 2023; Mao et al., 2023; Wang et al., 2023a) often utilize advanced generative models, such as Large Language Models, as an external knowledge base for producing contextual documents.",
+        "bbox": [
+            507,
+            253,
+            885,
+            398
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "However, both methods have clear limitations. For retrieval-based methods, it has been observed in practice that the documents retrieved with the original query do not align well with the information needs, particularly when the original query itself is brief and ambiguous (Cao et al., 2008; Jagerman et al., 2023). For generation-based methods, directly using off-the-shelf LLMs in a few-shot or zero-shot manner can hardly align the model with a specific corpus (Wang et al., 2023a). In contrast, the LLMs could easily generate useless out-of-domain information.",
+        "bbox": [
+            507,
+            400,
+            887,
+            594
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "To this end, we propose a novel query expansion framework based on Large Language Models (LLMs), integrating both retrieved and generated documents to mitigate their respective limitations. First, to improve contextual document generation, we design a query-query-document prompt that leverages an LLM as a zero-shot reasoner to decompose a query into multiple sub-queries during contextual document generation. This helps the LLM generate diverse contextual information that is more likely to cover the underlying search intent.",
+        "bbox": [
+            507,
+            595,
+            887,
+            774
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Next, we propose a mutual verification framework that exploits generated and retrieved contextual documents for query expansion. To be more specific, we propose to filter out the uninformative generated documents via comparing their relevance with the top-retrieved documents. By doing this, the selected generated documents are intuitively more aligned with the target corpus. Conversely, we also filter out the noisy retrieved documents via comparing their relevance with the generated documents. The external contextual knowledge embedded in the generated documents can facilitate the retrieved documents to more accurately reveal search intent. We evaluate the proposed method on the downstream information retrieval task in a zeroshot manner. The results on three public datasets demonstrate that our proposed method significantly outperforms the state-of-the-art baselines. Overall, the contributions can be summarized as follows:",
+        "bbox": [
+            507,
+            776,
+            887,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "∗\\*Corresponding author",
+        "bbox": [
+            147,
+            906,
+            294,
+            920
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "2498",
+        "bbox": [
+            480,
+            928,
+            521,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 2498–2518 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            946,
+            857,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/059bf2ac634010387f98693028a304ad258d660cc35ec180ddbdd51adfaa6135.jpg",
+        "image_caption": [
+            "Figure 1: Overview of MILL."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            115,
+            84,
+            882,
+            223
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            274,
+            490,
+            436
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• We propose a Mutual VerIfication method with Large Language model (denoted as MILL), a novel framework that combines generated and retrieved context for query expansion. MILL is able to mitigate the limitations of generated and retrieved context, and thus can provide more high-quality context for query expansion.",
+        "bbox": [
+            114,
+            453,
+            489,
+            567
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• To improve the generated contextual documents, we design a query-query-document prompting method, which elicits richer and more diverse knowledge from LLMs to cover the underlying search intents and information needs of users.",
+        "bbox": [
+            114,
+            582,
+            489,
+            664
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• MILL can perform high-quality query expansion in a zero-shot manner. We conduct extensive experiments on the downstream information retrieval task on three public datasets. The results demonstrate that MILL significantly outperforms existing retrieval and generation-based methods.",
+        "bbox": [
+            114,
+            681,
+            490,
+            778
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Problem Definition",
+        "text_level": 2,
+        "bbox": [
+            114,
+            794,
+            314,
+            809
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Given a user query q, query expansion is to apply a function f to expand q with additional contextual information: $q ^ { \\prime } = f _ { \\theta } ( q )$ , where θ represents the parameters. Using the expanded query $q ^ { \\prime }$ should be able to achieve better downstream retrieval performance compared to the original query q. More formally, such an objective can be defined as",
+        "bbox": [
+            112,
+            824,
+            489,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            509,
+            274,
+            845,
+            291
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/89597b56ef0b9c03f138bf8fbfa3ef30f740848644d6bd1503ee7cf8a8d4a927.jpg",
+        "text": "$$\n\\underset { \\theta } { \\operatorname { a r g m a x } } \\ : \\mathcal { M } ( q ^ { \\prime } , R ) , \\mathrm { ~ w h e r e ~ } q ^ { \\prime } = f _ { \\theta } ( q ) .\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            551,
+            305,
+            838,
+            331
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "where denotes the evaluation metric of the retrieval performance (e.g., recall, NDCG), and R denotes the retrieval model.",
+        "bbox": [
+            507,
+            343,
+            885,
+            392
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3 Methodology",
+        "text_level": 2,
+        "bbox": [
+            509,
+            405,
+            658,
+            423
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In this section, we introduce our proposed query expansion method in detail. Specifically, we give an overview of MILL in Section 3.1, elaborate the query-query-document generation in Section 3.2, and introduce the mutual verification framework in Section 3.3.",
+        "bbox": [
+            507,
+            432,
+            885,
+            530
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.1 Overview",
+        "text_level": 2,
+        "bbox": [
+            509,
+            542,
+            633,
+            557
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The overall workflow of MILL is depicted in Figure 1, which comprises two steps, i.e., contextual document construction (Figure 1(a)) and mutual verification (Figure 1(b)). In particular, the two steps focus on the diversity and quality of contextual documents, respectively.",
+        "bbox": [
+            507,
+            564,
+            887,
+            661
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In the contextual document construction stage, we aim to construct diverse sets of contextual documents via both retrieval and generation. To create diverse contextual documents via generation, we propose a query-query-document prompt, which instructs an LLM to generate sub-queries and contextual documents in a step-by-step manner. This can better leverage the reasoning ability of LLMs that decompose a given query expansion task into multiple sub-tasks, where the generated documents could be more diverse and informative.",
+        "bbox": [
+            507,
+            663,
+            887,
+            839
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In the mutual verification stage, we aim to identify those high-quality contextual documents constructed in the first stage. In particular, the mutual verification leverages the strengths of generated documents in implying the search intent and the domain-specific nature of PRF documents, enabling a reciprocal selection between the two types of contextual documents. As a result, the finalized documents are more high-quality query expansion to be applied in downstream retrieval tasks.",
+        "bbox": [
+            507,
+            840,
+            887,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "2499",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "images/793c35f8d5c1a6035578c7046511709248e59bdc5d8d82bce40afb1c4a5d7760.jpg",
+        "image_caption": [
+            "Figure 2: Query-query-document prompt compared to Query2Term, CoT, and Query2Doc. Query-query-document instructs the LLM to expand the original query from multiple perspectives by inferring the sub-queries and generating corresponding contextual documents."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            115,
+            93,
+            880,
+            344
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            425,
+            489,
+            506
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.2 Query-Query-Document Generation",
+        "text_level": 2,
+        "bbox": [
+            114,
+            523,
+            448,
+            538
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Recently, a handful of studies (Wang et al., 2023a; Jagerman et al., 2023) have explored using Large Language Models (LLMs) to expand queries and gain initial success. However, most of them use a rather simple prompt for document generation, e.g., “write a passage that answers the given query”. For a brief or ambiguous query that has multiple possible intents, the generation results could easily miss the real search intent. Motivated by this, we design a novel zero-shot prompt, particularly for the query expansion task. This method can exploit the reasoning ability of LLMs to first decompose the original query into multiple sub-queries before document generation. This improves generation diversity, and the contextual documents are more likely to cover the real search intent.",
+        "bbox": [
+            112,
+            548,
+            489,
+            806
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "As shown in Figure 2(d), we use the instruction \"what sub-queries should be searched to answer the following query: {query}.\" to generate subqueries that further clarify the original query. At the same time, we instruct the language model to generate contextual documents for each sub-query through \"Please generate the sub-queries and write passages to answer these generated queries.\" By doing this, we finally have multiple sub-queries and their corresponding contextual documents, which are more likely to cover the user’s search intent. Note that the proposed method is zero-shot, which can be easily extended to few-shot.",
+        "bbox": [
+            112,
+            807,
+            489,
+            921
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            425,
+            885,
+            521
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.3 Mutual Verification",
+        "text_level": 2,
+        "bbox": [
+            509,
+            531,
+            712,
+            546
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Next, we elaborate on the mutual verification framework, where we leverage the aforementioned generated documents and pseudo-relevance documents (i.e., the retrieval-based contextual documents) to improve the overall quality of query expansion. The intuition is to leverage two types of information to complement each other, which are 1) the corpus-specific domain information of retrieved pseudo-relevance documents, and 2) the generated information of LLM reasoning that is more likely to uncover real search intent.",
+        "bbox": [
+            507,
+            552,
+            885,
+            730
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "More specifically, the inputs of mutual verification have two sets of contextual documents:",
+        "bbox": [
+            509,
+            730,
+            885,
+            762
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/1bd645d89af7b17d04eb0eefb65fde71d5f1b6ec12735cb91cd43fcdaedd4edb.jpg",
+        "text": "$$\n\\mathcal { D } ^ { \\mathrm { L L M } } = \\{ d _ { n } ^ { \\mathrm { L L M } } \\} = \\mathrm { L L M } ( p , q ) , n \\in ( 0 , N ]\\tag{2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            522,
+            771,
+            850,
+            791
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/87c8156cec11f689c32ddfedd71b8b1241ee581c0ed56ae33b87a2124ded1ca7.jpg",
+        "text": "$$\n\\mathcal { D } ^ { \\mathrm { P R F } } = \\{ d _ { k } ^ { \\mathrm { P R F } } \\} = R _ { r } ( q ) , k \\in ( 0 , K ]\\tag{3}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            554,
+            793,
+            838,
+            813
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where $\\mathcal { D } ^ { \\mathrm { L L M } }$ represents the N LLM-generated documents with query-query-document prompt (denoted as p), and $\\mathcal { D } ^ { \\mathrm { { \\dot { P } R F } } }$ represents the K documents retrieved by a vanilla PRF method (denoted as $R _ { r } )$ e.g., BM25 retrieval. Note that each generated document comprises a series of sub-queries and their",
+        "bbox": [
+            507,
+            822,
+            885,
+            921
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "2500",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "corresponding passages.",
+        "bbox": [
+            114,
+            85,
+            297,
+            101
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Next, we aim to rerank the documents in $\\mathcal { D } ^ { \\mathrm { L L M } }$ and $\\mathcal { D } ^ { \\mathrm { P R F } }$ . In specific, we first use an off-the-shelf dense representation model to compute the representation $( \\mathrm { i } . \\mathrm { e } . , \\mathrm { } \\mathbf { x } _ { n } ^ { \\mathrm { L L M } }$ or $\\mathbf { x } _ { k } ^ { \\mathrm { P R F } } )$ of each document $( \\mathrm { i } . \\mathrm { e } . , d _ { n } ^ { \\mathrm { L L M } }$ or $d _ { k } ^ { \\mathrm { P R F } } )$ as",
+        "bbox": [
+            112,
+            99,
+            489,
+            183
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/9aa1eca75a68f29c34f658ecc87b7a12b188cf3277f44758142eb699f1aa9fa5.jpg",
+        "text": "$$\n\\begin{array} { r } { \\mathbf { x } _ { n } ^ { \\mathrm { L L M } } = \\operatorname { E n c o d e r } ( d _ { n } ^ { \\mathrm { L L M } } ) , } \\end{array}\\tag{4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            205,
+            184,
+            394,
+            204
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/2b3ace8536b739844ff160badd18625f4af4124d5eec058b4a09b0391af71df8.jpg",
+        "text": "$$\n\\begin{array} { r } { { \\bf x } _ { k } ^ { \\mathrm { P R F } } = \\mathrm { E n c o d e r } ( d _ { k } ^ { \\mathrm { P R F } } ) , } \\end{array}\\tag{5}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            208,
+            205,
+            389,
+            225
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where $\\mathbf { x } _ { n } ^ { \\mathrm { { L L M } } }$ denotes the vector for n-th generated document and $\\mathbf { x } _ { k } ^ { \\mathrm { P R F } }$ denotes the vector for k-th pseudo-relevance documents.",
+        "bbox": [
+            112,
+            229,
+            487,
+            279
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Then, we compute the semantic relevance between every pair of $d _ { n }$ and $d _ { k }$ with cosine similarity (denoted as sim( )), and assign a score to every document as",
+        "bbox": [
+            112,
+            279,
+            490,
+            343
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/6fb2fc100abbac987a41c483b7c0a99cf1fa2d32c53958d077caa619898599a7.jpg",
+        "text": "$$\ns _ { n } ^ { \\mathrm { L L M } } = \\sum _ { k = 1 } ^ { K } \\sin ( \\mathbf { x } _ { n } ^ { \\mathrm { L L M } } , \\mathbf { x } _ { k } ^ { \\mathrm { P R F } } ) ,\\tag{6}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            173,
+            346,
+            426,
+            373
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/08b517fc60e7ad80968671c78227bbe433c37019cafc019db7c5d8efb6cb8fe3.jpg",
+        "text": "$$\ns _ { k } ^ { \\mathrm { P R F } } = \\sum _ { n = 1 } ^ { N } \\sin ( \\mathbf { x } _ { k } ^ { \\mathrm { P R F } } , \\mathbf { x } _ { n } ^ { \\mathrm { L L M } } ) .\\tag{7}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            174,
+            374,
+            425,
+            401
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Here, we score every generated document $d _ { n } ^ { \\mathrm { L L M } }$ via aggregating its semantic relevance scores with all pseudo-relevance documents. Therefore, the score $s _ { n } ^ { \\mathrm { L L M } }$ can be interpreted as how well $d _ { n } ^ { \\mathrm { L L M } }$ is aligned with the target corpus. On the other hand, the score $s _ { k } ^ { \\mathrm { P R F } }$ can be viewed as how well the retrieved document $d _ { k } ^ { \\mathrm { P R F } }$ is likely to be a reasonable context judged by the reasoning results of LLM.",
+        "bbox": [
+            112,
+            404,
+            489,
+            535
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Finally, we select the top-scored documents in   \nboth sets as the final contextual documents as   \n$\\mathcal { D } _ { s } ^ { \\mathrm { L L M } } = \\{ d _ { n } ^ { \\mathrm { L L M } } \\} , n \\in \\{ n | s _ { n } ^ { \\mathrm { L L M } } \\in T o p N ^ { \\prime } ( s ^ { \\mathrm { L L M } } ) \\}$   \n$\\mathcal { D } _ { s } ^ { \\mathrm { P R F } } = \\{ d _ { k } ^ { \\mathrm { P R F } } \\} , \\ k \\in \\{ k | s _ { k } ^ { \\mathrm { P R F } } \\in T o p K ^ { \\prime } ( s ^ { \\mathrm { P R F } } ) \\} ,$ (0)",
+        "bbox": [
+            114,
+            536,
+            485,
+            609
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "(8)",
+        "bbox": [
+            463,
+            605,
+            485,
+            619
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where $\\mathcal { D } _ { s } ^ { \\mathrm { L L M } }$ and $\\mathcal { D } _ { s } ^ { \\mathrm { P R F } }$ are the final selected document sets.",
+        "bbox": [
+            112,
+            619,
+            489,
+            652
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.4 Query Expansion for Retrieval",
+        "text_level": 2,
+        "bbox": [
+            114,
+            662,
+            403,
+            677
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "After mutual verification, we integrate the selected generated documents and pseudo-relevance documents with the original query to perform the final retrieval task. In particular, we concatenate them as the new query $q ^ { \\prime }$ as:",
+        "bbox": [
+            112,
+            682,
+            489,
+            763
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/3fa666169148fc95fe99d7bcca6f8eabd5cba69792122e2a283e468c06fe9715.jpg",
+        "text": "$$\n\\boldsymbol { q } ^ { \\prime } = \\operatorname { c o n c a t } ( \\boldsymbol { q } , \\boldsymbol { q } , \\boldsymbol { q } , \\boldsymbol { q } , \\boldsymbol { q } , \\mathcal { D } _ { s } ^ { \\mathrm { P R F } } , \\mathcal { D } _ { s } ^ { \\mathrm { L L M } } )\\tag{9}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            134,
+            766,
+            445,
+            787
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We repeat the original query 5 times following papers (Wang et al., 2023a; Jagerman et al., 2023) to emphasize its significance. It is worth noting that the proposed query expansion method does not need any additional labeled data and model finetuning. Such a zero-shot method with off-the-shelf LLM and retriever has huge potential to be applied in various search systems.",
+        "bbox": [
+            112,
+            793,
+            490,
+            921
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4 Experiments",
+        "text_level": 2,
+        "bbox": [
+            509,
+            84,
+            657,
+            101
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.1 Datasets and Metrics",
+        "text_level": 2,
+        "bbox": [
+            509,
+            108,
+            724,
+            123
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "To evaluate the effectiveness of our proposed method, we conduct extensive experiments on the following public datasets: TREC-DL-2019, TREC-DL-2020, and BEIR.",
+        "bbox": [
+            507,
+            129,
+            885,
+            193
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• TREC-DL-2019&2020 (Craswell et al., 2021). TREC-DL-2019 and TREC-DL-2020 <sup>1</sup> are the datasets used in the TREC Deep Learning Track. We conduct passage retrieval tasks on the datasets, each of which contains 200 queries and 8.84 million passages.",
+        "bbox": [
+            509,
+            198,
+            885,
+            296
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• BEIR (Thakur et al., 2021). $\\mathrm { \\tt B E I R } ^ { 2 }$ is a heterogeneous benchmark for comprehensive zero-shot evaluation of methods in various information retrieval tasks. We select 9 datasets with small test or dev sets from the 18 available datasets.",
+        "bbox": [
+            509,
+            303,
+            887,
+            385
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Following previous work (Claveau, 2021; Jagerman et al., 2023; Mao et al., 2023), we use the NDCG@N, MAP@N, Recall@N, and MRR@N as the evaluation metrics, each of which is reported with $\\Nu \\in \\{ 1 0 , 1 0 0 , 1 0 0 0 \\}$ . Additional experiments on MSMARCO are provided in Appendix A.3.",
+        "bbox": [
+            507,
+            388,
+            885,
+            487
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.2 Baselines",
+        "text_level": 2,
+        "bbox": [
+            509,
+            495,
+            631,
+            511
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We conduct comparative experiments with the following baselines, which can be divided into three categories: (1) Traditional query expansion methods: Bo1 (Amati and Van Rijsbergen, 2002), KL (Amati and Van Rijsbergen, 2002), RM3 (Abdul-Jaleel et al., 2004), and AxiomaticQE (Fang and Zhai, 2006; Yang and Lin, 2019). (2) LLM-based expansion methods: Query2Term (Jagerman et al., 2023), Query2Term-FS (the few-shot version of Query2Term), Query2Term-PRF (PRF document augmented Query2Term), Query2Doc (Wang et al., 2023a), Query2Doc-FS, Query2Doc-PRF, CoT (Jagerman et al., 2023), CoT-PRF. (3) Ensembled expansion methods: These are the variants of the LLM-based expansion methods by additionally concatenating top-retrieved PRF documents to the query. They are denoted as Query2Term∗, Query2Term-FS∗, Query2Term-PRF∗, Query2Doc∗, Query2Doc-FS∗, Query2Doc-PRF∗, CoT∗, and CoT-PRF∗. The details of the baselines and their prompts are introduced in Appendix A.1 and Appendix A.2.",
+        "bbox": [
+            507,
+            517,
+            887,
+            888
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>https://microsoft.github.io/msmarco/",
+        "bbox": [
+            536,
+            891,
+            771,
+            907
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup>https://github.com/beir-cellar/beir",
+        "bbox": [
+            537,
+            906,
+            756,
+            920
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "2501",
+        "bbox": [
+            478,
+            928,
+            519,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "table",
+        "img_path": "images/62631e3f7fd89e26fcbc453422dd2dfbf55618def21457145708b22bdc223e0b.jpg",
+        "table_caption": [
+            "Table 1: Overall comparison on TREC-DL-2019 and TREC-DL-2020. The optimal results are highlighted in bold, while the suboptimal results are underscored. The results are reported on NDCG@N, AP@N, Recall@N, and MRR@N with N 10, 100, 1000 . The improvements are all significant (i.e., two-sided t-test with $p < 0 . 0 5 )$ between the optimal and suboptimal results."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=17>NDCG               AP               Recall              MRRMetrics@10 @100@1000 @10 @100@1000 @10 @100@1000 @10 @100@1000</td></tr><tr><td rowspan=15 colspan=4></td><td rowspan=1 colspan=13>No expansion        47.9548.74 59.34 10.1429.07 37.00 12.2344.22 73.62 79.4479.49 79.50</td></tr><tr><td rowspan=2 colspan=13>Traditional expansion methodsBol           50.8650.01 61.09 10.9831.08 39.99 12.8545.42 75.11 78.7578.81  78.81</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>50.86</td><td rowspan=1 colspan=3>50.01 61.09 10.98</td><td rowspan=1 colspan=3>31.08 39.99 12.85</td></tr><tr><td rowspan=1 colspan=1>KL</td><td rowspan=1 colspan=1>50.57</td><td rowspan=1 colspan=3>49.84 60.82 10.95</td><td rowspan=1 colspan=3>30.94 39.77 12.84</td><td rowspan=1 colspan=5>45.26 74.66 78.4478.50 78.50</td></tr><tr><td rowspan=1 colspan=1>RM3</td><td rowspan=1 colspan=1>51.56</td><td rowspan=1 colspan=3>50.41 61.23 10.78</td><td rowspan=1 colspan=3>31.70 40.45 13.14</td><td rowspan=1 colspan=5>46.37 75.43 78.9479.01 79.01</td></tr><tr><td rowspan=1 colspan=13>AxiomaticQE        47.95 48.74 59.34 10.1429.07 37.00 12.23 44.22 73.62 79.4479.49 79.50</td></tr><tr><td rowspan=1 colspan=13>LLM-based expansion methods</td></tr><tr><td rowspan=1 colspan=5>Query2Term        44.1742.95 55.21  9.08</td><td rowspan=1 colspan=3>22.61 29.91 11.06</td><td rowspan=1 colspan=5>37.10 68.81 71.61 71.77 71.77</td></tr><tr><td rowspan=1 colspan=1>Query2Term-FS</td><td rowspan=1 colspan=1>50.38</td><td rowspan=1 colspan=2>49.54 61.67</td><td rowspan=1 colspan=1>11.30</td><td rowspan=1 colspan=2>29.40 37.51</td><td rowspan=1 colspan=1>12.52</td><td rowspan=1 colspan=2>43.83 76.13</td><td rowspan=1 colspan=3>75.2275.73 75.73</td></tr><tr><td rowspan=6 colspan=4></td><td rowspan=1 colspan=1>Query2Term-PRF</td><td rowspan=1 colspan=1>48.56</td><td rowspan=1 colspan=2>48.08 57.63</td><td rowspan=1 colspan=1>11.05</td><td rowspan=1 colspan=1>30.78</td><td rowspan=1 colspan=1>37.18</td><td rowspan=1 colspan=1>12.24</td><td rowspan=1 colspan=2>43.69 70.20</td><td rowspan=1 colspan=3>80.1080.17 80.19</td></tr><tr><td rowspan=1 colspan=1>Query2Doc</td><td rowspan=1 colspan=1>62.77</td><td rowspan=1 colspan=2>61.45 71.75</td><td rowspan=1 colspan=1>13.68</td><td rowspan=1 colspan=1>39.28</td><td rowspan=1 colspan=1>49.04</td><td rowspan=1 colspan=1>14.78</td><td rowspan=1 colspan=2>52.25 84.21</td><td rowspan=1 colspan=3>90.8991.04 91.04</td></tr><tr><td rowspan=1 colspan=5>Query2Doc-FS       63.8361.42 72.02 14.30</td><td rowspan=1 colspan=2>39.54 49.65</td><td rowspan=1 colspan=1>15.44</td><td rowspan=1 colspan=5>52.57 83.75 90.5590.55 90.56</td></tr><tr><td rowspan=1 colspan=2>Query2Doc-PRF      59.00</td><td rowspan=1 colspan=2>57.47 68.23</td><td rowspan=1 colspan=1>12.15</td><td rowspan=1 colspan=2>35.29 44.56</td><td rowspan=1 colspan=1>14.39</td><td rowspan=1 colspan=5>50.29 82.12 86.6386.63 86.63</td></tr><tr><td rowspan=1 colspan=2>CoT           63.44</td><td rowspan=1 colspan=2>59.57 70.94</td><td rowspan=1 colspan=1>13.43</td><td rowspan=1 colspan=2>35.53 45.67</td><td rowspan=1 colspan=1>14.97</td><td rowspan=1 colspan=5>49.91 83.43 92.61 92.61 92.61</td></tr><tr><td rowspan=1 colspan=4>CoT-PRF         61.6356.81 67.85</td><td rowspan=1 colspan=1>13.13</td><td rowspan=1 colspan=3>34.84 44.73 14.82</td><td rowspan=1 colspan=5>49.02 80.37 91.4791.72 91.72</td></tr><tr><td rowspan=3 colspan=4></td><td rowspan=1 colspan=2>Ensembled expansion methods</td><td rowspan=1 colspan=2></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=8></td></tr><tr><td rowspan=1 colspan=1>Query2Term*</td><td rowspan=1 colspan=1>57.26</td><td rowspan=1 colspan=2>55.93 67.18</td><td rowspan=1 colspan=1>13.07</td><td rowspan=1 colspan=1>36.18</td><td rowspan=1 colspan=1>45.48</td><td rowspan=1 colspan=1>14.60</td><td rowspan=1 colspan=2>50.12 81.13</td><td rowspan=1 colspan=1>83.53</td><td rowspan=1 colspan=2>83.86 83.86</td></tr><tr><td rowspan=1 colspan=1>Query2Term-FS*</td><td rowspan=1 colspan=1>54.16</td><td rowspan=1 colspan=2>54.46 65.14</td><td rowspan=1 colspan=1>12.38</td><td rowspan=1 colspan=1>35.76</td><td rowspan=1 colspan=1>44.74</td><td rowspan=1 colspan=1>14.08</td><td rowspan=1 colspan=1>49.58</td><td rowspan=1 colspan=1>79.03</td><td rowspan=1 colspan=1>78.88</td><td rowspan=1 colspan=2>79.10 79.11</td></tr><tr><td rowspan=1 colspan=4></td><td rowspan=1 colspan=1>Query2Term-PRF*</td><td rowspan=1 colspan=1>52.17</td><td rowspan=1 colspan=2>51.84 61.49</td><td rowspan=1 colspan=1>11.94</td><td rowspan=1 colspan=1>33.93</td><td rowspan=1 colspan=1>41.94</td><td rowspan=1 colspan=1>13.69</td><td rowspan=1 colspan=1>47.26</td><td rowspan=1 colspan=1>74.36</td><td rowspan=1 colspan=1>79.07</td><td rowspan=1 colspan=2>79.25 79.25</td></tr><tr><td rowspan=6 colspan=4></td><td rowspan=1 colspan=1>Query2Doc*</td><td rowspan=1 colspan=1>63.59</td><td rowspan=1 colspan=1>61.74</td><td rowspan=1 colspan=1>72.41</td><td rowspan=1 colspan=1>13.98</td><td rowspan=1 colspan=1>40.81</td><td rowspan=1 colspan=1>51.31</td><td rowspan=1 colspan=1>15.37</td><td rowspan=1 colspan=1>53.94</td><td rowspan=1 colspan=1>84.78</td><td rowspan=1 colspan=1>91.28</td><td rowspan=1 colspan=2>91.49 91.49</td></tr><tr><td rowspan=1 colspan=1>Query2Doc-FS*</td><td rowspan=1 colspan=1>64.05</td><td rowspan=1 colspan=1>62.10</td><td rowspan=1 colspan=1>72.79</td><td rowspan=1 colspan=1>13.88</td><td rowspan=1 colspan=1>41.02</td><td rowspan=1 colspan=1>51.55</td><td rowspan=1 colspan=1>15.47</td><td rowspan=1 colspan=1>54.23</td><td rowspan=1 colspan=1>84.90</td><td rowspan=1 colspan=1>92.29</td><td rowspan=1 colspan=2>92.29 92.29</td></tr><tr><td rowspan=1 colspan=1>Query2Doc-PRF*</td><td rowspan=1 colspan=1>62.34</td><td rowspan=1 colspan=1>61.78</td><td rowspan=1 colspan=1>72.35</td><td rowspan=1 colspan=1>13.84</td><td rowspan=1 colspan=1>41.22</td><td rowspan=1 colspan=1>51.44</td><td rowspan=1 colspan=1>15.19</td><td rowspan=1 colspan=1>54.28</td><td rowspan=1 colspan=1>85.44</td><td rowspan=1 colspan=1>89.05</td><td rowspan=1 colspan=2>89.24 89.24</td></tr><tr><td rowspan=1 colspan=1>CoT*</td><td rowspan=1 colspan=1>64.77</td><td rowspan=1 colspan=1>61.30</td><td rowspan=1 colspan=1>72.08</td><td rowspan=1 colspan=1>14.05</td><td rowspan=1 colspan=1>39.08</td><td rowspan=1 colspan=1>49.56</td><td rowspan=1 colspan=1>15.73</td><td rowspan=1 colspan=1>52.35</td><td rowspan=1 colspan=1>84.23</td><td rowspan=1 colspan=1>92.19</td><td rowspan=1 colspan=2>92.19 92.19</td></tr><tr><td rowspan=1 colspan=2>CoT-PRF*         56.37</td><td rowspan=1 colspan=1>55.05</td><td rowspan=1 colspan=1>65.42</td><td rowspan=1 colspan=1>12.78</td><td rowspan=1 colspan=1>36.11</td><td rowspan=1 colspan=1>45.07</td><td rowspan=1 colspan=1>14.63</td><td rowspan=1 colspan=1>49.49</td><td rowspan=1 colspan=1>78.08</td><td rowspan=1 colspan=1>82.56</td><td rowspan=1 colspan=2>82.93 82.93</td></tr><tr><td rowspan=1 colspan=2>MILL          63.80</td><td rowspan=1 colspan=2>62.50 73.74</td><td rowspan=1 colspan=1>14.75</td><td rowspan=1 colspan=1>41.96</td><td rowspan=1 colspan=1>53.11</td><td rowspan=1 colspan=1>16.17</td><td rowspan=1 colspan=1>54.26</td><td rowspan=1 colspan=1>85.92</td><td rowspan=1 colspan=3>91.6991.81 91.81</td></tr><tr><td rowspan=11 colspan=4></td><td rowspan=6 colspan=1></td><td rowspan=1 colspan=5>No expansion        49.36</td><td rowspan=1 colspan=1>50.26</td><td rowspan=1 colspan=1>59.81</td><td rowspan=1 colspan=1>14.27</td><td rowspan=1 colspan=1>31.42</td><td rowspan=1 colspan=1>35.87</td><td rowspan=1 colspan=1>17.61</td><td rowspan=1 colspan=1>50.47</td></tr><tr><td rowspan=1 colspan=2>Traditional expansion methods</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>Bol</td><td rowspan=1 colspan=1>49.47</td><td rowspan=1 colspan=1>53.25</td><td rowspan=1 colspan=1>63.11</td><td rowspan=1 colspan=1>14.79</td><td rowspan=1 colspan=1>34.43</td><td rowspan=1 colspan=1>39.67</td><td rowspan=1 colspan=1>17.74</td><td rowspan=1 colspan=1>54.66</td><td rowspan=1 colspan=1>79.48</td><td rowspan=1 colspan=1>80.83</td><td rowspan=1 colspan=1>80.99</td><td rowspan=1 colspan=1>80.99</td></tr><tr><td rowspan=1 colspan=1>KL</td><td rowspan=1 colspan=1>49.27</td><td rowspan=1 colspan=1>53.20</td><td rowspan=1 colspan=1>63.01</td><td rowspan=1 colspan=1>14.68</td><td rowspan=1 colspan=1>34.31</td><td rowspan=1 colspan=1>39.53</td><td rowspan=1 colspan=1>17.66</td><td rowspan=1 colspan=1>54.70</td><td rowspan=1 colspan=1>79.39</td><td rowspan=1 colspan=1>80.83</td><td rowspan=1 colspan=1>80.99</td><td rowspan=1 colspan=1>80.99</td></tr><tr><td rowspan=1 colspan=1>RM3</td><td rowspan=1 colspan=1>50.43</td><td rowspan=1 colspan=1>54.02</td><td rowspan=1 colspan=1>63.47</td><td rowspan=1 colspan=1>14.93</td><td rowspan=1 colspan=1>35.13</td><td rowspan=1 colspan=1>40.22</td><td rowspan=1 colspan=1>17.89</td><td rowspan=1 colspan=2>55.80 79.94</td><td rowspan=1 colspan=1>78.49</td><td rowspan=1 colspan=1>78.59</td><td rowspan=1 colspan=1>78.59</td></tr><tr><td rowspan=1 colspan=2>AxiomaticQE       49.36</td><td rowspan=1 colspan=1>50.26</td><td rowspan=1 colspan=1>59.81</td><td rowspan=1 colspan=1>14.27</td><td rowspan=1 colspan=1>31.42</td><td rowspan=1 colspan=1>35.87</td><td rowspan=1 colspan=1>17.61</td><td rowspan=1 colspan=2>50.47 75.12</td><td rowspan=1 colspan=1>80.21</td><td rowspan=1 colspan=2>80.21 80.21</td></tr><tr><td rowspan=1 colspan=2>LLM-based expansion methods</td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=1>Query2Term</td><td rowspan=1 colspan=1>50.12</td><td rowspan=1 colspan=1>52.43</td><td rowspan=1 colspan=1>62.27</td><td rowspan=1 colspan=1>13.12</td><td rowspan=1 colspan=1>33.06</td><td rowspan=1 colspan=1>38.49</td><td rowspan=1 colspan=1>17.39</td><td rowspan=1 colspan=1>54.61</td><td rowspan=1 colspan=1>79.07</td><td rowspan=1 colspan=3>78.7478.77 78.78</td></tr><tr><td rowspan=1 colspan=1>Query2Term-FS</td><td rowspan=1 colspan=1>47.80</td><td rowspan=1 colspan=1>49.16</td><td rowspan=1 colspan=1>60.50</td><td rowspan=1 colspan=1>13.33</td><td rowspan=1 colspan=1>30.16</td><td rowspan=1 colspan=1>35.59</td><td rowspan=1 colspan=1>15.82</td><td rowspan=1 colspan=1>50.22</td><td rowspan=1 colspan=1>78.76</td><td rowspan=1 colspan=1>79.38</td><td rowspan=1 colspan=1>79.83</td><td rowspan=1 colspan=1>79.83</td></tr><tr><td rowspan=1 colspan=1>Query2Term-PRF</td><td rowspan=1 colspan=1>47.76</td><td rowspan=1 colspan=1>48.92</td><td rowspan=1 colspan=1>59.57</td><td rowspan=1 colspan=1>12.32</td><td rowspan=1 colspan=1>29.03</td><td rowspan=1 colspan=1>33.70</td><td rowspan=1 colspan=1>14.70</td><td rowspan=1 colspan=1>49.29</td><td rowspan=1 colspan=1>76.68</td><td rowspan=1 colspan=1>78.97</td><td rowspan=1 colspan=1>79.29</td><td rowspan=1 colspan=1>79.29</td></tr><tr><td rowspan=1 colspan=3></td><td rowspan=1 colspan=1>Query2Doc</td><td rowspan=1 colspan=1>61.22</td><td rowspan=1 colspan=1>60.13</td><td rowspan=1 colspan=1>69.97</td><td rowspan=1 colspan=1>19.06</td><td rowspan=1 colspan=1>41.31</td><td rowspan=1 colspan=1>47.03</td><td rowspan=1 colspan=1>21.57</td><td rowspan=1 colspan=1>57.58</td><td rowspan=1 colspan=1>83.38</td><td rowspan=1 colspan=1>88.27</td><td rowspan=1 colspan=1>88.44</td><td rowspan=1 colspan=1>88.44</td></tr><tr><td rowspan=1 colspan=2>TREC</td><td rowspan=1 colspan=2>-DL-2020</td><td rowspan=1 colspan=1>Query2Doc-FS</td><td rowspan=1 colspan=1>61.45</td><td rowspan=1 colspan=1>59.30</td><td rowspan=1 colspan=1>69.40</td><td rowspan=1 colspan=1>18.94</td><td rowspan=1 colspan=1>39.75</td><td rowspan=1 colspan=1>45.27</td><td rowspan=1 colspan=1>21.65</td><td rowspan=1 colspan=1>56.30</td><td rowspan=1 colspan=1>82.57</td><td rowspan=1 colspan=1>90.32</td><td rowspan=1 colspan=1>90.37</td><td rowspan=1 colspan=1>90.38</td></tr><tr><td rowspan=8 colspan=4></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=4>Query2Doc-PRF</td><td rowspan=1 colspan=1>55.28</td><td rowspan=1 colspan=1>57.60</td><td rowspan=1 colspan=1>67.09</td><td rowspan=1 colspan=1>17.00</td><td rowspan=1 colspan=1>38.21</td><td rowspan=1 colspan=1>43.49</td><td rowspan=1 colspan=1>19.74</td><td rowspan=1 colspan=1>58.50</td></tr><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=2>CoT           58.39</td><td rowspan=1 colspan=2>56.74 67.02</td><td rowspan=1 colspan=1>18.15</td><td rowspan=1 colspan=1>37.32</td><td rowspan=1 colspan=1>42.34</td><td rowspan=1 colspan=1>21.51</td><td rowspan=1 colspan=5>54.02 80.11 88.0288.02 88.03</td></tr><tr><td rowspan=1 colspan=2>CoT-PRF         60.81</td><td rowspan=1 colspan=2>58.41 67.47</td><td rowspan=1 colspan=1>19.02</td><td rowspan=1 colspan=2>39.27 44.04</td><td rowspan=1 colspan=1>21.71</td><td rowspan=1 colspan=5>56.84 80.49 89.0089.00 89.00</td></tr><tr><td rowspan=1 colspan=2>Ensembled expansion methods</td><td rowspan=1 colspan=2></td><td rowspan=1 colspan=1></td><td rowspan=1 colspan=3></td><td rowspan=1 colspan=5></td></tr><tr><td rowspan=1 colspan=2>Query2Term*        53.17</td><td rowspan=1 colspan=2>55.14 65.08</td><td rowspan=1 colspan=1>14.53</td><td rowspan=1 colspan=1>36.30</td><td rowspan=1 colspan=1>41.51</td><td rowspan=1 colspan=1>18.07</td><td rowspan=1 colspan=2>56.79 81.61</td><td rowspan=1 colspan=3>83.8984.10 84.10</td></tr><tr><td rowspan=1 colspan=1>Query2Term-FS*</td><td rowspan=1 colspan=1>50.95</td><td rowspan=1 colspan=2>52.11 62.42</td><td rowspan=1 colspan=1>13.80</td><td rowspan=1 colspan=1>33.47</td><td rowspan=1 colspan=1>38.34</td><td rowspan=1 colspan=1>16.98</td><td rowspan=1 colspan=2>53.55 79.38</td><td rowspan=1 colspan=3>81.7781.81  81.81</td></tr><tr><td rowspan=1 colspan=1>Query2Term-PRF*</td><td rowspan=1 colspan=1>50.80</td><td rowspan=1 colspan=2>53.44 63.68</td><td rowspan=1 colspan=1>14.09</td><td rowspan=1 colspan=1>34.12</td><td rowspan=1 colspan=1>39.29</td><td rowspan=1 colspan=1>17.41</td><td rowspan=1 colspan=2>55.25 81.14</td><td rowspan=1 colspan=3>79.89 80.14 80.14</td></tr><tr><td rowspan=1 colspan=1>Query2Doc*</td><td rowspan=1 colspan=1>60.96</td><td rowspan=1 colspan=2>60.65 70.56</td><td rowspan=1 colspan=1>17.68</td><td rowspan=1 colspan=1>41.02</td><td rowspan=1 colspan=1>47.01</td><td rowspan=1 colspan=1>22.03</td><td rowspan=1 colspan=2>59.88 85.25</td><td rowspan=1 colspan=1>91.31</td><td rowspan=1 colspan=2>91.34 91.34</td></tr><tr><td rowspan=1 colspan=4></td><td rowspan=1 colspan=1>Query2Doc-FS*</td><td rowspan=1 colspan=1>59.95</td><td rowspan=1 colspan=2>60.67  70.26</td><td rowspan=1 colspan=1>17.88</td><td rowspan=1 colspan=1>41.63</td><td rowspan=1 colspan=1>47.31</td><td rowspan=1 colspan=1>21.33</td><td rowspan=1 colspan=2>59.84 84.52</td><td rowspan=1 colspan=1>91.33</td><td rowspan=1 colspan=2>91.37 91.37</td></tr><tr><td rowspan=3 colspan=4></td><td rowspan=1 colspan=1>Query2Doc-PRF*</td><td rowspan=1 colspan=1>62.43</td><td rowspan=1 colspan=2>60.59 70.53</td><td rowspan=1 colspan=1>18.32</td><td rowspan=1 colspan=1>41.54</td><td rowspan=1 colspan=1>47.44</td><td rowspan=1 colspan=1>22.35</td><td rowspan=1 colspan=2>59.63 84.93</td><td rowspan=1 colspan=1>91.42</td><td rowspan=1 colspan=2>91.45 91.45</td></tr><tr><td rowspan=1 colspan=1>CoT*</td><td rowspan=1 colspan=1>59.90</td><td rowspan=1 colspan=2>59.15 69.35</td><td rowspan=1 colspan=1>17.16</td><td rowspan=1 colspan=1>39.59</td><td rowspan=1 colspan=2>45.50 20.57</td><td rowspan=1 colspan=5>57.50 84.22 92.19 92.19 92.21</td></tr><tr><td rowspan=1 colspan=2>CoT-PRF*         59.75</td><td rowspan=1 colspan=3>58.41 68.81 17.75</td><td rowspan=1 colspan=8>38.89 44.56 20.6356.09 83.67 91.2091.27 91.27</td></tr><tr><td rowspan=1 colspan=4></td><td rowspan=1 colspan=13>MILL           61.7961.15 71.23 19.0541.76 48.17 21.61 59.40 85.27 92.61 92.71 92.72</td></tr></table>",
+        "bbox": [
+            117,
+            149,
+            884,
+            739
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.3 Implementation Details",
+        "text_level": 2,
+        "bbox": [
+            114,
+            763,
+            346,
+            778
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We implement MILL and the baselines with PyTerrier (Macdonald and Tonellotto, 2020), a Python library helps conduct information retrieval experiments. For the BM25 retriever, we use the default parameters $( b = 0 . 7 5 , k _ { 1 } = 1 . 2 , k _ { 3 } = 8 . 0 )$ provided by PyTerrier (Macdonald and Tonellotto, 2020). For MILL and all the LLM-based baselines, we use the GPT-3.5-turbo-Instruct API (Brown et al., 2020) provided by OpenAI to generate contextual documents. The generation parameters are set as temperature = 0.7 and top\\_p = 1. We use the text-embedding-ada-002 provided by OpenAI as the text encoder, where the length of the returned vector is 1536. For other hyperparameters, we set the selection number of generated documents and PRF documents as 3, and the number of candidates as 5. To conduct a fair comparison for the LLMbased baselines, we generate 3 expanded queries for each baseline and concatenate them as the final expansion result. The number of PRF documents for ensembled expansion methods is 3.",
+        "bbox": [
+            112,
+            791,
+            490,
+            921
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            763,
+            887,
+            909
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "2502",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "table",
+        "img_path": "images/29c750aedcf1e106ca46aa8d2d74ba737efd48f152b83ba01d0fd689c5e40990.jpg",
+        "table_caption": [
+            "Table 2: Overall comparison on 9 datasets in BEIR on NDCG@1000. The optimal results are highlighted in bold, while the suboptimal results are underscored. The improvements are all significant (i.e., two-sided t-test with $p < 0 . 0 5 )$ between the optimal and suboptimal results."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Datasets</td><td>TREC-COVID</td><td>TOUCHE</td><td>SCIFACT</td><td>NFCORPUS</td><td>DBPEDIA</td><td>FIQA-2018</td><td>SCIDOCS</td><td>ARGUANA</td><td>CLIMATE-FEVER</td></tr><tr><td>No expansion</td><td>42.04</td><td>55.32</td><td>70.27</td><td>30.02</td><td>38.70</td><td>35.28</td><td>25.14</td><td>39.93</td><td>21.73</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>44.73</td><td>56.62</td><td>68.34</td><td>37.01</td><td>39.05</td><td>34.97</td><td>26.14</td><td>39.42</td><td>23.11</td></tr><tr><td>KL</td><td>44.88</td><td>56.72</td><td>67.83</td><td>37.18</td><td>38.87</td><td>35.12</td><td>26.15</td><td>39.31</td><td>23.07</td></tr><tr><td>RM3</td><td>44.54</td><td>55.79</td><td>65.28</td><td>37.27</td><td>38.11</td><td>33.14</td><td>25.91</td><td>38.14</td><td>20.71</td></tr><tr><td>AxiomaticQE</td><td>42.06</td><td>55.32</td><td>70.28</td><td>30.02</td><td>38.70</td><td>35.28</td><td>25.14</td><td>39.88</td><td>21.75</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>42.48</td><td>52.95</td><td>69.57</td><td>33.82</td><td>33.51</td><td>32.12</td><td>25.11</td><td>39.33</td><td>27.23</td></tr><tr><td>Query2Term-FS</td><td>41.13</td><td>57.10</td><td>71.39</td><td>38.57</td><td>39.36</td><td>35.78</td><td>26.18</td><td>39.72</td><td>24.32</td></tr><tr><td>Query2Term-PRF</td><td>39.90</td><td>53.72</td><td>60.79</td><td>38.21</td><td>34.83</td><td>31.50</td><td>24.97</td><td>38.68</td><td>23.98</td></tr><tr><td>Query2Doc</td><td>47.19</td><td>60.32</td><td>71.19</td><td>38.76</td><td>44.79</td><td>37.63</td><td>27.40</td><td>39.84</td><td>32.39</td></tr><tr><td>Query2Doc-FS</td><td>46.34</td><td>59.99</td><td>71.89</td><td>38.09</td><td>45.11</td><td>37.96</td><td>27.18</td><td>39.92</td><td>32.05</td></tr><tr><td>Query2Doc-PRF</td><td>43.87</td><td>56.84</td><td>67.82</td><td>39.41</td><td>39.85</td><td>34.09</td><td>26.16</td><td>38.85</td><td>26.90</td></tr><tr><td>CoT</td><td>49.32</td><td>60.77</td><td>71.63</td><td>38.88</td><td>43.05</td><td>37.28</td><td>27.50</td><td>40.00</td><td>30.25</td></tr><tr><td>CoT-PRF</td><td>46.53</td><td>59.03</td><td>73.65</td><td>39.84</td><td>40.43</td><td>38.04</td><td>26.23</td><td>40.01</td><td>25.78</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>48.20</td><td>59.46</td><td>68.12</td><td>41.20</td><td>39.12</td><td>35.22</td><td>26.67</td><td>39.45</td><td>26.86</td></tr><tr><td>Query2Term-FS*</td><td>46.54</td><td>58.03</td><td>67.96</td><td>41.12</td><td>37.78</td><td>34.60</td><td>26.01</td><td>39.58</td><td>24.97</td></tr><tr><td>Query2Term-PRF*</td><td>45.61</td><td>56.74</td><td>64.80</td><td>39.33</td><td>36.85</td><td>33.27</td><td>25.88</td><td>39.20</td><td>23.98</td></tr><tr><td>Query2Doc*</td><td>50.26</td><td>61.87</td><td>71.49</td><td>41.33</td><td>44.06</td><td>37.05</td><td>27.49</td><td>39.49</td><td>30.67</td></tr><tr><td>Query2Doc-FS*</td><td>50.42</td><td>62.10</td><td>72.03</td><td>41.24</td><td>44.22</td><td>37.05</td><td>27.41</td><td>39.34</td><td>29.78</td></tr><tr><td>Query2Doc-PRF*</td><td>50.55</td><td>61.74</td><td>71.86</td><td>41.20</td><td>44.47</td><td>36.82</td><td>27.47</td><td>38.49</td><td>26.25</td></tr><tr><td>CoT* CoT-PRF*</td><td>50.69</td><td>61.69 59.31</td><td>72.33 70.88</td><td>41.08</td><td>42.29</td><td>38.13</td><td>27.62</td><td>39.59</td><td>29.74</td></tr><tr><td></td><td>47.29</td><td></td><td></td><td>40.43</td><td>38.95</td><td>36.18</td><td>26.53</td><td>39.15</td><td>25.48</td></tr><tr><td>MILL</td><td>52.53</td><td>62.15</td><td>74.14</td><td>41.75</td><td>46.39</td><td>39.23</td><td>28.36</td><td>40.11</td><td>30.66</td></tr></table>",
+        "bbox": [
+            117,
+            136,
+            882,
+            414
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            439,
+            489,
+            505
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.4 Main Results",
+        "text_level": 2,
+        "bbox": [
+            114,
+            517,
+            267,
+            532
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Tables 1, 2, and 3 show the experimental results. The full results for the 9 selected datasets in BEIR are listed in Appendix A.4. We can draw the following key findings:",
+        "bbox": [
+            112,
+            539,
+            490,
+            606
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• Traditional query expansion methods exhibit positive effects for retrieval, while these carefully designed methods are outperformed by Query2Doc and CoT variants by a large margin. This implies that LLM-based methods are more promising for the query expansion task.",
+        "bbox": [
+            114,
+            618,
+            490,
+            717
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• Among LLM-based methods, CoT and Query2Doc variants are superior than Query2Term variants. The reason is that generated documents contain more contextualized information than discrete keywords.",
+        "bbox": [
+            114,
+            728,
+            490,
+            810
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• Using pseudo-relevance documents and few-shot examples as instructions in LLM-based methods does not necessarily yield positive gains. For instance, Query2Doc-PRF is worse than Query2Doc in TREC-DL-2019 and TREC-DL-2020. This shows that the query expansion task is non-trivial to be aligned to a specific corpus with straightforward prompting techniques.",
+        "bbox": [
+            114,
+            824,
+            492,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            522,
+            439,
+            884,
+            473
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• Ensembled expansion methods (e.g., Query2Doc∗) are usually better than LLM-based expansion methods (e.g., Query2Doc), which demonstrates the importance of PRF documents in query expansion. Moreover, MILL is able to outperform the ensembled baselines on most metrics and datasets, as it adopts a more effective combination of generated and PRF documents.",
+        "bbox": [
+            509,
+            482,
+            885,
+            613
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• MILL is more effective than all the baselines in general, it always achieves either the best or the second best performance on all metrics and datasets in Table 1 and 2. It is also worth noting that MILL is a zero-shot method that is more applicable in various real-world applications.",
+        "bbox": [
+            509,
+            623,
+            885,
+            720
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.5 Ablation Study",
+        "text_level": 2,
+        "bbox": [
+            509,
+            731,
+            677,
+            746
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We design the following variants of MILL to conduct the ablation study:",
+        "bbox": [
+            507,
+            751,
+            887,
+            784
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• w/o PRF: Using QQD to generate expansion directly, without any PRF documents in expansion.",
+        "bbox": [
+            509,
+            795,
+            887,
+            829
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• w/o MV: Concatenating PRF documents to the QQD expansion We directly use $K ^ { \\prime }$ top-retrieved documents of the original query as $\\bar { \\mathcal { D } } _ { s } ^ { \\mathrm { P R F } }$ , without reranking and selection using generated documents $\\mathcal { D } ^ { \\mathrm { L L i M } }$",
+        "bbox": [
+            509,
+            840,
+            887,
+            920
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "2503",
+        "bbox": [
+            478,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/dcf2f2fd735707c3048bcb168cc57680fdfa5aeabb198c7e3c7fd17b3d516683.jpg",
+        "table_caption": [
+            "Table 3: Overall comparison on 9 datasets in BEIR on Recall@1000. The optimal results are highlighted in bold, while the suboptimal results are underscored. The improvements are all significant (i.e., two-sided t-test with $p < 0 . 0 5 )$ between the optimal and suboptimal results."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Datasets</td><td>TREC-COVID</td><td>TOUCHE</td><td>SCIFACT</td><td>NFCORPUS</td><td>DBPEDIA</td><td>FIQA-2018</td><td>SCIDOCS</td><td>ARGUANA</td><td>CLIMATE-FEVER</td></tr><tr><td>No expansion</td><td>40.52</td><td>85.05</td><td>97.00</td><td>36.06</td><td>63.61</td><td>77.42</td><td>55.04</td><td>98.58</td><td>57.63</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>43.64</td><td>86.00</td><td>97.67</td><td>54.38</td><td>64.90</td><td>79.18</td><td>57.47</td><td>98.65</td><td>60.22</td></tr><tr><td>KL</td><td>43.63</td><td>86.14</td><td>97.67</td><td>54.79</td><td>64.71</td><td>78.84</td><td>57.38</td><td>98.65</td><td>60.01</td></tr><tr><td>RM3</td><td>43.71</td><td>85.79</td><td>97.67</td><td>56.12</td><td>64.37</td><td>78.82</td><td>57.88</td><td>98.08</td><td>58.18</td></tr><tr><td>AxiomaticQE</td><td>40.53</td><td>85.05</td><td>97.00</td><td>36.06</td><td>63.61</td><td>77.42</td><td>55.04</td><td>98.58</td><td>57.66</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>40.82</td><td>77.24</td><td>99.00</td><td>58.82</td><td>58.90</td><td>78.22</td><td>60.00</td><td>98.51</td><td>66.59</td></tr><tr><td>Query2Term-FS</td><td>40.34</td><td>85.33</td><td>98.33</td><td>61.72</td><td>65.67</td><td>81.84</td><td>60.15</td><td>98.51</td><td>62.87</td></tr><tr><td>Query2Term-PRF</td><td>39.50</td><td>83.29</td><td>97.50</td><td>60.55</td><td>61.11</td><td>76.31</td><td>59.25</td><td>98.65</td><td>63.79</td></tr><tr><td>Query2Doc</td><td>45.42</td><td>84.08</td><td>99.00</td><td>61.09</td><td>70.29</td><td>82.72</td><td>61.63</td><td>98.51</td><td>72.98</td></tr><tr><td>Query2Doc-FS</td><td>44.66</td><td>83.95</td><td>99.33</td><td>59.55</td><td>70.04</td><td>83.46</td><td>61.33</td><td>98.36</td><td>73.01</td></tr><tr><td>Query2Doc-PRF</td><td>42.53</td><td>83.50</td><td>99.00</td><td>62.50</td><td>66.41</td><td>79.14</td><td>59.50</td><td>98.58</td><td>67.15</td></tr><tr><td>CoT</td><td>47.27</td><td>84.42</td><td>98.67</td><td>60.63</td><td>69.24</td><td>83.56</td><td>60.90</td><td>98.44</td><td>69.86</td></tr><tr><td>CoT-PRF</td><td>44.93</td><td>84.37</td><td>98.67</td><td>59.87</td><td>66.06</td><td>82.14</td><td>58.72</td><td>98.58</td><td>64.26</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>47.04</td><td>84.92</td><td>98.67</td><td>64.66</td><td>64.77</td><td>80.36</td><td>60.82</td><td>98.44</td><td>69.09</td></tr><tr><td>Query2Term-FS*</td><td>45.43</td><td>85.34</td><td>99.00</td><td>64.31</td><td>64.48</td><td>79.85</td><td>58.96</td><td>98.44</td><td>66.94</td></tr><tr><td>Query2Term-PRF*</td><td>44.67</td><td>85.42</td><td>98.83</td><td>60.80</td><td>63.37</td><td>78.84</td><td>59.61</td><td>98.44</td><td>63.79</td></tr><tr><td>Query2Doc*</td><td>48.43</td><td>85.49</td><td>99.33</td><td>64.23</td><td>69.95</td><td>82.47</td><td>61.32</td><td>98.65</td><td>73.51</td></tr><tr><td>Query2Doc-FS*</td><td>48.70</td><td>85.21</td><td>99.33</td><td>64.70</td><td>70.23</td><td>82.40</td><td>61.05</td><td>98.65</td><td>72.82</td></tr><tr><td>Query2Doc-PRF*</td><td>48.92</td><td>84.94 85.16</td><td>99.33 99.33</td><td>63.97</td><td>70.19</td><td>82.43</td><td>61.81</td><td>98.58</td><td>66.42</td></tr><tr><td>CoT* CoT-PRF*</td><td>48.87 45.97</td><td>85.76</td><td>99.00</td><td>63.82 62.34</td><td>67.63 64.55</td><td>83.32 81.35</td><td>61.69 59.35</td><td>98.51 98.58</td><td>71.64</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>64.30</td></tr><tr><td>MILL</td><td>50.55</td><td>85.21</td><td>99.67</td><td>64.95</td><td>71.13</td><td>84.23</td><td>61.86</td><td>98.44</td><td>71.09</td></tr></table>",
+        "bbox": [
+            117,
+            136,
+            882,
+            414
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/af996c8a7a31f938ef784879f77c41d5350d954143483205fac35a8d1b3cd2f1.jpg",
+        "table_caption": [
+            "Table 4: Ablation study of MILL on TREC-DL-2020, TREC-COVID and SCIFACT."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Methods</td><td>NDCG @1000</td><td>AP @1000</td><td>Recall @1000</td><td>MRR @1000</td></tr><tr><td>TREC-DL-2020</td><td></td><td></td><td></td><td></td></tr><tr><td>w/o PRF</td><td>70.65</td><td>48.10</td><td>85.97</td><td>89.10</td></tr><tr><td>w/o MV</td><td>70.28</td><td>46.73</td><td>85.11 83.98</td><td>90.75 87.69</td></tr><tr><td>w/o QQD MILL</td><td>69.46 71.23</td><td>47.39 48.17</td><td>85.27</td><td>92.72</td></tr><tr><td>TREC-COVID</td><td></td><td></td><td></td><td></td></tr><tr><td>w/o PRF</td><td>51.17</td><td>27.35</td><td>49.09</td><td>92.40</td></tr><tr><td>w/o MV</td><td>51.73</td><td>28.44</td><td>50.00</td><td>87.40</td></tr><tr><td>w/o QQD</td><td>50.84</td><td>27.30</td><td>49.16</td><td>89.08</td></tr><tr><td>MILL</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td>52.53</td><td>29.30</td><td>50.55</td><td>91.17</td></tr><tr><td>SCIFACT</td><td></td><td></td><td></td><td></td></tr><tr><td>w/o PRF</td><td>73.01</td><td>65.58</td><td>99.67</td><td>66.54</td></tr><tr><td>w/o MV</td><td>72.43</td><td>64.79</td><td>99.67</td><td>65.71</td></tr><tr><td>w/o QQD</td><td>71.13</td><td>62.96</td><td>99.67</td><td>63.98</td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td>MILL</td><td>74.14</td><td>66.88</td><td>99.67</td><td>68.09</td></tr></table>",
+        "bbox": [
+            137,
+            476,
+            468,
+            703
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "• w/o QQD: Replacing QQD prompt in MILL with Query2Doc prompt.",
+        "bbox": [
+            114,
+            730,
+            487,
+            763
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Table 4 shows the results of the ablation study on three datasets, where we can draw the following conclusions: (1) All the three components of MILL have significant contributions to the final performance, (2) MILL is better than w/o QQD, which demonstrates the effectiveness of our proposed QQD prompt. This shows that QQD prompt can effectively leverage the reasoning capabilities of LLMs, assisting LLMs to reveal more diverse and specific search intent, (3) MILL is superior to w/o MV, which verifies the effectiveness of the mutual verification. By mutually selecting the generated and pseudo-relevance documents, it effectively mitigates the corpus unalignment problem of LLMs and compensates for the inaccurate search intent of conventional pseudo-relevance documents, and (4) Compared to w/o PRF and w/o MV, MILL shows a more significant improvement on BEIR datasets than on TREC-DL-2020. It may indicate that, in specialized domains, mutual verification can more effectively enhance query expansion performance through the use of PRF documents. More results can be found in Appendix A.5.",
+        "bbox": [
+            110,
+            776,
+            490,
+            921
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            439,
+            885,
+            667
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "4.6 Varying the Number of Documents",
+        "text_level": 2,
+        "bbox": [
+            509,
+            683,
+            831,
+            699
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "In the aforementioned experiments, the default number of candidate (i.e., both generated and retrieved) documents is set to $K = N = 5$ , and the number of final selected documents is set to $K ^ { \\prime } = N ^ { \\prime } = 3$ . In this subsection, we vary the number of candidates and selected documents and report the performance of MILL on TREC-COVID, w.r.t. NDCG@1000 and MRR@1000. More details and results on additional datasets can be found in Appendix A.6.",
+        "bbox": [
+            507,
+            708,
+            887,
+            870
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "From Figure 3, we have observations: (1) More selected pseudo-relevance documents decrease MRR@1000 dramatically. This shows that more selected pseudo-relevance documents usually bring more noise to query expansion. In contrast, the generated documents are rather robust, where more selections do not significantly undermine the performance. (2) When we introduce more candidate documents, the mutual verification framework is able to effectively select pseudo-relevance documents, where both NDCG@1000 and MRR@1000 increase. This shows that LLM-generated documents are very useful for filtering out noisy pseudorelevance documents. On the other hand, more generated candidate documents do not bring further performance gain, when the number of selected documents is fixed.",
+        "bbox": [
+            507,
+            872,
+            887,
+            920
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "2504",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "chart",
+        "img_path": "images/6d961ebc6eedffe3fcbfca2b806ac04b0ca937e9e2f2374e7bc3836d651eb6db.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Candidate Documents",
+            "Number of Candidate Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            121,
+            85,
+            315,
+            177
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/4f7eb4c37c4152a58291de4e95dee57c99572c4447a263e72cc26dc5adc890b5.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Selected Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            310,
+            85,
+            499,
+            172
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/f637e70a1850c4e3f1fffcd820f24a942f7535e17f7d778c32366f0bbf410e53.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            494,
+            85,
+            673,
+            168
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/217b747bbab6d41ed3c9c4191bba0ebf8004b303093a2e843c521bfcfc7c85a9.jpg",
+        "content": "",
+        "chart_caption": [
+            "Selected PRF Documents Selected Generated Documents Candidate PRF Documents Candidate Generated Documents",
+            "Figure 3: Varying the number of candidate and selected documents on TREC-COVID."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            675,
+            85,
+            858,
+            168
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/2c8b44e050c96156c91dc5b88aaf81ca6779a8a0df5aad24e5812790f0001912.jpg",
+        "table_caption": [
+            "Table 5: A query expansion example from the TREC-DL-2020 dataset using MILL."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=4>Query                 What is a nonconformity earth science</td></tr><tr><td rowspan=1 colspan=3>Expansion Content</td><td rowspan=16 colspan=1>Pseudo-relevance document: There are three types of unconformities(below): angular unconformity, nonconformity, anddisconformity. Anangular unconformity (left) is an erosional surface separating steeply dipping rock layers below fromgently dipping layers above. Unconformity is the general term for missing pages of Earth history.LLM-generated document: 1. What is the definition of a nonconformity in earth science? A nonconformity in earthscience refers to a type of unconformity, which is a break in the geologic record where layers of rock are missingSpecifically, a nonconformity is where sedimentary rocks are deposited on top of igneous or metamorphic rocks. 2. Howare nonconformities formed inearth science? Nonconformities are formed throughthe process of erosion, where layersof rock are gradually wornaway. This exposes the underlying igneous or metamorphic rocks, which are then coveredby new sedimentary rocks over time. 3. What are the different types of nonconformities in earth science? There arethree main types of nonconformities: angular, nonconformity, and disconformity. Angular nonconformities occur whensedimentary rocks are deposited at an angle on top of tilted or folded igneous or metamorphic rocks. Nonconformitiesoccur when sedimentary rocks are deposited on top of eroded igneous ormetamorphic rocks. Disconformities occurwhen there is a gap in the sedimentary rock layers, indicating a period of erosion or non-deposition. 4. What are someexamples of nonconformities found in the Earth&#x27;s geology? One well-known example of a nonconformity is the GrandCanyon in Arizona, USA. The sedimentary layers seen in the canyon were deposited on top of tilted and folded igneousand metamorphic rocks, indicating a long history of erosion and deposition</td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=4 colspan=4>Ground Truth           Nonconformities are unconformities that separate igneous or metamorphic rocks from overlying sedimentary rocks.They usually indicate that along period of erosion occurred prior to deposition of the sediments (several km of erosionnecessary). They are a feature of stratified rocks, and are therefore usually found in sediments (but may also occur instratified volcanics). They are surfaces between two rock bodies that constitute a substantial break (hiatus) in the geologicrecord (sometimes people say inaccurately that time is missing). Nonconformity. When igneous or metamorphic rocks areeroded and then covered by younger sedimentary rocks, the contact is called a nonconformity. One of the most famousof these is found in the Grand Canyon, where the oldest sedimentary rocks are more than a billion years younger than the1.6 billion-year-old metamorphic rocks on which they rest.</td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=3></td></tr><tr><td rowspan=1 colspan=4>Filtered-out PRF docu-Definition of nonconformance in the AudioEnglish.org Dictionary. Meaning of non-conformance. What does nonconformance</td></tr><tr><td rowspan=1 colspan=4>ment (ranked #1 by BM25 mean? Proper usage of the word nonconformance. Information about nonconformance in the AudioEnglish.org dictionary,with the original query)   synonyms, and antonyms.</td></tr><tr><td rowspan=1 colspan=4>Filtered-out     LLM- ... 7. What other geological features are commonly associated with nonconformities in earth science? Nonconformities</td></tr><tr><td rowspan=4 colspan=4>are often found alongside other geological features, such as faults, folds, and intrusions, which can all provide additionalinformation about the Earth&#x27;s history and the processes that have shaped it. 8. How can nonconformities in earth science beidentified in the field? Nonconformities can be identified by looking for the distinct contact between two different rock types,as well as the difference in age between the two layers. Geologists may also use specialized tools, such as radiometric dating,to determine the age of the rocks. 9. Are nonconformities only found on land in earth science? No, nonconformities can alsobe found underwater in the oceans, where layers of sedimentary rock are exposed and show similar</td></tr><tr><td rowspan=2 colspan=1></td></tr><tr><td rowspan=1 colspan=2></td><td rowspan=1 colspan=1>as well</td></tr><tr><td rowspan=1 colspan=1>to deter</td></tr></table>",
+        "bbox": [
+            119,
+            262,
+            880,
+            664
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            690,
+            490,
+            916
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "4.7 Case Study",
+        "text_level": 2,
+        "bbox": [
+            509,
+            689,
+            645,
+            705
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We show an illustrative example in Table 5, which contains the original query, the expansion content, and the ground truth (i.e., the human-labeled relevant document). The words of ground truth passage that appear in the pseudo-relevance document are highlighted in bold, and those in the generated documents of different sub-queries are marked with different colors. We can see that the generated document is able to provide more useful information for identifying the ground truth passage. We also show the filtered-out PRF document, and the filtered-out LLM-generated document in the table, from which we can observe that the filtered-out documents seem to be 1) PRF documents with limited information and 2) LLM-generated documents with too much extension of the original query. The mutual verification process can filter out these noisy or uninformative documents for MILL.",
+        "bbox": [
+            507,
+            711,
+            887,
+            921
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "2505",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            490,
+            166
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "5 Related Work",
+        "text_level": 2,
+        "bbox": [
+            114,
+            180,
+            270,
+            196
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Query Expansion. Query expansion is a prevalent technique in search platforms, which restructures the original query to more accurately express search intent and enhance the alignment with corpus (Bhogal et al., 2007; Carpineto and Romano, 2012; Efthimiadis, 1996). Early studies employed lexical knowledge bases (Qiu and Frei, 1993; Voorhees, 1994) or Pseudo-relevance Feedback (PRF) (Amati and Van Rijsbergen, 2002; Robertson, 1990; Rocchio Jr, 1971; Lv and Zhai, 2010; Yan et al., 2003; Li et al., 2022) for expanding the query with additional information. PRF documents can supplement information for any query, but they also encounter the issue of misalignment with the original query (Jagerman et al., 2023).",
+        "bbox": [
+            112,
+            209,
+            492,
+            451
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Recently, the integration of LLMs with information retrieval has emerged as a prominent area of research (Li et al., 2023a; Dong et al., 2023; Sun et al., 2023; Ni et al., 2021; Zhuang et al., 2023; Dai et al., 2022; Bonifacio et al., 2022; Muennighoff, 2022), where LLM-based query expansion methods have also been proposed. In particular, Query2Doc (Wang et al., 2023a) proposes a query-document prompt, leveraging the semantic understanding and generative capabilities of LLMs to extend the original query. Another recent study (Jagerman et al., 2023) applies LLMs directly for query expansion across multiple datasets, finding that employing the chain of thoughts (CoT) (Wei et al., 2022b) approach achieves the best results. Moreover, LLMCS (Mao et al., 2023) applies LLMs for query expansion in conversational search, constructing the context search intents as a prompt and combining the chain of thoughts and self-consistency techniques to enhance search performance. In our paper, we focus on alleviating the limitations of both PRF-based and generation-based method. We propose a queryquery-document generation method and a mutual verification framework to effective leverage both retrieved and generated contextual documents.",
+        "bbox": [
+            112,
+            451,
+            490,
+            871
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Large Language Models. LLMs have strong and robust abilities in language understanding and generation (Kojima et al., 2022; Huang et al., 2022;",
+        "bbox": [
+            114,
+            872,
+            489,
+            921
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Liu et al., 2023; Wang et al., 2023b; Xu et al., 2024a; Wang et al., 2024; Liu et al., 2024; Li et al., 2023b; Xu et al., 2024b, 2023; Fan et al., 2023), especially with increased model parameters (Zhao et al., 2023; Jagerman et al., 2023; Wei et al., 2022a). LLMs have the instruction-following ability (Longpre et al., 2023; Wei et al., 2021) and can be boasted through a few contexts (Min et al., 2022; Dong et al., 2022), enhancing the performance of LLMs in downstream specific tasks. Moreover, these methods are straightforward and effective, for they require minimal human effort to provide instructions or in-context examples but reach good results. For example, Flan-T5 (Chung et al., 2022) achieves remarkable results in various NLP downstream tasks by instruction tuning the base model. Recently, many studies (Wei et al., 2022b; Besta et al., 2023; Yao et al., 2023; Wang et al., 2022) explored the reasoning capabilities of LLMs and discovered that LLMs are powerful zero-shot reasoners.",
+        "bbox": [
+            507,
+            85,
+            889,
+            423
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            435,
+            643,
+            450
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we propose a novel zero-shot LLMsbased framework for query expansion. First, we design a QQD prompt scheme that allows LLMs to generate diverse contextual documents via zeroshot reasoning. Next, we introduce a mutual verification method that allows retrieved and generated contextual documents to complement each other as query expansion. The experimental results show that our method is superior to the state-of-the-art baselines on three public datasets.",
+        "bbox": [
+            507,
+            460,
+            887,
+            623
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgments",
+        "text_level": 2,
+        "bbox": [
+            509,
+            632,
+            673,
+            649
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "This research was partially supported by Research Impact Fund (No.R1015-23), APRC - CityU New Research Initiatives (No.9610565, Start-up Grant for New Faculty of CityU), CityU - HKIDS Early Career Research Grant (No.9360163), Hong Kong ITC Innovation and Technology Fund Midstream Research Programme for Universities Project (No.ITS/034/22MS), Hong Kong Environmental and Conservation Fund (No. 88/2022), and SIRG - CityU Strategic Interdisciplinary Research Grant (No.7020046, No.7020074), Ant Group (CCF-Ant Research Fund, Ant Group Research Fund), Huawei (Huawei Innovation Research Program), Tencent (CCF-Tencent Open Fund, Tencent Rhino-Bird Focused Research Program), CCF-BaiChuan-Ebtech Foundation Model Fund, and Kuaishou.",
+        "bbox": [
+            507,
+            658,
+            887,
+            916
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "2506",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "7 Limitations",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            250,
+            99
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "One limitation of our work is the retrieval efficiency. On one hand, during retrieval, MILL needs to perform multiple autoregressive generations for each query based on the query-query-document prompt, and then use mutual verification methods with PRF documents to obtain selected documents. On the other hand, the extended length of the query increases the time required to search the inverted index. To address the issue of multi-round autoregressive generation, N generated documents can be produced in parallel, which will improve generation efficiency. Regarding the issue of extended query length, we can further utilize simple rulebased filtering methods (e.g., deleting words with limited semantic information or truncating documents with word counts) to compress the query.",
+        "bbox": [
+            112,
+            112,
+            490,
+            369
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "In addition, from the experiments conducted on the BEIR datasets, we can observe that MILL does not perform well on some metrics for the AR-GUANA and CLIMATE-FEVER datasets. This may indicate the limitations of MILL in some scenarios. For ARGUANA, we notice that the queries have 193 words on average, which is roughly 10 to 20 times more words than other BEIR datasets. Thus, it might not necessarily need query expansion, which limits the improvement of MILL. For CLIMATE-FEVER, we observe that the queries are often declarative sentences, rather than specific questions. In such cases, the QQD approach is more likely to generate off-the-topic subqueries, which undermines the effectiveness of the final query expansion. These observations suggest that MILL could have different performances on different kinds of queries, which will be more comprehensively studied in the future.",
+        "bbox": [
+            112,
+            372,
+            490,
+            677
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            114,
+            707,
+            213,
+            722
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Nasreen Abdul-Jaleel, James Allan, W Bruce Croft, Fernando Diaz, Leah Larkey, Xiaoyan Li, Mark D Smucker, and Courtney Wade. 2004. Umass at trec 2004: Novelty and hard. Computer Science Department Faculty Publication Series, page 189.",
+            "Gianni Amati and Cornelis Joost Van Rijsbergen. 2002. Probabilistic models of information retrieval based on measuring the divergence from randomness. ACM Transactions on Information Systems (TOIS), 20(4):357–389.",
+            "Hiteshwar Kumar Azad and Akshay Deepak. 2019. Query expansion techniques for information retrieval:",
+            "a survey. Information Processing & Management, 56(5):1698–1735.",
+            "Maciej Besta, Nils Blach, Ales Kubicek, Robert Gerstenberger, Lukas Gianinazzi, Joanna Gajda, Tomasz Lehmann, Michal Podstawski, Hubert Niewiadomski, Piotr Nyczyk, et al. 2023. Graph of thoughts: Solving elaborate problems with large language models. arXiv preprint arXiv:2308.09687.",
+            "Jagdev Bhogal, Andrew MacFarlane, and Peter Smith. 2007. A review of ontology based query expansion. Information processing & management, 43(4):866– 886.",
+            "Luiz Bonifacio, Hugo Abonizio, Marzieh Fadaee, and Rodrigo Nogueira. 2022. Inpars: Data augmentation for information retrieval using large language models. arXiv preprint arXiv:2202.05144.",
+            "Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. 2020. Language models are few-shot learners. Advances in neural information processing systems, 33:1877–1901.",
+            "Guihong Cao, Jian-Yun Nie, Jianfeng Gao, and Stephen Robertson. 2008. Selecting good expansion terms for pseudo-relevance feedback. In Proceedings of the 31st annual international ACM SIGIR conference on Research and development in information retrieval, pages 243–250.",
+            "Claudio Carpineto and Giovanni Romano. 2012. A survey of automatic query expansion in information retrieval. Acm Computing Surveys (CSUR), 44(1):1– 50.",
+            "Hyung Won Chung, Le Hou, Shayne Longpre, Barret Zoph, Yi Tay, William Fedus, Yunxuan Li, Xuezhi Wang, Mostafa Dehghani, Siddhartha Brahma, et al. 2022. Scaling instruction-finetuned language models. arXiv preprint arXiv:2210.11416.",
+            "Vincent Claveau. 2021. Neural text generation for query expansion in information retrieval. In IEEE/WIC/ACM International Conference on Web Intelligence and Intelligent Agent Technology, pages 202–209.",
+            "Nick Craswell, Bhaskar Mitra, Emine Yilmaz, and Daniel Campos. 2021. Overview of the trec 2020 deep learning track. arXiv preprint arXiv:2102.07662.",
+            "Zhuyun Dai, Vincent Y Zhao, Ji Ma, Yi Luan, Jianmo Ni, Jing Lu, Anton Bakalov, Kelvin Guu, Keith B Hall, and Ming-Wei Chang. 2022. Promptagator: Few-shot dense retrieval from 8 examples. arXiv preprint arXiv:2209.11755.",
+            "Qian Dong, Yiding Liu, Qingyao Ai, Zhijing Wu, Haitao Li, Yiqun Liu, Shuaiqiang Wang, Dawei Yin, and Shaoping Ma. 2023. Aligning the capabilities of"
+        ],
+        "bbox": [
+            115,
+            732,
+            487,
+            799
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "2507",
+        "bbox": [
+            480,
+            928,
+            521,
+            941
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "large language models with the context of information retrieval via contrastive feedback. arXiv preprint arXiv:2309.17078.",
+            "Qingxiu Dong, Lei Li, Damai Dai, Ce Zheng, Zhiyong Wu, Baobao Chang, Xu Sun, Jingjing Xu, and Zhifang Sui. 2022. A survey for in-context learning. arXiv preprint arXiv:2301.00234.",
+            "Efthimis N Efthimiadis. 1996. Query expansion. Annual review of information science and technology (ARIST), 31:121–87.",
+            "Wenqi Fan, Zihuai Zhao, Jiatong Li, Yunqing Liu, Xiaowei Mei, Yiqi Wang, Zhen Wen, Fei Wang, Xiangyu Zhao, Jiliang Tang, and Qing Li. 2023. Recommender systems in the era of large language models (llms).",
+            "Hui Fang and ChengXiang Zhai. 2006. Semantic term matching in axiomatic approaches to information retrieval. In Proceedings of the 29th annual international ACM SIGIR conference on Research and development in information retrieval, pages 115– 122.",
+            "Jiaxin Huang, Shixiang Shane Gu, Le Hou, Yuexin Wu, Xuezhi Wang, Hongkun Yu, and Jiawei Han. 2022. Large language models can self-improve. arXiv preprint arXiv:2210.11610.",
+            "Rolf Jagerman, Honglei Zhuang, Zhen Qin, Xuanhui Wang, and Michael Bendersky. 2023. Query expansion by prompting large language models. arXiv preprint arXiv:2305.03653.",
+            "Takeshi Kojima, Shixiang Shane Gu, Machel Reid, Yutaka Matsuo, and Yusuke Iwasawa. 2022. Large language models are zero-shot reasoners. Advances in neural information processing systems, 35:22199– 22213.",
+            "Hang Li, Shengyao Zhuang, Ahmed Mourad, Xueguang Ma, Jimmy Lin, and Guido Zuccon. 2022. Improving query representations for dense retrieval with pseudo relevance feedback: A reproducibility study. In European Conference on Information Retrieval, pages 599–612. Springer.",
+            "Xiaopeng Li, Lixin Su, Pengyue Jia, Xiangyu Zhao, Suqi Cheng, Junfeng Wang, and Dawei Yin. 2023a. Agent4ranking: Semantic robust ranking via personalized query rewriting using multi-agent llm.",
+            "Xinhang Li, Chong Chen, Xiangyu Zhao, Yong Zhang, and Chunxiao Xing. 2023b. E4srec: An elegant effective efficient extensible solution of large language models for sequential recommendation.",
+            "Qidong Liu, Xian Wu, Xiangyu Zhao, Yuanshao Zhu, Derong Xu, Feng Tian, and Yefeng Zheng. 2023. Moelora: An moe-based parameter efficient finetuning method for multi-task medical applications.",
+            "Qidong Liu, Xian Wu, Xiangyu Zhao, Yuanshao Zhu, Zijian Zhang, Feng Tian, and Yefeng Zheng. 2024. Large language model distilling medication recommendation model.",
+            "Shayne Longpre, Le Hou, Tu Vu, Albert Webson, Hyung Won Chung, Yi Tay, Denny Zhou, Quoc V Le, Barret Zoph, Jason Wei, et al. 2023. The flan collection: Designing data and methods for effective instruction tuning. arXiv preprint arXiv:2301.13688.",
+            "Yuanhua Lv and ChengXiang Zhai. 2010. Positional relevance model for pseudo-relevance feedback. In Proceedings of the 33rd international ACM SIGIR conference on Research and development in information retrieval, pages 579–586.",
+            "Craig Macdonald and Nicola Tonellotto. 2020. Declarative experimentation ininformation retrieval using pyterrier. In Proceedings of ICTIR 2020.",
+            "Kelong Mao, Zhicheng Dou, Haonan Chen, Fengran Mo, and Hongjin Qian. 2023. Large language models know your contextual search intent: A prompting framework for conversational search. arXiv preprint arXiv:2303.06573.",
+            "Sewon Min, Xinxi Lyu, Ari Holtzman, Mikel Artetxe, Mike Lewis, Hannaneh Hajishirzi, and Luke Zettlemoyer. 2022. Rethinking the role of demonstrations: What makes in-context learning work? In EMNLP.",
+            "Niklas Muennighoff. 2022. Sgpt: Gpt sentence embeddings for semantic search. arXiv preprint arXiv:2202.08904.",
+            "Tri Nguyen, Mir Rosenberg, Xia Song, Jianfeng Gao, Saurabh Tiwary, Rangan Majumder, and Li Deng. 2016. Ms marco: A human-generated machine reading comprehension dataset.",
+            "Jianmo Ni, Gustavo Hernandez Abrego, Noah Constant, Ji Ma, Keith B Hall, Daniel Cer, and Yinfei Yang. 2021. Sentence-t5: Scalable sentence encoders from pre-trained text-to-text models. arXiv preprint arXiv:2108.08877.",
+            "Yonggang Qiu and Hans-Peter Frei. 1993. Concept based query expansion. In Proceedings of the 16th annual international ACM SIGIR conference on Research and development in information retrieval, pages 160–169.",
+            "Stephen E Robertson. 1990. On term selection for query expansion. Journal of documentation, 46(4):359– 364.",
+            "Joseph John Rocchio Jr. 1971. Relevance feedback in information retrieval. The SMART retrieval system: experiments in automatic document processing.",
+            "Weiwei Sun, Lingyong Yan, Xinyu Ma, Pengjie Ren, Dawei Yin, and Zhaochun Ren. 2023. Is chatgpt good at search? investigating large language models as re-ranking agent. arXiv preprint arXiv:2304.09542."
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            126
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "2508",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Nandan Thakur, Nils Reimers, Andreas Rücklé, Abhishek Srivastava, and Iryna Gurevych. 2021. BEIR: A heterogeneous benchmark for zeroshot evaluation of information retrieval models. In Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2).",
+            "Ellen M Voorhees. 1994. Query expansion using lexicalsemantic relations. In SIGIR’94: Proceedings of the Seventeenth Annual International ACM-SIGIR Conference on Research and Development in Information Retrieval, organised by Dublin City University, pages 61–69. Springer.",
+            "Hanbing Wang, Xiaorui Liu, Wenqi Fan, Xiangyu Zhao, Venkataramana Kini, Devendra Yadav, Fei Wang, Zhen Wen, Jiliang Tang, and Hui Liu. 2024. Rethinking large language model architectures for sequential recommendations.",
+            "Liang Wang, Nan Yang, and Furu Wei. 2023a. Query2doc: Query expansion with large language models. arXiv preprint arXiv:2303.07678.",
+            "Maolin Wang, Yao Zhao, Jiajia Liu, Jingdong Chen, Chenyi Zhuang, Jinjie Gu, Ruocheng Guo, and Xiangyu Zhao. 2023b. Large multimodal model compression via efficient pruning and distillation at antgroup.",
+            "Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc Le, Ed Chi, Sharan Narang, Aakanksha Chowdhery, and Denny Zhou. 2022. Self-consistency improves chain of thought reasoning in language models. arXiv preprint arXiv:2203.11171.",
+            "Jason Wei, Maarten Bosma, Vincent Y Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester, Nan Du, Andrew M Dai, and Quoc V Le. 2021. Finetuned language models are zero-shot learners. arXiv preprint arXiv:2109.01652.",
+            "Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, et al. 2022a. Emergent abilities of large language models. arXiv preprint arXiv:2206.07682.",
+            "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou, et al. 2022b. Chain-of-thought prompting elicits reasoning in large language models. Advances in Neural Information Processing Systems, 35:24824– 24837.",
+            "Derong Xu, Wei Chen, Wenjun Peng, Chao Zhang, Tong Xu, Xiangyu Zhao, Xian Wu, Yefeng Zheng, and Enhong Chen. 2023. Large language models for generative information extraction: A survey.",
+            "Derong Xu, Ziheng Zhang, Zhenxi Lin, Xian Wu, Zhihong Zhu, Tong Xu, Xiangyu Zhao, Yefeng Zheng, and Enhong Chen. 2024a. Multi-perspective improvement of knowledge graph completion with large language models.",
+            "Derong Xu, Ziheng Zhang, Zhihong Zhu, Zhenxi Lin, Qidong Liu, Xian Wu, Tong Xu, Xiangyu Zhao, Yefeng Zheng, and Enhong Chen. 2024b. Editing factual knowledge and explanatory ability of medical large language models.",
+            "Rong Yan, Alexander Hauptmann, and Rong Jin. 2003. Multimedia search with pseudo-relevance feedback. In Image and Video Retrieval: Second International Conference, CIVR 2003 Urbana-Champaign, IL, USA, July 24–25, 2003 Proceedings 2, pages 238– 247. Springer.",
+            "Peilin Yang and Jimmy Lin. 2019. Reproducing and generalizing semantic term matching in axiomatic information retrieval. In Advances in Information Retrieval: 41st European Conference on IR Research, ECIR 2019, Cologne, Germany, April 14–18, 2019, Proceedings, Part I 41, pages 369–381. Springer.",
+            "Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas L Griffiths, Yuan Cao, and Karthik Narasimhan. 2023. Tree of thoughts: Deliberate problem solving with large language models. arXiv preprint arXiv:2305.10601.",
+            "Wayne Xin Zhao, Kun Zhou, Junyi Li, Tianyi Tang, Xiaolei Wang, Yupeng Hou, Yingqian Min, Beichen Zhang, Junjie Zhang, Zican Dong, et al. 2023. A survey of large language models. arXiv preprint arXiv:2303.18223.",
+            "Yutao Zhu, Huaying Yuan, Shuting Wang, Jiongnan Liu, Wenhan Liu, Chenlong Deng, Zhicheng Dou, and Ji-Rong Wen. 2023. Large language models for information retrieval: A survey. arXiv preprint arXiv:2308.07107.",
+            "Honglei Zhuang, Zhen Qin, Rolf Jagerman, Kai Hui, Ji Ma, Jing Lu, Jianmo Ni, Xuanhui Wang, and Michael Bendersky. 2023. Rankt5: Fine-tuning t5 for text ranking with ranking losses. In Proceedings of the 46th International ACM SIGIR Conference on Research and Development in Information Retrieval, pages 2308–2313."
+        ],
+        "bbox": [
+            115,
+            85,
+            489,
+            178
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "2509",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "A Appendix",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            240,
+            102
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A.1 Baselines",
+        "text_level": 2,
+        "bbox": [
+            114,
+            110,
+            240,
+            127
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Traditional query expansion methods",
+        "text_level": 2,
+        "bbox": [
+            112,
+            131,
+            415,
+            149
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Bo1 (Amati and Van Rijsbergen, 2002). The Bose-Einstein 1 (Bo1) weighting approach is a method that reconstructs the query based on the frequency of terms found in the feedback documents associated with each query.",
+        "bbox": [
+            114,
+            161,
+            490,
+            243
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• KL (Amati and Van Rijsbergen, 2002). This method rewrites the queries similar to Bo1 but based on Kullback Leibler divergence.",
+        "bbox": [
+            114,
+            254,
+            489,
+            304
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• RM3 (Abdul-Jaleel et al., 2004). A method used for query expansion in information retrieval, which finds the most relevant terms to the query by using the top-ranked documents returned from the initial query and adds these terms to the original query to create an expanded query.",
+        "bbox": [
+            114,
+            315,
+            490,
+            413
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• AxiomaticQE (Fang and Zhai, 2006; Yang and Lin, 2019). Axiomatic query expansion (AxiomaticQE) rewrites and expands the origin query by axiomatic semantic term matching.",
+        "bbox": [
+            114,
+            424,
+            490,
+            492
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "LLM-based expansion methods",
+        "text_level": 2,
+        "bbox": [
+            112,
+            502,
+            368,
+            519
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Query2Term. It uses LLMs to generate related terms to the origin query in a zero-shot manner. The zero-shot prompts only contain task instructions and the original query.",
+        "bbox": [
+            114,
+            531,
+            490,
+            596
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Query2Term-FS. The few-shot version of Query2Term. The few-shot prompts are built upon zero-shot prompts by adding a few examples. In particular, Query2Term-FS expands upon Query2Term by incorporating additional sets of query-keywords examples.",
+        "bbox": [
+            114,
+            607,
+            490,
+            707
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Query2Term-PRF. It uses the top-3 documents retrieved by the original query as context information to instruct the LLMs to expand the original query.",
+        "bbox": [
+            114,
+            718,
+            489,
+            783
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Query2Doc. The zero-shot version of query2doc (Wang et al., 2023a), whose structure is similar to Query2Term. It uses LLMs to generate related passages to the origin query.",
+        "bbox": [
+            112,
+            795,
+            489,
+            862
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Query2Doc-FS. The few-shot version of query2doc (Wang et al., 2023a). The prompt structure is similar to Query2Term-FS.",
+        "bbox": [
+            112,
+            872,
+            489,
+            921
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• Query2Doc-PRF. It constructs the prompt with pseudo-relevance feedback in a zero-shot manner based on Query2Doc-ZS, like the Query2Term-PRF.",
+        "bbox": [
+            509,
+            84,
+            885,
+            148
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• CoT. Chain-of-Thought (CoT) (Jagerman et al., 2023) instructs LLMs to generate text step by step, providing a detailed thought process before generating the final answer.",
+        "bbox": [
+            509,
+            161,
+            885,
+            228
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "• CoT-PRF. A pseudo-relevance feedback based version of CoT similar to Query2Term-PRF.",
+        "bbox": [
+            509,
+            240,
+            885,
+            273
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Ensembled expansion methods",
+        "text_level": 2,
+        "bbox": [
+            509,
+            285,
+            759,
+            300
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "The ensembled expansion methods contain Query2Term∗, Query2Term-FS∗, Query2Term-PRF∗, Query2Doc∗, Query2Doc-FS∗, Query2Doc-PRF∗, CoT∗, CoT-PRF∗. They are the variants to the corresponding LLM-based expansion methods by directly concatenating the top-k PRF documents to the expanded query.",
+        "bbox": [
+            507,
+            303,
+            885,
+            416
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A.2 Prompts",
+        "text_level": 2,
+        "bbox": [
+            509,
+            428,
+            630,
+            444
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Figure 6 shows the prompts for the variants of Query2Term. The core prompt is \"Write some keywords for the given query: {query}.\"",
+        "bbox": [
+            507,
+            449,
+            885,
+            500
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/014a3b443540d678fa0fcf37515222c64a0145404658ccad3b203dac06cfe759.jpg",
+        "table_caption": [
+            "Table 6: Prompts for Query2Term and its variants."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Method</td><td>Prompt</td></tr><tr><td>Query2Term</td><td>Write some keywords for the given query: {query}</td></tr><tr><td></td><td>Write some keywords for the given query:</td></tr><tr><td></td><td>Context: query:{query1}</td></tr><tr><td></td><td>keywords:{keywords1}</td></tr><tr><td>Query2Term-FS</td><td>query:{query2}</td></tr><tr><td></td><td>keywords: {keywords2}</td></tr><tr><td></td><td>query: {query3}</td></tr><tr><td></td><td>keywords:{keywords3}</td></tr><tr><td></td><td>query: {query}</td></tr><tr><td></td><td>keywords:</td></tr><tr><td></td><td>Write some keywords for the given query:</td></tr><tr><td></td><td>Context:</td></tr><tr><td></td><td>{PRF doc 1}</td></tr><tr><td>Query2Term-PRF</td><td>{PRF doc 2}</td></tr><tr><td></td><td>{PRF doc 3}</td></tr><tr><td></td><td></td></tr><tr><td></td><td>query: {query} keywords:</td></tr></table>",
+        "bbox": [
+            522,
+            536,
+            873,
+            790
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Figure 7 shows the prompts for the Query2Doc variants. The main prompts are the sentence: \"Write a passage answer the following query: {query}.\"",
+        "bbox": [
+            507,
+            807,
+            885,
+            871
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "For the CoT and its variants, their prompts are in Figure 8. The prompts ask LLMs to give the rationale before answering.",
+        "bbox": [
+            507,
+            872,
+            885,
+            921
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "2510",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/bd7815472d5374e1590bf0625d17d8060bf5e3a914e32e017f27352ad50ca0ee.jpg",
+        "table_caption": [
+            "Table 7: Prompts for Query2Doc and its variants."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Method</td><td>Prompt</td></tr><tr><td>Query2Doc</td><td>Write a passage answer the following query: {query}</td></tr><tr><td></td><td>Write a passage answer the following query:</td></tr><tr><td></td><td>Context:</td></tr><tr><td></td><td>query:{query1}</td></tr><tr><td></td><td>passage:{passage1}</td></tr><tr><td>Query2Doc-FS</td><td>query:{query2}</td></tr><tr><td></td><td>passage: {passage2}</td></tr><tr><td></td><td>query: {query3}</td></tr><tr><td></td><td>passage:{passage3}</td></tr><tr><td></td><td>query: {query}</td></tr><tr><td></td><td>passage:</td></tr><tr><td></td><td>Write a passage answer the following query:</td></tr><tr><td></td><td>Context:</td></tr><tr><td></td><td>{PRF doc 1}</td></tr><tr><td>Query2Doc-PRF</td><td>{PRF doc 2}</td></tr><tr><td></td><td>{PRF doc 3}</td></tr><tr><td></td><td>query: {query}</td></tr><tr><td></td><td>passage:</td></tr></table>",
+        "bbox": [
+            127,
+            107,
+            477,
+            356
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "table",
+        "img_path": "images/8bec97e6b063c116d879b145c14f695116bc24edaa0d574be7152283d9e628a6.jpg",
+        "table_caption": [
+            "Table 8: Prompts for CoT and its variants."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Method</td><td>Prompt</td></tr><tr><td>CoT</td><td>Answer the following query: {query} Give the rationale before answering.</td></tr><tr><td rowspan=\"8\"></td><td>Answer the following query:</td></tr><tr><td>Context:</td></tr><tr><td>{PRF doc 1}</td></tr><tr><td>{PRF doc 2}</td></tr><tr><td>{PRF doc 3}</td></tr><tr><td>query: {query}</td></tr><tr><td>Give the rationale before answering.</td></tr><tr><td></td></tr></table>",
+        "bbox": [
+            173,
+            395,
+            431,
+            539
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "A.3 Results on MSMARCO",
+        "text_level": 2,
+        "bbox": [
+            114,
+            565,
+            351,
+            581
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Table 9 shows the experimental results on MS-MARCO dataset. MSMARCO<sup>3</sup> (Nguyen et al., 2016) is a collection of datasets constructed to advance the development of deep learning in the search field. We choose the passage dataset as our experimental scenario and take the first 100 queries from the dev group as the test queries. Results in Table 9 are based on the LLM text-davinci-003 provided by OpenAI.",
+        "bbox": [
+            112,
+            587,
+            489,
+            733
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "A.4 More Results on BEIR",
+        "text_level": 2,
+        "bbox": [
+            114,
+            745,
+            344,
+            760
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In this section, we list the full results for the 9 selected datasets from BEIR. Specifically, they are TREC-COVID, TOUCHE, SCIFACT, NFCOR-PUS, DBPEDIA, FIQA-2018, SCIDOCS, AR-GUANA, and CLIMATE-FEVER. The optimal results are highlighted in bold, while the suboptimal results are underscored. The results are reported on NDCG@N, AP@N, Recall@N, and MRR@N",
+        "bbox": [
+            112,
+            766,
+            490,
+            896
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "with N (10, 100, 1000)",
+        "bbox": [
+            509,
+            85,
+            684,
+            99
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "A.5 More Results for Ablation Experimetns",
+        "text_level": 2,
+        "bbox": [
+            509,
+            111,
+            872,
+            127
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "From the results shown in Table 19, we can draw some findings that MILL consistently achieves better performance than w/o PRF, w/o MV, and w/o QQD on all three datasets. This validates the effectiveness of both QQD and mutual verification across different datasets.",
+        "bbox": [
+            507,
+            131,
+            887,
+            229
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "A.6 More Results for Experiments with Various Numbers of Documents",
+        "text_level": 2,
+        "bbox": [
+            509,
+            239,
+            836,
+            269
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In this subsection, we will supplement the results on other metrics for the experiments with various numbers of documents. We use the gpt-3.5-turboinstruct API provided by OpenAI to conduct these experiments.",
+        "bbox": [
+            507,
+            275,
+            885,
+            356
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "The experiments concerning the number of selected documents are shown in Figure 4 and Figure 5. When the number of selected generated documents changes, the number of candidate generated documents remains 15, and the number of PRF candidate documents and the number of selected PRF documents remain 5 and 3. When the number of selected PRF documents changes, the number of candidate PRF documents remains 15, and the number of generated candidate documents and the number of selected generated documents remain 5 and 3. We can find that the trends of selected PRF documents in NDCG, AP, and Recall are consistent, yet contrary to that of MRR. This is due to the fact that NDCG, AP, and Recall are more comprehensive indicators, whereas MRR only considers the ranking of the topmost relevant document retrieved.",
+        "bbox": [
+            507,
+            356,
+            887,
+            646
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In the experiments regarding the number of candidate documents, as shown in Figure 6 and Figure 7, we can observe a similar trend across different metrics: as the number of generated document candidates increases, the metrics remain relatively stable. However, with an increase in the number of PRF document candidates, there is a noticeable growth in the metrics. This suggests that a specific number of generated documents, such as 5, can almost entirely cover the additional information provided by the generation process to aid in understanding the search intent of the original query. Meanwhile, PRF documents, derived from searches based on the original query, suggest that more PRF document candidates can cover a wider range of possible search intents, thereby enhancing the effectiveness of query expansion.",
+        "bbox": [
+            507,
+            648,
+            887,
+            921
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>3</sup>https://microsoft.github.io/msmarco/",
+        "bbox": [
+            141,
+            906,
+            376,
+            920
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "2511",
+        "bbox": [
+            478,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "table",
+        "img_path": "images/c2a069feb9d6c1c3d861e1dd7bd12faaa083f72aac87bc173919d0e09a08908f.jpg",
+        "table_caption": [
+            "Table 9: Overall comparison on MSMARCO. The optimal results are highlighted in bold, while the suboptimal results are underscored. The results are reported on NDCG@N, AP@N, Recall@N, and MRR@N with N 10, 100, 1000 . The improvements are all significant (i.e., two-sided t-test with $p < 0 . 0 5 )$ between the optimal and suboptimal results."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>28.69</td><td>34.02</td><td>36.23</td><td>23.56</td><td>24.65</td><td>24.72</td><td>44.50</td><td>69.00</td><td>86.50</td><td>22.65</td><td>23.76</td><td>23.83</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>29.18</td><td>33.44</td><td>35.89</td><td>23.61</td><td>24.33</td><td>24.43</td><td>46.50</td><td>67.50</td><td>86.50</td><td>24.07</td><td>24.82</td><td>24.91</td></tr><tr><td>KL</td><td>29.20</td><td>33.59</td><td>36.17</td><td>23.93</td><td>24.73</td><td>24.83</td><td>45.50</td><td>66.50</td><td>86.50</td><td>24.39</td><td>25.22</td><td>25.31</td></tr><tr><td>RM3</td><td>26.93</td><td>32.23</td><td>34.34</td><td>21.81</td><td>22.87</td><td>22.94</td><td>42.50</td><td>67.00</td><td>83.50</td><td>22.25</td><td>23.33</td><td>23.41</td></tr><tr><td>AxiomaticQE</td><td>28.69</td><td>34.02</td><td>36.23</td><td>23.56</td><td>24.65</td><td>24.72</td><td>44.50</td><td>69.00</td><td>86.50</td><td>22.65</td><td>23.76</td><td>23.83</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>23.28</td><td>29.50</td><td>32.00</td><td>19.74</td><td>21.01</td><td>21.08</td><td>34.17</td><td>63.17</td><td>83.67</td><td>19.91</td><td>21.17</td><td>21.24</td></tr><tr><td>Query2Term-FS</td><td>24.26</td><td>29.76</td><td>32.07</td><td>20.41</td><td>21.43</td><td>21.50</td><td>36.33</td><td>62.50</td><td>81.33</td><td>20.78</td><td>21.87</td><td>21.94</td></tr><tr><td>Query2Term-PRF</td><td>21.56</td><td>27.02</td><td>29.26</td><td>16.04</td><td>17.05</td><td>17.12</td><td>38.67</td><td>64.83</td><td>83.33</td><td>16.04</td><td>17.11</td><td>17.17</td></tr><tr><td>Query2Doc</td><td>25.83</td><td>31.31</td><td>33.82</td><td>20.27</td><td>21.33</td><td>21.42</td><td>43.50</td><td>69.00</td><td>88.83</td><td>20.39</td><td>21.50</td><td>21.58</td></tr><tr><td>Query2Doc-FS</td><td>28.23</td><td>33.22</td><td>35.89</td><td>23.10</td><td>23.99</td><td>24.09</td><td>44.67</td><td>68.83</td><td>89.50</td><td>23.00</td><td>23.94</td><td>24.04</td></tr><tr><td>Query2Doc-PRF</td><td>25.45</td><td>29.99</td><td>32.36</td><td>20.31</td><td>21.25</td><td>21.33</td><td>41.44</td><td>62.50</td><td>81.17</td><td>20.45</td><td>21.35</td><td>21.43</td></tr><tr><td>CoT</td><td>26.13</td><td>31.84</td><td>34.25</td><td>21.38</td><td>22.44</td><td>22.54</td><td>41.00</td><td>68.33</td><td>86.83</td><td>21.47</td><td>22.55</td><td>22.64</td></tr><tr><td>CoT-PRF</td><td>28.93</td><td>34.17</td><td>36.32</td><td>23.51</td><td>24.52</td><td>24.60</td><td>46.12</td><td>70.87</td><td>87.50</td><td>23.64</td><td>24.69</td><td>24.77</td></tr><tr><td>MILL</td><td>29.99</td><td>34.92</td><td>37.26</td><td>24.01</td><td>24.98</td><td>25.07</td><td>48.67</td><td>71.67</td><td>89.83</td><td>24.02</td><td>25.02</td><td>25.10</td></tr></table>",
+        "bbox": [
+            119,
+            185,
+            882,
+            422
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/a9b09d39f11a0414a016342f47848b61b36b55501b20dc06fabca70aa4ea3999.jpg",
+        "table_caption": [
+            "Table 10: Overall experimental results on TREC-COVID."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>62.59</td><td>47.41</td><td>42.04</td><td>1.46</td><td>8.16</td><td>19.79</td><td>1.74</td><td>11.91</td><td>40.52</td><td>83.37</td><td>83.37</td><td>83.37</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>64.82</td><td>49.5</td><td>44.73</td><td>1.56</td><td>8.8</td><td>22.01</td><td>1.77</td><td>12.48</td><td>43.64</td><td>86.62</td><td>86.77</td><td>86.77</td></tr><tr><td>KL</td><td>65.8</td><td>49.93</td><td>44.88</td><td>1.59</td><td>8.9</td><td>22.26</td><td>1.79</td><td>12.51</td><td>43.63</td><td>86.62</td><td>86.79</td><td>86.79</td></tr><tr><td>RM3</td><td>64.05</td><td>48.5</td><td>44.54</td><td>1.55</td><td>8.62</td><td>21.87</td><td>1.78</td><td>11.22</td><td>43.71</td><td>82.96</td><td>83.06</td><td>83.06</td></tr><tr><td>AxiomaticQE</td><td>62.74</td><td>47.45</td><td>42.06</td><td>1.47</td><td>8.17</td><td>19.81</td><td>1.74</td><td>11.91</td><td>40.53</td><td>84.37</td><td>84.37</td><td>84.37</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>65.66</td><td>48.53</td><td>42.48</td><td>1.58</td><td>8.50</td><td>19.79</td><td>1.80</td><td>11.73</td><td>40.82</td><td>84.83</td><td>84.83</td><td>84.86</td></tr><tr><td>Query2Term-FS</td><td>57.78</td><td>44.80</td><td>41.13</td><td>1.39</td><td>8.35</td><td>20.32</td><td>1.60</td><td>11.60</td><td>40.34</td><td>77.31</td><td>77.59</td><td>77.61</td></tr><tr><td>Query2Term-PRF</td><td>56.55</td><td>41.64</td><td>39.90</td><td>1.37</td><td>6.73</td><td>17.90</td><td>1.56</td><td>9.89</td><td>39.50</td><td>80.95</td><td>81.34</td><td>81.34</td></tr><tr><td>Query2Doc</td><td>70.95</td><td>53.17</td><td>47.19</td><td>1.77</td><td>9.89</td><td>23.78</td><td>1.98</td><td>13.25</td><td>45.42</td><td>88.79</td><td>88.79</td><td>88.79</td></tr><tr><td>Query2Doc-FS</td><td>68.38</td><td>51.29</td><td>46.34</td><td>1.72</td><td>9.48</td><td>22.75</td><td>1.94</td><td>12.86</td><td>44.66</td><td>86.03</td><td>86.12</td><td>86.12</td></tr><tr><td>Query2Doc-PRF</td><td>63.98</td><td>49.41</td><td>43.87 49.32</td><td>1.54</td><td>8.79</td><td>21.86</td><td>1.76</td><td>12.07</td><td>42.53</td><td>81.40</td><td>81.55</td><td>81.55</td></tr><tr><td>CoT CoT-PRF</td><td>76.31 68.23</td><td>56.54 52.46</td><td>46.53</td><td>1.98</td><td>10.87</td><td>25.51 23.31</td><td>2.18</td><td>14.24</td><td>47.27</td><td>89.38</td><td>89.38</td><td>89.38</td></tr><tr><td></td><td></td><td></td><td></td><td>1.71</td><td>9.49</td><td></td><td>1.91</td><td>12.88</td><td>44.93</td><td>90.20</td><td>90.20</td><td>90.20</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>68.04</td><td>54.26</td><td>48.20</td><td>1.71</td><td>10.12</td><td>25.17</td><td>1.94</td><td>13.66</td><td>47.04</td><td>82.90</td><td>82.90</td><td>82.90</td></tr><tr><td>Query2Term-FS*</td><td>66.34</td><td>52.03 50.49</td><td>46.54 45.61</td><td>1.64</td><td>9.54</td><td>23.91</td><td>1.88 1.81</td><td>13.14</td><td>45.43 44.67</td><td>83.07</td><td>83.07</td><td>83.07 85.40</td></tr><tr><td>Query2Term-PRF*</td><td>65.00 72.73</td><td>57.78</td><td>50.26</td><td>1.60 1.83</td><td>8.95 11.28</td><td>22.86 27.08</td><td>2.09</td><td>12.41</td><td>48.43</td><td>85.40 86.87</td><td>85.40 86.87</td><td>86.87</td></tr><tr><td>Query2Doc* Query2Doc-FS*</td><td>73.13</td><td>57.78</td><td>50.42</td><td>1.84</td><td>11.20</td><td>27.10</td><td>2.08</td><td>14.58 14.56</td><td>48.70</td><td>87.67</td><td>87.78</td><td>87.78</td></tr><tr><td></td><td>71.73</td><td>57.51</td><td>50.55</td><td>1.79</td><td>11.24</td><td>27.25</td><td>2.05</td><td>14.54</td><td>48.92</td><td></td><td>87.07</td><td>87.07</td></tr><tr><td>Query2Doc-PRF* CoT*</td><td>73.90</td><td>57.91</td><td>50.69</td><td>1.89</td><td>11.31</td><td>27.02</td><td>2.14</td><td>14.62</td><td>48.87</td><td>87.07 88.47</td><td>88.47</td><td>88.47</td></tr><tr><td>CoT-PRF*</td><td>68.97</td><td>53.70</td><td>47.29</td><td>1.73</td><td>9.90</td><td>24.36</td><td>1.95</td><td>13.49</td><td>45.97</td><td>86.92</td><td>86.92</td><td>86.92</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>MILL</td><td>75.30</td><td>60.24</td><td>52.53</td><td>2.03</td><td>12.22</td><td>29.30</td><td>2.22</td><td>15.40</td><td>50.55</td><td>91.17</td><td>91.17</td><td>91.17</td></tr></table>",
+        "bbox": [
+            121,
+            525,
+            882,
+            879
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "2512",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/5b0c537c4f2e05af3b18823e186c908282f9c56a8d7ced418d997bbac5b502d5.jpg",
+        "table_caption": [
+            "Table 11: Overall experimental results on TOUCHE."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>34.28</td><td>45.48</td><td>55.32</td><td>13.06</td><td>20.96</td><td>22.47</td><td>20.69</td><td>54.92</td><td>85.05</td><td>62.28</td><td>62.71</td><td>62.71</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>35.62</td><td>46.98</td><td>56.62</td><td>14.19</td><td>22.19</td><td>23.69</td><td>21.35</td><td>56.47</td><td>86.00</td><td>63.54</td><td>64.07</td><td>64.07</td></tr><tr><td>KL</td><td>35.52</td><td>46.96</td><td>56.72</td><td>14.00</td><td>22.18</td><td>23.68</td><td>20.99</td><td>56.78</td><td>86.14</td><td>63.98</td><td>64.51</td><td>64.51</td></tr><tr><td>RM3</td><td>34.66</td><td>46.54</td><td>55.79</td><td>13.72</td><td>22.00</td><td>23.42</td><td>22.03</td><td>57.79</td><td>85.79</td><td>56.73</td><td>57.09</td><td>57.09</td></tr><tr><td>AxiomaticQE</td><td>34.28</td><td>45.48</td><td>55.32</td><td>13.06</td><td>20.96</td><td>22.47</td><td>20.69</td><td>54.92</td><td>85.05</td><td>62.28</td><td>62.71</td><td>62.71</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>34.51</td><td>44.05</td><td>52.95</td><td>13.11</td><td>19.88</td><td>21.13</td><td>20.05</td><td>49.98</td><td>77.24</td><td>65.60</td><td>66.13</td><td>66.14</td></tr><tr><td>Query2Term-FS</td><td>35.10</td><td>47.93</td><td>57.10</td><td>14.97</td><td>23.28</td><td>24.66</td><td>21.71</td><td>57.88</td><td>85.33</td><td>57.71</td><td>58.23</td><td>58.23</td></tr><tr><td>Query2Term-PRF</td><td>31.83</td><td>44.19</td><td>53.72</td><td>12.60</td><td>19.78</td><td>21.22</td><td>20.16</td><td>53.83</td><td>83.29</td><td>54.77</td><td>55.45</td><td>55.45</td></tr><tr><td>Query2Doc</td><td>42.36</td><td>51.12</td><td>60.32</td><td>17.44</td><td>25.51</td><td>26.91</td><td>23.80</td><td>56.10</td><td>84.08</td><td>75.63</td><td>75.97</td><td>75.97</td></tr><tr><td>Query2Doc-FS</td><td>40.71</td><td>51.30</td><td>59.99</td><td>16.91</td><td>25.72</td><td>27.02</td><td>23.01</td><td>57.46</td><td>83.95</td><td>70.84</td><td>71.06</td><td>71.06</td></tr><tr><td>Query2Doc-PRF</td><td>37.21</td><td>47.43</td><td>56.84</td><td>14.78</td><td>22.39</td><td>23.81</td><td>21.11</td><td>54.30</td><td>83.50</td><td>69.59</td><td>69.95</td><td>69.97</td></tr><tr><td>CoT</td><td>41.91</td><td>51.57</td><td>60.77</td><td>17.28</td><td>25.61</td><td>27.03</td><td>23.18</td><td>56.42</td><td>84.42</td><td>75.00</td><td>75.09</td><td>75.09</td></tr><tr><td>CoT-PRF</td><td>39.33</td><td>50.08</td><td>59.03</td><td>16.66</td><td>24.54</td><td>25.93</td><td>23.30</td><td>57.10</td><td>84.37</td><td>69.45</td><td>69.58</td><td>69.58</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term* Query2Term-FS*</td><td>40.25</td><td>50.78</td><td>59.46</td><td>15.96</td><td>24.86</td><td>26.25</td><td>24.10</td><td>58.54</td><td>84.92</td><td>69.54</td><td>69.54</td><td>69.54</td></tr><tr><td></td><td>37.69</td><td>49.41</td><td>58.03</td><td>15.27</td><td>23.93</td><td>25.31</td><td>23.81</td><td>58.67</td><td>85.34</td><td>60.65</td><td>60.94</td><td>60.94</td></tr><tr><td>Query2Term-PRF*</td><td>35.25</td><td>48.32</td><td>56.74</td><td>13.61</td><td>22.60</td><td>23.86</td><td>21.48</td><td>58.74</td><td>85.42</td><td>59.10</td><td>59.29</td><td>59.29 76.59</td></tr><tr><td>Query2Doc*</td><td>44.44</td><td>53.33 53.91</td><td>61.87 62.10</td><td>17.82</td><td>26.60</td><td>27.91</td><td>24.71</td><td>58.96</td><td>85.49</td><td>76.59</td><td>76.59</td><td>79.00</td></tr><tr><td>Query2Doc-FS*</td><td>43.98</td><td></td><td>61.74</td><td>17.75</td><td>26.74</td><td>28.02</td><td>24.28</td><td>60.09</td><td>85.21</td><td>78.74</td><td>79.00</td><td>77.22</td></tr><tr><td>Query2Doc-PRF*</td><td>43.51 43.48</td><td>53.60 53.24</td><td>61.69</td><td>17.45 17.28</td><td>26.45 26.32</td><td>27.74 27.65</td><td>24.19 24.06</td><td>59.59 58.77</td><td>84.94 85.16</td><td>76.89 78.66</td><td>77.22</td><td>78.80</td></tr><tr><td>CoT* CoT-PRF*</td><td>39.82</td><td>50.73</td><td>59.31</td><td>15.75</td><td>24.58</td><td>25.88</td><td>23.70</td><td>58.96</td><td>85.76</td><td>67.94</td><td>78.80 68.10</td><td>68.10</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>MILL</td><td>45.35</td><td>54.00</td><td>62.15</td><td>18.05</td><td>27.02</td><td>28.33</td><td>25.44</td><td>59.97</td><td>85.21</td><td>77.04</td><td>77.23</td><td>77.23</td></tr></table>",
+        "bbox": [
+            119,
+            126,
+            882,
+            476
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/b45b84889207191b30e35dec4fbd0e7a50adb11020abd9a83fd38175a0fbc90e.jpg",
+        "table_caption": [
+            "Table 12: Overall experimental results on SCIFACT."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>67.22</td><td>69.66</td><td>70.27</td><td>62.11</td><td>62.67</td><td>62.7</td><td>81.43</td><td>92.27</td><td>97</td><td>63.24</td><td>63.66</td><td>63.68</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>65.14</td><td>67.63</td><td>68.34</td><td>59.3</td><td>59.92</td><td>59.95</td><td>81.59</td><td>92.2</td><td>97.67</td><td>60.42</td><td>60.87</td><td>60.89</td></tr><tr><td>KL</td><td>64.68</td><td>67.08</td><td>67.83</td><td>58.69</td><td>59.28</td><td>59.31</td><td>81.59</td><td>91.87</td><td>97.67</td><td>59.76</td><td>60.18</td><td>60.21</td></tr><tr><td>RM3</td><td>62.22</td><td>64.54</td><td>65.28</td><td>55.45</td><td>55.97</td><td>55.99</td><td>81.34</td><td>91.93</td><td>97.67</td><td>56.24</td><td>56.58</td><td>56.61</td></tr><tr><td>AxiomaticQE</td><td>67.22</td><td>69.66</td><td>70.28</td><td>62.11</td><td>62.68</td><td>62.7</td><td>81.43</td><td>92.27</td><td>97</td><td>63.24</td><td>63.66</td><td>63.68</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>66.13</td><td>68.87</td><td>69.57</td><td>60.54</td><td>61.18</td><td>61.21</td><td>81.7</td><td>93.73</td><td>99</td><td>61.6</td><td>62.14</td><td>62.16</td></tr><tr><td>Query2Term-FS</td><td>68.34</td><td>70.71</td><td>71.39</td><td>62.92</td><td>63.5</td><td>63.54</td><td>83.32</td><td>93.47</td><td>98.33</td><td>64.13</td><td>64.6</td><td>64.62</td></tr><tr><td>Query2Term-PRF</td><td>57.67</td><td>59.91</td><td>60.79</td><td>49.72</td><td>50.22</td><td>50.25</td><td>80.46</td><td>90.9</td><td>97.5</td><td>50.58</td><td>50.93</td><td>50.96</td></tr><tr><td>Query2Doc</td><td>67.92</td><td>70.6</td><td>71.19</td><td>62.59</td><td>63.24</td><td>63.27</td><td>82.82</td><td>94.43</td><td>99</td><td>63.81</td><td>64.34</td><td>64.36</td></tr><tr><td>Query2Doc-FS</td><td>68.61</td><td>71.39</td><td>71.89</td><td>63.37</td><td>64.02</td><td>64.04</td><td>83.17</td><td>95.43</td><td>99.33</td><td>64.55</td><td>65.07</td><td>65.08</td></tr><tr><td>Query2Doc-PRF</td><td>64.53</td><td>66.96</td><td>67.82</td><td>58.6</td><td>59.15</td><td>59.19</td><td>81.31</td><td>92.53</td><td>99</td><td>59.74</td><td>60.12</td><td>60.15</td></tr><tr><td>CoT</td><td>68.58</td><td>71.13</td><td>71.63</td><td>63.3</td><td>63.87</td><td>63.89</td><td>83.03</td><td>94.77</td><td>98.67</td><td>64.77</td><td>65.18</td><td>65.19</td></tr><tr><td>CoT-PRF</td><td>70.98</td><td>72.95</td><td>73.65</td><td>66.2</td><td>66.64</td><td>66.67</td><td>84.56</td><td>93.27</td><td>98.67</td><td>67.09</td><td>67.47</td><td>67.49</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>65.01</td><td>67.37</td><td>68.12</td><td>58.82</td><td>59.38</td><td>59.41</td><td>82.62</td><td>92.80</td><td>98.67</td><td>59.57</td><td>60.03</td><td>60.05</td></tr><tr><td>Query2Term-FS*</td><td>64.66</td><td>67.13</td><td>67.96</td><td>58.52</td><td>59.16</td><td>59.19</td><td>82.07</td><td>92.47</td><td>99.00</td><td>59.30</td><td>59.78</td><td>59.81</td></tr><tr><td>Query2Term-PRF*</td><td>61.61 68.42</td><td>63.76</td><td>64.80 71.49</td><td>54.61</td><td>55.17</td><td>55.20</td><td>81.43</td><td>90.73</td><td>98.83</td><td>55.69</td><td>56.04</td><td>56.08</td></tr><tr><td>Query2Doc*</td><td>69.02</td><td>70.74 71.40</td><td>72.03</td><td>62.94</td><td>63.52</td><td>63.55</td><td>83.71</td><td>93.70</td><td>99.33</td><td>64.03</td><td>64.51</td><td>64.53</td></tr><tr><td>Query2Doc-FS*</td><td>68.84</td><td>71.25</td><td>71.86</td><td>63.69 63.45</td><td>64.25 64.02</td><td>64.28 64.04</td><td>83.93 83.93</td><td>94.53</td><td>99.33 99.33</td><td>64.69</td><td>65.14</td><td>65.16</td></tr><tr><td>Query2Doc-PRF*</td><td>69.53</td><td>71.63</td><td>72.33</td><td>64.00</td><td>64.53</td><td>64.56</td><td>84.88</td><td>94.60 94.03</td><td>99.33</td><td>64.52</td><td>64.97</td><td>64.99</td></tr><tr><td>CoT*</td><td>68.05</td><td>69.99</td><td>70.88</td><td>62.51</td><td>62.98</td><td>63.02</td><td>83.69</td><td>92.13</td><td>99.00</td><td>65.35</td><td>65.74</td><td>65.77</td></tr><tr><td>CoT-PRF*</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>63.58</td><td>63.93</td><td>63.96</td></tr><tr><td>MILL</td><td>71.37</td><td>73.47</td><td>74.14</td><td>66.34</td><td>66.85</td><td>66.88</td><td>85.24</td><td>94.5</td><td>99.67</td><td>67.69</td><td>68.07</td><td>68.09</td></tr></table>",
+        "bbox": [
+            119,
+            546,
+            882,
+            897
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "2513",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/d8961045941175d49decd2014570d373bda90dcfdd2965e5cee9b600a6c5c68f.jpg",
+        "table_caption": [
+            "Table 13: Overall experimental results on NFCORPUS."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>32.22</td><td>27.29</td><td>30.02</td><td>12.08</td><td>14.36</td><td>14.89</td><td>14.78</td><td>24.38</td><td>36.06</td><td>53.44</td><td>53.82</td><td>53.83</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>33.49</td><td>30.21</td><td>37.01</td><td>12.73</td><td>15.98</td><td>17.09</td><td>16.26</td><td>29.71</td><td>54.38</td><td>52.74</td><td>53.24</td><td>53.28</td></tr><tr><td>KL</td><td>33.56</td><td>30.22</td><td>37.18</td><td>12.73</td><td>15.89</td><td>17.01</td><td>16.3</td><td>29.61</td><td>54.79</td><td>53.49</td><td>53.99</td><td>54.03</td></tr><tr><td>RM3</td><td>33.41</td><td>30.31</td><td>37.27</td><td>12.36</td><td>15.68</td><td>16.8</td><td>16.82</td><td>30.46</td><td>56.12</td><td>52.35</td><td>52.81</td><td>52.85</td></tr><tr><td>AxiomaticQE</td><td>32.22</td><td>27.29</td><td>30.02</td><td>12.08</td><td>14.36</td><td>14.89</td><td>14.78</td><td>24.38</td><td>36.06</td><td>53.44</td><td>53.82</td><td>53.83</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>25.79</td><td>24.94</td><td>33.82</td><td>8.3</td><td>10.89</td><td>12.04</td><td>12.29</td><td>27.27</td><td>58.82</td><td>44.79</td><td>45.63</td><td>45.68</td></tr><tr><td>Query2Term-FS</td><td>31.92</td><td>30.66</td><td>38.57</td><td>11.24</td><td>14.63</td><td>15.91</td><td>15.38</td><td>32.83</td><td>61.72</td><td>52.99</td><td>53.68</td><td>53.71</td></tr><tr><td>Query2Term-PRF</td><td>32.14</td><td>29.92</td><td>38.21</td><td>11.92</td><td>15.01</td><td>16.29</td><td>16.78</td><td>31.63</td><td>60.55</td><td>49.27</td><td>49.83</td><td>49.87</td></tr><tr><td>Query2Doc</td><td>33.47</td><td>30.41</td><td>38.76</td><td>12.54</td><td>15.31</td><td>16.54</td><td>16.68</td><td>30.96</td><td>61.09</td><td>54.61</td><td>55.19</td><td>55.23</td></tr><tr><td>Query2Doc-FS</td><td>33.41</td><td>30.1</td><td>38.09</td><td>12.59</td><td>15.32</td><td>16.45</td><td>16.27</td><td>30.22</td><td>59.55</td><td>54.08</td><td>54.64</td><td>54.7</td></tr><tr><td>Query2Doc-PRF</td><td>33.82</td><td>31.23</td><td>39.41</td><td>12.64</td><td>16.17</td><td>17.44</td><td>16.97</td><td>32.7</td><td>62.5</td><td>51.26</td><td>51.72</td><td>51.77</td></tr><tr><td>CoT</td><td>34.52</td><td>30.68</td><td>38.88</td><td>12.95</td><td>15.78</td><td>16.93</td><td>16.88</td><td>29.53</td><td>60.63</td><td>56.23</td><td>56.64</td><td>56.69</td></tr><tr><td>CoT-PRF</td><td>35.76</td><td>31.93</td><td>39.84</td><td>13.95</td><td>16.9</td><td>18.09</td><td>18.13</td><td>31.76</td><td>59.87</td><td>55.65</td><td>56.05</td><td>56.09</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>35.61</td><td>32.96</td><td>41.20</td><td>13.44</td><td>17.05</td><td>18.34</td><td>18.03</td><td>34.46</td><td>64.66</td><td>54.99</td><td>55.57</td><td>55.62</td></tr><tr><td>Query2Term-FS*</td><td>35.27</td><td>32.84</td><td>41.12</td><td>13.49</td><td>17.12</td><td>18.43</td><td>17.87</td><td>34.23</td><td>64.31</td><td>54.09</td><td>54.63</td><td>54.68</td></tr><tr><td>Query2Term-PRF*</td><td>33.92</td><td>31.27</td><td>39.33</td><td>12.94</td><td>16.28</td><td>17.55</td><td>17.53</td><td>32.72</td><td>60.80</td><td>51.44</td><td>52.04</td><td>52.08</td></tr><tr><td>Query2Doc*</td><td>35.76</td><td>32.74</td><td>41.33</td><td>13.62</td><td>17.04</td><td>18.40</td><td>17.79</td><td>33.30</td><td>64.23</td><td>56.48</td><td>57.00</td><td>57.05</td></tr><tr><td>Query2Doc-FS*</td><td>35.88</td><td>32.58</td><td>41.24</td><td>13.62</td><td>16.94</td><td>18.30</td><td>18.05</td><td>33.21</td><td>64.70</td><td>55.95</td><td>56.40</td><td>56.44</td></tr><tr><td>Query2Doc-PRF*</td><td>35.83</td><td>32.60</td><td>41.20 41.08</td><td>13.50</td><td>16.94</td><td>18.32</td><td>17.80</td><td>32.87</td><td>63.97</td><td>55.82</td><td>56.24</td><td>56.29</td></tr><tr><td>CoT* CoT-PRF*</td><td>36.05 35.23</td><td>32.51 32.26</td><td>40.43</td><td>13.93 13.70</td><td>17.13 17.08</td><td>18.45 18.33</td><td>17.99 17.83</td><td>32.04 33.14</td><td>63.82 62.34</td><td>56.03 54.23</td><td>56.51</td><td>56.55</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>54.81</td><td>54.86</td></tr><tr><td>MILL</td><td>36.79</td><td>33.02</td><td>41.75</td><td>13.81</td><td>17.18</td><td>18.56</td><td>18.21</td><td>32.42</td><td>64.95</td><td>58.35</td><td>58.86</td><td>58.91</td></tr></table>",
+        "bbox": [
+            119,
+            126,
+            882,
+            476
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "table",
+        "img_path": "images/f0bc92ad9631411e8a4110fa67588cbdb96137f35bfa999a491302e8ba0437f9.jpg",
+        "table_caption": [
+            "Table 14: Overall experimental results on DBPEDIA."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>26.59</td><td>32.45</td><td>38.7</td><td>11.59</td><td>17.71</td><td>18.89</td><td>17.2</td><td>42.15</td><td>63.61</td><td>51.7</td><td>52.37</td><td>52.39</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>26.59</td><td>32.59</td><td>39.05</td><td>11.65</td><td>18.03</td><td>19.24</td><td>17.32</td><td>42.67</td><td>64.9</td><td>50.47</td><td>51.17</td><td>51.2</td></tr><tr><td>KL</td><td>26.42</td><td>32.44</td><td>38.87</td><td>11.52</td><td>17.89</td><td>19.09</td><td>17.27</td><td>42.62</td><td>64.71</td><td>50.01</td><td>50.84</td><td>50.86</td></tr><tr><td>RM3</td><td>25.47</td><td>31.81</td><td>38.11</td><td>10.88</td><td>17.4</td><td>18.6</td><td>17.05</td><td>42.92</td><td>64.37</td><td>46.6</td><td>47.28</td><td>47.31</td></tr><tr><td>AxiomaticQE</td><td>26.59</td><td>32.45</td><td>38.7</td><td>11.59</td><td>17.71</td><td>18.89</td><td>17.2</td><td>42.15</td><td>63.61</td><td>51.7</td><td>52.37</td><td>52.39</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>22.1</td><td>26.59</td><td>33.51</td><td>9.16</td><td>13.54</td><td>14.54</td><td>14.11</td><td>34.63</td><td>58.9</td><td>46.54</td><td>47.16</td><td>47.2</td></tr><tr><td>Query2Term-FS</td><td>26.46</td><td>31.9</td><td>39.36</td><td>11.87</td><td>17.04</td><td>18.29</td><td>17.67</td><td>41.59</td><td>65.67</td><td>53.5</td><td>54.16</td><td>54.19</td></tr><tr><td>Query2Term-PRF</td><td>23.39</td><td>27.85</td><td>34.83</td><td>9.98</td><td>14.79</td><td>15.96</td><td>16.1</td><td>37.15</td><td>61.11</td><td>45.37</td><td>46.03</td><td>46.07</td></tr><tr><td>Query2Doc</td><td>32.31</td><td>37.72</td><td>44.79</td><td>14.27</td><td>20.65</td><td>21.97</td><td>20.13</td><td>46.37</td><td>70.29</td><td>61.82</td><td>62.32</td><td>62.34</td></tr><tr><td>Query2Doc-FS</td><td>32.87</td><td>37.99</td><td>45.11</td><td>14.65</td><td>20.86</td><td>22.16</td><td>19.65</td><td>45.85</td><td>70.04</td><td>63.35</td><td>63.82</td><td>63.84</td></tr><tr><td>Query2Doc-PRF</td><td>27.43</td><td>33.22</td><td>39.85</td><td>11.53</td><td>18.11</td><td>19.34</td><td>18.74</td><td>44.23</td><td>66.41</td><td>52.58</td><td>53.26</td><td>53.28</td></tr><tr><td>CoT</td><td>29.96</td><td>36.01</td><td>43.05</td><td>13.29</td><td>19.42</td><td>20.7</td><td>19.22</td><td>45.76</td><td>69.24</td><td>57.68</td><td>58.3</td><td>58.32</td></tr><tr><td>CoT-PRF</td><td>28.17</td><td>33.66</td><td>40.43</td><td>12.26</td><td>18.49</td><td>19.75</td><td>18.15</td><td>43.43</td><td>66.06</td><td>52.95</td><td>53.59</td><td>53.6</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>27.10</td><td>32.43</td><td>39.12 37.78</td><td>11.83</td><td>17.76</td><td>19.02</td><td>18.48</td><td>42.73</td><td>64.77</td><td>50.67</td><td>51.44</td><td>51.47</td></tr><tr><td>Query2Term-FS*</td><td>25.36</td><td>30.73</td><td></td><td>11.06</td><td>16.74</td><td>17.98</td><td>17.65</td><td>40.92</td><td>64.48</td><td>46.52</td><td>47.17</td><td>47.22</td></tr><tr><td>Query2Term-PRF*</td><td>24.79</td><td>30.21 37.12</td><td>36.85 44.06</td><td>10.63</td><td>16.41</td><td>17.57</td><td>17.16</td><td>40.47</td><td>63.37</td><td>47.06</td><td>47.63</td><td>47.66</td></tr><tr><td>Query2Doc*</td><td>31.81</td><td></td><td>44.22</td><td>14.23</td><td>21.12</td><td>22.45</td><td>20.68</td><td>46.24</td><td>69.95</td><td>57.58</td><td>58.03</td><td>58.06</td></tr><tr><td>Query2Doc-FS*</td><td>31.88 32.43</td><td>37.39 37.70</td><td>44.47</td><td>14.08 14.53</td><td>21.13 21.53</td><td>22.48 22.82</td><td>20.85 21.19</td><td>46.98 47.03</td><td>70.23</td><td>57.77</td><td>58.30</td><td>58.32</td></tr><tr><td>Query2Doc-PRF*</td><td>30.34</td><td>35.75</td><td>42.29</td><td>13.51</td><td></td><td>21.39</td><td>19.86</td><td></td><td>70.19</td><td>58.81</td><td>59.34</td><td>59.37</td></tr><tr><td>CoT*</td><td>26.93</td><td>32.41</td><td>38.95</td><td>11.66</td><td>20.16 17.96</td><td>19.18</td><td>18.22</td><td>45.75 42.59</td><td>67.63 64.55</td><td>56.10</td><td>56.68</td><td>56.70</td></tr><tr><td>CoT-PRF*</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>49.81</td><td>50.38</td><td>50.41</td></tr><tr><td>MILL</td><td>34.33</td><td>39.71</td><td>46.39</td><td>15.65</td><td>22.89</td><td>24.28</td><td>21.32</td><td>48.86</td><td>71.13</td><td>64.09</td><td>64.53</td><td>64.55</td></tr></table>",
+        "bbox": [
+            119,
+            546,
+            882,
+            897
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "2514",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "table",
+        "img_path": "images/7563ffbaed3c08803772148db09c06f7643e0a3c9232badff1e24ccd8e0c1f2f.jpg",
+        "table_caption": [
+            "Table 15: Overall experimental results on FIQA-2018."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>25.26</td><td>31.74</td><td>35.28</td><td>19.4</td><td>20.86</td><td>21.04</td><td>30.97</td><td>55.92</td><td>77.42</td><td>31.03</td><td>32.11</td><td>32.18</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>24.36</td><td>31.21</td><td>34.97</td><td>18.71</td><td>20.3</td><td>20.49</td><td>30.21</td><td>56.25</td><td>79.18</td><td>29.37</td><td>30.51</td><td>30.58</td></tr><tr><td>KL</td><td>24.75</td><td>31.4</td><td>35.12</td><td>18.99</td><td>20.52</td><td>20.72</td><td>30.88</td><td>56.21</td><td>78.84</td><td>29.77</td><td>30.84</td><td>30.92</td></tr><tr><td>RM3</td><td>22.8</td><td>29.23</td><td>33.14</td><td>16.85</td><td>18.32</td><td>18.51</td><td>30.37</td><td>54.82</td><td>78.82</td><td>26.47</td><td>27.55</td><td>27.63</td></tr><tr><td>AxiomaticQE</td><td>25.26</td><td>31.76</td><td>35.28</td><td>19.4</td><td>20.87</td><td>21.04</td><td>30.97</td><td>56</td><td>77.42</td><td>31.03</td><td>32.11</td><td>32.18</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>21.72</td><td>28.1</td><td>32.12</td><td>16.15</td><td>17.45</td><td>17.65</td><td>28.42</td><td>54.12</td><td>78.22</td><td>25.82</td><td>26.83</td><td>26.91</td></tr><tr><td>Query2Term-FS</td><td>24.83</td><td>31.95</td><td>35.78</td><td>18.9</td><td>20.49</td><td>20.68</td><td>30.5</td><td>58.45</td><td>81.84</td><td>30.57</td><td>31.61</td><td>31.68</td></tr><tr><td>Query2Term-PRF</td><td>21.56</td><td>27.43</td><td>31.5</td><td>16.29</td><td>17.55</td><td>17.73</td><td>27.47</td><td>50.78</td><td>76.31</td><td>25.32</td><td>26.21</td><td>26.29</td></tr><tr><td>Query2Doc</td><td>27</td><td>33.92</td><td>37.63</td><td>20.46</td><td>22.15</td><td>22.34</td><td>34.26</td><td>60.11</td><td>82.72</td><td>32.64</td><td>33.73</td><td>33.78</td></tr><tr><td>Query2Doc-FS</td><td>27.23</td><td>34.46</td><td>37.96</td><td>20.37</td><td>22.15</td><td>22.33</td><td>34.8</td><td>61.94</td><td>83.46</td><td>33.14</td><td>34.23</td><td>34.29</td></tr><tr><td>Query2Doc-PRF</td><td>23.51</td><td>30.26</td><td>34.09</td><td>17.91</td><td>19.39</td><td>19.57</td><td>28.99</td><td>55.33</td><td>79.14</td><td>29.18</td><td>30.19</td><td>30.27</td></tr><tr><td>CoT</td><td>26.69</td><td>33.78</td><td>37.28</td><td>19.8</td><td>21.48</td><td>21.65</td><td>34.88</td><td>62.34</td><td>83.56</td><td>32.12</td><td>33.16</td><td>33.22</td></tr><tr><td>CoT-PRF</td><td>27.78</td><td>34.3</td><td>38.04</td><td>21.45</td><td>23.06</td><td>23.24</td><td>34.5</td><td>59.26</td><td>82.14</td><td>33.25</td><td>34.21</td><td>34.29</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>24.88</td><td>31.48</td><td>35.22</td><td>18.74</td><td>20.28</td><td>20.46</td><td>31.83</td><td>57.39</td><td>80.36</td><td>29.70</td><td>30.64</td><td>30.71</td></tr><tr><td>Query2Term-FS*</td><td>24.13</td><td>30.76</td><td>34.60</td><td>18.17</td><td>19.70</td><td>19.89</td><td>30.84</td><td>56.18</td><td>79.85</td><td>29.09</td><td>30.07</td><td>30.15</td></tr><tr><td>Query2Term-PRF*</td><td>23.19</td><td>29.17 33.67</td><td>33.27</td><td>17.36</td><td>18.73</td><td>18.92</td><td>30.16</td><td>52.96</td><td>78.84</td><td>27.46</td><td>28.36</td><td>28.45 32.87</td></tr><tr><td>Query2Doc*</td><td>26.45 26.56</td><td></td><td>37.05 37.05</td><td>19.78</td><td>21.48</td><td>21.65</td><td>34.06</td><td>62.17</td><td>82.47</td><td>31.82</td><td>32.81</td><td>32.68</td></tr><tr><td>Query2Doc-FS*</td><td>26.02</td><td>33.66 33.33</td><td>36.82</td><td>19.79 19.43</td><td>21.45</td><td>21.62 21.37</td><td>34.51 33.52</td><td>61.77 61.30</td><td>82.40 82.43</td><td>31.65</td><td>32.63</td><td>32.48</td></tr><tr><td>Query2Doc-PRF*</td><td>27.58</td><td>34.61</td><td>38.13</td><td>20.99</td><td>21.19 22.63</td><td>22.81</td><td>34.73</td><td>61.82</td><td>83.32</td><td>31.37 33.20</td><td>32.42</td><td></td></tr><tr><td>CoT* CoT-PRF*</td><td>25.71</td><td>32.49</td><td>36.18</td><td>19.47</td><td>21.11</td><td>21.29</td><td>32.43</td><td>58.55</td><td>81.35</td><td>31.11</td><td>34.25 32.07</td><td>34.31</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>32.14</td></tr><tr><td>MILL</td><td>28.42</td><td>35.63</td><td>39.23</td><td>21.89</td><td>23.61</td><td>23.8</td><td>34.63</td><td>62.46</td><td>84.23</td><td>34.94</td><td>35.99</td><td>36.05</td></tr></table>",
+        "bbox": [
+            119,
+            124,
+            882,
+            475
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "table",
+        "img_path": "images/da041e68e79d16c044f1927429b3b2ac29d2768160b05c00bb1710621e8a1024.jpg",
+        "table_caption": [
+            "Table 16: Overall experimental results on SCIDOCS."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>14.71</td><td>20.91</td><td>25.14</td><td>8.36</td><td>9.73</td><td>9.94</td><td>15.84</td><td>34.48</td><td>55.04</td><td>25.37</td><td>26.41</td><td>26.48</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>15.1</td><td>21.82</td><td>26.14</td><td>8.73</td><td>10.29</td><td>10.51</td><td>16.43</td><td>36.39</td><td>57.47</td><td>25.31</td><td>26.41</td><td>26.48</td></tr><tr><td>KL</td><td>15.1</td><td>21.81</td><td>26.15</td><td>8.75</td><td>10.31</td><td>10.54</td><td>16.37</td><td>36.24</td><td>57.38</td><td>25.43</td><td>26.54</td><td>26.61</td></tr><tr><td>RM3</td><td>14.56</td><td>21.49</td><td>25.91</td><td>8.41</td><td>10.05</td><td>10.28</td><td>15.79</td><td>36.24</td><td>57.88</td><td>24.46</td><td>25.63</td><td>25.7</td></tr><tr><td>AxiomaticQE</td><td>14.71</td><td>20.91</td><td>25.14</td><td>8.36</td><td>9.73</td><td>9.94</td><td>15.84</td><td>34.48</td><td>55.04</td><td>25.37</td><td>26.41</td><td>26.48</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>13.04</td><td>20.02</td><td>25.11</td><td>7.32</td><td>8.84</td><td>9.1</td><td>14.3</td><td>35.08</td><td>60</td><td>22.34</td><td>23.66</td><td>23.73</td></tr><tr><td>Query2Term-FS</td><td>14.16</td><td>21.25</td><td>26.18</td><td>8.07</td><td>9.68</td><td>9.94</td><td>15.26</td><td>36.21</td><td>60.15</td><td>24.31</td><td>25.54</td><td>25.62</td></tr><tr><td>Query2Term-PRF</td><td>13.1</td><td>20.13</td><td>24.97</td><td>7.49</td><td>9.12</td><td>9.37</td><td>14.84</td><td>35.56</td><td>59.25</td><td>20.54</td><td>21.84</td><td>21.91</td></tr><tr><td>Query2Doc</td><td>15.09</td><td>22.63</td><td>27.4</td><td>8.57</td><td>10.34</td><td>10.59</td><td>16.13</td><td>38.31</td><td>61.63</td><td>26.21</td><td>27.49</td><td>27.55</td></tr><tr><td>Query2Doc-FS</td><td>15.06</td><td>22.35</td><td>27.18</td><td>8.43</td><td>10.16</td><td>10.43</td><td>16.49</td><td>37.94</td><td>61.33</td><td>25.83</td><td>27.01</td><td>27.08</td></tr><tr><td>Query2Doc-PRF</td><td>14.3</td><td>21.5</td><td>26.16</td><td>8.21</td><td>9.96</td><td>10.21</td><td>15.7</td><td>36.78</td><td>59.5</td><td>23.84</td><td>25.03</td><td>25.11</td></tr><tr><td>CoT CoT-PRF</td><td>15.54 14.71</td><td>22.77 21.66</td><td>27.5 26.23</td><td>8.9</td><td>10.58</td><td>10.84</td><td>16.65</td><td>37.96</td><td>60.9</td><td>26.81</td><td>28.07</td><td>28.13</td></tr><tr><td></td><td></td><td></td><td></td><td>8.44</td><td>10.1</td><td>10.34</td><td>16.05</td><td>36.5</td><td>58.72</td><td>24.77</td><td>25.91</td><td>25.98</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term* Query2Term-FS*</td><td>14.77 14.59</td><td>21.93 21.41</td><td>26.67 26.01</td><td>8.45</td><td>10.14</td><td>10.39 10.22</td><td>16.39 16.21</td><td>37.65 36.47</td><td>60.82 58.96</td><td>24.21</td><td>25.32 24.85</td><td>25.41 24.93</td></tr><tr><td>Query2Term-PRF*</td><td>14.18</td><td>21.18</td><td>25.88</td><td>8.38 8.13</td><td>9.99 9.78</td><td>10.03</td><td>16.05</td><td>36.70</td><td>59.61</td><td>23.73 22.40</td><td>23.55</td><td>23.63</td></tr><tr><td>Query2Doc*</td><td>15.25</td><td>22.90</td><td>27.49</td><td>8.73</td><td>10.59</td><td>10.84</td><td>16.54</td><td>38.98</td><td>61.32</td><td>25.84</td><td>27.08</td><td>27.15</td></tr><tr><td>Query2Doc-FS*</td><td>15.33</td><td>22.76</td><td>27.41</td><td>8.78</td><td>10.59</td><td>10.84</td><td>16.75</td><td>38.57</td><td>61.05</td><td>25.75</td><td>26.97</td><td>27.03</td></tr><tr><td>Query2Doc-PRF*</td><td>15.06</td><td>22.69</td><td>27.47</td><td>8.63</td><td>10.51</td><td>10.77</td><td>16.36</td><td>38.62</td><td>61.81</td><td>25.35</td><td>26.65</td><td>26.71</td></tr><tr><td>CoT*</td><td>15.46</td><td>22.84</td><td>27.62</td><td>8.84</td><td>10.60</td><td>10.87</td><td>16.97</td><td>38.57</td><td>61.69</td><td>25.85</td><td>27.12</td><td>27.18</td></tr><tr><td>CoT-PRF*</td><td>15.02</td><td>22.01</td><td>26.53</td><td>8.64</td><td>10.33</td><td>10.56</td><td>16.64</td><td>37.27</td><td>59.35</td><td>24.70</td><td>25.80</td><td>25.88</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>MILL</td><td>16.38</td><td>23.73</td><td>28.36</td><td>9.5</td><td>11.23</td><td>11.48</td><td>17.49</td><td>39.28</td><td>61.86</td><td>28.1</td><td>29.25</td><td>29.31</td></tr></table>",
+        "bbox": [
+            119,
+            545,
+            882,
+            897
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "2515",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "table",
+        "img_path": "images/51b7b530b3234b6056087869e736e86c1f18b41aa8fbc1098967d10620226af7.jpg",
+        "table_caption": [
+            "Table 17: Overall experimental results on ARGUANA."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>34.24</td><td>39.36</td><td>39.93</td><td>22.55</td><td>23.70</td><td>23.72</td><td>71.27</td><td>94.17</td><td>98.58</td><td>22.56</td><td>23.71</td><td>23.73</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bo1</td><td>33.07</td><td>38.92</td><td>39.42</td><td>21.81</td><td>23.14</td><td>23.16</td><td>68.78</td><td>94.74</td><td>98.65</td><td>21.82</td><td>23.15</td><td>23.17</td></tr><tr><td>KL</td><td>32.90</td><td>38.79</td><td>39.31</td><td>21.66</td><td>23.01</td><td>23.03</td><td>68.49</td><td>94.59</td><td>98.65</td><td>21.68</td><td>23.02</td><td>23.04</td></tr><tr><td>RM3</td><td>30.81</td><td>37.29</td><td>38.14</td><td>20.75</td><td>22.20</td><td>22.23</td><td>62.52</td><td>91.61</td><td>98.08</td><td>20.76</td><td>22.21</td><td>22.24</td></tr><tr><td>AxiomaticQE</td><td>34.19</td><td>39.30</td><td>39.88</td><td>22.49</td><td>23.64</td><td>23.66</td><td>71.27</td><td>94.10</td><td>98.58</td><td>22.50</td><td>23.65</td><td>23.67</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>33.23</td><td>38.65</td><td>39.33</td><td>21.85</td><td>23.08</td><td>23.11</td><td>69.20</td><td>93.39</td><td>98.51</td><td>21.85</td><td>23.08</td><td>23.11</td></tr><tr><td>Query2Term-FS</td><td>33.94</td><td>39.17</td><td>39.72</td><td>22.29</td><td>23.46</td><td>23.49</td><td>70.84</td><td>94.31</td><td>98.51</td><td>22.31</td><td>23.47</td><td>23.50</td></tr><tr><td>Query2Term-PRF</td><td>32.36</td><td>38.06</td><td>38.68</td><td>20.97</td><td>22.27</td><td>22.29</td><td>68.49</td><td>93.88</td><td>98.65</td><td>20.96</td><td>22.26</td><td>22.29</td></tr><tr><td>Query2Doc</td><td>33.69</td><td>39.30</td><td>39.84</td><td>22.31</td><td>23.60</td><td>23.62</td><td>69.63</td><td>94.38</td><td>98.51</td><td>22.32</td><td>23.59</td><td>23.62</td></tr><tr><td>Query2Doc-FS</td><td>33.90</td><td>39.43</td><td>39.92</td><td>22.40</td><td>23.68</td><td>23.70</td><td>70.20</td><td>94.67</td><td>98.36</td><td>22.41</td><td>23.69</td><td>23.72</td></tr><tr><td>Query2Doc-PRF</td><td>32.45</td><td>38.32</td><td>38.85</td><td>21.11</td><td>22.46</td><td>22.48</td><td>68.42</td><td>94.45</td><td>98.58</td><td>21.15</td><td>22.48</td><td>22.50</td></tr><tr><td>CoT</td><td>34.21</td><td>39.48</td><td>40.00</td><td>22.57</td><td>23.77</td><td>23.79</td><td>71.05</td><td>94.52</td><td>98.44</td><td>22.60</td><td>23.78</td><td>23.80</td></tr><tr><td>CoT-PRF</td><td>34.12</td><td>39.51</td><td>40.01</td><td>22.51</td><td>23.74</td><td>23.76</td><td>70.77</td><td>94.74</td><td>98.58</td><td>22.50</td><td>23.74</td><td>23.76</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>33.42</td><td>38.87</td><td>39.45</td><td>21.94</td><td>23.18</td><td>23.20</td><td>69.77</td><td>94.03</td><td>98.44</td><td>21.96</td><td>23.19</td><td>23.22</td></tr><tr><td>Query2Term-FS*</td><td>33.51</td><td>39.00</td><td>39.58</td><td>22.07</td><td>23.32</td><td>23.35</td><td>69.70</td><td>94.10</td><td>98.44</td><td>22.09</td><td>23.34</td><td>23.36</td></tr><tr><td>Query2Term-PRF*</td><td>33.24</td><td>38.63</td><td>39.20</td><td>21.66</td><td>22.88</td><td>22.90</td><td>69.99</td><td>94.10</td><td>98.44</td><td>21.68</td><td>22.89</td><td>22.91</td></tr><tr><td>Query2Doc*</td><td>33.24</td><td>38.96</td><td>39.49</td><td>21.87</td><td>23.18</td><td>23.20</td><td>69.27</td><td>94.59</td><td>98.65</td><td>21.88</td><td>23.19</td><td>23.22</td></tr><tr><td>Query2Doc-FS*</td><td>33.20</td><td>38.80</td><td>39.34</td><td>21.71</td><td>23.00</td><td>23.02</td><td>69.70</td><td>94.52</td><td>98.65</td><td>21.71</td><td>23.01</td><td>23.03</td></tr><tr><td>Query2Doc-PRF*</td><td>31.73</td><td>37.93</td><td>38.49</td><td>20.67</td><td>22.10</td><td>22.12</td><td>66.86</td><td>94.24</td><td>98.58</td><td>20.69</td><td>22.11</td><td>22.13</td></tr><tr><td>CoT*</td><td>33.61</td><td>39.08</td><td>39.59</td><td>22.04</td><td>23.29</td><td>23.31</td><td>70.34</td><td>94.67</td><td>98.51</td><td>22.05</td><td>23.31</td><td>23.33</td></tr><tr><td>CoT-PRF*</td><td>32.86</td><td>38.62</td><td>39.15</td><td>21.46</td><td>22.79</td><td>22.81</td><td>69.06</td><td>94.52</td><td>98.58</td><td>21.46</td><td>22.80</td><td>22.82</td></tr><tr><td>MILL</td><td>34.10</td><td>39.56</td><td>40.11</td><td>22.65</td><td>23.91</td><td>23.94</td><td>70.20</td><td>94.31</td><td>98.44</td><td>22.67</td><td>23.92</td><td>23.95</td></tr></table>",
+        "bbox": [
+            119,
+            126,
+            882,
+            476
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "table",
+        "img_path": "images/45fa3f8fc94b43c5a32b9732bb7cbcdacc48562e17d4e6da49671cec54841fed.jpg",
+        "table_caption": [
+            "Table 18: Overall experimental results on CLIMATE-FEVER."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Metrics</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>No expansion</td><td>12.52</td><td>17.96</td><td>21.73</td><td>8.28</td><td>9.32</td><td>9.48</td><td>16.20</td><td>35.80</td><td>57.63</td><td>17.07</td><td>18.26</td><td>18.35</td></tr><tr><td>Traditional expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Bol</td><td>13.48</td><td>19.43</td><td>23.11</td><td>8.86</td><td>10.03</td><td>10.20</td><td>17.65</td><td>39.10</td><td>60.22</td><td>18.14</td><td>19.32</td><td>19.40</td></tr><tr><td>KL</td><td>13.48</td><td>19.42</td><td>23.07</td><td>8.90</td><td>10.06</td><td>10.23</td><td>17.50</td><td>38.92</td><td>60.01</td><td>18.25</td><td>19.43</td><td>19.51</td></tr><tr><td>RM3</td><td>11.24</td><td>17.17</td><td>20.71</td><td>6.80</td><td>7.99</td><td>8.15</td><td>16.39</td><td>37.64</td><td>58.18</td><td>13.99</td><td>15.21</td><td>15.28</td></tr><tr><td>AxiomaticQE</td><td>12.54</td><td>17.98</td><td>21.75</td><td>8.28</td><td>9.33</td><td>9.49</td><td>16.23</td><td>35.82</td><td>57.66</td><td>17.09</td><td>18.28</td><td>18.37</td></tr><tr><td>LLM-based expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term</td><td>16.90</td><td>23.50</td><td>27.23</td><td>11.24</td><td>12.68</td><td>12.86</td><td>21.88</td><td>45.16</td><td>66.59</td><td>22.47</td><td>23.64</td><td>23.71</td></tr><tr><td>Query2Term-FS</td><td>14.11</td><td>20.53</td><td>24.32</td><td>9.27</td><td>10.65</td><td>10.83</td><td>18.47</td><td>41.00</td><td>62.87</td><td>18.78</td><td>19.98</td><td>20.06</td></tr><tr><td>Query2Term-PRF</td><td>13.90</td><td>20.48</td><td>23.98</td><td>8.49</td><td>9.93</td><td>10.09</td><td>20.64</td><td>43.62</td><td>63.79</td><td>16.56</td><td>17.86</td><td>17.92</td></tr><tr><td>Query2Doc</td><td>21.62</td><td>28.64</td><td>32.39</td><td>14.64</td><td>16.30</td><td>16.50</td><td>27.54</td><td>51.68</td><td>72.98</td><td>28.41</td><td>29.60</td><td>29.65</td></tr><tr><td>Query2Doc-FS</td><td>21.44</td><td>28.24</td><td>32.05</td><td>14.46</td><td>15.99</td><td>16.19</td><td>27.50</td><td>51.43</td><td>73.01</td><td>28.12</td><td>29.21</td><td>29.26</td></tr><tr><td>Query2Doc-PRF</td><td>16.83</td><td>23.33</td><td>26.90</td><td>10.66</td><td>12.11</td><td>12.29</td><td>23.92</td><td>46.82</td><td>67.15</td><td>20.57</td><td>21.71</td><td>21.77</td></tr><tr><td>CoT</td><td>19.62</td><td>26.61</td><td>30.25</td><td>13.45</td><td>14.99</td><td>15.18</td><td>24.66</td><td>48.97</td><td>69.86</td><td>26.04</td><td>27.31</td><td>27.36</td></tr><tr><td>CoT-PRF</td><td>15.71</td><td>22.24</td><td>25.78</td><td>10.26</td><td>11.70</td><td>11.87</td><td>21.19</td><td>43.97</td><td>64.26</td><td>20.19</td><td>21.44</td><td>21.50</td></tr><tr><td>Ensembled expansion methods</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Query2Term*</td><td>16.21</td><td>23.15</td><td>26.86</td><td>10.04</td><td>11.60</td><td>11.79</td><td>23.49</td><td>47.84</td><td>69.09</td><td>19.59</td><td>20.80</td><td>20.86</td></tr><tr><td>Query2Term-FS*</td><td>14.33</td><td>21.16</td><td>24.97</td><td>8.80</td><td>10.28</td><td>10.47</td><td>20.89</td><td>45.00</td><td>66.94</td><td>17.38</td><td>18.66</td><td>18.73</td></tr><tr><td>Query2Term-PRF*</td><td>13.90</td><td>20.48</td><td>23.98</td><td>8.49</td><td>9.93</td><td>10.09</td><td>20.64</td><td>43.62</td><td>63.79</td><td>16.56</td><td>17.86</td><td>17.92</td></tr><tr><td>Query2Doc*</td><td>19.64</td><td>27.06 26.14</td><td>30.67 29.78</td><td>12.57</td><td>14.36</td><td>14.55</td><td>27.55</td><td>53.01</td><td>73.51</td><td>24.07</td><td>25.32</td><td>25.36</td></tr><tr><td>Query2Doc-FS*</td><td>18.75 16.30</td><td>22.69</td><td>26.25</td><td>11.86 10.20</td><td>13.62 11.61</td><td>13.81 11.78</td><td>26.55 23.65</td><td>52.15 46.11</td><td>72.82</td><td>22.88</td><td>24.10</td><td>24.15</td></tr><tr><td>Query2Doc-PRF*</td><td>18.94</td><td>26.08</td><td>29.74</td><td>12.27</td><td>13.93</td><td>14.13</td><td>25.95</td><td>50.85</td><td>66.42</td><td>19.61</td><td>20.77</td><td>20.84</td></tr><tr><td>CoT*</td><td>15.65</td><td>22.18</td><td>25.48</td><td>9.87</td><td></td><td>11.46</td><td>22.24</td><td>45.29</td><td>71.64</td><td>23.72</td><td>24.90</td><td>24.95</td></tr><tr><td>CoT-PRF*</td><td></td><td></td><td></td><td></td><td>11.30</td><td></td><td></td><td></td><td>64.30</td><td>19.31</td><td>20.47</td><td>20.53</td></tr><tr><td>MILL</td><td>20.28</td><td>27.06</td><td>30.66</td><td>13.60</td><td>15.14</td><td>15.32</td><td>26.94</td><td>50.65</td><td>71.09</td><td>25.88</td><td>27.02</td><td>27.08</td></tr></table>",
+        "bbox": [
+            119,
+            546,
+            882,
+            897
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "2516",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "table",
+        "img_path": "images/ce858925314ef0d4547c6d5eb3e4ddb66a3fc3e6c34027fe9ff2fb2e54fee111.jpg",
+        "table_caption": [
+            "Number of Candidate Documents",
+            "Number of Candidate Documents",
+            "Number of Candidate Documents",
+            "Table 19: More results of ablation experiments."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">Methods</td><td colspan=\"3\">NDCG</td><td colspan=\"3\">AP</td><td colspan=\"3\">Recall</td><td colspan=\"3\">MRR</td></tr><tr><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td><td>@10</td><td>@100</td><td>@1000</td></tr><tr><td>TREC-DL-2020</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>w/o PRF</td><td>60.13</td><td>59.88</td><td>70.65</td><td>19.63</td><td>41.57</td><td>48.10</td><td>22.47</td><td>58.34</td><td>85.97</td><td>88.97</td><td>89.09</td><td>89.10</td></tr><tr><td>w/o MV</td><td>59.46</td><td>59.42</td><td>70.28</td><td>18.01</td><td>40.18</td><td>46.73</td><td>21.45</td><td>58.66</td><td>85.11</td><td>90.70</td><td>90.75</td><td>90.75</td></tr><tr><td>w/o QQD</td><td>60.26</td><td>59.89</td><td>69.46</td><td>17.96</td><td>41.56</td><td>47.39</td><td>21.19</td><td>58.55</td><td>83.98</td><td>87.65</td><td>87.69</td><td>87.69</td></tr><tr><td>MILL</td><td>61.79</td><td>61.15</td><td>71.23</td><td>19.05</td><td>41.76</td><td>48.17</td><td>21.61</td><td>59.40</td><td>85.27</td><td>92.61</td><td>92.71</td><td>92.72</td></tr><tr><td>TREC-COVID</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>w/o PRF</td><td>76.61</td><td>58.53</td><td>51.17</td><td>2.01</td><td>11.43</td><td>27.35</td><td>2.20</td><td>14.72</td><td>49.09</td><td>92.40</td><td>92.40</td><td>92.40</td></tr><tr><td>w/o MV</td><td>74.34</td><td>59.40</td><td>51.73</td><td>1.87</td><td>11.79</td><td>28.44</td><td>2.14</td><td>15.15</td><td>50.00</td><td>87.40</td><td>87.40</td><td>87.40</td></tr><tr><td>w/o QQD</td><td>71.87</td><td>57.57</td><td>50.84</td><td>1.85</td><td>11.27</td><td>27.30</td><td>2.07</td><td>14.55</td><td>49.16</td><td>88.90</td><td>89.08</td><td>89.08</td></tr><tr><td>MILL</td><td>75.30</td><td>60.24</td><td>52.53</td><td>2.03</td><td>12.22</td><td>29.30</td><td>2.22</td><td>15.40</td><td>50.55</td><td>91.17</td><td>91.17</td><td>91.17</td></tr><tr><td>SCIFACT</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>w/o PRF</td><td>69.75</td><td>72.35</td><td>73.01</td><td>64.92</td><td>65.55</td><td>65.58</td><td>83.27</td><td>94.43</td><td>99.67</td><td>66.01</td><td>66.52</td><td>66.54</td></tr><tr><td>w/o MV</td><td>69.53</td><td>71.70</td><td>72.43</td><td>64.26</td><td>64.76</td><td>64.79</td><td>84.38</td><td>94.03</td><td>99.67</td><td>65.29</td><td>65.68</td><td>65.71</td></tr><tr><td>w/o QQD</td><td>67.98</td><td>70.47</td><td>71.13</td><td>62.32</td><td>62.94</td><td>62.96</td><td>83.89</td><td>94.53</td><td>99.67</td><td>63.46</td><td>63.96</td><td>63.98</td></tr><tr><td>MILL</td><td>71.37</td><td>73.47</td><td>74.14</td><td>66.34</td><td>66.85</td><td>66.88</td><td>85.24</td><td>94.50</td><td>99.67</td><td>67.69</td><td>68.07</td><td>68.09</td></tr></table>",
+        "bbox": [
+            119,
+            110,
+            882,
+            354
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/f8b90be2610e388003f2cadb1a9a02b6fd3c17e12c3706b06e23dfc80122b094.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Selected Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            119,
+            372,
+            314,
+            457
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/65baa383a6dd8ef74adc95700b17a56fa272356e3713ae09a940e04631265931.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            310,
+            372,
+            509,
+            467
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/26d3c8aa6fcac0521d0f82b5afebbbf20e476a5984a04f57cc639d43a7402706.jpg",
+        "content": "",
+        "chart_caption": [
+            "Selected PRF Documents-- Selected Generated Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            499,
+            372,
+            700,
+            467
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/b23ac5987c66dfd5b299584859c0cab1e20b10da413bb8a86cb3617d2f8efd99.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Selected Document"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            695,
+            372,
+            880,
+            457
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/0febddfcebc41ea32b86f8ae5ed8bbb477a7922d07a896c8391e70488e9d9165.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 4: Hyperparameter analysis on the number of document selections on TREC-COVID. The x-axis denotes the number of documents selected, and the y-axis represents the metrics values (NDCG@1000, AP@1000, Re call@1000, and MRR@1000)."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            119,
+            557,
+            315,
+            644
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/540a733caf5dc0940932303585e392b690ee8263c28f9d92598c1752840e961e.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            310,
+            557,
+            507,
+            650
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/66be6137cb70ccdc8d5190ca896c0dadbd0402bf84de3b8660ff16202c2e9eeb.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Selected Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            499,
+            557,
+            695,
+            648
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/328ded17d5f49bd85714cbb30ad25baedc7199d781d2e2d5f49fddb4c0e70215.jpg",
+        "content": "",
+        "chart_caption": [
+            "Selected PRF Documents Selected Generated Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            695,
+            557,
+            880,
+            643
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/61c39269117f2b586cf1b915ba9631ba3e94c8533bec37738af21b8b73971be9.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 5: Hyperparameter analysis on the number of document selections on TREC-DL-2020. The x-axis denotes the number of documents selected, and the y-axis represents the metrics values (NDCG@1000, AP@1000, Re call@1000, and MRR@1000)."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            119,
+            743,
+            317,
+            831
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/4b5a94dbed8817acd3c62b6f902c063a3b63b9be4e19166004984ac822bf3cca.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            310,
+            741,
+            510,
+            834
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/aa09335ec2792b79ef14c6f24c59da48c3fd85d60b1d1bd5c22addda021e1f73.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            499,
+            743,
+            695,
+            829
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/dd63291c3d3904445ee89ba3354f98ee8228a55eeb758e15fa396754d775e73c.jpg",
+        "content": "",
+        "chart_caption": [
+            "Candidate PRF Documents Candidate Generated Documents",
+            "Figure 6: Hyperparameter analysis on the number of document candidates on TREC-COVID. The x-axis denotes the number of document candidates, and the y-axis represents the metrics values (NDCG@1000, AP@1000, Recall@1000, and MRR@1000)."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            695,
+            743,
+            880,
+            829
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_number",
+        "text": "2517",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "chart",
+        "img_path": "images/1fbd358aaecabd7bf912e24fcd26fa5af4334435e3449e3ccae06cc3d20f3c23.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Candidate Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            121,
+            414,
+            312,
+            504
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "chart",
+        "img_path": "images/35b0c60700b1c0abd1a11d14bc2032230356a372fcf8c523facbf2358a8508ab.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Candidate Documents",
+            "Candidate PRF Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            310,
+            413,
+            509,
+            508
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "chart",
+        "img_path": "images/0fbbf8a43d52f4fb69bfc0d7547fc78d0e816509e7cb803ccc6decb69c89d33d.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Candidate Documents",
+            "Candidate Generated Documents"
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            499,
+            413,
+            695,
+            506
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "chart",
+        "img_path": "images/c98cb2faab27ead3e3d50f8d7574401aa6bb1aeeb49f6d67ca7efa5dd08bd0c9.jpg",
+        "content": "",
+        "chart_caption": [
+            "Number of Candidate Document",
+            "Figure 7: Hyperparameter analysis on the number of document candidates on TREC-DL-2020. The x-axis denotes the number of document candidates, and the y-axis represents the metrics values (NDCG@1000, AP@1000, Recall@1000, and MRR@1000)."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            694,
+            414,
+            880,
+            500
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_number",
+        "text": "2518",
+        "bbox": [
+            478,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 20
+    }
+]
