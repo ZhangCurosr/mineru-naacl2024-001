@@ -1,0 +1,2458 @@
+[
+    {
+        "type": "text",
+        "text": "Measuring and Improving Chain-of-Thought Reasoning in Vision-Language Models",
+        "text_level": 1,
+        "bbox": [
+            208,
+            89,
+            791,
+            129
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Yangyi Chen<sup>1,2</sup>∗, Karan Sikka<sup>1</sup>, Michael Cogswell<sup>1</sup>, Heng Ji<sup>2</sup>, Ajay Divakaran<sup>1</sup> <sup>1</sup> SRI International <sup>2</sup> University of Illinois Urbana-Champaign yangyic3@illinois.edu",
+        "bbox": [
+            164,
+            156,
+            836,
+            209
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            262,
+            260,
+            342,
+            277
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Vision-language models (VLMs) can effectively act as visual assistants, interpreting questions about images and producing human-like responses. This work explores their abilities to demonstrate human-like reasoning. To address concerns about the consistency of VLMs’ rea soning, we introduce a chain-of-thought (CoT) consistency measure. We tackle the challenge of extensive human annotations by proposing an LLM-Human-in-the-Loop pipeline. Based on this pipeline, we build the CURE benchmark to measure both the zero-shot reasoning performance and consistency of VLMs. We evaluate state-of-the-art VLMs and find that even the best-performing model is unable to demonstrate strong visual reasoning capabilities and consistency, indicating that substantial efforts are required to enable VLMs to perform visual reasoning as systematically and consistently as humans. As an early step, we propose a two-stage training framework aimed at improving both the reasoning performance and consistency of VLMs without human annotations. The framework consists of two primary stages: supervised fine-tuning and learning from feedback, to guide VLMs in generating reasoning chains that exhibit both consistency and groundedness. Our framework exhibits a 4% relative improvement in reasoning performance and consistency. We release the dataset at https://github.com/ Yangyi-Chen/CoTConsistency.",
+        "bbox": [
+            141,
+            290,
+            462,
+            746
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            114,
+            759,
+            260,
+            776
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Vision-language models (VLMs) exhibit competence at generating human-like responses by leveraging multimodal instructional data and large language models (LLMs) (Li et al., 2023a; Liu et al., 2023c,a; Chen et al., 2023). A key direction in improving such VLMs is to enable grounded and consistent visual reasoning. We thus take a critical look at the reasoning capability of existing VLMs, measuring and improving both their performance and consistency in reasoning. For reasoning performance, we aim to measure whether VLMs can derive high-level inference that extends beyond the immediately perceived information correctly. For reasoning consistency, we seek to determine the extent to which VLMs can identify the underlying reasoning chains that lead to the high-level inference.",
+        "bbox": [
+            112,
+            787,
+            490,
+            900
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            261,
+            887,
+            406
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Previous work simplifies the evaluation of reasoning consistency by only considering coarsegrained rationales (Zellers et al., 2019) and relying on human evaluation (Lu et al., 2022a) and similarity measure (Wei et al., 2023), which lacks scalability and preciseness. Thus, we motivate to establish a new benchmark dataset that provides annotation of the fine-grained reasoning steps to automatically measure reasoning consistency. However, collecting such a dataset is challenging due to high-cost underlying human effort and may contain inconsistencies among annotators for the reasoning chains (González et al., 2021; Larson et al., 2020).",
+        "bbox": [
+            507,
+            407,
+            887,
+            615
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "To address this challenge, we propose an LLM-Human-in-the-Loop pipeline for dataset construction. Several recent efforts have shown that LLMs can effectively follow human instructions to generate high-quality datasets (Brown et al., 2020; Meng et al., 2022; Ubani et al., 2023; Wang et al., 2022e). This pipeline functions by incorporating limited human assistance for providing instructions and filtering rules, enabling LLMs to efficiently generate high-quality datasets in a semi-automatic manner, substantially reducing annotation cost. Based on an existing coarse-grained visual inference dataset Sherlock (Hessel et al., 2022), we establish a benchmark CURE for Chain-of-Thought VisUAl Reasoning Evaluation. It contains 1,622 human-verified samples of high-level visual inference and corresponding CoT reasoning chains, intended for zero-shot evaluation. Two examples are presented in Figure 1. Particularly, the CoT reasoning chains consist of progressive subquestions, ranging from recognition (e.g., What is on the cake?) to cognition (e.g., What does each candle represent?), with the purpose of measuring the reasoning consistency of VLMs. Due to the notorious difficulty of natural language generation evaluation (Sai et al., 2023; Hendrycks et al., 2021), we formulate CURE as a multiple-choice task for the ease of automatic evaluation. Particularly, for each visual input, we assess the reasoning in VLMs by evaluating their overall inference capabilities for a designated area (the bounding box in Figure 1) and their ability to correctly address the intermediate reasoning chain leading to the final inference.",
+        "bbox": [
+            507,
+            617,
+            887,
+            923
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "∗Work done during internship at SRI International.",
+        "bbox": [
+            141,
+            907,
+            455,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "192",
+        "bbox": [
+            485,
+            928,
+            517,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 192–210 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            945,
+            858,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/0ae9aea044c5693233528136b269d26bbfad699f222602d21c7edaff5b07d83d.jpg",
+        "image_caption": [
+            "Figure 1: Besides the high-level inference about the images (e.g., The girl is turning two years old today.), CURE also contains CoT reasoning chains to evaluate VLMs’ reasoning performance and consistency. We only show 2 (of 6) candidate options for presentation. We highlight the ground truth answers. More examples are shown in Figure 9."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            117,
+            85,
+            878,
+            190
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            255,
+            490,
+            481
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We evaluate the state-of-the-art (SOTA) VLMs on CURE . The key conclusions from these evaluations are: (1) The model’s success in complex visual inference depends on LLMs components, visual inputs, and instruction finetuning; (2) Even the SOTA VLM (BLIP-2) falls short in comparison to human performance regarding overall visual reasoning performance. In addition, our findings indicate a lack of reasoning consistency. Specifically, the reliability of intermediate reasoning steps cannot be assured, irrespective of the accuracy of the final inference (and vice versa). This suggests VLMs are not always consistent in their reasoning.",
+        "bbox": [
+            112,
+            483,
+            490,
+            694
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "To enhance VLMs’ reasoning performance and consistency, we propose a two-stage training framework for training rationale-augmented VLMs. In the first stage, VLMs are trained on reasoning samples that encompass step-by-step reasoning chains, which are automatically generated by LLMs. However, VLMs may produce inaccurate high-level inferences due to inconsistencies or hallucination in the rationales after this stage. Thus, we introduce a subsequent stage that integrates feedback from LLMs to examine the reasoning process. This approach avoids the complex task of directly scrutinizing the high-level inferences of VLMs. The results demonstrate the relative improvement in both reasoning performance and consistency is approximately 4% compared to the SOTA.",
+        "bbox": [
+            110,
+            696,
+            492,
+            923
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            254,
+            885,
+            287
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work",
+        "text_level": 2,
+        "bbox": [
+            509,
+            297,
+            667,
+            313
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The CoT reasoning approach is first proposed for LLMs (Wei et al., 2022). We discuss related work regarding LLMs CoT reasoning and visionlanguage pretraining in Appendix B and focus on vision-language reasoning in this section. There exists a paucity of comprehensive diagnostic studies concerning VLMs with the aim of quantifying their reasoning consistency, although efforts have been spent on measuring the visual reasoning performance (e.g., Sherlock) (Hessel et al., 2022) and coarse-grained rationale evaluation, including multiple-choice question answering (e.g., VCR) (Zellers et al., 2019), human evaluation of generated rationales (Lu et al., 2022a), and similarity measure between the generated and the groundtruth rationales (Wei et al., 2023). Some work has identified the failure of VLMs to accurately answer subquestions that are components of the main problems (Ray et al., 2019; Jing et al., 2022; Selvaraju et al., 2020; Wang et al., 2022f; Lu et al., 2022a; Wei et al., 2023). For instance, VLMs may correctly determine the significant size of a mountain in an image but erroneously classify it as small when responding to a query such as \"Are the mountains small?\" (Ray et al., 2019). In contrast to the aforementioned studies that focus on coarse-grained rationale evaluation and individual subquestions, we create reasoning chains that consist of coherent subquestions capable of supporting high-level inference. This approach allows us to precisely measure the extent to which reasoning in VLMs is consistent and grounded.",
+        "bbox": [
+            507,
+            323,
+            889,
+            839
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3 CURE Benchmark",
+        "text_level": 2,
+        "bbox": [
+            509,
+            848,
+            726,
+            865
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We present the CURE dataset for measuring visual reasoning performance and consistency in VLMs and the LLM-Human-in-the-Loop pipeline adopted to construct it semi-automatically. Our dataset builds on the Sherlock dataset (Hessel et al., 2022), which measures abductive reasoning by annotating visual clues (text and bounding boxes for perceptual elements) and high-level inference. However, our aim is not only to measure the capacity of VLMs to accurately perform high-level visual inference but also to subsequently ascertain the extent to which the resulting inference is thoroughly substantiated. We thus add two new annotations to enable this: (1) Reasoning Chains: We provide fine-grained and precise CoT reasoning containing coherent subquestions that can be chained together to derive the high-level inference provided by Sherlock. (2) Candidate Answers: To avoid the long-standing issues in the evaluation of natural language generation (Sai et al., 2023), we transform the generation task of high-level inference and CoT subquestions into a multiple-choice question answering task by generating plausible but incorrect alternative candidates for each ground truth, as shown in Figure 1.",
+        "bbox": [
+            507,
+            873,
+            887,
+            922
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "193",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "images/78b87054e123d5a7e39c8d0362eb44237f8544f3490864029363ba78c7b34787.jpg",
+        "image_caption": [
+            "Figure 2: The LLM-Human-in-the-Loop dataset construction pipeline consists of the generation and filtering stages. We use this procedure to create CURE in a semi-automatic manner."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            139,
+            85,
+            860,
+            211
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            279,
+            490,
+            633
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "In this section, we outline the procedure to semi-automatically create CURE with LLMs and then describe the evaluation metrics adopted to measure reasoning performance and consistency.",
+        "bbox": [
+            112,
+            634,
+            489,
+            701
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 LLM-Human-in-the-Loop Data Generation Pipeline",
+        "text_level": 2,
+        "bbox": [
+            114,
+            719,
+            410,
+            751
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Our dataset construction pipeline consists of two stages, as illustrated in Figure 2. The first stage aims to generate a preliminary dataset that potentially contains instances of failure, while the second stage filters out the error cases, similar to the crowdsourcing dataset collection approaches (Lin et al., 2014). In both stages, LLMs carry out the majority of tasks, while human practitioners (the researchers in this case) iteratively correct errors made by LLMs (Bubeck et al., 2023).",
+        "bbox": [
+            112,
+            760,
+            489,
+            923
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1.1 Stage-1: Preliminary Generation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            279,
+            828,
+            294
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "We randomly select 10,000 examples from the Sherlock evaluation set to serve as the raw coarsegrained examples. In this stage, the practitioner engineers an initial prompt that basically describes the data LLMs should generate based on each raw example. The dataset description is then fed along with necessary context – the visual clues describing the image and the high-level inference from Sherlock – to generate a small initial dataset of reasoning chains (e.g., for 50 examples). These examples are usually inadequate and look different than intended. Next, the practitioner should carefully examine the generated examples and revise the dataset description accordingly. Through multiple iterations, a curated instruction that contains dataset descriptions and specific requirements can be produced to guide LLMs to generate the full-sized preliminary dataset.",
+        "bbox": [
+            507,
+            305,
+            887,
+            596
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Reasoning Chains. We use GPT-4 (OpenAI, 2023) in all dataset generation steps. Our stage-1 prompt for generating reasoning steps is shown in Appendix F. This prompt starts by describing the overall goal, inputs, and outputs we expect from LLMs. It then outlines five principles to ensure LLMs generate meaningful and reasonable subquestions. We also find that the inclusion of an in-context example for a step-by-step demonstration of sample generation significantly enhances the ability of LLMs to generate samples that conform to the specified principles. The resulting preliminary dataset contains fairly uniform reasoning chains for 1.6k examples. Typically the generated subquestions support the high-level inference when chained together, following a progression from perception problems to more complex visual inference, thus adhering to the \"from recognition to cognition\" practice (Zellers et al., 2019).",
+        "bbox": [
+            507,
+            617,
+            887,
+            923
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "194",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "images/c0e6647cc62545eac950323fff58e5185cb2a51ff001472a267469cf6be24d5a.jpg",
+        "table_caption": [
+            "Table 1: The identified common failure modes at each iteration."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Iteration</td><td>Common Failure Modes</td></tr><tr><td>1</td><td>The CoT reasoning chains lack consistent subquestions that are capable of deriving the high-level inference.</td></tr><tr><td>2</td><td>The candidate inference about the image exhibits similarity in meaning with the ground truth inference.</td></tr><tr><td>3</td><td>The ground truth answers for the subquestions are incorrect due to the occurrence of hallucination in LLMs.</td></tr><tr><td>4</td><td>The candidate answers for the subquestions are also correct.</td></tr><tr><td>5</td><td>The problems can be solved directly without relying on visual inputs.</td></tr><tr><td>6</td><td>The subquestions can contain some words that are irrelevant to the visual inputs.</td></tr></table>",
+        "bbox": [
+            156,
+            80,
+            840,
+            181
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Candidate Answers. We can potentially evaluate whether the outputs from VLMs match or closely resemble ground truth inference or reasoning steps, similar to the practice in previous work (Lu et al., 2022a; Wei et al., 2023). However, this approach has two notable shortcomings: (1) The evaluation of natural language generation has been a persistent challenge, lacking a universally accepted approach (Sai et al., 2023); (2) Although we provide ground truth answers for each image, some alternative predictions may also be correct, regarding the nature of abductive reasoning (Walton, 2014). To address the above issues, we formulate CURE as a multiple-choice question answering task, requiring VLMs to select the most likely inference/answer from the six candidates provided. We prompt LLMs using the same stage-1 procedure to generate potential candidate inference/answers. These candidate answers maintain relevance to the provided image while incorporating factual inaccuracies when compared to the ground truth. The prompts adopted are shown in Appendix F.",
+        "bbox": [
+            110,
+            219,
+            490,
+            576
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.1.2 Stage-2: Filtering",
+        "text_level": 2,
+        "bbox": [
+            114,
+            592,
+            315,
+            608
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Although samples in the preliminary dataset generally adhere to the desired criteria, failures still arise due to inherent limitations in LLMs (Borji, 2023). However, by drawing explicit attention to common failure modes, we can instruct LLMs to correctly filter out bad example groups. In each round, the practitioner selects a small number of samples and conducts a thorough inspection to extract predominant failure modes. A distinct prompt is then created for each failure mode that requires LLMs to determine whether reasoning chains or sets of candidate answers meet that failure case. This prompt is applied to all remaining preliminary data, removing all examples that LLMs identify as lying in the failure modes. The practitioner then repeats this procedure through multiple iterations until the randomly selected sample of examples no longer exhibits any instances of error. We conduct a total of six iterations to systematically remove groups of samples that displayed common failure modes. The identified failure modes are listed in Table 1, and the prompts are described in Appendix F.",
+        "bbox": [
+            110,
+            617,
+            490,
+            923
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            219,
+            887,
+            269
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Human Verification. While the filtering stage yields a substantial labor reduction when compared to the initial unfiltered dataset (50% reduction estimated), there still exist some failure cases. For example, our analysis finds that a certain amount of examples in the Sherlock dataset share the same reasoning problem that relies on simplistic visual cues such as sky and lighting conditions to infer weather patterns and differentiate between day and night. This kind of shortcut annotation is documented in previous studies (Gururangan et al., 2018; Geva et al., 2019; Yuan et al., 2023). We motivate to address these concerns since CURE is for evaluation purposes. We hire human annotators to meticulously review the entire created dataset to ensure two primary objectives: (1) Each sample’s validity for measuring reasoning performance and consistency; (2) The inclusion of diverse samples in the evaluation dataset. The details of human verification are described in Appendix D.",
+        "bbox": [
+            507,
+            278,
+            887,
+            601
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.2 Human Evaluation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            611,
+            707,
+            626
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "CURE contains 1,622 evaluative instances. We employ human annotators to conduct human evaluation with emphasis on two aspects: (1) What is the level of human performance observed on CURE ? (2) Do the samples within CURE hold validity and can be effectively used for evaluation? We select a sample of 200 instances from CURE . The annotation details are described in Appendix D. We engage three human annotators to conduct the task of answering multiple-choice questions and provide annotations indicating the presence of any failure mode mentioned in Table 1 or any other unidentified failure modes. The human performance is listed in Table 2. The detailed discussion of the human performance compared with the model performance is in Sec. 5. In the assessment of sample validity, merely 3% of the evaluation samples within the benchmark are found to demonstrate specific issues. Of this subset, 2% of the samples exhibit inconsistent reasoning chains, while 1% of the samples provide incorrect answers for the subquestions. It is worth noting that apart from the issues outlined in Table 1, no other problems have been reported. These findings serve as a validation of the high quality of CURE , and also demonstrate the effectiveness of our pipeline at identifying unqualified samples. The detailed statistics of CURE are described in Appendix A.",
+        "bbox": [
+            507,
+            632,
+            887,
+            923
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "195",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            84,
+            490,
+            247
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.3 Evaluation Metrics",
+        "text_level": 2,
+        "bbox": [
+            114,
+            255,
+            312,
+            271
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "As described in the previous section, we frame CURE as a multiple-choice problem with six potential inference per image and six plausible candidates for every subquestion (reasoning step). Specifically, each image $I _ { i }$ is paired with a high level question $Q _ { h } ^ { i }$ associated with six candidate inferences $O _ { h } ^ { i } = \\{ o _ { h 1 } ^ { i } , o _ { h 2 } ^ { i } , . . . , o _ { h 6 } ^ { i } \\}$ . Additionally, reasoning chains are made up of several questions $Q _ { c } ^ { i }$ . Each question $q \\in Q _ { c } ^ { i }$ is associated with a set of six candidate answers $\\mathsf { \\bar { \\it { O } } } _ { q } ^ { i } = \\{ { o _ { q 1 } ^ { i } , o _ { q 2 } ^ { i } , . . . , o _ { q 6 } ^ { i } } \\}$ We propose a series of metrics that evaluate not only the reasoning ability of the VLMs but also the consistency in their reasoning.",
+        "bbox": [
+            110,
+            275,
+            489,
+            487
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.3.1 Metrics for Reasoning Performance",
+        "text_level": 2,
+        "bbox": [
+            114,
+            494,
+            455,
+            510
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Performance in High-Level Reasoning. The metric $R _ { h }$ is designed to measure the VLMs’ ability in accurately choosing the most probable inference from the candidate pool for each image:",
+        "bbox": [
+            112,
+            513,
+            489,
+            579
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/a98ecb606aa34c20192d85b178d15447e2cabc70e6a40d12c3ef3efa370409e9.jpg",
+        "text": "$$\nR _ { h } = \\frac { 1 } { N } \\sum _ { i = 1 } ^ { N } \\mathbb { I } ( \\hat { a } _ { h } ^ { i } = a _ { h } ^ { i } ) ,\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            203,
+            586,
+            398,
+            650
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where N signifies the total number of images, I(x) is the indication function that returns 1 if x is true and 0 otherwise, $\\hat { a } _ { h } ^ { i }$ and $a _ { h } ^ { i }$ are model’s chosen answer and ground truth answer respectively.",
+        "bbox": [
+            112,
+            657,
+            489,
+            722
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Performance in CoT Reasoning. The metric $R _ { c o t }$ is used to evaluate the VLMs’ ability to correctly answer all subquestions contained in the reasoning chain for each image:",
+        "bbox": [
+            114,
+            722,
+            489,
+            788
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/ea2e0a14741291835537f760632d04bd41d41c4902e6d9125d90f83bf4e2b9cd.jpg",
+        "text": "$$\n\\begin{array} { r l } & { R _ { \\mathrm { c o t } } = \\displaystyle \\frac { 1 } { N } \\sum _ { i = 1 } ^ { N } \\mathbb { I } \\left( \\sum _ { j = 1 } ^ { M } \\mathbb { I } ( \\hat { a } _ { j } ^ { i } = a _ { j } ^ { i } ) = M \\right) , } \\\\ & { \\quad \\hat { a } _ { j } ^ { i } \\in \\{ o _ { j 1 } ^ { i } , o _ { j 2 } ^ { i } , . . . , o _ { j 6 } ^ { i } \\} , } \\end{array}\\tag{2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            132,
+            794,
+            448,
+            866
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where M is the number of subquestions within the CoT reasoning chain per image, $\\hat { a } _ { j } ^ { i }$ is the model’s prediction, and $a _ { j } ^ { i }$ is the ground truth answer.",
+        "bbox": [
+            112,
+            872,
+            487,
+            923
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Overall Performance in Reasoning. We propose $R _ { o }$ to measure if VLMs can successfully perform both high-level reasoning and CoT reasoning for every image:",
+        "bbox": [
+            507,
+            84,
+            887,
+            149
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/3de29162af6d6dc7b0be379bdf35f0d1589d4a226420ad80a13fd774d67f8390.jpg",
+        "text": "$$\nR _ { o } = \\frac { 1 } { N } \\sum _ { i = 1 } ^ { N } \\mathbb { I } ( \\hat { a } _ { h } ^ { i } = a _ { h } ^ { i } ) * \\mathbb { I } ( \\sum _ { j = 1 } ^ { M } \\mathbb { I } ( \\hat { a } _ { j } ^ { i } = a _ { j } ^ { i } ) = M )\\tag{3}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            509,
+            158,
+            882,
+            204
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where the notations adhere to previous definitions.",
+        "bbox": [
+            507,
+            217,
+            885,
+            234
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.3.2 Metrics for Reasoning Consistency",
+        "text_level": 2,
+        "bbox": [
+            509,
+            241,
+            843,
+            258
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Consistency in Forward Reasoning. We define $C _ { f }$ to evaluate the VLMs’ capacity to correctly answer the high-level inference question once all subquestions have been correctly addressed:",
+        "bbox": [
+            507,
+            260,
+            884,
+            326
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/98ae622fbf10e41fd8034e45b7ec97afbe9c4a8528dea32fd7cbb5b5dbad0293.jpg",
+        "text": "$$\n\\begin{array} { r l } & { C _ { f } = \\displaystyle \\frac { 1 } { \\sum _ { i = 1 } ^ { N } s _ { i } } \\sum _ { i = 1 } ^ { N } s _ { i } \\cdot \\mathbb { I } ( \\hat { a } _ { h } ^ { i } = a _ { h } ^ { i } ) , } \\\\ & { \\hat { a } _ { h } ^ { i } \\in \\{ o _ { q 1 } ^ { i } , o _ { q 2 } ^ { i } , . . . , o _ { q 6 } ^ { i } \\} , } \\end{array}\\tag{4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            563,
+            335,
+            828,
+            401
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $s _ { i }$ equals 1 if all subquestions for the ith image have been correctly answered by the VLM, and 0 otherwise, and other notations adhere to their previous definitions.",
+        "bbox": [
+            507,
+            409,
+            885,
+            473
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Consistency in Backward Reasoning. We define $C _ { b }$ to evaluate the VLMs’ proficiency in correctly answering all subquestions given the successful answering of the high-level inference question:",
+        "bbox": [
+            507,
+            474,
+            887,
+            539
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/5b3a80a94045881b8883ef7dfca81e27ab1ab7bb2ff3bc6fb5c0185be23e4bb5.jpg",
+        "text": "$$\n\\begin{array} { r l } & { C _ { b } = \\displaystyle \\sum _ { i = 1 } ^ { N } \\mathbb { I } \\left( \\sum _ { j = 1 } ^ { M } \\mathbb { I } ( \\hat { a } _ { j } ^ { i } = a _ { j } ^ { i } ) = M \\right) , } \\\\ & { \\hat { a } _ { j } ^ { i } \\in \\{ o _ { j 1 } ^ { i } , o _ { j 2 } ^ { i } , . . . , o _ { j 6 } ^ { i } \\} , } \\end{array}\\tag{5}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            552,
+            548,
+            838,
+            620
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $h _ { i }$ equals 1 if the VLM correctly answers the high-level inference question for the ith image, and 0 otherwise, and other notations adhere to their previous definitions.",
+        "bbox": [
+            507,
+            627,
+            885,
+            693
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4 Approach",
+        "text_level": 2,
+        "bbox": [
+            509,
+            703,
+            631,
+            720
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "In preliminary experiments, we find that VLMs can effectively conduct high-level visual inference when provided with complete reasoning chains. Thus, we propose to train a model capable of generating rationales that can potentially enhance visual reasoning performance and consistency. To this end, we propose a bifurcated training framework that is able to train a VLM to efficiently produce rationales that facilitate high-level visual inference (see Figure 3). In the first stage, we aim to train CoTBLIP to generate rationales that contain enough visual details and reasonable inference. To further mitigate certain issues in generated rationales (e.g., hallucination) for better high-level inferences, we introduce the second Reinforcement Learning from LLMs (AI) Feedback (RLAIF) stage. We select BLIP-2-T5 as our backbone model due to its strong performance on basic vision-language tasks (Xu et al., 2023; Fu et al., 2023). Consequently, we refer to our rationale-generation model as CoTBLIP.",
+        "bbox": [
+            507,
+            728,
+            885,
+            923
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "196",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "image",
+        "img_path": "images/8f6189062ff4168e0bb349daaecd9a4da02bf4beda33a8ad4c526d2332486763.jpg",
+        "image_caption": [
+            "Figure 3: The two-stage training framework consisting of SFT and RLAIF. We instruct LLMs to examine the reasoning process of VLMs to improve the challenging high-level inferences."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            117,
+            82,
+            877,
+            199
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            263,
+            489,
+            410
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Stage-1: SFT. We utilize the complex reasoning samples from the LLaVA dataset (Liu et al., 2023c). The original 77K samples are produced by instructing GPT-4 to generate visual inference using a carefully curated set of five human-annotated captions and bounding boxes associated with images from the COCO Dataset (Lin et al., 2014). However, the generated samples consist of repetitive, dialogic expressions that might not be entirely grounded in the images. We thus perform a further post-processing step that prompts LLMs to generate CoT reasoning chains based on the original samples, placing an emphasis on ensuring that these chains are logical, consistent, and succinct. The detailed prompt is shown in Appendix F. We train CoTBLIP on these refined samples using SFT.",
+        "bbox": [
+            112,
+            420,
+            490,
+            680
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Following the SFT stage, CoTBLIP is competent in generating plausible rationales. However, the high-level inferences may be inaccurate since the produced rationales might contain inconsistent reasoning chains or contents that are not grounded in the images (hallucination). In addition, the scalability of the SFT training stage is limited due to its dependence on high-quality human-annotated dense captions, which makes it difficult for this stage to leverage image-caption pairs in the wild. This can lead to lower generalizability on a broad range of visual concepts. Therefore, we extend the training into a second stage, optimizing the generation of rationales using feedback from LLMs. Specifically, we leverage LLMs to inspect the reasoning process, which is more straightforward than directly scrutinizing the high-level inferences.",
+        "bbox": [
+            112,
+            681,
+            490,
+            923
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            263,
+            884,
+            298
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Stage-2: RLAIF. In this stage, we use imagecaption pairs sourced from the wild (e.g., SBU Captions (Ordonez et al., 2011)). For each image, CoTBLIP is initially prompted to generate three CoT reasoning chains, leading to high-level visual inference regarding each image. We also note that there is a noticeable variation in the quality of these generated reasoning chains, which necessitates external feedback. Therefore, we use LLMs (GPT-3.5-Turbo) to provide feedback on the reasoning chains based on the provided caption, considering three aspects:",
+        "bbox": [
+            507,
+            309,
+            887,
+            502
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• Sophistication: The CoT reasoning chains should derive interesting high-level visual inference, instead of trivial visual information (e.g., The image might be captured during the day.)",
+        "bbox": [
+            514,
+            504,
+            887,
+            570
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• Consistency: The reasoning chains should be logically consistent to derive the high-level inference without unsupported assertions or gaps.",
+        "bbox": [
+            514,
+            575,
+            887,
+            624
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "• Groundedness: The extracted visual details in the reasoning chains should be fully grounded in the images, instead of hallucination.",
+        "bbox": [
+            514,
+            630,
+            885,
+            677
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The prompt we use is described in Appendix F. We adapt the methods proposed by (Ouyang et al., 2022) to facilitate pairwise comparison between two reasoning chains and establish a ranking for the three generated reasoning chains. In addition, we leverage a consistency check to exclude instances in which LLMs exhibit conflicting rankings. We use the SBU Captions to generate around 27K LLM preference samples considering the constraints of our available resources. We also demonstrate that increasing the sample size during this stage results in consistent performance improvements in Section 5.3.",
+        "bbox": [
+            507,
+            680,
+            887,
+            890
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Given the LLM preference data, we employ Conditional Reinforcement Learning to train",
+        "bbox": [
+            509,
+            890,
+            885,
+            922
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "197",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "CoTBLIP due to its stability as observed in previous work (Lu et al., 2022b; Liu et al., 2023b; Laskin et al., 2022). Specifically, we introduce two control tokens, namely <Good> and <Bad>. For each sample containing a set of three ranked reasoning chains, we add the <Good> control token to the highest-ranked chain and the <Bad> control tokens to the remaining two chains. In the training time, given an appended control token, we optimize CoTBLIP to maximize the likelihood of the associated reasoning chain. Through this approach, CoTBLIP can learn to distinguish the difference between control tokens and their respective outputs (Liu et al., 2023b). We note that there is no requirement to perform training for a separate reward model, given that the LLM is capable of fulfilling that role effectively.",
+        "bbox": [
+            110,
+            84,
+            490,
+            360
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Inference. During inference, we initially prompt CoTBLIP to generate rationales. However, it is important to acknowledge that when dealing with CoT subquestions that primarily involve basic visual perceptual problems and text-only inference based on provided visual details, the generated rationales may have limited effectiveness. Thus, the rationales are used exclusively for high-level visual inference. Specifically, these rationales are incorporated before the top-tier question to prompt the downstream VLMs to generate the prediction. In our implementation, we opt for utilizing the original $\\mathsf { B L I P - } 2 \\mathrm { - } \\mathsf { T } 5 _ { x l }$ model to conduct predictions based on the rationales generated by CoTBLIP.",
+        "bbox": [
+            110,
+            366,
+            490,
+            593
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5 Experiment",
+        "text_level": 2,
+        "bbox": [
+            114,
+            602,
+            253,
+            619
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.1 Model",
+        "text_level": 2,
+        "bbox": [
+            114,
+            627,
+            215,
+            643
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "We evaluate the reasoning performance and consistency of the following models on CURE . We include GPT-3.5-Turbo-0613 (Turbo), which is a text-only model without visual inputs. We include OFA-Large/Huge (Wang et al., 2022b), which are the leading VLMs without LLMs component. We include the $\\mathbf { B L I P - } 2 \\mathbf { - O P T } _ { 6 . 7 b } / \\mathbf { T } \\bar { \\mathbf { 5 } } _ { x l }$ (Li et al., 2023a), which effectively utilizes LLMs for visionlanguage modeling. Additionally, we incorporate InstructBLIP-T5<sub>xl</sub> (Dai et al., 2023), which performs instruction tuning on a mixture of visionlanguage datasets. We include $\\mathbf { L L a V A } _ { 1 3 b }$ (Liu et al., 2023c) and $\\mathbf { m i n i G P T - } 4 _ { 1 3 b }$ (Zhu et al., 2023) that have undergone extensive training on visionlanguage instruction tuning data. Our approach CoTBLIP appends the generated CoT reasoning chain to the frozen $\\mathrm { B L I P - } 2 \\mathrm { - } \\mathrm { T } 5 _ { x l }$ model and prompts it to predict the answer. Note that this pertains exclusively to high-level visual inference.",
+        "bbox": [
+            110,
+            649,
+            490,
+            923
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            118
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.2 Experimental Results",
+        "text_level": 2,
+        "bbox": [
+            509,
+            128,
+            727,
+            145
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "The concrete implementation details of evaluation are described in Appendix C. We consider the eval uation metrics defined in Sec. 3.3. The experimental results regarding the reasoning performance and consistency are listed in Table 2. We summarize the findings as follows: (1) The model’s ability to perform complex visual inference and produce reasonable outputs relies on three crucial elements: LLMs, visual inputs, and instruction fine-tuning. Models solely reliant on text-based information (Turbo), VLMs lacking LLMs components (OFA), and VLMs incorporating LLMs that have not undergone instructional fine-tuning (BLIP-2-OPT) exhibit inadequate performance; (2) The Chat-based VLMs (LLaVA, miniGPT-4) that have been explicitly supervised fine-tuned on synthetic user-interaction response samples exhibit a lack of visual reasoning ability and reasoning consistency. The underlying cause can be ascribed to the informal nature of the chat-style data, which lacks sufficient supervision to facilitate VLMs in acquiring the ability to integrate visual elements effectively for performing high-level visual inference; (3) The existing best-performing model, BLIP-2- T5, still falls short in reasoning performance and consistency, compared to the human evaluation results. This suggests that significant effort is needed to facilitate VLMs in achieving a level of visual reasoning comparable to that of humans in a systematic and consistent manner; (4) Our framework improves VLMs’ ability to perform visual reasoning and demonstrate better reasoning consistency to a certain extent. Specifically, we observe a 4% improvement in both the high-level visual inference and the forward reasoning consistency. CoTBLIP offers a distinct advantage by providing CoT rationales that contain both extracted visual details and potential inference, thereby improving the visual reasoning pertaining to a specific image.",
+        "bbox": [
+            507,
+            149,
+            887,
+            780
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.3 Further Analysis",
+        "text_level": 2,
+        "bbox": [
+            509,
+            788,
+            692,
+            803
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Ablation Study. We conduct an ablation study to understand the contribution of the SFT and RLAIF stages. The results are presented in Table 3. We observe that both of these stages contribute to the improvement in reasoning performance and consistency. In particular, we observe further improvements when employing the RLAIF after the SFT stage. For example, the overall reasoning $( R _ { o } )$ for the combined stages (CoTBLIP) is 56.91 compared to 54.93 and 55.06 by the baseline and the SFT stage only, respectively. This can be attributed to the ability of RLAIF to facilitate enhanced calibration of the generated rationales, thereby augmenting their cohesiveness and substantiated nature. However, using only the RLAIF without the SFT stage negatively impacts performance when contrasted with the results of directly prompting BLIP-2 without training for rationale generation followed by answer prediction. The presence of the SFT stage enables VLMs to generate reasonable rationales. In its absence, CoTBLIP (BLIP-2) is restricted to producing only image captions or trivial rationales that do not contribute significantly to high-level inference. Thus, without the SFT stage for initialization, the training of CoTBLIP with RLAIF is not feasible.",
+        "bbox": [
+            507,
+            809,
+            887,
+            922
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "198",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "chart",
+        "img_path": "images/f810f9fcae6784e8210e8cc63e4d780bc16437fa489eaaf9351febc2e8c10311.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            147,
+            96,
+            492,
+            269
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/086772be884cd3972f648a644114ce5aff96ff5aabf2d82f3b43c1f33fbe61af.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 4: The influence of the percentage of training samples Figure 5: The CoT reasoning performance across in RLAIF stage on performance. the subquestions."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            546,
+            112,
+            848,
+            278
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/102f8ed95f4a3ed6a1059e34ec82bd28b1b15b46d30d75fee56173f5741feac1.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=3>Metric                Performance       Consistency</td></tr><tr><td rowspan=1 colspan=1>Model</td><td rowspan=1 colspan=1> $R _ { o }$      $R _ { h }$      $R _ { c o t }$ </td><td rowspan=1 colspan=1> $C _ { b }$      $C _ { f }$ </td></tr><tr><td rowspan=1 colspan=1>Random</td><td rowspan=1 colspan=1>0.14  16.67 0.82</td><td rowspan=1 colspan=1>0.82  16.67</td></tr><tr><td rowspan=1 colspan=1>Turbo</td><td rowspan=1 colspan=1>15.97 33.42 40.26</td><td rowspan=1 colspan=1>47.79 39.66</td></tr><tr><td rowspan=1 colspan=1>OFA-Large</td><td rowspan=1 colspan=1>0.12 17.63  0.62</td><td rowspan=1 colspan=1>0.70  20.0</td></tr><tr><td rowspan=1 colspan=1>OFA-Huge</td><td rowspan=1 colspan=1>0.06  16.40 0.68</td><td rowspan=1 colspan=1>0.38  9.09</td></tr><tr><td rowspan=1 colspan=1>BLIP-2-OPT</td><td rowspan=1 colspan=1>0.06  14.61  0.62</td><td rowspan=1 colspan=1>0.42  10.0</td></tr><tr><td rowspan=1 colspan=1>BLIP-2-T5</td><td rowspan=1 colspan=1>54.56 76.82 65.66</td><td rowspan=1 colspan=1>71.03 83.10</td></tr><tr><td rowspan=1 colspan=1>InstructBLIP-T5</td><td rowspan=1 colspan=1>54.01 76.14 65.35</td><td rowspan=1 colspan=1>70.93 82.64</td></tr><tr><td rowspan=1 colspan=1>LLaVA</td><td rowspan=1 colspan=1>0.12  14.67 17.82</td><td rowspan=1 colspan=1>17.65 14.29</td></tr><tr><td rowspan=1 colspan=1>miniGPT-4</td><td rowspan=1 colspan=1>2.10 23.12 38.75</td><td rowspan=1 colspan=1>41.80 28.81</td></tr><tr><td rowspan=2 colspan=1>CoTBLIP (ours)Human</td><td rowspan=1 colspan=1>56.91 80.05 65.66</td><td rowspan=1 colspan=1>71.09 86.67</td></tr><tr><td rowspan=1 colspan=1>85.0  93.0  89.0</td><td rowspan=1 colspan=1>91.40 95.51</td></tr></table>",
+        "bbox": [
+            121,
+            342,
+            490,
+            531
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/f5dcb600e1fc11526aa0c84fe478cb1b5aaa2c421574ae6f87889ba23ae0ddd0.jpg",
+        "table_caption": [
+            "Table 2: The results (%) of the reasoning performance and consistency. The human performance is averaged among 3 human annotators. See Sec. 3.3 for the metrics.",
+            "Table 3: Ablation study of the SFT and RLAIF stages (%). BLIP-2-T5 refers to prompting BLIP-2 without training to generate rationales. The $R _ { c o t }$ metric (omitted here) holds the same across all methods because the generated rationales are only used for high-level visual inference."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Metric</td><td colspan=\"2\">Performance</td><td colspan=\"2\">Consistency</td></tr><tr><td>Model</td><td> $R _ { o }$ </td><td> $R _ { h }$ </td><td> $C _ { b }$ </td><td> $C _ { f }$ </td></tr><tr><td>BLIP-2-T5</td><td>54.93</td><td>77.68</td><td>70.71</td><td>83.66</td></tr><tr><td>CoTBLIP</td><td>56.91</td><td>80.05</td><td>71.09</td><td>86.67</td></tr><tr><td>- w/o RLAIF</td><td>55.06</td><td>78.67</td><td>69.98</td><td>83.85</td></tr><tr><td>- w/o SFT</td><td>54.75</td><td>77.32</td><td>70.81</td><td>83.38</td></tr></table>",
+        "bbox": [
+            151,
+            604,
+            450,
+            701
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            809,
+            490,
+            922
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            343,
+            885,
+            536
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Training Data of the RLAIF Stage. We investigate the impact of varying the amount of training data during the RLAIF stage (see Figure 4). We omit the presentation of $R _ { c o t }$ as they are identical. Our findings reveal that a continuous expansion of training samples positively impacts the RLAIF training stage of CoTBLIP, regarding both reasoning performance and consistency. These results demonstrate the potential of utilizing web-scale image-captions data to further improve the training, attributing to the scalability of the RLAIF stage.",
+        "bbox": [
+            507,
+            544,
+            887,
+            722
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Backward Reasoning Consistency. We conduct a comprehensive study on the CoT reasoning performance $( R _ { c o t } )$ of VLMs, evaluating the extent of performance degradation in answering subquestions (see Figure 5). We select examples that contain three subquestions for the presentation purpose. We observe that existing VLMs often struggle with the initial visual perceptual problem, which involves basic visual details needed for high-level visual inference. However, these models can partially derive the high-level inference when provided with the extracted visual details to some degree, evidenced by the relatively small performance drop when answering the second and third questions. This demonstrates that high-level visual inference derived by VLMs is not entirely grounded in the visual details, leading to a low $C _ { b } .$ . We also discuss the forward reasoning consistency in Appendix E.",
+        "bbox": [
+            507,
+            728,
+            887,
+            922
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "199",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            85,
+            489,
+            183
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            114,
+            192,
+            247,
+            209
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We create CURE using an LLM-Human-in-the-Loop pipeline and identify the deficiencies in existing VLMs for reasoning performance and consistency. To tackle these challenges, we introduce a two-stage training framework consisting of supervised fine-tuning and learning from LLMs feedback. Our method demonstrates improvement in VLMs’ reasoning performance and consistency.",
+        "bbox": [
+            112,
+            218,
+            490,
+            348
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Limitation",
+        "text_level": 2,
+        "bbox": [
+            114,
+            359,
+            213,
+            374
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "As shown in Table 2, our proposed CoTBLIP still exhibits a significant gap, regarding the reasoning performance and consistency compared to the human annotators. This indicates substantial efforts are necessary to enable existing VLMs to perform robust visual inference like humans. CoTBLIP currently can only generate general visual inference about the given images, without considering the instructions. Future work is needed to enable CoTBLIP to perform instruction-guided reasoning chain generation that can more effectively facilitate high-level inference.",
+        "bbox": [
+            112,
+            384,
+            489,
+            579
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgement",
+        "text_level": 2,
+        "bbox": [
+            114,
+            589,
+            280,
+            606
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We thank the reviewers for their suggestions and comments. This research is based upon work supported by U.S. DARPA ECOLE Program No. HR00112390060 and U.S. DARPA KAIROS Program No. FA8750-19-2-1004. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies, either expressed or implied, of DARPA, or the U.S. Government. The U.S. Government is authorized to reproduce and distribute reprints for governmental purposes notwithstanding any copyright annotation therein.",
+        "bbox": [
+            110,
+            614,
+            490,
+            809
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            114,
+            834,
+            215,
+            851
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Ali Borji. 2023. A categorical archive of chatgpt failures. CoRR.",
+            "Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind",
+            "Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel M. Ziegler, Jeffrey Wu, Clemens Winter, Christopher Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020, December 6-12, 2020, virtual.",
+            "Sébastien Bubeck, Varun Chandrasekaran, Ronen Eldan, Johannes Gehrke, Eric Horvitz, Ece Kamar, Peter Lee, Yin Tat Lee, Yuanzhi Li, Scott M. Lundberg, Harsha Nori, Hamid Palangi, Marco Túlio Ribeiro, and Yi Zhang. 2023. Sparks of artificial general intelligence: Early experiments with GPT-4. CoRR.",
+            "Wenhu Chen, Xueguang Ma, Xinyi Wang, and William W. Cohen. 2022. Program of thoughts prompting: Disentangling computation from reasoning for numerical reasoning tasks. CoRR.",
+            "Yangyi Chen, Karan Sikka, Michael Cogswell, Heng Ji, and Ajay Divakaran. 2023. Dress: Instructing large vision-language models to align and interact with humans via natural language feedback. arXiv preprint arXiv:2311.10081.",
+            "Wenliang Dai, Junnan Li, Dongxu Li, Anthony Meng Huat Tiong, Junqi Zhao, Weisheng Wang, Boyang Li, Pascale Fung, and Steven C. H. Hoi. 2023. Instructblip: Towards general-purpose visionlanguage models with instruction tuning. CoRR.",
+            "Zi-Yi Dou, Yichong Xu, Zhe Gan, Jianfeng Wang, Shuohang Wang, Lijuan Wang, Chenguang Zhu, Pengchuan Zhang, Lu Yuan, Nanyun Peng, Zicheng Liu, and Michael Zeng. 2022. An empirical study of training end-to-end vision-and-language transformers. In IEEE/CVF Conference on Computer Vision and Pattern Recognition, CVPR 2022, New Orleans, LA, USA, June 18-24, 2022. Ieee.",
+            "Chaoyou Fu, Peixian Chen, Yunhang Shen, Yulei Qin, Mengdan Zhang, Xu Lin, Zhenyu Qiu, Wei Lin, Jinrui Yang, Xiawu Zheng, Ke Li, Xing Sun, and Rongrong Ji. 2023. MME: A comprehensive evaluation benchmark for multimodal large language models. CoRR.",
+            "Zhe Gan, Linjie Li, Chunyuan Li, Lijuan Wang, Zicheng Liu, and Jianfeng Gao. 2022. Vision-language pretraining: Basics, recent advances, and future trends. Found. Trends Comput. Graph. Vis.",
+            "Mor Geva, Yoav Goldberg, and Jonathan Berant. 2019. Are we modeling the task or the annotator? an investigation of annotator bias in natural language understanding datasets. In Proceedings ofthe 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference"
+        ],
+        "bbox": [
+            115,
+            857,
+            487,
+            884
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "200",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "on Natural Language Processing, EMNLP-IJCNLP 2019, Hong Kong, China, November 3-7, 2019. Association for Computational Linguistics.",
+            "Julián Gil González, Álvaro-Ángel Orozco-Gutierrez, and Andrés Álvarez-Meza. 2021. Learning from multiple inconsistent and dependent annotators to support classification tasks. Neurocomputing.",
+            "Suchin Gururangan, Swabha Swayamdipta, Omer Levy, Roy Schwartz, Samuel R. Bowman, and Noah A. Smith. 2018. Annotation artifacts in natural language inference data. In Proceedings of the 2018 Conference of the North American Chapter of the Associationfor Computational Linguistics: Human Language Technologies, NAACL-HLT, New Orleans, Louisiana, USA, June 1-6, 2018, Volume 2 (Short Papers). Association for Computational Linguistics.",
+            "Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2021. Measuring massive multitask language understanding. In 9th International Conference on Learning Representations, ICLR 2021, Virtual Event, Austria, May 3-7, 2021. OpenReview.net.",
+            "Jack Hessel, Jena D. Hwang, Jae Sung Park, Rowan Zellers, Chandra Bhagavatula, Anna Rohrbach, Kate Saenko, and Yejin Choi. 2022. The abduction of sherlock holmes: A dataset for visual abductive reasoning. In Computer Vision - ECCV 2022 - 17th European Conference, Tel Aviv, Israel, October 23-27, 2022, Proceedings, Part XXXVI. Springer.",
+            "Zhicheng Huang, Zhaoyang Zeng, Yupan Huang, Bei Liu, Dongmei Fu, and Jianlong Fu. 2021. Seeing out of the box: End-to-end pre-training for visionlanguage representation learning. In IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2021, virtual, June 19-25, 2021. Computer Vision Foundation / IEEE.",
+            "Zhicheng Huang, Zhaoyang Zeng, Bei Liu, Dongmei Fu, and Jianlong Fu. 2020. Pixel-bert: Aligning image pixels with text by deep multi-modal transformers. CoRR.",
+            "Chao Jia, Yinfei Yang, Ye Xia, Yi-Ting Chen, Zarana Parekh, Hieu Pham, Quoc V. Le, Yun-Hsuan Sung, Zhen Li, and Tom Duerig. 2021. Scaling up visual and vision-language representation learning with noisy text supervision. In Proceedings of the 38th International Conference on Machine Learning, ICML 2021, 18-24 July 2021, Virtual Event. Pmlr.",
+            "Ziqi Jin and Wei Lu. 2023. Tab-cot: Zero-shot tabular chain of thought. In Findings of the Association for Computational Linguistics: ACL 2023, Toronto, Canada, July 9-14, 2023. Association for Computational Linguistics.",
+            "Chenchen Jing, Yunde Jia, Yuwei Wu, Xinyu Liu, and Qi Wu. 2022. Maintaining reasoning consistency in compositional visual question answering. In IEEE/CVF Conference on Computer Vision and",
+            "Pattern Recognition, CVPR 2022, New Orleans, LA, USA, June 18-24, 2022. Ieee.",
+            "Wonjae Kim, Bokyung Son, and Ildoo Kim. 2021. Vilt: Vision-and-language transformer without convolution or region supervision. In Proceedings of the 38th International Conference on Machine Learning, ICML 2021, 18-24 July 2021, Virtual Event. Pmlr.",
+            "Tamera Lanham, Anna Chen, Ansh Radhakrishnan, Benoit Steiner, Carson Denison, Danny Hernandez, Dustin Li, Esin Durmus, Evan Hubinger, Jackson Kernion, Kamile Lukosiute, Karina Nguyen, Newton Cheng, Nicholas Joseph, Nicholas Schiefer, Oliver Rausch, Robin Larson, Sam McCandlish, Sandipan Kundu, Saurav Kadavath, Shannon Yang, Thomas Henighan, Timothy Maxwell, Timothy Telleen-Lawton, Tristan Hume, Zac Hatfield-Dodds, Jared Kaplan, Jan Brauner, Samuel R. Bowman, and Ethan Perez. 2023. Measuring faithfulness in chainof-thought reasoning. CoRR.",
+            "Stefan Larson, Adrian Cheung, Anish Mahendran, Kevin Leach, and Jonathan K. Kummerfeld. 2020. Inconsistencies in crowdsourced slot-filling annotations: A typology and identification methods. In Proceedings of the 28th International Conference on Computational Linguistics, COLING 2020, Barcelona, Spain (Online), December 8-13, 2020. International Committee on Computational Linguistics.",
+            "Michael Laskin, Luyu Wang, Junhyuk Oh, Emilio Parisotto, Stephen Spencer, Richie Steigerwald, DJ Strouse, Steven Hansen, Angelos Filos, Ethan Brooks, et al. 2022. In-context reinforcement learning with algorithm distillation. arXiv preprint arXiv:2210.14215.",
+            "Gen Li, Nan Duan, Yuejian Fang, Ming Gong, and Daxin Jiang. 2020a. Unicoder-vl: A universal encoder for vision and language by cross-modal pretraining. In The Thirty-Fourth AAAI Conference on Artificial Intelligence, AAAI 2020, The Thirty-Second Innovative Applications ofArtificial Intelligence Conference, IAAI 2020, The Tenth AAAI Symposium on Educational Advances in Artificial Intelligence, EAAI 2020, New York, NY, USA, February 7-12, 2020. AAAI Press.",
+            "Junnan Li, Dongxu Li, Silvio Savarese, and Steven C. H. Hoi. 2023a. BLIP-2: bootstrapping language-image pre-training with frozen image encoders and large language models. CoRR.",
+            "Junnan Li, Ramprasaath Selvaraju, Akhilesh Gotmare, Shafiq Joty, Caiming Xiong, and Steven Chu Hong Hoi. 2021a. Align before fuse: Vision and language representation learning with momentum distillation. Advances in neural information processing systems.",
+            "Liunian Harold Li, Jack Hessel, Youngjae Yu, Xiang Ren, Kai-Wei Chang, and Yejin Choi. 2023b. Symbolic chain-of-thought distillation: Small models can also \"think\" step-by-step. In Proceedings of the 61st Annual Meeting of the Association for Computational"
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            127
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "201",
+        "bbox": [
+            485,
+            929,
+            515,
+            942
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Linguistics (Volume 1: Long Papers), ACL 2023, Toronto, Canada, July 9-14, 2023. Association for Computational Linguistics.",
+            "Liunian Harold Li, Mark Yatskar, Da Yin, Cho-Jui Hsieh, and Kai-Wei Chang. 2019. Visualbert: A simple and performant baseline for vision and language. arXiv preprint arXiv:1908.03557.",
+            "Liunian Harold Li, Haoxuan You, Zhecan Wang, Alireza Zareian, Shih-Fu Chang, and Kai-Wei Chang. 2021b. Unsupervised vision-and-language pre-training without parallel images and captions. In Proceedings of the 2021 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, NAACL-HLT 2021, Online, June 6-11, 2021. Association for Computational Linguistics.",
+            "Xiujun Li, Xi Yin, Chunyuan Li, Pengchuan Zhang, Xiaowei Hu, Lei Zhang, Lijuan Wang, Houdong Hu, Li Dong, Furu Wei, Yejin Choi, and Jianfeng Gao. 2020b. Oscar: Object-semantics aligned pretraining for vision-language tasks. In Computer Vision - ECCV 2020 - 16th European Conference, Glasgow, UK, August 23-28, 2020, Proceedings, Part XXX. Springer.",
+            "Tsung-Yi Lin, Michael Maire, Serge J. Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Dollár, and C. Lawrence Zitnick. 2014. Microsoft COCO: common objects in context. In Computer Vision - ECCV 2014 - 13th European Conference, Zurich, Switzerland, September 6-12, 2014, Proceedings, Part V. Springer.",
+            "Fuxiao Liu, Kevin Lin, Linjie Li, Jianfeng Wang, Yaser Yacoob, and Lijuan Wang. 2023a. Aligning large multi-modal model with robust instruction tuning. arXiv preprint arXiv:2306.14565.",
+            "Hao Liu, Carmelo Sferrazza, and Pieter Abbeel. 2023b. Chain of hindsight aligns language models with feedback. arXiv preprint arXiv:2302.02676.",
+            "Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong Jae Lee. 2023c. Visual instruction tuning. CoRR.",
+            "Jiasen Lu, Dhruv Batra, Devi Parikh, and Stefan Lee. 2019. Vilbert: Pretraining task-agnostic visiolinguistic representations for vision-and-language tasks. In Advances in Neural Information Processing Systems 32: Annual Conference on Neural Information Processing Systems 2019, NeurIPS 2019, December 8- 14, 2019, Vancouver, BC, Canada.",
+            "Pan Lu, Swaroop Mishra, Tanglin Xia, Liang Qiu, Kai-Wei Chang, Song-Chun Zhu, Oyvind Tafjord, Peter Clark, and Ashwin Kalyan. 2022a. Learn to explain: Multimodal reasoning via thought chains for science question answering. In NeurIPS.",
+            "Ximing Lu, Sean Welleck, Jack Hessel, Liwei Jiang, Lianhui Qin, Peter West, Prithviraj Ammanabrolu, and Yejin Choi. 2022b. Quark: Controllable text generation with reinforced unlearning. Advances in neural information processing systems.",
+            "Aman Madaan and Amir Yazdanbakhsh. 2022. Text and patterns: For effective chain of thought, it takes two to tango. CoRR.",
+            "Yu Meng, Jiaxin Huang, Yu Zhang, and Jiawei Han. 2022. Generating training data with language models: Towards zero-shot language understanding. In NeurIPS.",
+            "OpenAI. 2023. GPT-4 technical report. CoRR.",
+            "Vicente Ordonez, Girish Kulkarni, and Tamara L. Berg. 2011. Im2text: Describing images using 1 million captioned photographs. In Advances in Neural Information Processing Systems 24: 25th Annual Conference on Neural Information Processing Systems 2011. Proceedings ofa meeting held 12-14 December 2011, Granada, Spain.",
+            "Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul F. Christiano, Jan Leike, and Ryan Lowe. 2022. Training language models to follow instructions with human feedback. In NeurIPS.",
+            "Gabriel Poesia, Kanishk Gandhi, Eric Zelikman, and Noah D. Goodman. 2023. Certified reasoning with language models. CoRR.",
+            "Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. 2021. Learning transferable visual models from natural language supervision. In International Conference on Machine Learning.",
+            "Arijit Ray, Karan Sikka, Ajay Divakaran, Stefan Lee, and Giedrius Burachas. 2019. Sunny and dark outside?! improving answer consistency in VQA through entailed question generation. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing, EMNLP-IJCNLP 2019, Hong Kong, China, November 3-7, 2019. Association for Computational Linguistics.",
+            "Pritish Sahu, Michael Cogswell, Yunye Gong, and Ajay Divakaran. 2022. Unpacking large language models with conceptual consistency. CoRR.",
+            "Ananya B. Sai, Akash Kumar Mohankumar, and Mitesh M. Khapra. 2023. A survey of evaluation metrics used for NLG systems. ACM Comput. Surv.",
+            "Abulhair Saparov and He He. 2023. Language models are greedy reasoners: A systematic formal analysis of chain-of-thought. In The Eleventh International Conference on Learning Representations, ICLR 2023, Kigali, Rwanda, May 1-5, 2023. OpenReview.net."
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            127
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "202",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Abulhair Saparov, Richard Yuanzhe Pang, Vishakh Padmakumar, Nitish Joshi, Seyed Mehran Kazemi, Najoung Kim, and He He. 2023. Testing the general deductive reasoning capacity of large language models using OOD examples. CoRR.",
+            "Ramprasaath R. Selvaraju, Purva Tendulkar, Devi Parikh, Eric Horvitz, Marco Túlio Ribeiro, Besmira Nushi, and Ece Kamar. 2020. Squinting at VQA models: Introspecting VQA models with sub-questions. In 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition, CVPR 2020, Seattle, WA, USA, June 13-19, 2020. Computer Vision Foundation / IEEE.",
+            "Hao Tan and Mohit Bansal. 2019. Lxmert: Learning cross-modality encoder representations from transformers. In Proceedings ofthe 2019 Conference on Empirical Methods in Natural Language Processing.",
+            "Solomon Ubani, Suleyman Olcay Polat, and Rodney Nielsen. 2023. Zeroshotdataaug: Generating and augmenting training data with chatgpt. CoRR.",
+            "Shagun Uppal, Sarthak Bhagat, Devamanyu Hazarika, Navonil Majumder, Soujanya Poria, Roger Zimmermann, and Amir Zadeh. 2022. Multimodal research in vision and language: A review of current and emerging trends. Inf. Fusion.",
+            "Douglas Walton. 2014. Abductive reasoning. University of Alabama Press.",
+            "Boshi Wang, Sewon Min, Xiang Deng, Jiaming Shen, You Wu, Luke Zettlemoyer, and Huan Sun. 2022a. Towards understanding chain-of-thought prompting: An empirical study of what matters. CoRR.",
+            "Peng Wang, An Yang, Rui Men, Junyang Lin, Shuai Bai, Zhikang Li, Jianxin Ma, Chang Zhou, Jingren Zhou, and Hongxia Yang. 2022b. OFA: unifying architectures, tasks, and modalities through a simple sequence-to-sequence learning framework. In International Conference on Machine Learning, ICML 2022, 17-23 July 2022, Baltimore, Maryland, USA. Pmlr.",
+            "Xin Wang, Yudong Chen, and Wenwu Zhu. 2022c. A survey on curriculum learning. IEEE Trans. Pattern Anal. Mach. Intell.",
+            "Xingyao Wang, Yangyi Chen, Lifan Yuan, Yizhe Zhang, Yunzhu Li, Hao Peng, and Heng Ji. 2024. Executable code actions elicit better llm agents. arXiv preprint arXiv:2402.01030.",
+            "Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc V. Le, Ed H. Chi, and Denny Zhou. 2022d. Selfconsistency improves chain of thought reasoning in language models. CoRR.",
+            "Yizhong Wang, Yeganeh Kordi, Swaroop Mishra, Alisa Liu, Noah A. Smith, Daniel Khashabi, and Hannaneh Hajishirzi. 2022e. Self-instruct: Aligning language model with self generated instructions. CoRR.",
+            "Zhecan Wang, Haoxuan You, Yicheng He, Wenhao Li, Kai-Wei Chang, and Shih-Fu Chang. 2022f. Understanding me? multimodal evaluation for fine-grained visual commonsense. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, EMNLP 2022, Abu Dhabi, United Arab Emirates, December 7-11, 2022. Association for Computational Linguistics.",
+            "Zirui Wang, Jiahui Yu, Adams Wei Yu, Zihang Dai, Yulia Tsvetkov, and Yuan Cao. 2021. Simvlm: Simple visual language model pretraining with weak supervision. arXiv preprint arXiv:2108.10904.",
+            "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed H. Chi, Quoc V. Le, and Denny Zhou. 2022. Chain-of-thought prompting elicits reasoning in large language models. In NeurIPS.",
+            "Jingxuan Wei, Cheng Tan, Zhangyang Gao, Linzhuang Sun, Siyuan Li, Bihui Yu, Ruifeng Guo, and Stan Z. Li. 2023. Enhancing human-like multi-modal reasoning: A new challenging dataset and comprehensive framework. CoRR.",
+            "Haiyang Xu, Ming Yan, Chenliang Li, Bin Bi, Songfang Huang, Wenming Xiao, and Fei Huang. 2021. E2E-VLP: end-to-end vision-language pre-training enhanced by visual learning. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing, ACL/I-JCNLP 2021, (Volume 1: Long Papers), Virtual Event, August 1-6, 2021. Association for Computational Linguistics.",
+            "Peng Xu, Wenqi Shao, Kaipeng Zhang, Peng Gao, Shuo Liu, Meng Lei, Fanqing Meng, Siyuan Huang, Yu Qiao, and Ping Luo. 2023. Lvlm-ehub: A comprehensive evaluation benchmark for large visionlanguage models. CoRR.",
+            "Zhengyuan Yang, Zhe Gan, Jianfeng Wang, Xiaowei Hu, Faisal Ahmed, Zicheng Liu, Yumao Lu, and Lijuan Wang. 2022. Unitab: Unifying text and box outputs for grounded vision-language modeling. In Computer Vision - ECCV 2022 - 17th European Conference, Tel Aviv, Israel, October 23-27, 2022, Proceedings, Part XXXVI. Springer.",
+            "Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas L. Griffiths, Yuan Cao, and Karthik Narasimhan. 2023a. Tree of thoughts: Deliberate problem solving with large language models. CoRR.",
+            "Yao Yao, Zuchao Li, and Hai Zhao. 2023b. Beyond chain-of-thought, effective graph-of-thought reasoning in large language models. CoRR.",
+            "Yuan Yao, Qianyu Chen, Ao Zhang, Wei Ji, Zhiyuan Liu, Tat-Seng Chua, and Maosong Sun. 2022. PEVL: position-enhanced pre-training and prompt tuning for vision-language models. In Proceedings ofthe 2022 Conference on Empirical Methods in Natural Language Processing, EMNLP 2022, Abu Dhabi, United"
+        ],
+        "bbox": [
+            115,
+            85,
+            489,
+            152
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "203",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Arab Emirates, December 7-11, 2022. Association for Computational Linguistics.",
+            "Lifan Yuan, Yichi Zhang, Yangyi Chen, and Wei Wei. 2023. Bridge the gap between CV and nlp! A gradient-based textual adversarial attack framework. In Findings of the Association for Computational Linguistics: ACL 2023, Toronto, Canada, July 9-14, 2023. Association for Computational Linguistics.",
+            "Rowan Zellers, Yonatan Bisk, Ali Farhadi, and Yejin Choi. 2019. From recognition to cognition: Visual commonsense reasoning. In Proceedings ofthe IEEE/CVF Conference on Computer Vision and Pattern Recognition.",
+            "Pengchuan Zhang, Xiujun Li, Xiaowei Hu, Jianwei Yang, Lei Zhang, Lijuan Wang, Yejin Choi, and Jianfeng Gao. 2021. Vinvl: Revisiting visual representations in vision-language models. In IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2021, virtual, June 19-25, 2021. Computer Vision Foundation / IEEE.",
+            "Deyao Zhu, Jun Chen, Xiaoqian Shen, Xiang Li, and Mohamed Elhoseiny. 2023. Minigpt-4: Enhancing vision-language understanding with advanced large language models. CoRR."
+        ],
+        "bbox": [
+            131,
+            85,
+            487,
+            114
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "204",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Appendix",
+        "text_level": 2,
+        "bbox": [
+            114,
+            84,
+            205,
+            101
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "A Dataset Statistics",
+        "text_level": 2,
+        "bbox": [
+            114,
+            110,
+            302,
+            127
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "CURE contains 1,622 evaluative instances, wherein each instance encompasses an average of 2.91 reasoning chains, also known as subquestions, reflecting a profound commitment to providing rich, complex data for effective analysis. On average, the lengths of the candidate inference, subquestions, and candidate answers in the dataset are 7.05, 9.97, and 2.96, respectively. Note that these elements are products of LLMs, generated based on the visual clues provided by human annotators. We thus present the word cloud of the visual clues regarding the evaluation samples in Figure 6. Upon examination, it becomes apparent that these visual values primarily center around human-oriented concepts. They incorporate information about entities, activities, and occurrences that are directly associated with individuals. This observation provides a partial representation of the data distribution within our dataset, particularly in relation to the target inference, subquestions, and their corresponding answers.",
+        "bbox": [
+            110,
+            139,
+            489,
+            478
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In addition, we delineate the distribution of question types within CURE as presented in Figure 7. We find that CURE comprises various kinds of questions with the \"What\" type questions dominating the distribution. This dominance is primarily due to the extensive use of such questions in Sherlock for cultivating a holistic comprehension of any given context or subject matter. Indeed, these types of queries are inherently employed to both obtain a detailed narrative of the scenario, as well as to facilitate visual inference based on the perceived information.",
+        "bbox": [
+            112,
+            478,
+            490,
+            671
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B Related Work",
+        "text_level": 2,
+        "bbox": [
+            114,
+            686,
+            273,
+            701
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Vision-Language Pretraining. VLMs have demonstrated remarkable performance across various downstream tasks, primarily due to their extensive pre-training on large-scale datasets (Gan et al., 2022; Uppal et al., 2022; Wang et al., 2022c). Initially, VLMs heavily relied on object detectors for image comprehension (Li et al., 2019; Tan and Bansal, 2019; Lu et al., 2019; Li et al., 2020a,b, 2021b, 2020b, 2021b; Zhang et al., 2021). Subsequent developments in VLMs research have aimed to bypass the need for resource-intensive object detectors (Dou et al., 2022; Huang et al., 2020; Kim et al., 2021), streamline the inference process (Huang et al., 2021; Xu et al., 2021), incorporate more extensive visual data (Yang et al., 2022; Yao et al., 2022; Li et al., 2021a; Radford et al., 2021), and introduce additional tasks for object grounding during pre-training (Jia et al., 2021; Yao et al., 2022). As research progresses, efforts are made to design a unified architecture for VLMs, enabling them to handle multiple tasks without requiring task-specific adjustments (Wang et al., 2021, 2022b; Li et al., 2023a). Leveraging largescale multimodal instruction tuning data for effective alignment of the two modalities, VLMs can effectively parse the questions and generate user-friendly responses (Li et al., 2023a; Liu et al., 2023c; Zhu et al., 2023).",
+        "bbox": [
+            112,
+            713,
+            490,
+            923
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            887,
+            326
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "CoT Reasoning Consistency The CoT reasoning approach was initially introduced to enhance the reasoning capabilities of LLMs by prompting them to generate rationales and then answers (Wei et al., 2022). This approach is extended to various domains, models, and more complex problems (Poesia et al., 2023; Li et al., 2023b; Chen et al., 2022; Jin and Lu, 2023; Yao et al., 2023b,a; Saparov et al., 2023; Wang et al., 2024). In addition, the CoT reasoning consistency is effectively utilized to improve the reasoning performance (Wang et al., 2022d). However, it is still not clear how consistent LLMs reasoning is, given the mixed results in previous work (Wang et al., 2022a; Lanham et al., 2023; Madaan and Yazdanbakhsh, 2022; Saparov and He, 2023; Sahu et al., 2022).",
+        "bbox": [
+            507,
+            354,
+            887,
+            613
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "C Implementation Details of Evaluation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            642,
+            873,
+            658
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Given that none of the VLMs under consideration has been trained on grounded data, it is not feasible to directly incorporate bounding box information into these models We adopt a compromise solution that involves preprocessing the evaluation samples through the automatic incorporation of annotated bounding boxes into the images. We instruct VLMs to focus on the specific region delineated by the bounding boxes in the prompts provided. We describe the prompts for evaluation in Appendix F. For each top-tier question or subquestion in the reasoning chain, VLMs only need to select one option from candidate answers. Namely, VLMs choose an answer based on the highest probability among six options: $\" \\mathrm { A } \" , \" \\mathrm { B } \" , \" \\mathrm { C } \" , \" \\mathrm { D } \" , \" \\mathrm { E } \"$ , and \"F\".",
+        "bbox": [
+            507,
+            681,
+            887,
+            923
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "205",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "image",
+        "img_path": "images/32119704f9c4a3b3dd577ff3b956542831b248c423a3ebd073925b99feae27bb.jpg",
+        "image_caption": [
+            "Figure 6: The word cloud of the visual clues."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            115,
+            95,
+            578,
+            261
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/fda43f70ff136a5a7f16c8512e1e509132d5d074c560372194d92949ad6e7edc.jpg",
+        "table_caption": [
+            "Figure 7: Question distribution."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=1>Question Type</td><td rowspan=1 colspan=1>Percentage</td></tr><tr><td rowspan=1 colspan=1>WhatWhere</td><td rowspan=2 colspan=1>86.103.742.77</td></tr><tr><td rowspan=1 colspan=1>Why</td></tr><tr><td rowspan=1 colspan=1>How</td><td rowspan=1 colspan=1>2.16</td></tr><tr><td rowspan=1 colspan=1>Which</td><td rowspan=1 colspan=1>1.84</td></tr><tr><td rowspan=1 colspan=1>Who</td><td rowspan=1 colspan=1>1.54</td></tr><tr><td rowspan=1 colspan=1>When</td><td rowspan=2 colspan=1>0.910.68</td></tr><tr><td rowspan=1 colspan=1>Yes/No</td></tr><tr><td rowspan=1 colspan=1>Others</td><td rowspan=1 colspan=1>0.25</td></tr></table>",
+        "bbox": [
+            631,
+            83,
+            862,
+            259
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "image",
+        "img_path": "images/2f9e6e66adfa31b3729c66b74c677f58cb8a8a6ccb0d2dcf67e179f0f9593fd3.jpg",
+        "image_caption": [
+            "Figure 8: Showing cases where BLIP-2 fails initially but CoTBLIP is able to generate reasonable CoT reasoning chains that can help with the high-level visual inference and obtain the correct answer. More examples are in Figure 10."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            117,
+            299,
+            877,
+            391
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "D Human Annotation",
+        "text_level": 2,
+        "bbox": [
+            114,
+            475,
+            322,
+            492
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Human Verification. We use the molardata platform<sup>1</sup> for human annotation. We hire 3 human annotators to validate each instance in the dataset generated by LLM, adhering to two specific criteria. First, the evaluation samples must be capable of effectively measuring reasoning performance and consistency. This entails instructing the annotators to examine the failure modes identified in Table 1 and also to identify any additional reasons for excluding certain examples from the evaluation; Second, we plan to improve the diversity of the evaluation dataset by reducing instances that demonstrate highly similar reasoning paths within certain groups. To this end, we provide each annotator with 100 dataset samples at the beginning of the annotation, acquainting them with the dataset’s distribution as well as some analogous examples. In the verification process, we request annotators to label examples belonging to an extensive group of analogous cases. Note that this is a dynamic process, as annotators have the capability to continuously update their understanding of the dataset distribution while engaging in the annotation task. After completing the annotation process, we compile the results and subsequently exclude instances that have been classified as failures by any of the annotators. We systematically collect examples labeled as relatively abundant in the dataset and subject them to a thorough validation process. We ensure the inclusion of a specific quantity of highquality examples in each group, proportionate to the sample size within each group.",
+        "bbox": [
+            110,
+            505,
+            490,
+            894
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            476,
+            885,
+            606
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Dataset Evaluation. We hire a different set of 3 human annotators to conduct a cross-validation of the dataset derived from the human verification process, following the same verification procedure. Additionally, these annotators are requested to perform the task on CURE , including the high-level visual inference and CoT reasoning subquestions, thus capturing the human performance score.",
+        "bbox": [
+            507,
+            613,
+            887,
+            743
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "E Forward Reasoning Consistency",
+        "text_level": 2,
+        "bbox": [
+            509,
+            752,
+            826,
+            770
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "We choose the highest-performing models, specifically BLIP-2 and CoTBLIP, for conducting a qualitative analysis of their forward reasoning consistency. We selected these models since they exhibit significant performance improvements compared to text-only models. We select two examples, shown in Figure 8, to highlight cases where BLIP-2 demonstrates a lack of forward reasoning consistency and where CoTBLIP can potentially offer assistance. We observe that CoTBLIP demonstrates the ability to generate coherent rationales, starting with visual elements that are highly relevant to the image, and subsequently advancing towards more sophisticated visual inference that significantly impacts the prediction. For example, the reasoning chain in the second example in Figure 8 seems to first identify some motorcyclists that are parked on a street in some kind of gathering and then provides the high-level inference indicating that these folks might be part of a community interested in such vehicles. Notably, incorporating the rationales explicitly within the context enhances the reasoning consistency of VLMs.",
+        "bbox": [
+            507,
+            777,
+            887,
+            923
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>https://www.molardata.com/",
+        "bbox": [
+            136,
+            907,
+            342,
+            921
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "206",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            84,
+            489,
+            311
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "F Prompts",
+        "text_level": 2,
+        "bbox": [
+            114,
+            322,
+            226,
+            338
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "We compile the list of prompts utilized in our implementation to instruct LLMs to perform their designated tasks.",
+        "bbox": [
+            112,
+            347,
+            490,
+            397
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "F.1 Candidate Answers Generation for CoT Subquestions",
+        "text_level": 2,
+        "bbox": [
+            114,
+            406,
+            477,
+            438
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "Imagine a scene : {Human - Annotated Visual   \n, Clue }   \nHere is a question and its corresponding   \n, answer :   \nQ: {CoT Subquestion }   \nA : { CoT Answer }   \nPlease generate 5 different answers in   \n, 1-5 words that are semantically   \n, similar but contain factual   \n, errors .",
+        "bbox": [
+            114,
+            447,
+            480,
+            570
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "F.2 Filtering",
+        "text_level": 2,
+        "bbox": [
+            114,
+            587,
+            230,
+            604
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "Imagine a scene : {Human - Annotated   \n, Visual Clue }   \nWe want to make an inference about this   \n, scene by asking some coherent and   \n, subsequent questions .   \nThe questions are as follows :   \nQ1: {CoT Subquestion -1}   \nA1: {CoT Answer -1}   \nQ2: {CoT Subquestion -2}   \nA2: {CoT Answer -2}   \nSo we draw the inference : {Human -   \n, Annotated High - Level Inference }   \nJudge whether the reasoning chain is   \n, coherent and consistent . Directly   \n, answer yes or no.",
+        "bbox": [
+            112,
+            612,
+            478,
+            819
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "F.3 Baseline Evaluation",
+        "text_level": 2,
+        "bbox": [
+            114,
+            835,
+            317,
+            851
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "Pay attention to the designated area   \n, outlined by the red bounding   \n, box in the image .   \nQuestion : { Subquestion }   \nSix potential answers are as follows :",
+        "bbox": [
+            114,
+            860,
+            480,
+            922
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "A: { Candidate A}   \nB: { Candidate B}   \nC: { Candidate C}   \nD: { Candidate D}   \nE: { Candidate E}   \nF: { Candidate F}   \nWhich one is most likely to be correct ?   \n, Directly answer (A/B/C/D/E/F):   \nWhat can we infer from the designated   \n, area outlined by the red bounding   \n, box in the image ?   \nHere are six potential answers :   \nA: { Candidate A}   \nB: { Candidate B}   \nC: { Candidate C}   \nD: { Candidate D}   \nE: { Candidate E}   \nF: { Candidate F}   \nWhich one is most likely to be correct ?   \n, Directly answer (A/B/C/D/E/F):   \nWhat can we infer from the   \n, designated area outlined by   \n, the red bounding box in the   \n, image ? Consider the following   \n, reasoning chain : { Reasoning   \n, Chain Generated by CoTBLIP }   \nHere are six potential answers :   \nA: { Candidate A}   \nB: { Candidate B}   \nC: { Candidate C}   \nD: { Candidate D}   \nE: { Candidate E}   \nF : { Candidate F }   \nWhich one is most likely to be correct ?   \n, Directly answer (A/B/C/D/E/F):",
+        "bbox": [
+            509,
+            85,
+            873,
+            541
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "F.4 CoT Reasoning Chains Generation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            560,
+            831,
+            576
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "You need to generate some questions   \n, for evaluating vision -   \n, language models . You will be   \n, given a scene description and   \n, a corresponding high - level   \n, inference about this scene .   \n, Please generate step -by - step   \n, questions and corresponding   \n, answers that can derive the   \n, final inference . The   \n, reasoning chain should   \n, contain 2-4 questions , and   \n, the answers should contain   \n, 1-3 words .   \nConsider the following principle :   \n1. The reasoning chain needs to be as   \n, short as possible .   \n2. The questions are used to evaluate   \n, vision - language models that don ’t   \n, have access to the scene   \n, description . So the first few   \n, questions are about visual   \n, information in the scene   \n, description , and you should not   \n, mention \" description \" in the   \n, questions .",
+        "bbox": [
+            512,
+            587,
+            877,
+            922
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "207",
+        "bbox": [
+            485,
+            928,
+            515,
+            942
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "3. The reasoning chain should be , help you understand the   \n, consistent and cohesive . Each , image . Then a human - annotated   \n, step should be atomic or based on question - answering pair will   \n, previous steps , and should not be given .   \n, be duplicated or redundant .   \n4. You should avoid generating questions Please generate a step -by - step reasoning   \n, with yes /no as the answers . chain . The reasoning chain   \n5. End your answer with the format ’The , should be very concise and short ,   \n, final reasoning chain is: ’, and , containing less than 15 words   \n, if you think such a task cannot , for each step , and the total   \n, be accomplished , please directly , steps should be less than 4.   \n, return ’No ’.   \nFor example :   \nScene description :   \nScene description : patches of snow A group of people skiing down a hill ;   \n, spread throughout grass on the Several people on skis on a snowy slope ;   \n, side of freeway . A group of young men riding down the   \nHigh - level inference : Cold weather is , side of a snow covered slope ;   \n, causing hazardous conditions at Five skiers going through obstacles on a   \n, this location . , ski slope ;   \npeople skating on the snow with orange   \nLet ’s think step by step : We need to , flags on the way .   \n, initially generate some   \n, perceptual questions based on the Question : What can you say about the   \n, visual information in the scene , skill level of the skiers   \n, description . Then we need to , featured in the image ?   \n, generate questions about the Answer : In the image , there is a group   \n, visual reasoning based on the , of five people skiing down a   \n, previously perceived information . , snowy slope with orange flags   \n, For the perceptual question , we , marking their trail . It appears   \n, have the information that , that they are maneuvering through   \n, patches of snow appear on the those obstacles on the ski slope   \n, side of freeway in the scene . , which suggests that these   \n, Then for the visual reasoning skiers possess a certain level of   \n, problem , we can infer that cold skill and experience . The fact   \n, weather causes the appearance of that they can ski together in   \n, snow , and based on the knowledge close proximity and navigate   \n, that snow can affect traffic , we through obstacles demonstrates   \n, can infer that cold weather can their ability to maintain control   \n, cause hazardous conditions at and balance while skiing . It ’s   \n, this location . reasonable to assume that these   \nskiers may have had some training   \nThe final reasoning chain is: or practice to reach this skill   \nQ1: What is seen on the grass on the level , as navigating a snow -   \n, side of the freeway ? , covered slope with obstacles   \nA1: Patches of snow . typically requires a level of   \nQ2 : What kind of weather conditions , expertise beyond that of a   \n, could cause patches of snow to , beginner skier .   \n, appear ?   \nA2: Cold weather . Let ’ s think step by step :   \nQ3: How can cold weather and patches of The skiers are navigating through   \n, snow affect the conditions of a , obstacles . They are skiing in   \n, location ? , close proximity . This implies   \nA3 : Hazardous conditions . , advanced skill and experience .   \nNow consider this example :   \nScene description : {Human - Annotated Scene description : { COCO Captions }   \n, Visual Clue } Question : { LLaVA Question }   \nHigh - level inference : { Human - Annotated Answer : { LLaVA Answer }   \n, High - Level Inference } Let ’s think step by step :   \nLet ’ s think step by step :   \nF.6 Feedback Generation   \nF.5 Postprocessing of LLaVA Dataset You will receive two inferences on   \n, an image produced by two   \nYou need to generate some training , models . Your objective is to   \n, samples for vision - language , choose the superior inference   \n, models . You will be given , . Additionally , you will   \n, several scene descriptions to , receive a description of the",
+        "bbox": [
+            109,
+            84,
+            878,
+            923
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "208",
+        "bbox": [
+            485,
+            929,
+            517,
+            942
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": ", scene to aid in your   \n, understanding . Let ’s think step by step :   \nWhen making your judgment , please keep   \n, the following principles in mind :   \n1. The language used in the inference   \n, should flow naturally .   \n2. The inference should be grounded in   \n, the image ’s content .   \n3. The inference should be logical ,   \n, congruent , and concise .   \n4. The inference should be comprehensive   \n, and complete , ultimately drawing   \n, a high - level inference .   \nGive your answer after the \" Answer :\"   \nFor example :   \nScene description : grass in a rock   \nInferences :   \nA : The small plant growing out of the   \n, rock in the image is likely to be   \n, a native species that has been   \n, transplanted from another area ,   \n, such as an urban or natural   \n, environment . Native plants tend   \n, to have deeper roots and are more   \n, resistant to environmental   \n, conditions than their non - native   \n, counterparts , making them ideal   \n, for adapting to different   \n, habitats and environments .   \nB: The small plants growing out of the   \n, crack in the rock are likely a   \n, result of natural processes , such   \nas erosion or weathering over   \n, time . This can be beneficial to   \n, the plant ’s survival and growth ,   \n, helping it adapt to its   \n, environment and thrive .   \n, Additionally , this type of   \n, habitat is conducive for   \n, microorganisms that help maintain   \n, soil quality and provide   \n, nutrients necessary for healthy   \n, plant growth .   \nLet ’s think step by step : Inference A   \n, captures the unique phenomenon of   \n, plants growing out of the rock ,   \n, emphasizes the natural process   \n, and potential environmental   \n, benefits , and provides a more   \n, comprehensive understanding of   \n, the scene . On the contrary ,   \n, Inference B fails to explain the   \n, mechanism or the specific   \n, relationship between the plants   \n, and the rock . The mention of   \n, adaptation to harsh conditions is   \n, relevant , but it does not   \n, encompass the entire context of   \n, the image .   \nAnswer : A   \nNow consider this example :   \nScene description : { Image Caption }   \nInference :   \nA: { Inference -1}   \nB: { Inference -2}",
+        "bbox": [
+            107,
+            82,
+            752,
+            922
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "209",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "image",
+        "img_path": "images/bd9bf658bfe03d3f9ed8f6cffe349e4c92c7812c89214265467f05f1343a9141.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            126,
+            107,
+            284,
+            190
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/1bc4a49aecd53ca68dbe129458b152fc7e9bab227d82ceceee134deab97aa15d.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            126,
+            229,
+            284,
+            310
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/9209505d40fbc27a2896f8db7bbdca6cd94dec60aa9ab1f9ddd30fb0ec7f8155.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            126,
+            353,
+            284,
+            429
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/5722c153a92f4af850fec733aa71d1c843f4f277b0b26e10dfa4e9894e3779d8.jpg",
+        "image_caption": [],
+        "image_footnote": [
+            "Ground Truth Inference: People going to eat it Reasoning Chain:",
+            "• What is the state of the fruit in the scene? A: Cut in half. B: Fried and crispy.",
+            "• Why would someone cut a fruit in half? A: To practice knife skills. B: To eat it.",
+            "• Who is likely going to consume the fruit? A: Plants. B: People.",
+            "Visual Clue: A child holding a spool of string and a kite floating in the air.",
+            "Ground Truth Inference: It is windy outside. Reasoning Chain:",
+            "Visual Clue: A person holding an animal treat. Ground Truth Inference: This person is a tourist."
+        ],
+        "bbox": [
+            127,
+            476,
+            282,
+            542
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Visual Clue: Fruit cut in half.",
+        "text_level": 2,
+        "bbox": [
+            295,
+            112,
+            396,
+            122
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is the child holding? A: A hat. B: A kite.",
+        "bbox": [
+            297,
+            253,
+            400,
+            269
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What condition is necessary for a kite to float in the air?",
+        "bbox": [
+            299,
+            286,
+            463,
+            300
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "A: Windy conditions. B: Sky magnets working properly.",
+        "bbox": [
+            304,
+            299,
+            440,
+            316
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Reasoning Chain:",
+        "bbox": [
+            297,
+            365,
+            364,
+            373
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is the person holding in their hand? . A: Toy for pets. B: An animal treat.",
+        "bbox": [
+            297,
+            372,
+            450,
+            388
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is a possible reason for someone to hold an animal treat? A: Sculpting with clay. B: Interacting with animals.",
+        "bbox": [
+            299,
+            387,
+            452,
+            418
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What type of people often interact with animals while holding treats? A: Celebrities. B: Tourists.",
+        "bbox": [
+            299,
+            417,
+            445,
+            441
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Visual Clue: Brown sausage patty on a plate Ground Truth Inference: The person who is going to eat this is not vegetarian.",
+        "bbox": [
+            295,
+            475,
+            452,
+            500
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Reasoning Chain:",
+        "bbox": [
+            297,
+            499,
+            366,
+            506
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is on the plate?",
+        "bbox": [
+            297,
+            506,
+            383,
+            514
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "A: Chocolate donut sprinkle. B. Brown sausage patty",
+        "bbox": [
+            297,
+            513,
+            443,
+            530
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is a sausage patty typically made of? A: Fruit filling mix. B: Meat.",
+        "bbox": [
+            299,
+            529,
+            455,
+            545
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• Do vegetarians eat meat? A: Yes, always. B: No.",
+        "bbox": [
+            299,
+            544,
+            398,
+            560
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/266573d25a29ae8ad53f639914813d05ff0301ab5ce11e9c3586c22ef66308c5.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            492,
+            123,
+            677,
+            170
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/b2b7d5c6917c28b2b88d39e8e061179d7c1649bfaa0b1492582859d3c99d4d94.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            492,
+            234,
+            675,
+            305
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/95423ed8607c7a1cf416aec684fc85fbd8cda190513f39d716ceb0f3045f4e70.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            492,
+            353,
+            678,
+            410
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/76c8bdc5b7a930e1dbf3ac96dc82a68386cf981930bf73648fc0bf433489dee9.jpg",
+        "image_caption": [],
+        "image_footnote": [
+            "Visual Clue: A large body of water between the walkway and a city skyline"
+        ],
+        "bbox": [
+            492,
+            483,
+            678,
+            542
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Visual Clue: A lot of seabirds on the boat.",
+        "text_level": 2,
+        "bbox": [
+            689,
+            96,
+            835,
+            105
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Ground Truth Inference: This boat has been sitting for some time.",
+        "bbox": [
+            689,
+            104,
+            850,
+            120
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Reasoning Chain:",
+        "bbox": [
+            690,
+            120,
+            759,
+            128
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is seen on the boat? A: A lot of seabirds. B: A g A: A lot of seabirds. B: A group of lions.",
+        "bbox": [
+            694,
+            127,
+            796,
+            142
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            700,
+            134,
+            840,
+            142
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What could be the reason for the presence of many seabirds on the boat?",
+        "bbox": [
+            692,
+            140,
+            860,
+            158
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "A: The boat has been stationary. B: The birds are lost.",
+        "bbox": [
+            699,
+            158,
+            862,
+            173
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What can be inferred about the boat's status based on the presence of many seabirds? A: It's a popular attraction. B: It has been sitting for some time",
+        "bbox": [
+            694,
+            173,
+            857,
+            204
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Ground Truth Inference: This city has a major port. Reasoning Chain:",
+        "bbox": [
+            689,
+            243,
+            862,
+            259
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is located between walkway and city skyline? A: A body of water. B: A barren desert wasteland",
+        "bbox": [
+            690,
+            258,
+            867,
+            272
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What can a large body of water near a city indicate?",
+        "bbox": [
+            692,
+            272,
+            842,
+            291
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "A: Abundance of whales. B: Presence of a port.",
+        "bbox": [
+            699,
+            287,
+            855,
+            296
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is the significance of a port in a city? A: Major port. B: A popular beach town.",
+        "bbox": [
+            692,
+            294,
+            843,
+            310
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Visual Clue: Kids walking out of a school building. Ground Truth Inference: The kids have just been let out of class.",
+        "text_level": 2,
+        "bbox": [
+            689,
+            335,
+            865,
+            356
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Reasoning Chain:",
+        "bbox": [
+            690,
+            356,
+            756,
+            365
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "What are the kids doing in the scene?",
+        "bbox": [
+            690,
+            363,
+            826,
+            372
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "A: Sleeping inside the building. B: Walking out of a building.",
+        "bbox": [
+            690,
+            370,
+            867,
+            386
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What is written on the building? A: Hospital building. B: School.",
+        "bbox": [
+            692,
+            385,
+            806,
+            399
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• Why would kids be walking out of a school building?",
+        "bbox": [
+            692,
+            399,
+            842,
+            416
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "A: They have been let out of class. B: They won a competition.",
+        "bbox": [
+            697,
+            414,
+            865,
+            430
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Visual Clue: Ship windows in background.",
+        "text_level": 2,
+        "bbox": [
+            690,
+            475,
+            828,
+            485
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Ground Truth Inference: They are on a ship Reasoning Chain:",
+        "bbox": [
+            689,
+            483,
+            836,
+            499
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What type of windows are seen in the background?",
+        "bbox": [
+            690,
+            498,
+            826,
+            513
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": ". A: Bus windows. B: Ship windows.",
+        "bbox": [
+            692,
+            512,
+            816,
+            520
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "• What does the presence of ship windows suggest about the location? A: In outer space. B: On a ship. A: In outer space. B: On a ship.",
+        "bbox": [
+            692,
+            519,
+            863,
+            539
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            700,
+            535,
+            805,
+            542
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "image",
+        "img_path": "images/69c331605a03eae6d0564a7926018514d6acb0d72c71e31a2a897bb90fe8d82d.jpg",
+        "image_caption": [
+            "Figure 9: More examples included in CURE . We only show 2 candidate options (of 6 in total) for the sake of presentation",
+            "Figure 10: More examples for qualitative analysis of CoTBLIP."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            117,
+            624,
+            880,
+            854
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "210",
+        "bbox": [
+            485,
+            928,
+            517,
+            942
+        ],
+        "page_idx": 18
+    }
+]
