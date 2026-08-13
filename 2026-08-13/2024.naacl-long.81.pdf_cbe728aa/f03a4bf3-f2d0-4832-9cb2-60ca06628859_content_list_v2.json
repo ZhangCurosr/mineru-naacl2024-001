@@ -1,0 +1,4080 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Large Language Models Help Humans Verify Truthfulness— Except When They Are Convincingly Wrong"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                183,
+                89,
+                818,
+                130
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Chenglei Si<sup>1</sup> Navita Goyal<sup>2</sup> Sherry Tongshuang Wu<sup>3</sup> Chen Zhao<sup>4</sup> Shi Feng<sup>5</sup> Hal Daumé III<sup>2,6</sup> Jordan Boyd-Graber<sup>2</sup> <sup>1</sup>Stanford University <sup>2</sup>University of Maryland <sup>3</sup>Carnegie Mellon University <sup>4</sup>NYU Shanghai <sup>5</sup>New York University <sup>6</sup> Microsoft Research clsi@stanford.edu"
+                    }
+                ]
+            },
+            "bbox": [
+                171,
+                146,
+                831,
+                230
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                262,
+                260,
+                342,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Large Language Models (LLMs) are increasingly used for accessing information on the web. Their truthfulness and factuality are thus of great interest. To help users make the right decisions about the information they get, LLMs should not only provide information but also help users fact-check it. Our experiments with 80 crowdworkers compare language models with search engines (information retrieval systems) at facilitating fact-checking. We prompt LLMs to validate a given claim and provide corresponding explanations. Users reading LLM explanations are significantly more efficient than those using search engines while achieving similar accuracy. However, they over-rely on the LLMs when the explanation is wrong. To reduce over-reliance on LLMs, we ask LLMs to provide contrastive information—explain both why the claim is true and false, and then we present both sides of the explanation to users. This contrastive explanation mitigates users over-reliance on LLMs, but cannot significantly outperform search engines. Further, showing both search engine results and LLM explanations offers no complementary benefits compared to search engines alone. Taken together, our study highlights that natural language explanations by LLMs may not be a reliable replacement for reading the retrieved passages, especially in high-stakes settings where overrelying on wrong AI explanations could lead to critical consequences."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                293,
+                460,
+                750
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                781,
+                260,
+                797
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Imagine you are told a claim about Neptune: “Only one spacecraft has visited Neptune and it has more than 13 moons.” and you want to verify whether it is factual. What would you do—look up relevant pages from search engines or ask ChatGPT for its take? This is not just a question of checking a piece of trivia; our information ecosystem depends on people being able to check the veracity of information online. Misinformation, whether accidental or deliberate, has the potential to sway public opinion, influence decisions, and erode trust in credible sources (Faris et al., 2017; Mendes, 2017). Moreover, the wide adoption of large language models like ChatGPT increases the danger of misinformation, both by malicious actors and models generating inadvertent hallucinations (Pan et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                809,
+                489,
+                922
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                261,
+                887,
+                406
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consequently, verifying the accuracy of information is important. Fact-checking claims is a wellestablished task in NLP (Thorne et al., 2018; Guo et al., 2021). However, automated fact-checkers are far from perfect, and they are only useful when users trust their predictions (Nakov et al., 2021). Building that trust and providing effective help is crucial: a team without trust leads to suboptimal human–AI team performance while over-trusting wrong AI predictions could lead to catastrophic failures in high-stakes applications. Therefore, in real-life applications, we care about the AI-assisted human accuracy of fact-checking, rather than evaluating and improving automated fact-checkers alone (Shneiderman, 2022)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                407,
+                887,
+                648
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The two major types of tools for helping human users (many of which are non-expert fact-checkers) are retrieval and explanation (Nakov et al., 2021), exemplified by the widely-used web search engines (e.g., Google) and generative language models (e.g., ChatGPT) respectively. Showing retrieved passages to users has long been established as an effective information-seeking tool (Vlachos and Riedel, 2014). In contrast, the usefulness of generative explanations on fact-checking remains understudied. On the one hand, competent generative models (especially LLMs) can generate fluent and convincinglooking natural language explanations that not only provide an answer (i.e., whether the claim is true or false), but also elucidate the context and basis of its judgment. On the other hand, these models are prone to hallucinations (Min et al., 2023; Liu et al.,"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                649,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1459"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 1459–1474 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                945,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/806f2dd027b870bce04c5e85f00ea7b90f554fcc70a6d3b320bd5733ee0df930.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: An example claim and the corresponding ChatGPT explanation, retrieved passages (abridged), and contrastive explanation. The claim is true and the refuting explanation has factual errors and reasoning contradiction."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                137,
+                57,
+                860,
+                262
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2023), so the users are frequently left to their own devices."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                326,
+                487,
+                356
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This work studies whether language models can assistfact-checking. To contrast whether explanations or retrieved pages from a search engine are better, we compare LLMs with retrieval models mimicking a search engine experience and experiment with ways where retrieved passages can be paired with explanations, aiming to provide a practical guide on what is the most helpful tool. We base our evaluation on FoolMeTwice (Eisenschlos et al., 2021), an adversarial dataset with interesting claims crowdsourced and gold evidence from Wikipedia (Eisenschlos et al., 2021). Participants verify whether the claim is factually true or false: Figure 1 shows an example to illustrate the explanation and retrieved passages that participants see."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                357,
+                490,
+                600
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our study, showing explanation and retrieved passages lead to similar human accuracy (74% and 73% respectively) on difficult-to-verify claims (59% without AI assistant), but reading natural language explanations is significantly faster (1.01 min/claim vs 2.53 min/claim). However, humans over-trust ChatGPT explanations where they agree with the explanation most of the time, even when the explanation is wrong."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                601,
+                489,
+                745
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To combat over-reliance on natural language explanations, we explore two improvements: 1) contrastive explanations—present both supporting and refuting arguments generated by ChatGPT to the user—and 2) combining retrieval and explanation (showing both to users). Both methods significantly reduce over-reliance on wrong AI explanations. However, their user fact-checking accuracy is no better than just showing users the retrieved passages. Overall, our work underscores the potential benefit and danger of natural language explanations as a tool in the battle against misinformation. They can save time, but at the same time the difficulty of combating over-reliance and the redundancy when combining retrieval and explanation remain. Turning back to the question of what users should do to verify factuality: taking longer time to read the retrieved passages is still more reliable!"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                746,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                326,
+                885,
+                439
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                449,
+                667,
+                464
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We review relevant literature from NLP and HCI on fact-checking, explanations, and over-reliance. We also discuss additional related work in Section A.3"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                473,
+                884,
+                521
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.1 Fact Checking"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                531,
+                672,
+                546
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Abundant datasets have been collected for training and evaluating automatic fact-checking models, such as FEVER (Thorne et al., 2018; Schuster et al., 2021; Guo et al., 2021) and SciFact (Wadden et al., 2020). Various techniques improve the factchecking pipeline, such as jointly reasoning across evidence articles and claims (Popat et al., 2018b), and breaking complex claims into atomic subclaims (Min et al., 2023; Kamoi et al., 2023). Instead of improving automatic fact-checking per se, we focus on how to improve human fact-checking via user studies."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                551,
+                887,
+                745
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Compared to automated approaches, there are relatively few prior user studies. Notably, Fan et al. (2020) synthesized summaries for retrieved passages to improve efficiency for users and Robbemond et al. (2022) compared showing explanations in different modalities to users. However, the advent of LLMs such as ChatGPT make it possible to generate plausible natural language explanations, and we are the first work to systematically evaluate such explanations in comparison to conventional retrieval methods."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                745,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1460"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.2 Explainable AI"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                282,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A thread of work in explainable AI (XAI) attempts to generate useful explanations in various formats (Wiegreffe and Marasovic´, 2021), such as highlighting (Schuff et al., 2022), feature importance (Ribeiro et al., 2016), free-text rationales (Ehsan et al., 2018), and structured explanations (Lamm et al., 2020). As one end goal of explanations is to aid human verification of AI predictions and inform decision-making (Vasconcelos et al., 2022; Fok and Weld, 2023), much work in XAI literature has focused on human-centered evaluation of explanations (Poursabzi-Sangdeh et al., 2021). Closest to our work, Feng and Boyd-Graber (2019) evaluated human-AI collaborative Quizbowl question answering and compared the effectiveness of showing retrieved passages, highlighting, and showing multiple guesses made by the system. This previous work used only a retrieval component, while our new approach allows us to directly compare ChatGPT-generated explanations (in the form of free-text rationales) with retrieved passages for aiding claim verification and explore whether natural language explanations and retrieved evidence yield complementary benefits. Joshi et al. (2023) studied free-text explanations in question-answering setting: their rationales do not help users much, especially when the rationales are misleading. In contrast to their work, we contrast model-generated explanations with passages retrieved from external sources (Wikipedia)."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                109,
+                492,
+                593
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.3 Trust Calibration and Over-Reliance"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                608,
+                452,
+                624
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Existing work has identified the issue of human over-reliance on AI predictions across various application settings, where humans tend to trust AI predictions even when they are wrong (Bussone et al., 2015; Lai et al., 2021). A growing line of work attempts to mitigate such over-reliance, for example by providing explanations (Bansal et al., 2020; Zhang et al., 2020; Mohseni et al., 2021; Vasconcelos et al., 2022; Das et al., 2022), communicating model uncertainty (Prabhudesai et al., 2023; Si et al., 2022), showing AI model accuracy (Yin et al., 2019), and prompting slow thinking (Buçinca et al., 2021) to help users calibrate their trust. Our work also contributes to this line of work by revealing over-reliance in fact-checking. We propose new ways of potentially combatting over-reliance including contrastive explanation and combining explanation with retrieval."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                632,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Research Questions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                84,
+                715,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To understand the comparative advantages of retrieval and explanation in human fact verification, we pose the following research questions:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                111,
+                885,
+                159
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• RQ1: Are natural language explanations more effective than retrieved passages for human fact-checking?"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                160,
+                884,
+                208
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• RQ2: Can contrastive explanations—arguing for or against a fact being true—mitigate over-reliance and be more effective than noncontrastive explanations?"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                209,
+                885,
+                272
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• RQ3: Are there complementary benefits in presenting both natural language explanations and retrieved passages?"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                273,
+                884,
+                321
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We investigate these questions through a series of human studies: we show participants claims that need to be verified, potentially aiding them with different pieces of evidence (Figure 1). This is a between-subjects study; thus, we vary the evidence presented to participants in different conditions:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                322,
+                885,
+                418
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Baseline: We show users only the claims without any additional evidence."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                419,
+                885,
+                450
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Retrieval: We show the top 10 paragraphs retrieved from Wikipedia along with the claim to be verified."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                451,
+                884,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Explanation: We show the ChatGPT<sup>1</sup> explanation along with the claim."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                499,
+                885,
+                531
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Contrastive Explanation: We present users ChatGPT’s supporting and refuting arguments side by side."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                532,
+                884,
+                579
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Retrieval + Explanation: We present both the retrieved passages as well as the (noncontrastive) natural language explanations to users."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                581,
+                885,
+                643
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the Explanation and Retrieval + Explanation conditions, the ChatGPT prediction on whether the claim is true or false is part of the explanation, while in the other conditions, users only see the evidence but not the prediction."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                645,
+                885,
+                726
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Study Design Overview"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                739,
+                747,
+                756
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We present an overview of the study design including the task setup, data used, measured variables, models used, and users involved."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                766,
+                887,
+                814
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Task, Data, and Variables"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                827,
+                759,
+                843
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We ask human annotators to look at claims and decide whether it is true or false. We use the FoolMeTwice dataset (Eisenschlos et al., 2021)"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                850,
+                885,
+                898
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>We use gpt-3.5-turbo in all experiments."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                907,
+                803,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1461"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "over other claim-verification datasets because FoolMeTwice is adversarial: crowdworkers write claims based on Wikipedia to maximally fool another set of annotators whose task is to verify these claims. This ensures that all the claims are hard to verify, mimicking potential real-world fake news arms race. For our human studies, we create a test set by randomly sampling 200 claims where half are true and half are false. To ensure that the selected claims are sufficiently complex, we only sample claims requiring at least two different sentences from Wikipedia to verify."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                278
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We sample 20 claims (half true and half false) for each participant to verify and randomize their order. For each claim, we ask for the participant’s binary decision of whether they think the claim is true or false. We measure the accuracy of human decisions given that we know the gold labels of these claims. We also ask for the participant’s confidence in their judgment on a scale of 1 to 5, and record the time used for verifying each claim. We also ask for a free-form response of how the annotator makes their judgments. Appendix A.1 and Figure 6 illustrate the interface setup."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                278,
+                490,
+                473
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Retriever"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                482,
+                236,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the Retrieval and Retrieval + Explanation conditions, we show users the most relevant passages from Wikipedia. Specifically, we adopt a similar retrieval setup as Min et al. (2023), where we use the state-of-the-art Generalizable T5-based Retriever (GTR-XXL), an unsupervised dense passage retriever (Ni et al., 2022). We retrieve the top 10 most relevant paragraphs from Wikipedia, where each paragraph has an average length of 188 words. To measure the retrieval quality, we report two metrics on our test set. The full recall measures how often the top 10 retrieved passages contain all evidence sentences required to verify the claim, which is 81.5%; partial recall measures how often the top 10 retrieved passages contain at least one evidence sentence required to verify the claim, which is 93.0%."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                504,
+                490,
+                778
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Explanation Generation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                788,
+                351,
+                804
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We study two types of natural language explanations with ChatGPT: non-contrastive explanation and contrastive explanation. In the Explanation and Retrieval + Explanation conditions, we generate non-contrastive explanations, where we construct the prompt by concatenating the top 10 retrieved passages, followed by the claim to be verified, then appending the question “Based on the evidencefrom Wikipedia, is the claim true? Explain in a short paragraph.” We measure the accuracy of these explanations by manually extracting the answer (true or false) from the explanations and comparing with the gold labels. ChatGPT-generated explanations achieve an accuracy of 78.0% (judged based on the AI predictions only, not the reasoning processes). In the Contrastive Explanation condition, we prompt ChatGPT to generate both a supporting answer and a refuting answer. Specifically, after concatenating the retrieved passages and the claim, we append two different questions: 1) “Based on the evidence from Wikipedia, explain in a short paragraph why the claim is true.” and 2) “Based on the evidencefrom Wikipedia, explain in a short paragraph why the claim isfalse.” We then show both of these generated explanations to annotators, which functions similarly to a single-turn debate (Parrish et al., 2022; Michael et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                809,
+                492,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Additionally, in Retrieval + Explanation, we automatically insert citations to the explanation text to attribute the arguments to corresponding retrieved passages. This is through prompting Chat-GPT with a manually crafted example of inserting citations into the explanations based on the retrieved passages, which enables citations in language model generation (Gao et al., 2023a). For all cases, we ground the explanation generation on the retrieved passages. This is because grounding significantly improves the accuracy of explanations. For example, for non-contrastive explanations, grounding improves the accuracy from 59.5% to 78.0%. For all cases, we use a temperature value of 0 for ChatGPT generation to minimize randomness."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                409,
+                887,
+                667
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Users"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                686,
+                603,
+                701
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We recruit participants from Prolific. We recruit 16 annotators for each condition and each annotator verifies 20 claims, resulting in 20 16 5 = 1500 annotations across all five conditions. We compensate all annotators at least $14 per hour. Our study is approved by the University of Maryland Institutional Review Board."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                709,
+                887,
+                824
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Experiment Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                843,
+                715,
+                859
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, we present and discuss experiment results addressing each of the three research questions, as well as the empirical findings on over-reliance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                875,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1462"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/97fdffa72c3d753f87dc9036b4b8c94dabe459d3d021a27d394d29e30431200c.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Accuracy"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                112,
+                78,
+                307,
+                179
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6c73daaefd5dd16864329c330057fd8f0e559d6b1643bd1e10041481faab53e0.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) Time"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                305,
+                78,
+                487,
+                178
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/4cbb52b9510eb5eddc567d16ea512450aaab6589dd406438f639913a5670099e.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Human decision accuracy and average time spent on verifying a claim. Both retrieval and explanation significantly improve human verification accuracy, while explanation takes a significantly shorter time."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                112,
+                275,
+                305,
+                375
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/e41c8caf36bad5991a8300c2cb945331c658b7740cd3529a131b1d04e3d3db6b.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Human decision accuracy (b) Human decision accuracy on examples where the expla- on examples where the explanation is correct. nation is wrong."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                304,
+                275,
+                487,
+                375
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: Human verification accuracy broken down into two subsets: examples on which the explanation gives the correct labels, and examples on which the explanation gives the wrong labels. Humans over-rely on explanations so that they achieve significantly lower accuracy than the baseline when the explanation is wrong."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                426,
+                489,
+                514
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 RQ1: Are natural language explanations more effective than retrieved passages for human fact checking?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                541,
+                485,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We compare three conditions: the Baseline condition (showing users only the claims); the Retrieval condition (showing the top 10 paragraphs retrieved from Wikipedia); and the Explanation condition (showing the ChatGPT explanation along with the claim). We do not set a time limit but record the time taken for each claim."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                595,
+                489,
+                708
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2a shows the AI-assisted human verification accuracy across conditions. We test the significance of our results using Student’s t-tests with Bonferroni correction.<sup>2</sup> We start with examining whether ChatGPT explanations and retrieved passages are indeed helpful for humans."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                709,
+                490,
+                806
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Showing ChatGPT explanation improves human accuracy. When showing explanations to users, the accuracy is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu = 0 . 7 4 \\pm \\sigma = 0 . 0 9"
+                    },
+                    {
+                        "type": "text",
+                        "content": "compared to the baseline condition where claims are shown without any additional evidence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 5 9 \\pm"
+                    },
+                    {
+                        "type": "text",
+                        "content": "0.12). The improvement in accuracy is significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 4 . 0 8 , p = 0 . 0 0 0 1 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".<sup>3</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                807,
+                490,
+                872
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                509,
+                85,
+                882,
+                133
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Showing retrieved passages improves human accuracy. When showing retrieved passages to users, they achieve the accuracy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 3 \\pm 0 . 1 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as compared to the baseline condition where claims are shown without any additional evidence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 5 9 \\pm"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 1 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The improvement in accuracy is significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 3 . 1 5 , p = 0 . 0 0 1 8 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now that both ChatGPT explanation and retrieved passages help humans more accurately verify claims, we examine their comparative advantages in both accuracy and time."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                133,
+                885,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Showing ChatGPT explanations does not significantly improve accuracy over showing retrieved passages. Comparing the accuracy in the explanation condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 4 \\pm 0 . 0 9 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the retrieval condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 3 \\pm 0 . 1 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the improvement in accuracy is not significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 0 . 4 8 , p = 0 . 3 2 )"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                294,
+                887,
+                391
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "However, reading ChatGPT explanation is significantly faster than reading retrieved passages. We compare the time taken to verify claims in Figure 2b. When verifying with retrieved passages, the time taken to verify each claim is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 2 . 5 3 { \\pm } 1 . 0 7 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "minutes while for the explanation condition, it takes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 . 0 1 \\pm 0 . 4 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "minutes. Showing explanations allows significantly faster decision time than showing retrieved passages "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 5 . 0 9 , p = 9 . 1 e - 6 )"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                392,
+                887,
+                537
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 Breakdown Analysis: The Danger of Over-Reliance"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                545,
+                845,
+                577
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While ChatGPT explanations show promise in aiding human fact verification, the aggregate results obscure the danger when the explanation gives wrong answers. To examine what happens in those cases, we break down the analysis, manually annotating the ChatGPT explanation for each claim based on whether it gives the correct answer (whether the claim is true or false). We then split all user responses into two subsets: ones with correct answers from ChatGPT and ones where the ChatGPT explanation is wrong (Figure 3a and Figure 3b, respectively)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                583,
+                887,
+                776
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Users achieve the highest accuracy when the explanations are correct, but below-random accuracy when the explanations are wrong. When the explanation is correct, users’ accuracy is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 8 7 \\pm 0 . 1 3 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", higher than the baseline of having no evidence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 6 1 { \\pm } 0 . 1 3 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as well as the retrieval condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 9 \\pm 0 . 1 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, when the explanation is wrong, users tend to over-trust the explanations and only achieve an accuracy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 3 5 \\pm 0 . 2 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as compared to the baseline condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 4 9 \\pm 0 . 2 4 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the retrieval condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 5 4 \\pm 0 . 2 6 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Moreover, users spend similar time on claims with correct and wrong explanations, further indicating that they are not deliberately differentiating correct and wrong explanations and instead tend to trust most of the explanations. We also look at the free-form responses from users for their decision rationales, the most common responses include: (1) ChatGPT’s explanation looks convincing, especially with quotes from the retrieved passages (even when the quotes or reasoning are wrong); (2) They do not have any prior knowledge on the topic so would just trust ChatGPT."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                776,
+                887,
+                889
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2We</sup> <sup>inspected</sup> <sup>all</sup> <sup>data</sup> <sup>with</sup> <sup>histograms</sup> <sup>and</sup> <sup>Q</sup> − <sup>Q</sup> <sup>plots</sup> to verify that the data approximate normality before applying t-tests."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                884,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>We use p < 0.05 as the threshold for all significance tests."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                895,
+                884,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1463"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In comparison, retrieved passages suffer less from over-reliance. On examples where the Chat-GPT explanations are correct, the retrieval condition achieves the accuracy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 9 \\pm 0 . 1 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", surpassing the baseline condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 6 1 \\pm 0 . 1 3 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". On examples where the ChatGPT explanations are wrong, the retrieval condition achieves the accuracy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 5 4 \\pm 0 . 2 6 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "compared to the baseline "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 4 9 \\pm 0 . 2 4 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". While there is still an accuracy drop in these examples, possibly because they are harder to verify, the performance discrepancy between the two cases (ChatGPT explanation correct vs wrong) is much less severe in the retrieval condition. This highlights the pitfall of using ChatGPT explanation to aid verification: users over-rely on the explanations, even when they are wrong and misleading. To combat this problem, we next explore two strategies for mitigation: contrastive explanation and combining retrieval and explanation."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                343,
+                490,
+                650
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 RQ2: Can contrastive explanations mitigate over-reliance and be more effective than non-contrastive explanations?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                659,
+                438,
+                724
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In addition to the three conditions from the previous section (Baseline, Retrieval, and Explanation), we additionally compare the Contrastive Explanation condition where we present users ChatGPT’s supporting and refuting arguments side by side (Figure 4). We first compare contrastive explanation with non-contrastive explanation."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                730,
+                489,
+                858
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Contrastive explanation improves human accuracy more than non-contrastive explanation when the non-contrastive explanation is wrong. When the non-contrastive explanation is wrong, humans accuracy is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 3 5 { \\pm } 0 . 2 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "due to over-reliance, but when switching to contrastive explanation improves the accuracy to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 5 6 \\pm 0 . 2 4 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is significantly higher "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 2 . 5 2 , p = 0 . 0 0 9 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When analyzing the free-response rationales of human judgment, the most common patterns of how people make correct judgments based on contrastive explanations are: (1) The correct side of the explanation is more compelling or thorough; (2) The wrong side of the explanation contains factual errors and wrong reasoning; (3) Both sides of the explanations give the same answer (even though ChatGPT was prompted to explain why the claim is true and false in the two sides of explanations)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                858,
+                490,
+                922
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/af58e9a695770a02ec9c53cb6b701b825bac5e84b1e2e9d4511c2de67481b363.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Human decision accuracy on examples where the explanation is correct."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                507,
+                78,
+                707,
+                179
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/621d2b83bc001c008876123689e93491841d12ac8cf0ce410c7b1b2b6dda4bf5.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                705,
+                78,
+                885,
+                178
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/26e8d010395bc017ae597b5a6f17b51b682be79905f0797aea8746fc3ab3b8be.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(c) Human decision time on examples where the explanation is correct."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                509,
+                219,
+                704,
+                321
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/e3db265ba6d095bdf605b695c74d23e2d60fe1f2adebedfd5834bbe9ea5ad42d.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) Human decision accuracy on examples where the explanation is wrong."
+                    },
+                    {
+                        "type": "text",
+                        "content": "(d) Human decision time on examples where the explanation is wrong."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Figure 4: Verification accuracy and time broken down by whether the (non-contrastive) explanation is correct. Contrastive explanation significantly improves accuracy over non-contrastive explanation on examples where the non-contrastive explanation is wrong, with some drop in accuracy on examples where the non-contrastive explanation is correct."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                700,
+                219,
+                884,
+                321
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                500,
+                885,
+                727
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "However, contrastive explanation has lower human accuracy than non-contrastive explanation when the non-contrastive explanation is correct. When the non-contrastive explanation is correct, humans’ accuracy is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 8 7 \\pm 0 . 1 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", higher than contrastive explanation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 3 \\pm 0 . 1 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", indicating a significant drop "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 2 . 5 6 , p = 0 . 0 0 8 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Unlike in non-contrastive explanations—where users can just take the AI prediction as the answer—they have to decide which of the two contrastive sides of the explanation is correct. This is often tricky because LLMs can generate convincing explanations even for the wrong statements. For example, given the false claim “Joe Torre was the manager of the New York Yankees and guided the team to four World Series championships, and ranks third all-time in MLB history with 2,326 wins as a manager.”, ChatGPT generates the supporting explanation “Yes, the claim is true. According to the evidencefrom Wikipedia, Joe Torre was the manager of the New York Yankees from 1996 to 2007. He also ranks third all-time in MLB history with 2,326 wins as a manager.” and generates the refuting explanation “The claim isfalse. According to the evidencefrom Wikipedia, Joe Torre was the manager of the New York Yankees and guided the team to six pennants andfour World Series championships. He ranksfifth all-time in MLB history with 2,326 wins as a manager, not third.” Torre ranksfifth alltime in MLB history with 2,326 wins as a manager but ChatGPT still generated a convincing-looking explanation for the wrong side by hallucinating he ranks third all-time rather than fifth. As a result, some users were misled. Overall, contrastive explanation shows promise in reducing over-reliance but incurs a trade-off in accuracy when the noncontrastive explanation is correct. Next, we also compare contrastive explanation with retrieval."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                730,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1464"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                490,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Contrastive explanation does not significantly improve human accuracy over retrieval. On examples where the non-contrastive explanation is correct, human accuracy with contrastive explanation is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 7 3 \\pm 0 . 1 5 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", lower than the accuracy in the retrieval condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 9 \\pm 0 . 1 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". On examples where the non-contrastive explanation is wrong, contrastive explanation has comparable human accuracy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 . 5 6 \\pm 0 . 2 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "compared to retrieval "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 5 4 \\pm 0 . 2 6 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the difference is not significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = 0 . 2 9 , p = 0 . 6 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, in both cases, contrastive explanations do not significantly improve human accuracy over retrieval, despite the evidence that contrastive explanations can mitigate over-reliance compared to non-contrastive explanations."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                504,
+                490,
+                762
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Apart from the above quantitative results, we also manually analyze free-form responses of user’s rationales to understand how users decide with contrastive explanations. Users mostly base their judgment on the relative strength of the two sides of the explanations (i.e., is the supporting or refuting explanation more convincing) (41.8%). Example user rationales include: “The refutation seems more logically sound.” and “The support explanation seems like it’s trying too hard to make the claim true, but the refute puts it more plain and simple and makes more sense.” Sometimes both sides converge on the same answer (26.9%) and users would just adopt the consensus. For example, for the false claim “The only verified original sled propfrom Citizen Kane was sold at a price of over a hundred thousand dollars.”, users report “Both sides acknowledge that there were more than 1 sled prop, therefore refuting the claim.”, even though the ChatGPT supporting explanation said “The claim is true.” In several cases, ChatGPT would simply say the claim is true even though we prompt it for a refuting explanation (and vice versa), giving users a clear cue that the model could not make a strong argument for the wrong side."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                762,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/fdd037b8b2f9f5b8484976aec70454226e640e29bee863afa46038791f78b2c2.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Human decision accuracy on examples where the explanation is correct."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                507,
+                78,
+                705,
+                179
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/ba2a1fe077903f61e87525d26b0972c9088c6feef448550b3471b99cf41b8b09.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) Human decision accuracy on examples where the explanation is wrong."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                704,
+                78,
+                884,
+                179
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/24013e2b6b38ca05daf0798e58bb84f33119b111d5a6074b56524ec9c3b1e5c5.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(c) Human decision time on examples where the explanation is correct."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                509,
+                219,
+                700,
+                321
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/ac2452686b4963a848aa19764fb7aacaa39214e7033828d4947ac89666a5dfc8.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(d) Human decision time on examples where the explanation is wrong."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Figure 5: Verification accuracy and time breakdown. Combining retrieval and explanation is not significantly better than just showing retrieved passages alone."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                699,
+                219,
+                884,
+                321
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                441,
+                887,
+                697
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 RQ3: Are there complementary benefits in presenting both natural language explanations and retrieved passages?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                707,
+                873,
+                757
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Apart from the Baseline, Retrieval, and Explanation conditions from earlier, we also compare with the (Retrieval + Explanation) condition where we present both to users (Figure 5). We start by comparing whether combining explanation with retrieval is better than explanation alone."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                760,
+                885,
+                858
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combining retrieval and explanation does not significantly improve accuracy over explanation when the explanation is correct. When the explanation is correct, users’ accuracy "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 8 7 \\pm 0 . 1 3 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with explanations alone is comparable—i.e., no significant difference "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z ~ = ~ 0 . 0 8 4 , p ~ = ~ 0 . 5 3 ) \\mathrm { - t o }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "retrieval combined with explanation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 8 7 \\pm 0 . 1 2 )"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                858,
+                887,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1465"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                84,
+                487,
+                149
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combining retrieval and explanation does not significantly improve accuracy over explanation alone when the explanation is wrong either. When the explanation is wrong, users’ accuracy "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 3 5 \\pm 0 . 2 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the explanation condition is slightly lower than combining retrieval and explanation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 4 3 \\pm 0 . 1 6 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The advantage of combining retrieval and explanation is not significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 1 . 0 6 , p = 0 . 1 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Taken together, combining explanation and retrieval is not better than explanation alone. Next, we compare whether combining explanation with retrieval is better than retrieval alone."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                149,
+                489,
+                357
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combining retrieval and explanation does not significantly improve accuracy over retrieval in cases where the explanation is correct. When the explanation is correct, users’ accuracy in the retrieval condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 7 9 \\pm 0 . 1 5 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is lower than combining both retrieval and explanation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 8 7 \\pm"
+                    },
+                    {
+                        "type": "text",
+                        "content": "0.12). There is a slight advantage in combining retrieval and explanation in this setting but the advantage is not significant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( z = - 1 . 4 8 , p = 0 . 0 7 )"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                359,
+                489,
+                504
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combining retrieval and explanation does not significantly improve accuracy over retrieval in cases where the explanation is wrong. When the explanation is wrong, users’ accuracy (0.54 0.26) in the retrieval alone condition beats combining both retrieval and explanation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 . 4 3 \\pm 0 . 1 6 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "indicating a drop in accuracy in this case when combining retrieval and explanation. This means that combining retrieval and explanation offers no complementary benefits compared to retrieval alone. To understand whether users indeed read both the explanation and retrieved passages, we further compare their reading time."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                504,
+                490,
+                713
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combining retrieval and explanation takes a longer time. In the retrieval condition, users take "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 . 5 \\pm 1 . 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "minutes to verify a claim; in the explanation condition, users take "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 . 0 \\pm 0 . 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "minutes to verify a claim; in the retrieval + explanation condition, users take "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 . 7 \\pm 1 . 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "minutes to verify a claim, indicating that combining retrieval and explanation increases the verification time, so users indeed spend time reading the explanation and retrieved passages. Moreover, in analyzing the freeform responses, the majority of the users base their judgment on the retrieved passages since the Chat-GPT explanations are not always credible, further indicating that presenting ChatGPT explanations grounded on the retrieved passages does not really offer additional benefits than just presenting the retrieved passages themselves. Overall, combining retrieval and explanation might be redundant and inefficient."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                713,
+                492,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                885,
+                181
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Meta-Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                192,
+                672,
+                209
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We analyze several additional factors across all experiments, such as the impact of retrieval recall, time, confidence, and qualitative responses."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                217,
+                885,
+                267
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.1 Impact of Retrieval Recall"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                275,
+                764,
+                292
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We split examples into two categories: the first group where the top-10 retrieved passages contain all the necessary evidence to verify the claim "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i . e . ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "full recall "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the second group where not all evidence is retrieved within the top-10 passages "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i . e ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", full recall "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = 0 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We analyze how the retrieval recall affects both the explanation accuracy as well as the human decision accuracy."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                296,
+                885,
+                425
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The explanation accuracy is much lower when the retrieval recall is low. Over the entire test set of 200 examples, with full recall "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the explanation accuracy is 80.4%; when the full recall "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the explanation accuracy is 67.6%. This indicates that retrieval quality has a high impact on explanation accuracy, which in turn affects human decision accuracy."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                425,
+                885,
+                554
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Human decision accuracy is much lower when the retrieval recall is low. In all cases (apart from the Baseline condition where users do not see any evidence), the human decision accuracy is lower when the full retrieval recall is 0, sometimes it is lower than the case of full recall "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by large margins, e.g., in the Retrieval condition and the Retrieval + Explanation condition (Figure 7)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                554,
+                885,
+                684
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.2 Correlation Between Accuracy and Time"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                693,
+                880,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "There is little correlation between accuracy and time "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( r = 0 . 0 9 9"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", Figure 8). Broken down for each condition, the correlations remain weak:"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                714,
+                885,
+                762
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Baseline: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = - 0 . 1 8 0 ;"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                763,
+                722,
+                777
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Retrieval: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = 0 . 0 8 9 ;"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                778,
+                712,
+                794
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Explanation: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = - 0 . 5 3 9 ;"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                795,
+                747,
+                809
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Contrastive Explanation: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = - 0 . 0 0 8 ; \\mathrm { a n d }"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                810,
+                867,
+                826
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Retrieval + Explanation: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = 0 . 1 4 8 ."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                827,
+                816,
+                843
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.3 Confidence Calibration"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                853,
+                741,
+                869
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We convert users’ confidence levels into discrete values "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C } = \\{ 0 , 0 . 2 5 , 0 . 5 , 0 . 7 5 , 1 . 0 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Our goal is for users to have high confidence in their correct judgments and low confidence in their wrong judgments. We plot their average confidence on correct and wrong judgments in Figure 9. User confidence is always low in the Baseline condition, which is reasonable since they do not have additional supporting evidence and are mostly making educated guesses. On correct judgments, users generally have high confidence (above 0.6). However, users are over-confident on wrong judgments, with average confidence above 0.6. The Explanation and Contrastive Explanation conditions incur lower user confidence on both correct and wrong judgments compared to the Retrieval condition, as well as the Retrieval + Explanation condition. These results highlight the difficulty of appropriately calibrating users’ judgments."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                875,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1466"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                490,
+                344
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.4 When Do Users Disagree with Explanations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                357,
+                396,
+                390
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We manually analyze the free-form decision rationales provided by users to understand when they would disagree with ChatGPT."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                398,
+                489,
+                447
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(1) How do users make the correct decision when the explanations are wrong?"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                460,
+                487,
+                492
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• In Explanation, most users rely on selfcontradiction (40.7%). For example, given the true claim “Charles Evans Hughes shuffled offthis mortal coil in Massachusetts, and then was taken to New York to be submerged in soil.”, ChatGPT generates the explanation “The claim is false. According to the information provided, Hughes died in Osterville, Massachusetts, and was interred at Woodlawn Cemetery in the Bronx, New York City.” where the explanation actually supports the claim despite it saying the claim is false. Users caught this: “The explanation sounds like it’s actually agreeing with the claim.” and made the correct judgment."
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                494,
+                490,
+                734
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• In the Retrieval + Explanation condition, users mostly rely on information from retrieved passages (63.5%) and occasionally based on ChatGPT’s self-contradiction (15.9%), e.g., users responded “I made the judgment by summarizing the highlighted areas in the passages.”<sup>4</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                736,
+                490,
+                848
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The remaining less common cases are mostly based on personal knowledge or guesses."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                850,
+                489,
+                883
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(2) When do users make wrong judgments even when the explanations give correct answers?"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                84,
+                884,
+                117
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• In Explanation, most users rely on personal knowledge or guess (46.4%), although sometimes explanations have wrong or poor-quality reasoning (25.0%). For example, one user reported “I once took a tour of Alcatraz and I believe I remember this as being true.” to the claim “Within Alcatraz was a music room where inmates could be rewardedfor positive behaviors with playing time.” which is false."
+                    }
+                ]
+            },
+            "bbox": [
+                529,
+                120,
+                885,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• In the Retrieval + Explanation condition, users mostly misinterpreted evidence (38.1%) or there was just insufficient evidence (28.6%) and they had to guess. For example, given the false claim “The Bee Gees went on tour eleven times.”, one user responded: “The articles mention mostly their songs and a couple tours. I didn’t find anything about 11 tours, just a couple of them. It was mainly songs I saw.” and they judged the claim to be true even though the ChatGPT explanation is correct: “Based on the evidence from Wikipedia, the claim that the Bee Gees went on tour eleven times is not supported. The evidence mentions several tours that the Bee Gees went on, including the 2 Years On Tour, Trafalgar Tour, Mr. Natural Tour, Main Course Tour, Children ofthe World Tour, Spirits Having Flown Tour, One for All World Tour, High Civilization World Tour, and One Night Only World Tour. However, the evidence does not provide information about any additional tours beyond these mentioned. Therefore, it cannot be concluded that the Bee Gees went on tour eleven times based on the evidence provided.”"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                265,
+                887,
+                668
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                683,
+                643,
+                699
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our human studies highlight the false promise of using natural language explanation produced by ChatGPT to aid human fact-checking. Humans over-rely on explanations even when they are wrong, making human accuracy worse than showing retrieval or the baseline of not showing any evidence. Contrastive explanation mitigates users over-reliance on wrong explanations, but combining retrieval and explanation does not help further. Overall, neither of these two approaches significantly beats the retrieval baseline, highlighting the need for better methods (e.g., adaptive or customized explanations) for combating over-reliance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                713,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>We implemented keyword highlighting on the interface as shown in Figure 6."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                895,
+                487,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1467"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations and Future Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                374,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We acknowledge several limitations of this work: (1) Our experiments are at a limited scale with participants recruited from Prolific. It is possible that other factors such as knowledge of the topics, familiarity with language models, and trust in automation in general, could impact our conclusions and future work should consider scaling up the study with diverse populations to capture such nuances."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                110,
+                489,
+                254
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(2) We experimented with a limited set of explanation methods and our explanations are all static (i.e., not personalized for different participants). Future work could explore how to customize the best sets of evidence for different users in different conditions (Feng and Boyd-Graber, 2022; Bansal et al., 2020)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                255,
+                489,
+                367
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(3) We observed little benefit from combining retrieval and explanation, future work could further explore how to strategically combine retrieval and explanation so that they can potentially complement each other in both accuracy and efficiency. For instance, when the explanation is likely to be correct, we can show users the explanation; but when the explanation is likely to be wrong, we should prioritize showing users the raw retrieved passages. This might also require better uncertainty estimation or calibration to help users identify AI mistakes."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                368,
+                489,
+                561
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(4) We used the OpenAI API for generating explanations. All ChatGPT generations were done during July-August 2023, and the specific model checkpoint used is GPT-3.5-turbo-0613. We acknowledge that OpenAI updates its model checkpoints periodically so some results might change in newer versions of the API."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                562,
+                489,
+                675
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Ethical Considerations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                687,
+                317,
+                702
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our human studies, we made sure to compensate all participants fairly, with a minimum rate of $14 per hour. We do not expect any potential mental stress or harm to the participants from the experiments. Our work highlights and explores solutions for combatting human over-reliance on AI, which has important societal implications given that LLMs like ChatGPT are being widely used. We hope our results can contribute positively to society by reducing catastrophic harms caused by such over-reliance and also offering practical guidance for how to effectively verify potential fake information on the Internet."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                713,
+                490,
+                922
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgement"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                84,
+                675,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We thank Nelson Liu, Xi Ye, Brihi Joshi, Vishakh Padmakumar, Alison Smith-Renner, Helena Vasconcelos, Ana Marasovic, Omar Shaikh, and´ Tianyu Gao for their helpful discussion. We also appreciate the feedback from members of the UMD CLIP lab, especially Sweta Agrawal, Pranav Goel, Alexander Hoyle, Neha Srikanth, Rupak Sarkar, Marianna Martindale, Sathvik Nair, Abhilasha Sancheti, and HyoJung Han. Chen Zhao is supported by Shanghai Frontiers Science Center of Artificial Intelligence and Deep Learning, NYU Shanghai and Navita Goyal by U.S. Army Grant No. W911NF2120076. This material is based on work supported in part by the Institute for Trustworthy AI in Law and Society (TRAILS), which is supported by the National Science Foundation under Award No. 2229885 Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation or the National Institute of Standards and Technology."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                109,
+                887,
+                464
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                491,
+                610,
+                506
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yasmeen Alufaisan, Laura R. Marusich, Jonathan Z. Bakdash, Yan Zhou, and Murat Kantarcioglu. 2021. Does explainable artificial intelligence improve human decision-making? Proceedings of the AAAI Conference on Artificial Intelligence."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Gagan Bansal, Tongshuang Sherry Wu, Joyce Zhou, Raymond Fok, Besmira Nushi, Ece Kamar, Marco Tulio Ribeiro, and Daniel S. Weld. 2020. Does the whole exceed its parts? The effect of AI explanations on complementary team performance. Proceedings ofthe 2021 CHI Conference on Human Factors in Computing Systems."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Andrew Beers. 2019. Examining the digital toolsets of journalists reporting on disinformation. In Computation + Journalism Conference."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Samuel R Bowman, Jeeyoon Hyun, Ethan Perez, Edwin Chen, Craig Pettit, Scott Heiner, Kamile Lukosuite, Amanda Askell, Andy Jones, Anna Chen, et al. 2022. Measuring progress on scalable oversight for large language models. ArXiv, abs/2211.03540."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zana Buçinca, Maja Barbara Malaya, and Krzysztof Z. Gajos. 2021. To trust or to think: Cognitive forcing functions can reduce overreliance on ai in aiassisted decision-making. Proceedings ofthe ACM on Human-Computer Interaction."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Adrian Bussone, Simone Stumpf, and Dympna O’Sullivan. 2015. The role of explanations on trust"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                512,
+                514,
+                885,
+                580
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1468"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "and reliance in clinical decision support systems. 2015 International Conference on Healthcare Informatics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jifan Chen, Grace Kim, Aniruddh Sriram, Greg Durrett, and Eunsol Choi. 2023. Complex claim verification with evidence retrieved in the wild. ArXiv, abs/2305.11859."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chun-Wei Chiang and Ming Yin. 2021. You’d better stop! understanding human reliance on machine learning models under covariate shift. Proceedings ofthe 13th ACM Web Science Conference 2021."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Anubrata Das, Chitrank Gupta, Venelin Kovatchev, Matthew Lease, and Junyi Jessy Li. 2022. ProtoTEx: Explaining model decisions with prototype tensors. Proceedings ofthe 60th Annual Meeting ofthe Associationfor Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Upol Ehsan, Brent Harrison, Larry Chan, and Mark O. Riedl. 2018. Rationalization: A neural machine translation approach to generating natural language explanations. Proceedings ofthe 2018 AAAI/ACM Conference on AI, Ethics, and Society (AIES)."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Julian Eisenschlos, Bhuwan Dhingra, Jannis Bulian, Benjamin Börschinger, and Jordan Boyd-Graber. 2021. Fool me twice: Entailment from Wikipedia gamification. Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Angela Fan, Aleksandra Piktus, Fabio Petroni, Guillaume Wenzek, Marzieh Saeidi, Andreas Vlachos, Antoine Bordes, and Sebastian Riedel. 2020. Generating fact checking briefs. Proceedings ofthe 2020 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Robert Faris, Hal Roberts, Bruce Etling, Nikki Bourassa, Ethan Zuckerman, and Yochai Benkler. 2017. Partisanship, propaganda, and disinformation: Online media and the 2016 U.S. presidential election. Social Science Research Network."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shi Feng and Jordan Boyd-Graber. 2019. What can AI do for me? Evaluating machine learning interpretations in cooperative play. Proceedings of the 24th International Conference on Intelligent User Interfaces."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shi Feng and Jordan Boyd-Graber. 2022. Learning to explain selectively: A case study on question answering. Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Claudia Flores-Saviaga, Shangbin Feng, and Saiph Savage. 2022. Datavoidant: An AI system for addressing political data voids on social media. Proceedings of the ACM on Human-Computer Interaction."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Raymond Fok and Daniel S Weld. 2023. In search of verifiability: Explanations rarely enable complementary performance in AI-advised decision making. ArXiv, abs/2305.07722."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tianyu Gao, Howard Yen, Jiatong Yu, and Danqi Chen. 2023a. Enabling large language models to generate text with citations. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, Qianyu Guo, Meng Wang, and Haofen Wang. 2023b. Retrievalaugmented generation for large language models: A survey. ArXiv, abs/2312.10997."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Navita Goyal, Eleftheria Briakou, Amanda Liu, Connor Baumler, Claire Bonial, Jeffrey Micher, Clare Voss, Marine Carpuat, and Hal Daumé III. 2023. What else do I need to know? The effect of background information on users’ reliance on QA systems. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chuan Guo, Geoff Pleiss, Yu Sun, and Kilian Q. Weinberger. 2017. On calibration of modern neural networks. International Conference on Machine Learning."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zhijiang Guo, M. Schlichtkrull, and Andreas Vlachos. 2021. A survey on automated fact-checking. Transactions of the Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Brihi Joshi, Ziyi Liu, Sahana Ramnath, Aaron Chan, Zhewei Tong, Shaoliang Nie, Qifan Wang, Yejin Choi, and Xiang Ren. 2023. Are Machine Rationales (Not) Useful to Humans? Measuring and Improving Human Utility of Free-text Rationales. Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ryo Kamoi, Tanya Goyal, Juan Diego Rodriguez, and Greg Durrett. 2023. WiCE: Real-world entailment for claims in Wikipedia. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Vivian Lai, Chacha Chen, Qingzi Vera Liao, Alison Smith-Renner, and Chenhao Tan. 2021. Towards a science of human-AI decision making: A survey of empirical studies. ArXiv, abs/2112.11471."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Matthew Lamm, Jennimaria Palomaki, Chris Alberti, Daniel Andor, Eunsol Choi, Livio Baldini Soares, and Michael Collins. 2020. QED: A framework and dataset for explanations in question answering. Transactions of the Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "John D. Lee and Katrina A. See. 2004. Trust in automation: Designing for appropriate reliance. Human Factors."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Patrick Lewis, Ethan Perez, Aleksandara Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Kuttler, Mike Lewis, Wen tau Yih, Tim Rocktäschel, Sebastian Riedel, and Douwe Kiela. 2020. Retrieval-augmented generation for knowledgeintensive nlp tasks. Advances in Neural Information Processing Systems."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                85,
+                489,
+                126
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1469"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Nelson Liu, Tianyi Zhang, and Percy Liang. 2023. Evaluating verifiability in generative search engines. Findings ofthe Associationfor Computational Linguistics: EMNLP 2023."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alex Mallen, Akari Asai, Victor Zhong, Rajarshi Das, Hannaneh Hajishirzi, and Daniel Khashabi. 2022. When not to trust language models: Investigating effectiveness of parametric and non-parametric memories. Annual Meeting ofthe Associationfor Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ricardo Mendes. 2017. Troops, trolls and troublemakers: A global inventory of organized social media manipulation. Computational Propaganda Research Project."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Julian Michael, Salsabila Mahdi, David Rein, Jack son Petty, Julien Dirani, Vishakh Padmakumar, and Samuel R. Bowman. 2023. Debate helps supervise unreliable experts. ArXiv, abs/2311.08702."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tim Miller. 2017. Explanation in artificial intelligence: Insights from the social sciences. Artificial Intelligence."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sewon Min, Kalpesh Krishna, Xinxi Lyu, Mike Lewis, Wen tau Yih, Pang Wei Koh, Mohit Iyyer, Luke Zettlemoyer, and Hanna Hajishirzi. 2023. FActScore: Fine-grained atomic evaluation of factual precision in long form text generation. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sina Mohseni, Fan Yang, Shiva K. Pentyala, Mengnan Du, Yi Liu, Nic Lupfer, Xia Hu, Shuiwang Ji, and Eric D. Ragan. 2021. Machine learning explanations to prevent overtrust in fake news detection. Proceedings of the International AAAI Conference on Web and Social Media."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Preslav Nakov, David P. A. Corney, Maram Hasanain, Firoj Alam, Tamer Elsayed, Alberto Barr’on-Cedeno, Paolo Papotti, Shaden Shaar, and Giovanni Da San Martino. 2021. Automated fact-checking for assisting human fact-checkers. Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jianmo Ni, Chen Qu, Jing Lu, Zhuyun Dai, Gustavo Hernandez Abrego, Ji Ma, Vincent Zhao, Yi Luan, Keith Hall, Ming-Wei Chang, and Yinfei Yang. 2022. Large dual encoders are generalizable retrievers. Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yikang Pan, Liangming Pan, Wenhu Chen, Preslav Nakov, Min-Yen Kan, and William Yang Wang. 2023. On the risk of misinformation pollution with large language models. Findings of the Association for Computational Linguistics: EMNLP 2023."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alicia Parrish, H. Trivedi, Ethan Perez, Angelica Chen, Nikita Nangia, Jason Phang, and Sam Bowman. 2022. Single-turn debate does not help humans answer hard reading-comprehension questions. Proceedings of"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "the First Workshop on Learning with Natural Language Supervision."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Kashyap Popat, Subhabrata Mukherjee, Jannik Strötgen, and Gerhard Weikum. 2018a. Credeye: A credibility lens for analyzing and explaining misinformation. Companion Proceedings ofthe The Web Conference 2018."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Kashyap Popat, Subhabrata Mukherjee, Andrew Yates, and Gerhard Weikum. 2018b. DeClarE: Debunking fake news and false claims using evidence-aware deep learning. Proceedings ofthe 2018 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Forough Poursabzi-Sangdeh, Daniel G Goldstein, Jake M Hofman, Jennifer Wortman Wortman Vaughan, and Hanna Wallach. 2021. Manipulating and measuring model interpretability. Proceedings ofthe 2021 CHI Conference on Human Factors in Computing Systems."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Snehal Prabhudesai, Leyao Yang, Sumit Asthana, Xun Huan, Qingzi Vera Liao, and Nikola Banovic. 2023. Understanding uncertainty: How lay decision-makers perceive and interpret uncertainty in human-ai decision making. Proceedings ofthe 28th International Conference on Intelligent User Interfaces."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Marco Tulio Ribeiro, Sameer Singh, and Carlos Guestrin. 2016. \"Why should I trust you?\": Explaining the predictions of any classifier. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Vincent Robbemond, Oana Inel, and Ujwal Gadiraju. 2022. Understanding the role of explanation modality in AI-assisted decision-making. Proceedings of the 30th ACM Conference on User Modeling, Adaptation and Personalization."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Hendrik Schuff, Alon Jacovi, Heike Adel, Yoav Goldberg, and Ngoc Thang Vu. 2022. Human interpretation of saliency-based explanation over text. Proceedings ofthe 2022 ACM Conference on Fairness, Accountability, and Transparency."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tal Schuster, Adam Fisch, and Regina Barzilay. 2021. Get your vitamin C! robust fact verification with contrastive evidence. Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ben Shneiderman. 2022. Human-Centered Artificial Intelligence."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chenglei Si, Chen Zhao, Sewon Min, and Jordan L. Boyd-Graber. 2022. Re-examining calibration: The case of question answering. Findings ofthe Associationfor Computational Linguistics: EMNLP 2022."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "James Thorne and Andreas Vlachos. 2018. Automated fact checking: Task formulations, methods and future directions. Proceedings of the 27th International Conference on Computational Linguistics."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                85,
+                489,
+                140
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1470"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "James Thorne, Andreas Vlachos, Christos Christodoulopoulos, and Arpit Mittal. 2018. FEVER: a large-scale dataset for fact extraction and VERification. Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Helena Vasconcelos, Matthew Jörke, Madeleine Grunde-McLaughlin, Tobias Gerstenberg, Michael Bernstein, and Ranjay Krishna. 2022. Explanations can reduce overreliance on AI systems during decision-making. Proceedings ofthe ACM on Human-Computer Interaction."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Andreas Vlachos and Sebastian Riedel. 2014. Fact checking: Task definition and dataset construction. Proceedings ofthe ACL 2014 Workshop on Language Technologies and Computational Social Science."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "David Wadden, Shanchuan Lin, Kyle Lo, Lucy Lu Wang, Madeleine van Zuylen, Arman Cohan, and Hannaneh Hajishirzi. 2020. Fact or fiction: Verifying scientific claims. Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xinru Wang and Ming Yin. 2021. Are explanations helpful? A comparative study of the effects of explanations in AI-assisted decision-making. 26th International Conference on Intelligent User Interfaces."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sarah Wiegreffe and Ana Marasovic. 2021.´ Teach me to explain: A review of datasets for explainable natural language processing. Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ming Yin, Jennifer Wortman Vaughan, and Hanna M. Wallach. 2019. Understanding the effect of accuracy on trust in machine learning models. Proceedings of the 2019 CHI Conference on Human Factors in Computing Systems."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yunfeng Zhang, Qingzi Vera Liao, and Rachel K. E. Bellamy. 2020. Effect of confidence and explanation on accuracy and trust calibration in ai-assisted decision making. Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                178
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Appendix"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                84,
+                635,
+                101
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.1 Interface Design"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                110,
+                690,
+                126
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Figure 6 shows an example user interface for the Contrastive Explanation condition. We identify keywords as the non-stopwords in the claim and highlight them in the claims and explanations to aid reading (we also do keyword highlighting in the retrieved passages in the retrieval conditions). For the retrieved paragraphs, we rank them by relevance and only show the first paragraph in full by default and annotators can click to expand the other paragraphs."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                131,
+                887,
+                292
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the task instructions, we explicitly discourage participants from searching the claims on the internet. Each participant verifies 20 claims one by one. We provide a tutorial at the beginning of the study. We include two attention check questions at different points in the study asking participants selection from the most recent claim and rejecting the responses from users who fail both attention checks."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                292,
+                887,
+                437
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2 Additional Plots"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                449,
+                689,
+                464
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We present several additional plots: Figure 7 plots the human decision accuracy broken down by retrieval recall; Figure 8 plots the correlation between each participant’s average decision accuracy and time used; Figure 9 plots the human confidence broken down by their correct and wrong judgments."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                470,
+                887,
+                568
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.3 Additional Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                579,
+                759,
+                594
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "On Fact-Checking: Fact-checking is a wellestablished task in NLP where the typical task format is to input evidence text (e.g., retrieved from Wikipedia) and the claim to the model and output a label of support or refute (or sometimes a third class of not enough information) (Vlachos and Riedel, 2014; Thorne and Vlachos, 2018). Automated fact-checking systems often make use of multiple evidence pieces for making predictions, and optionally generating generations along with predictions (Popat et al., 2018a,b; Chen et al., 2023). Various HCI studies have also analyzed how factchecking systems are used by domain experts such as journalists (Flores-Saviaga et al., 2022; Beers, 2019)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                600,
+                887,
+                840
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "On Explanations: Explanations have been long sought as a useful tool to help users, not only in understanding AI predictions (Lee and See, 2004) but also aiding them in calibrating their reliance on these predictions (Bussone et al., 2015). Some works find that explanations can support human-AI decision-making by exceeding both human-alone or AI-alone performance (Feng and Boyd-Graber, 2019; Bowman et al., 2022), whereas some other works find that explanations lead to worse human-AI performance (Alufaisan et al., 2021; Bansal et al., 2020; Wang and Yin, 2021). Vasconcelos et al. (2022) and Fok and Weld (2023) argue that to facilitate complementary human-AI decisionmaking, explanations must aid users in verifying the AI prediction to yield truly complementary human-AI performance. Explanations targeting verifiability have indeed shown promising avenues in human-AI collaborations (Feng and Boyd-Graber, 2019; Vasconcelos et al., 2022; Goyal et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                843,
+                885,
+                922
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1471"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/c3b3cfbc7f8f99d78777126a17d869188aa807dd92301ba42aa3a5d1d2d3ad92.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 6: Interface for the contrastive explanation condition. We present ChatGPT’s explanations for both sides together to encourage more careful thinking. We also highlight all the keywords to ease reading."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                156,
+                84,
+                840,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                505,
+                490,
+                764
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "On Explanations for Mitigating Over-Reliance: In line with explanations, model indicators such as confidence (Zhang et al., 2020) and accuracy (Yin et al., 2019) have been found to yield mixed benefits. On the one hand, uncertainty indicators can promote slow thinking (Prabhudesai et al., 2023), helping users calibrate trust in AI prediction. On the other hand, humans find it difficult to interpret numbers, leading to limited utility of such indicators Zhang et al. (2020). Further, these indicators can be unreliable as models’ accuracy in-the-wild may differ from the reported accuracy on the evaluation set (Chiang and Yin, 2021) and models’ confidence tend to be uncalibrated (Guo et al., 2017). To resolve these limitations, Bussone et al. (2015) find that detailed explanations exacerbates the overreliance on the model predictions, whereas less detailed explanations lead to distrust in the model, but increases users’ self-reliance. Miller (2017) provides theoretical groundings for why contrastive explanations are naturally human and thus could be more effective. Our experiments provide nuanced empirical findings that contrastive explanations reduce overreliance at the cost of lower accuracy on cases where non-contrastive explanations are originally correct."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                776,
+                490,
+                923
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                505,
+                887,
+                782
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Retrieval for Factuality and Verification: Retrieval augmentation (or retrieval-augmented generation; RAG) involves retrieving relevant evidence from a trustworthy external corpus to ground the language model’s generation (Lewis et al., 2020; Gao et al., 2023b). Retrieval augmentation has been shown to complement parametric knowledge of language models and reduce hallucination (Mallen et al., 2022). Throughout the paper, we adopt the conventional RAG pipeline to ground all explanation generation on retrieved evidence from Wikipedia to improve the factuality of the explanation. On the other hand, retrieved evidence can effectively aid human verification of factual correctness of language model generations (Min et al., 2023), which we adopt as a baseline to compare with human verification assisted by natural language explanation generated by models."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                793,
+                887,
+                923
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1472"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/ef3df032adc3b90815cae17d601dab176f3f4456a9e296c77c0bc171beaa1e82.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 7: Human accuracy broken down by retrieval recall. Human accuracy is lower when the retrieval recall is low."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                210,
+                96,
+                768,
+                266
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/c6eb4550c2458eb47d44d6fa91d4e82144171f0693b995ef314eb3efba313efe.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 8: Correlation between each participant’s average decision accuracy (y-axis) and time (x-axis). We do not observe a strong correlation overall."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                206,
+                326,
+                791,
+                600
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                673,
+                492,
+                835
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1473"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/850d8483231afd3a7f8008c6b8482c19caac2e37281a8787fa8f41e2e14e1b14.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Human confidence in their correct judgments."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                119,
+                379,
+                465,
+                561
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/a0ad8e29af930ed556a7c1f24263537533401b2df8a78f26d69c15bd8dcf064b.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) Human confidence in their wrong judgments."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Figure 9: Human confidence broken down by their correct and wrong judgments. Users are over-confident are wrong judgments."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                531,
+                379,
+                877,
+                561
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1474"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ]
+]
