@@ -1,0 +1,2434 @@
+[
+    {
+        "type": "text",
+        "text": "A Preference-driven Paradigm for Enhanced Translation with Large Language Models",
+        "text_level": 1,
+        "bbox": [
+            142,
+            89,
+            853,
+            130
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Dawei Zhu<sup>1,2</sup>∗ Sony Trenous<sup>1</sup> Xiaoyu Shen<sup>1</sup>† Dietrich Klakow<sup>2</sup>",
+        "bbox": [
+            220,
+            146,
+            773,
+            164
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Bill Byrne<sup>1</sup> Eva Hasler<sup>1</sup>",
+        "bbox": [
+            391,
+            164,
+            610,
+            179
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>1</sup>Amazon AGI",
+        "bbox": [
+            440,
+            179,
+            564,
+            196
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "<sup>2</sup>Saarland University, Saarland Informatics Campus {daweizhu,trenous,willbyrn,ehasler}@amazon.com",
+        "bbox": [
+            267,
+            197,
+            736,
+            231
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            262,
+            260,
+            342,
+            277
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Recent research has shown that large language models (LLMs) can achieve remarkable translation performance through supervised finetuning (SFT) using only a small amount of parallel data. However, SFT simply instructs the model to imitate the reference translations at the token level, making it vulnerable to the noise present in the references. Hence, the assistance from SFT often reaches a plateau once the LLMs have achieved a certain level of translation capability, and further increasing the size of parallel data does not provide additional benefits. To overcome this plateau associated with imitation-based SFT, we propose a preferencebased approach built upon the Plackett-Luce model. The objective is to steer LLMs towards a more nuanced understanding of translation preferences from a holistic view, while also being more resilient in the absence of gold translations. We further build a dataset named MAPLE to verify the effectiveness of our approach, which includes multiple translations of varying quality for each source sentence. Extensive experiments demonstrate the superiority of our approach in “breaking the plateau” across diverse LLMs and test settings. Our in-depth analysis underscores the pivotal role of diverse translations and accurate preference scores in the success of our approach.<sup>1</sup>",
+        "bbox": [
+            141,
+            291,
+            462,
+            706
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            115,
+            720,
+            260,
+            736
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The emergence of Large Language Models (LLMs) has significantly transformed the landscape of NLP, showcasing outstanding capabilities in a spectrum of NLP tasks (Brown et al., 2020; Scao et al., 2022; Chowdhery et al., 2023; Touvron et al., 2023a). This transformation extends to machine translation (MT) (OpenAI, 2023; Jiao et al., 2023b;",
+        "bbox": [
+            112,
+            747,
+            490,
+            862
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Hendy et al., 2023). Through supervised finetuning (SFT) using a small amount of parallel data, LLMs demonstrate the capability to compete with established commercial translation services such as Google Translate, particularly in high-resource languages (Jiao et al., 2023a; Zhang et al., 2023b).",
+        "bbox": [
+            507,
+            261,
+            887,
+            359
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Nevertheless, SFT trains the model to imitate reference translations token by token, making it vulnerable to the noise present within the data (Ott et al., 2018; Zhou et al., 2023; Touvron et al., 2023b). The noise can stem not only from the lack of attention by annotators, but also from the inherent challenge of achieving perfect translations due to the intricate interplay of language, culture, and vocabulary. As an adept translator requires not only linguistic proficiency but also a deep understanding of cultural contexts and nuances in both the source and target, it is nearly unattainable to gather extensive parallel translations of top-notch quality (Khayrallah and Koehn, 2018; Herold et al., 2022; Maillard et al., 2023). As a result, the performance enhancement achieved through SFT often quickly reaches a plateau. Further increasing the volume of parallel translations typically yields minimal additional benefits, and may instead impair the translation capabilities of LLMs (Xu et al., 2023).",
+        "bbox": [
+            507,
+            359,
+            887,
+            681
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "To alleviate aforementioned limitation of SFT, endeavors have been made to provide LLMs with holistic assessment of contrasting examples rather than token-level imitations. Jiao et al. (2023a); Chen et al. (2023) add a flawed translation to the reference translation in the model input, encouraging the target LLM to recognize their quality difference. Zeng et al. (2023) also use a pair of translations, but they additionally optimize the LLM to favor better translations through ranking loss. Nevertheless, these works have shared limitations. First, the flawed translations are either generated by adding artificial noise to the reference translations or by other (smaller) MT systems. These imperfections in translations can be obvious and easy for",
+        "bbox": [
+            507,
+            681,
+            887,
+            922
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "∗Work done during an internship at Amazon.",
+        "bbox": [
+            139,
+            870,
+            421,
+            884
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "†Now with Eastern Institute of Technology, Ningbo.",
+        "bbox": [
+            139,
+            883,
+            463,
+            896
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>Our dataset, code, and models are available at: https: //github.com/amazon-science/preference-driven-mt",
+        "bbox": [
+            112,
+            896,
+            489,
+            922
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "3385",
+        "bbox": [
+            480,
+            928,
+            521,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 3385–3403 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            946,
+            857,
+            986
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "LLM to distinguish, weakening the learning signal. Second, they only provide the relative ranking of the two translations, without quantifying the extent of their quality differences.",
+        "bbox": [
+            112,
+            85,
+            489,
+            149
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In this work, we present a framework based on the Plackett-Luce model to explicitly align the generation probability of the target LLM with human preferences (Plackett, 1975). Instead of using artificial noise, we collect contrasting translations generated by our target LLM, directing our optimization efforts toward “hard negative examples” (Robinson et al., 2021). Human preferences are denoted with precise scores rather than general ranking orders to teach LLMs about the nuances in different translations. LLMs are then trained to enhance their capabilities incrementally from the learnt nuances without depending solely on the existence of “gold references”, so as to effectively break the plateau associated with SFT.",
+        "bbox": [
+            110,
+            154,
+            489,
+            397
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We build a dataset, which we refer to as MAPLE, to facilitate preference learning. It equips each source sentence with five translations in diverse quality, scored by professional translators. By performing preference learning on MAPLE, our final MT model outperforms other MT models based on the same foundation LLM by up to 3.96 COMET score. We further show that while the intention of creating MAPLE is to enhance our target LLM, it can be reused to improve other LLMs, helping them break the performance plateau with up to 1.4M parallel data. Finally, we analyze the key factors that make preference learning effective.",
+        "bbox": [
+            112,
+            401,
+            490,
+            612
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Our contributions are as follows. (1) We leverage preference learning to teach LLMs a holistic notion of translation quality. Extensive experiments show that our model consistently outperforms strong baselines on two test sets across four translation directions. (2) We revisit the underlying modelling assumptions leading to the Bradley-Terry and Plackett-Luce ranking models and discuss how preference distances can be incorporated directly into the ranking models. (3) We meticulously construct an MT-oriented preference dataset, MAPLE, employing professional human translators to obtain quality scores for multiple translations corresponding to the same source sentence. We release our dataset to facilitate future MT research. (4) Our indepth analysis reveals that high-contrast pairs and accurate quality scores are crucial in enhancing the effectiveness of our approach, providing guidance for maximizing the benefits of preference learning.",
+        "bbox": [
+            110,
+            617,
+            490,
+            923
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work",
+        "text_level": 2,
+        "bbox": [
+            509,
+            83,
+            667,
+            99
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "LLM-based MT. One simple and effective approach to use LLMs for translation tasks is through prompting. Research in this field involves examining the impact of model sizes, the number of examples (“shots”) used, and template choices (Zhang et al., 2023a; Bawden and Yvon, 2023; Mu et al., 2023; Zhang et al., 2024). Moreover, (Ghazvininejad et al., 2023; He et al., 2023) highlight that better translations can be achieved by adding supplementary information to prompts, or engaging LLMs in related tasks prior to translation. Alternatively, another research direction seeks to fully tailor LLMs for MT tasks. Jiao et al. (2023a); Zeng et al. (2023); Chen et al. (2023); Alves et al. (2023); Zhang et al. (2023b) further train LLMs on parallel data via (parameter-efficient) fine-tuning. Xu et al. (2023) show that increasing the size of parallel data may not further improve LLM. The diminished returns from increasing data volume are likely due to data noise. Recent analyses suggest that quality trumps quantity when it comes to data effectiveness (Zhu et al., 2023; Zhou et al., 2023). Leveraging these insights, we goes beyond merely fitting the reference translations. Instead, we aim to enhance the LLM’s ability to discern translations of varying quality, encouraging the generation of more precise translations while suppressing flawed outputs.",
+        "bbox": [
+            507,
+            115,
+            887,
+            552
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Human preference alignment. Ouyang et al. (2022) align LLMs with human intentions and values by training a reward model for preference ranking and optimizing the LLMs through the PPO algorithm (Schulman et al., 2017). However, the online reinforcement learning nature of PPO leads to considerable computational costs and is known for its sensitivity to hyperparameters (Islam et al., 2017; Huang et al., 2022). To ease the alignment, Hu et al. (2023); Dong et al. (2023) suggest offline RL algorithms where samples are pre-generated. Further research goes a step beyond by directly employing the target LLMs as reward models. Yuan et al. (2023) use a ranking loss to steer LLMs towards generating helpful responses and avoiding harmful ones. In a similar vein, Rafailov et al. (2023); Song et al. (2023); Hejna et al. (2023) use the Plackett-Luce model (Plackett, 1975) to capture human preferences in alignment. In this work, we adopt the Plackett-Luce model to MT, teaching the model to discern nuances in different translations and to prefer accurate translations.",
+        "bbox": [
+            507,
+            568,
+            887,
+            923
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "3386",
+        "bbox": [
+            480,
+            929,
+            522,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3 Methodology",
+        "text_level": 2,
+        "bbox": [
+            114,
+            83,
+            263,
+            101
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "We aim to enhance LLM in MT tasks via a twostage optimization process. We first fine-tune the target LLM with a small set of high-quality parallel data to elicit its translation ability (Section 3.1). This mirrors the supervised fine-tuning approach used in prior work, where LLMs were tailored to follow instructions (Taori et al., 2023; Zheng et al., 2023). We then use preference learning to guide the LLM to prioritize the generation of accurate translations over flawed ones (Section 3.2).",
+        "bbox": [
+            110,
+            109,
+            489,
+            271
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 Supervised fine-tuning",
+        "text_level": 2,
+        "bbox": [
+            112,
+            280,
+            339,
+            297
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "We begin with optimizing our target LLM on parallel data to specialize it for translation. Let x and y denote the source and target sentence, respectively. Following Jiao et al. (2023a) we first construct a prompt by applying an instruction template  to x. The instruction template is randomly sampled from an instruction pool for each training sample. The target LLM, denoted by $\\pi _ { \\theta }$ is optimized through the log-likelihood loss:",
+        "bbox": [
+            110,
+            302,
+            490,
+            447
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/026ea1b1e86b856d1062d5ad03c40f4b719570bb7c0057861bc4b5dbe1eeaa0b.jpg",
+        "text": "$$\n\\begin{array} { l } { \\displaystyle { \\mathcal { L } _ { S F T } ( \\pi _ { \\theta } ) = - \\log \\pi _ { \\theta } ( x , y ) } } \\\\ { \\displaystyle \\qquad = - \\sum _ { t } \\log P _ { \\pi _ { \\theta } } ( y _ { t } | y _ { 1 , \\cdots , t - 1 } , \\mathbb { Z } ( x ) ) } \\end{array}\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            124,
+            457,
+            475,
+            511
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where $\\pi _ { \\boldsymbol { \\theta } } ( x , y )$ denotes the likelihood of $\\pi _ { \\theta }$ generating output y given input x. Note that in a standard implementation, a decoder-only LLM will also predict tokens within $\\mathcal { T } ( x )$ , we zero-out the loss on these tokens as our main goal is to teach translation, not to model the input distribution (Touvron et al., 2023b).<sup>2</sup>",
+        "bbox": [
+            112,
+            538,
+            490,
+            651
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.2 Preference learning",
+        "text_level": 2,
+        "bbox": [
+            114,
+            662,
+            317,
+            677
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The goal of the preference learning stage is to explicitly optimize the target LLM to favor accurate translations over erroneous ones. Formally, consider a set of translations $y ^ { 1 } , \\cdots , y ^ { L }$ corresponding to a source sentence x. We assume that these translations are ordered by preference: $y ^ { i } \\succ _ { x } y ^ { j }$ for $i < j .$ . That is, translation $y ^ { i }$ is preferred over $y ^ { j }$ as a translation of the source sentence x. We further assume that there is some underlying reward model $r ^ { * }$ that reflects the quality of the translations, which we cannot access but which we can approximate. Under the Plackett-Luce ranking model (Plackett,",
+        "bbox": [
+            110,
+            682,
+            490,
+            877
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "1975), the distribution of preferences can be formulated as follows:",
+        "bbox": [
+            507,
+            84,
+            885,
+            117
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/d21f0f9beded553c52a8c68953bf35e2158e788a00ffb0f68b39888afef7b27d.jpg",
+        "text": "$$\np ^ { * } ( y _ { \\succ _ { x } } ^ { 1 : L } | x ) = \\prod _ { i = 1 } ^ { L - 1 } \\frac { \\exp ( r ^ { * } ( x , y ^ { i } ) ) } { \\sum _ { j = i } ^ { L } \\exp ( r ^ { * } ( x , y ^ { j } ) ) }\\tag{2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            534,
+            139,
+            835,
+            183
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where $y _ { \\succ x } ^ { 1 : L }$ is a shorthand for the complete preference ranking $y ^ { 1 } \\ \\succ _ { x } , \\cdot \\cdot \\cdot , \\succ _ { x } \\ y ^ { L }$ . In practice, given a training set $\\mathcal { D }$ with translations equipped with a preference ranking, a reward model $r _ { \\theta }$ can be trained via maximum likelihood estimation (Cheng et al., 2010):",
+        "bbox": [
+            507,
+            205,
+            885,
+            305
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/a3e0c1bc01732cc4042c4ef95a4ec77438bbbd7f59167cab83f473e2be19d381.jpg",
+        "text": "$$\n\\begin{array} { c } { { \\displaystyle { \\mathcal { L } } _ { P L } ( r _ { \\theta } ) = - \\mathbb { E } _ { x , y _ { \\succ x } ^ { 1 : L } \\in { \\mathcal { D } } } \\sum _ { i = 1 } ^ { L - 1 } \\left[ r _ { \\theta } ( x , y ^ { i } ) - \\right. } } \\\\ { { \\displaystyle \\left. \\log \\sum _ { j = i } ^ { L } \\exp ( r _ { \\theta } ( x , y ^ { j } ) ) \\right] } } \\end{array}\\tag{3}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            542,
+            326,
+            843,
+            418
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Following recent work (Rafailov et al., 2023; Song et al., 2023; Hejna et al., 2023), we parameterize the reward model using the target LLM $\\pi \\theta$ and rewrite the above objective as:",
+        "bbox": [
+            507,
+            442,
+            884,
+            508
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/f8fbfee91880a8ab124d5f50c17e7d510c1690e9e04af2b23301c27da2208a1e.jpg",
+        "text": "$$\n\\mathcal { L } _ { P L } ( \\pi _ { \\theta } ) = - \\mathbb { E } _ { \\boldsymbol { x } , \\boldsymbol { y } _ { \\succ x } ^ { 1 : L } \\in \\mathcal { D } } \\sum _ { i = 1 } ^ { L - 1 } \\log \\frac { \\pi _ { \\theta } ( \\boldsymbol { x } , \\boldsymbol { y } ^ { i } ) } { \\sum _ { j = i } ^ { L } \\pi _ { \\theta } ( \\boldsymbol { x } , \\boldsymbol { y } ^ { j } ) }\\tag{4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            514,
+            531,
+            878,
+            576
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where $r _ { \\theta } : = \\log ( \\pi _ { \\theta } )$ . Through optimizing Equation 4, we explicitly align the LLM generation probability with the translation quality.",
+        "bbox": [
+            507,
+            588,
+            885,
+            638
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "A caveat when optimizing Equation 4 is that the ranking information omits any measure of absolute translation quality, which may lead to inadvertent suppression of the likelihood of good translations. Consider a case where we have a pair of translations, $y ^ { 1 }$ and $y ^ { 2 }$ , which are both acceptable translations but have different word orders that causes minor difference in preference. Optimizing Equation 4 may cause the model to raise the probability of $y ^ { 1 }$ and to suppress the probability $y ^ { 2 }$ , which may damage the model.<sup>3</sup> To address this issue, we follow Song et al. (2023) to consider the preference",
+        "bbox": [
+            507,
+            642,
+            887,
+            835
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup>As per Ouyang et al. (2022), we use the term “SFT” which is interchangeably referred to as “instruction-tuning” or simply “fine-tuning” in current literature to convey the same concept.",
+        "bbox": [
+            110,
+            883,
+            489,
+            922
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>3</sup>Cheng and Hüllermeier (2008) show that, while the preference can be learned asymptotically solely through ranking information, incorporating additional, more detailed, preference information (e.g., distance) makes the learning process more data-efficient. Table 6 presents an ablation study.",
+        "bbox": [
+            507,
+            859,
+            885,
+            922
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "footer",
+        "text": "3387",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "distance in $\\mathcal { L } _ { P L }$",
+        "bbox": [
+            114,
+            85,
+            243,
+            99
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/164db80a19e5019233e1a5f536a32c0427fa33ffac77ee3590b3db8c46a87b0e.jpg",
+        "text": "$$\n\\begin{array} { r c l } { { \\mathcal { L } _ { P L D } ( \\pi _ { \\theta } ) = } } \\\\ { { } } & { { } } \\\\ { { - \\mathbb { E } _ { x , y _ { \\sim x } ^ { 1 : L } \\in \\mathcal { D } } \\displaystyle \\sum _ { i = 1 } ^ { L - 1 } \\log \\frac { \\pi _ { \\theta } ^ { d _ { i } ^ { i } } ( x , y ^ { i } ) } { \\sum _ { j = i } ^ { L } \\pi _ { \\theta } ^ { d _ { i } ^ { j } } ( x , y ^ { j } ) } } } \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            115,
+            114,
+            480,
+            184
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where",
+        "bbox": [
+            151,
+            187,
+            205,
+            202
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/63506e11a61f261255e7125f1ef331908ba504d31eb39185404d160eb64f003f.jpg",
+        "text": "$$\n\\begin{array} { l l } { d _ { i } ^ { j } = r ^ { * } ( x , y ^ { i } ) - r ^ { * } ( x , y ^ { j } ) , \\mathrm { f o r } \\ j > i } \\\\ { d _ { i } ^ { i } = \\displaystyle \\operatorname* { m a x } _ { j > i } ( d _ { i } ^ { j } ) } \\end{array}\\tag{5}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            178,
+            206,
+            455,
+            255
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We obtain the ground truth preference value $r ^ { * } ( x , y )$ through human annotation, which will be detailed in Section 4. Finally, we combine a SFT loss calculated on the best translation $y ^ { 1 }$ with $\\mathcal { L } _ { P L D }$ , making the complete loss function:",
+        "bbox": [
+            110,
+            267,
+            487,
+            349
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/7803c0fa0df5a242bb2735702cae28b263ddebc63eb867c0ab12f15d3f7cddbc.jpg",
+        "text": "$$\n\\mathcal { L } = \\mathcal { L } _ { P L D } + \\beta \\mathcal { L } _ { S F T }\\tag{6}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            216,
+            361,
+            386,
+            378
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where the hyperparameter $\\beta$ balances the strengths of preference learning and SFT. We use PL as an abbreviation of our preference learning method (i.e., optimizing Equation 6) in the subsequent text.",
+        "bbox": [
+            112,
+            392,
+            489,
+            457
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We now provide some justification for directly incorporating preference distances into the Plackett-Luce model by studying the original derivation of the binary case $( L \\ = \\ 2 )$ (Thurstone, 1927; Mosteller, 1951; Bradley, 1953; Hamilton et al., 2023). Denote the preferences for $y ^ { i }$ and $y ^ { j }$ by random variables $X _ { i }$ and $X _ { j }$ such that the probability that $y ^ { i }$ is preferred to $y ^ { j }$ is $\\pi _ { i j } = P ( X _ { i } > X _ { j } ) $ Assuming that $X _ { i }$ and $X _ { j }$ follow Gumbel distributions<sup>4</sup> with locations $s _ { i }$ and $s _ { j }$ and a common scale parameter $\\gamma _ { : }$ the difference between the two random variables $d _ { i j } = X _ { i } - X _ { j }$ follows a logistic distribution with location $s _ { i } - s _ { j }$ and scale γ:",
+        "bbox": [
+            112,
+            457,
+            489,
+            668
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/63735d432de414cad09ff33e5c7c6e00036a39c3332edde0bcd6b7ff4189f99a.jpg",
+        "text": "$$\nd _ { i j } \\sim \\frac { 1 } { 4 \\gamma } \\mathrm { s e c h } ^ { 2 } ( \\frac { d _ { i j } - ( s _ { i } - s _ { j } ) } { 2 \\gamma } )\\tag{7}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            174,
+            680,
+            425,
+            714
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "By defining $\\pi _ { i } = e ^ { s _ { i } }$ , it follows that",
+        "bbox": [
+            114,
+            724,
+            384,
+            740
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/86e6f96e746b006465bee243d2909857b4b98eb144f8701fb28f8c178d788a4b.jpg",
+        "text": "$$\n\\begin{array} { l } { \\displaystyle \\pi _ { i j } = P ( d _ { i j } > 0 ) } \\\\ { = \\int _ { 0 } ^ { \\infty } \\frac { 1 } { 4 \\gamma } \\mathrm { s e c h } ^ { 2 } ( \\frac { d _ { i j } - ( s _ { i } - s _ { j } ) } { 2 \\gamma } ) d d _ { i j } } \\\\ { = \\frac { \\pi _ { i } ^ { \\frac { 1 } { \\gamma } } } { \\pi _ { i } ^ { \\frac { 1 } { \\gamma } } + \\pi _ { j } ^ { \\frac { 1 } { \\gamma } } } } \\end{array}\\tag{8}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            139,
+            755,
+            458,
+            862
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Usually the scale parameter $\\gamma$ is set to 1 which yields the Bradley-Terry model (Bradley and Terry, 1952) (and Equation 13 of Bradley (1953)).",
+        "bbox": [
+            507,
+            85,
+            885,
+            133
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "To introduce distance information for the binary preference case, we first note that $d _ { 1 } ^ { 1 } = d _ { 1 } ^ { 2 }$ for $L = 2$ (from Equation 5). We then take $\\begin{array} { r } { \\gamma = \\frac { 1 } { d _ { 1 } ^ { 2 } } } \\end{array}$ and $\\pi _ { i } = \\pi _ { \\theta } ( x , y ^ { i } )$ , which yields:",
+        "bbox": [
+            507,
+            134,
+            884,
+            204
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/1b55c8952f44c8c4b7ec41a04aeb1feea2e85d85eca4108bdfce1ce5d4a50e4b.jpg",
+        "text": "$$\n\\pi _ { 1 2 } = \\frac { \\pi _ { \\theta } ^ { d _ { 1 } ^ { 2 } } ( x , y ^ { 1 } ) } { \\pi _ { \\theta } ^ { d _ { 1 } ^ { 1 } } ( x , y ^ { 1 } ) + \\pi _ { \\theta } ^ { d _ { 1 } ^ { 2 } } ( x , y ^ { 2 } ) }\\tag{9}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            576,
+            215,
+            813,
+            262
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "This shows that, for the binary case, preference distances based on the ground truth preferences can be incorporated exactly into the Bradley-Terry distribution by assuming that the $X _ { 1 }$ and $X _ { 2 }$ have Gumbel distributions with location parameters $s _ { i } = \\log \\pi _ { \\theta } ( x , y ^ { i } )$ and scale parameter $\\gamma =$ 1   \n$\\overline { { r ^ { * } ( x , y ^ { 1 } ) - r ^ { * } ( x , y ^ { 2 } ) } }$",
+        "bbox": [
+            507,
+            273,
+            884,
+            390
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We derive and discuss the more general case of Equation $5 \\ : ( L > 2 )$ in Appendix A.",
+        "bbox": [
+            507,
+            387,
+            885,
+            419
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Connections with DPO The preference learning framework investigated here shares a common origin with DPO (Rafailov et al., 2023) in the Bradley-Terry and Plackett-Luce models over rankings (Equation 2, and Equation 18 of Rafailov et al. (2023)). Here, the target LLM $\\pi _ { \\theta }$ serves directly as the reward function $\\left( r _ { \\theta } = \\log ( \\pi _ { \\theta } ) \\right)$ , whereas the DPO reward function also includes a reference distribution $\\pi _ { r e f }$ that arises from the KL-divergence constraint term in its RL objective function. By contrast, regularization in this work is through an external SFT term (Equation 6) distinct from the reward function. We note also that the use of distance functions based on ground truth reference values brings additional information into our ranking model beyond preference order alone.",
+        "bbox": [
+            507,
+            430,
+            887,
+            689
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4 Human preference data collection",
+        "text_level": 2,
+        "bbox": [
+            509,
+            702,
+            836,
+            719
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We build MAPLE (MAchine translation dataset for Preference LEarning), a dataset derived from WMT20/21 test sets. It contains multiple translations per source sentence, each assigned a realvalued human preference score. MAPLE covers four translation directions: German-to-English (de en), Chinese-to-English (zh en), Englishto-German (en de), and English-to-Chinese (en zh). For each direction, 1.1K source sentences are sampled from the test sets of WMT20/21. Each source sentence is associated with five translations, including one reference translation from",
+        "bbox": [
+            507,
+            728,
+            887,
+            922
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>4</sup>Assuming preferences arise from a large number of i.i.d. contributions, a normal distribution results in the limit if these are averaged while the Gumbel distribution results from taking their maximum (Hamilton et al., 2023).",
+        "bbox": [
+            112,
+            871,
+            489,
+            922
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "footer",
+        "text": "3388",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "WMT20/21, and four translations generated by VicunaMT, our target LLM that we aim to improve through preference learning (see training details of VicunaMT in Section 5.1). Among the four translations, one is generated using beam search with a beam size of four, and three translations are obtained through nucleus sampling (Holtzman et al., 2020) with $p = 0 . 9$ . We also build a development set containing 200 source sentences per direction sourced from News Crawl 2022. Altogether, MAPLE contains 5.2K source sentences and 26K translations with preference scores. See Appendix B.1 for more detail on the translation collecting process.",
+        "bbox": [
+            112,
+            84,
+            490,
+            311
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "chart",
+        "img_path": "images/275cefc15e15db086023dfe5fcfb7b80b0281af62ad115f53c2afb163ce1c246.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 1: Human score distribution of translations by rank (left) and source (right)."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            121,
+            322,
+            478,
+            516
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "table",
+        "img_path": "images/b1cdd9b66d02290e5b8f8a4629798e8ea9f47a1afb6cda2df379179beaa8a39e.jpg",
+        "table_caption": [
+            "Table 1: An example where the reference translation is less accurate than the best model prediction. More examples are in Appendix B.4."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Source</td><td>Zu einem großen Tuning-Treffen ist es am Samstagabend (25. Juli 2020) in Nürnberger Südstadt gekommen. (A large tuning meeting took place on Saturday evening (July 25, 2020) in Nuremberg&#x27;s Südstadt district.)</td></tr><tr><td>Reference translation</td><td>A large tuning meetup took place in a city south of Nürnberg this Saturday evening.</td></tr><tr><td>Best translation</td><td>On Saturday evening (25th July 2020) a large tuning meeting took place in Nuremberg&#x27;s south district.</td></tr></table>",
+        "bbox": [
+            124,
+            585,
+            477,
+            750
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Annotation guidance. We send both the source sentence and the corresponding five translations to a panel of translators for evaluation. Each example (source sentence and its translations) is assigned to two different professional translators. They observe the source and the five translations at the same time, and assign scores between 1 (worst) and 6 (best) in increments of 0.2 using a slider. See Appendix B.2 for the full scoring rubric.",
+        "bbox": [
+            112,
+            826,
+            490,
+            922
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            885,
+            134
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Dataset statistics. The score distribution is shown in Fig. 1. The left side shows the score distribution by rank, and we can see MAPLE contains translations that exhibit a wide range of qualities. The right side shows the score distribution by translation type, and as expected the reference is ranked highest, followed by the beam search and the nucleus samples. Nonetheless, there is considerable overlap in the score distributions, and we find that in 21% of the cases, the beam search predictions are scored higher than the reference translation. Table 1 shows an example where the reference translation contains an error.",
+        "bbox": [
+            507,
+            140,
+            887,
+            350
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5 Experiments",
+        "text_level": 2,
+        "bbox": [
+            509,
+            360,
+            658,
+            376
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "In this section, we present our MT model trained using the proposed two-stage framework and compare it with strong LLM-based MT systems.",
+        "bbox": [
+            507,
+            385,
+            885,
+            435
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Datasets. We train and evaluate the model on data on four translation directions: en de and en zh. In the SFT stage, we use high-quality test sets from WMT17/18/19 for training, containing 30K parallel sentences in total across the four directions. The WMT21 test set is used for validation. In the preference learning stage, we train on MAPLE, and validation is done on the remaining data from WMT20/21 test sets which was not selected for inclusion in MAPLE. We evaluate trained models on the test sets of WMT22 (Kocmi et al., 2022) and FLORES-200 (Costa-jussà et al., 2022). Refer to Appendix C.1 for detailed data statistics.",
+        "bbox": [
+            507,
+            442,
+            885,
+            652
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Training. In both SFT and PL stages, we use a learning rate of 5e-6, an effective batch size of 96, and a linear learning rate schedule with a warmup ratio of 0.1. For each training instance, one MT instruction is randomly selected from an instruction pool containing 31 MT instructions. See Appendix C.2 for the complete list of instructions.",
+        "bbox": [
+            507,
+            658,
+            887,
+            772
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Evaluation. At inference time, a fixed MT translation instruction is used. The maximum generation length is set to 512. We use a beam size of 4 for decoding and report BLEU (Papineni et al., 2002) and COMET (Rei et al., 2022) scores.",
+        "bbox": [
+            507,
+            778,
+            887,
+            860
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.1 SFT makes good translation models",
+        "text_level": 2,
+        "bbox": [
+            509,
+            869,
+            840,
+            885
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The SFT stage seeks to train a well-performing foundation MT model using parallel data. When applying SFT, we can either select a pre-trained LLM, or its instruction-tuned version. Prior research uses both types of LLMs interchangeably, leaving it unclear which is preferable in practice. To address this gap, we explore three popular families of openaccess LLMs, performing SFT on both their raw (i.e., only pre-trained) and instructed-tuned versions. Specifically, we consider LLaMA-1 (Touvron et al., 2023a), Mistral (Jiang et al., 2023) and BLOOM (Scao et al., 2022); and their instructiontuned versions, which are Vicuna (Zheng et al., 2023), Mistral-Instruct, and BLOOMZ (Muennighoff et al., 2023). The 7B parameter variants of these models are used here.",
+        "bbox": [
+            507,
+            890,
+            885,
+            922
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "3389",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            84,
+            492,
+            311
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/b43193d9544ca725164eb53c445ae679b70dcf91b1d8f4f3c8850f187015ba01.jpg",
+        "table_caption": [
+            "Table 2: Model performance (in COMET score) before and after performing SFT on parallel data. Rows in blue indicate instruction-tuned LLMs. Best results are in bold. Instruction-tuned LLMs yield high COMET scores even without SFT. Raw LLMs benefit the most from SFT. Vicuna performs the best on average on both test sets. We exclude BLOOMZ on FLORES-200 as it is a part of BLOOMZ’s training data. Performance measured by BLEU score is reported in Appendix D."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td></tr><tr><td colspan=\"6\">WMT22</td></tr><tr><td>BLOOM</td><td>49.86</td><td>41.95</td><td>51.59</td><td>55.21</td><td>49.65</td></tr><tr><td>+SFT</td><td>77.21</td><td>69.17</td><td>84.60</td><td>78.76</td><td>77.44</td></tr><tr><td>BLOOMZ</td><td>74.58</td><td>62.52</td><td>83.10</td><td>78.29</td><td>74.62</td></tr><tr><td>+SFT</td><td>77.24</td><td>69.32</td><td>84.95</td><td>78.77</td><td>77.57</td></tr><tr><td>Mistral</td><td>54.18</td><td>49.08</td><td>49.10</td><td>55.47</td><td>51.96</td></tr><tr><td>+SFT</td><td>83.15</td><td>81.10</td><td>81.48</td><td>78.05</td><td>80.95</td></tr><tr><td>Mistral-Ins.</td><td>82.45</td><td>80.39</td><td>76.57</td><td>77.73</td><td>79.28</td></tr><tr><td>+SFT</td><td>82.68</td><td>81.23</td><td>82.49</td><td>77.73</td><td>81.03</td></tr><tr><td>LLaMA-1</td><td>63.29</td><td>55.29</td><td>45.80</td><td>55.17</td><td>54.89</td></tr><tr><td>+SFT</td><td>83.30</td><td>82.54</td><td>77.58</td><td>75.78</td><td>79.80</td></tr><tr><td>Vicuna</td><td>82.55</td><td>82.02</td><td>81.42</td><td>74.81</td><td>80.20</td></tr><tr><td>+SFT</td><td>83.55</td><td>82.79</td><td>81.27</td><td>77.39</td><td>81.25</td></tr><tr><td colspan=\"6\">FLORES-200</td></tr><tr><td>BLOOM</td><td>55.03</td><td>42.36</td><td>53.82</td><td>60.25</td><td>52.86</td></tr><tr><td>+SFT</td><td>83.69</td><td>67.43</td><td>86.06</td><td>85.45</td><td>80.66</td></tr><tr><td>Mistral</td><td>42.36</td><td>32.74</td><td>33.35</td><td>42.10</td><td>37.64</td></tr><tr><td>+SFT</td><td>88.63</td><td>84.49</td><td>80.97</td><td>85.17</td><td>84.81</td></tr><tr><td>Mistral-Ins.</td><td>88.04</td><td>82.55</td><td>73.20</td><td>83.70</td><td>81.87</td></tr><tr><td>+SFT</td><td>88.21</td><td>83.73</td><td>82.41</td><td>84.77</td><td>84.78</td></tr><tr><td>LLaMA-1</td><td>58.89</td><td>52.71</td><td>42.77</td><td>49.92</td><td>51.07</td></tr><tr><td>+SFT</td><td>88.50</td><td>84.82</td><td>76.73</td><td>83.09</td><td>83.29</td></tr><tr><td>Vicuna</td><td>87.82</td><td>84.17</td><td>81.52</td><td>81.53</td><td>83.76</td></tr><tr><td>+SFT</td><td>88.66</td><td>86.27</td><td>80.62</td><td>84.44</td><td>85.00</td></tr></table>",
+        "bbox": [
+            115,
+            328,
+            484,
+            669
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Results. Table 2 presents the results before and after SFT. It can be seen that LLMs without instruction-tuning, e.g., BLOOM, perform poorly; we observe that they tend to overgenerate and repeat tokens in the source sentences.<sup>5</sup> In contrast, instruction-tuned models work out-of-the-box and exhibit decent performance. It can be also observed that SFT dramatically boosts the performance of raw LLMs, and slightly benefits instruction-tuned LLMs. For BLOOM and Mistral, the performance gap between raw and instruction-tuned models is mostly lost after SFT. An interesting case is Vicuna, where there is a considerable improvement on en zh over its base model LLaMA-1. This implies that instruction-tuned LLMs may serve as a better base model for SFT. In addition, different LLMs excel in diverse translation directions and their instruction-tuned versions do not deviate from this pattern. For example, both BLOOM and BLOOMZ perform quite well on en zh, but have a deficiency in en de. For LLaMA-based models, the opposite holds. This could be due to the fact that German and Chinese are not included (at least, not intentionally) in BLOOM’s and LLaMA’s pre-training corpora, respectively.",
+        "bbox": [
+            112,
+            858,
+            489,
+            923
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            84,
+            887,
+            423
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The Vicuna+SFT model has the best overall performance and so we select it as our target LLM to be improved through preference learning. We call this model VicunaMT. The generated translations in the MAPLE dataset are produced by this model.",
+        "bbox": [
+            507,
+            423,
+            887,
+            505
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.2 Refining through preference learning",
+        "text_level": 2,
+        "bbox": [
+            509,
+            517,
+            848,
+            535
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Baselines. We continue training our VicunaMT model on MAPLE through preference learning and compare it with the following competitive systems from recent work: (1) ParroT (Jiao et al., 2023a) adds a “Hint” field to the model input, prompting the model to generate both correct and incorrect translations. At inference time, the “correct” version of the translations is used for evaluation. (2) TIM (Zeng et al., 2023) incorporates standard SFT with a ranking loss computed on a pair of correct and incorrect translations. (3) SWIE (Chen et al., 2023) proposes to attach an instruction adapter to enhance LLMs’ long-term attention for better translation. (4) ALMA (Xu et al., 2023) first continues pre-training the LLM on monolingual data, followed by performing SFT on parallel data. Furthermore, as the preference learning stage introduces additional data, a performance gain could be trivial by exposing the model with more samples. To establish a fair comparison, we design two additional baselines: (5) REF trains VicunaMT with the reference translations in MAPLE. (6) BEST trains VicunaMT with the translations that are scored highest by our annotators. See Table 1 for an example comparison of the reference and best translations. All aforementioned baselines are performed on 7B LLMs (based either on BLOOM-7B or LLaMA-7B). Finally, we also compare our model against commercial LLMs, including ChatGPT and GPT-4.",
+        "bbox": [
+            507,
+            538,
+            887,
+            863
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>5</sup>Overgeneration is also noticed in (Bawden and Yvon, 2023), while it can be partially alleviated by prompt engineering and text post-processing (Srivastava et al., 2023), enhancing LLMs’ zero-shot performance is not our primary focus.",
+        "bbox": [
+            507,
+            871,
+            885,
+            922
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "3390",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "images/98dc730b9bbb960d5128ce6deee07b64e902dada58cc2187aa8ca886ac07035b.jpg",
+        "table_caption": [
+            "Table 3: Model performance in COMET scores. Best results of LLaMA-1 based models are in bold. Applying prefrence learning (+PL) on top of our VicunaMT model consistently leads to improvements in all cases, achieving the highest average performance among all BLOOM and LLaMA-1 based MT models. Performance in BLEU scores is reported in Appendix E. ⊗: LLaMA-2 based models were not evaluated due to license constraints. WMT22 results are extracted from the original paper. ∗: BLOOMZ-family models use FLORES-200 for training."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">System</td><td colspan=\"5\">WMT22</td><td colspan=\"5\">FLORES-200</td></tr><tr><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td></tr><tr><td colspan=\"9\">Commercial LLMs &amp; LLaMA-2-7B based MT systems</td><td></td></tr><tr><td> $\\mathrm { C h a t G P T } _ { ( 3 . 5 - \\mathrm { t u r b o - } 0 6 1 3 ) }$ </td><td>85.38</td><td>86.92</td><td>87.00</td><td>82.42</td><td>85.43</td><td>89.58</td><td>88.68</td><td>88.56</td><td>86.91</td><td>88.02</td></tr><tr><td> $\\mathrm { G P T } – 4 _ { ( \\mathrm { g p t } - 4 - 0 6 1 3 ) }$ </td><td>85.57</td><td>87.36</td><td>87.29</td><td>82.88</td><td>85.78</td><td>89.66</td><td>88.89</td><td>88.91</td><td>87.25</td><td>88.68</td></tr><tr><td> $\\mathrm { A L M A { - } 7 B _ { ( L L a M A { - } 2 ) } }$ </td><td>83.98</td><td>85.59</td><td>85.05</td><td>79.73</td><td>83.59</td><td>_⊗</td><td>_⊗</td><td>_8</td><td>_⊗</td><td>_8</td></tr><tr><td colspan=\"9\">BLOOMZ-mt-7B based LLMs</td><td></td></tr><tr><td> $\\mathrm { P a r r o T _ { ( B L O O M Z - m t ) } }$ </td><td>78.00</td><td>73.60</td><td>83.50</td><td>79.00</td><td>78.53</td><td>*</td><td>*</td><td></td><td>_*</td><td></td></tr><tr><td> $\\mathrm { T I M _ { ( B L O O M Z \\cdot m t ) } }$ </td><td>77.65</td><td>74.16</td><td>84.89</td><td>79.50</td><td>79.05</td><td>*</td><td>_*</td><td>_*</td><td>、*</td><td></td></tr><tr><td> $\\mathbf { S W I E _ { ( B L O O M Z - m t ) } }$ </td><td>78.80</td><td>75.17</td><td>84.53</td><td>79.15</td><td>79.41</td><td>*</td><td>*</td><td>_*</td><td>_*</td><td>*</td></tr><tr><td colspan=\"9\">LLaMA-1-7B based LLMs</td></tr><tr><td> $\\mathrm { P a r r o T _ { ( L L a M A - 1 ) } }$ </td><td>82.40</td><td>81.60</td><td>80.30</td><td>75.90</td><td>80.05</td><td>88.40</td><td>84.60</td><td>81.20</td><td>83.40</td><td>84.40</td></tr><tr><td> $\\mathrm { T I M } _ { \\mathrm { ( L L a M A - 1 ) } }$ </td><td>82.80</td><td>82.32</td><td>80.03</td><td>75.46</td><td>80.15</td><td>88.08</td><td>85.00</td><td>80.93</td><td>83.18</td><td>84.30</td></tr><tr><td> $\\mathbf { S W I E } _ { \\mathrm { ( L L a M A - 1 ) } }$ </td><td>82.97</td><td>81.89</td><td>80.14</td><td>76.14</td><td>80.29</td><td>88.39</td><td>85.21</td><td>81.14</td><td>83.50</td><td>84.56</td></tr><tr><td> $\\mathrm { V i c u n a M T _ { ( L L a M A - 1 ) } }$ </td><td>83.55</td><td>82.79</td><td>81.27</td><td>77.39</td><td>81.25</td><td>88.66</td><td>86.27</td><td>80.62</td><td>84.44</td><td>85.00</td></tr><tr><td>+ REF</td><td>83.88</td><td>83.37</td><td>82.86</td><td>78.19</td><td>82.07</td><td>88.48</td><td>86.11</td><td>83.35</td><td>84.54</td><td>85.62</td></tr><tr><td>+ BEST</td><td>83.61</td><td>83.08</td><td>83.20</td><td>78.35</td><td>82.06</td><td>88.67</td><td>85.87</td><td>84.02</td><td>84.55</td><td>85.78</td></tr><tr><td>+PL</td><td>84.23</td><td>84.43</td><td>84.26</td><td>79.07</td><td>83.00</td><td>88.83</td><td>86.73</td><td>84.88</td><td>84.76</td><td>86.30</td></tr></table>",
+        "bbox": [
+            115,
+            80,
+            878,
+            356
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            464,
+            490,
+            612
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Results. We report the MT performance of various baselines in Table 3. It can be seen that our VicunaMT model performs well compared to recent MT systems. PL further increases the performance advantage. Our final model, VicunaMT+PL, achieves the highest average performance (83 on WMT22 and 86.3 on FLORES-200), consistently outperforming all LLaMA-1 based models across all directions, with the largest improvement being a 3.96 increase in COMET score. (en zh on WMT22). Notably, LLaMA-based models are originally much weaker in directions involving Chinese. Through preference learning, VicunaMT reaches a translation performance close to BLOOM-based LLMs. This becomes practically significant when the goal is to deploy a single LLM to handle multiple translation directions. Also, the PL model scores higher than VicunaMT models fine-tuned on the reference and best translations, indicating that the performance gain does not just come from having more data. Compared to the ALMA model, which is based on LLaMA-2 (Touvron et al., 2023b), a widely recognized superior open access LLM, our model demonstrates only a slight deficit of 0.59 COMET scores. Note that our strategy is orthogonal to ALMA’s approach, which leverages monolingual data. Combining both strategies should lead to even better performance.",
+        "bbox": [
+            110,
+            632,
+            492,
+            923
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            466,
+            887,
+            626
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "We supplement our assessment with a human evaluation, contrasting VicunaMT+PL with SFTonly Vicuna variations including VicunaMT and VicunaMT+REF, as illustrated in Table 4. The human evaluation confirms the trend observed with automatic metrics, where PL substantially outperforms SFT-only variations.",
+        "bbox": [
+            507,
+            627,
+            887,
+            740
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6 Analysis",
+        "text_level": 2,
+        "bbox": [
+            509,
+            751,
+            621,
+            768
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Reuse of preference data. MAPLE contains the translations generated by VicunaMT, which is also the target LLM we aim to improve. There would be additional value if this data could be reused to improve other LLMs. To investigate this, we train both Mistral-Instruct and BLOOMZ on MAPLE using PL. As shown in Table 5, PL improves both models, suggesting that the MAPLE is not limited for use with VicunaMT and can be reused for im-",
+        "bbox": [
+            505,
+            777,
+            887,
+            922
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "3391",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/16c5606ea33ac92540c29a1011b561cd9a710c2c70fd3b15aba08a52f7135319.jpg",
+        "table_caption": [
+            "Table 4: Relative improvements of VicunaMT+PL over SFT-only models (VicunaMT and VicunaMT+REF), assessed through human evaluation on the WMT22 test set, employing the same scoring criteria as those specified in MAPLE. A two-sided t-test was conducted, with 95% confidence intervals noted as 1.7%. Positive values indicate the improvement achieved by VicunaMT+PL compared to the other models."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td>de→en en→de</td><td></td><td> $\\tt e n \\to z h$ </td><td>zh→en</td></tr><tr><td></td><td></td><td>VicunaMT+PL vs.</td><td></td><td></td></tr><tr><td>VicunaMT</td><td>+3.7%</td><td> $+ 4 . 4 \\%$ </td><td> $+ 5 . 6 \\%$ </td><td> $+ 5 . 7 \\%$ </td></tr><tr><td>VicunaMT+REF</td><td> $+ 3 . 7 \\%$ </td><td> $+ 2 . 5 \\%$ </td><td> $+ 5 . 0 \\%$ </td><td> $+ 3 . 5 \\%$ </td></tr></table>",
+        "bbox": [
+            117,
+            82,
+            485,
+            149
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "proving other LLMs.",
+        "text_level": 2,
+        "bbox": [
+            114,
+            302,
+            273,
+            317
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/6c2b8201fcb35bb5b65a10e19485ac8c1d53db60d12b7e9eb913df746d4a5379.jpg",
+        "table_caption": [
+            "Table 5: Model performance in COMET scores. Best results are in bold. MAPLE can be reused to improve BLOOMZ and Mistral-Instruct. See results on FLORES-200 and in BLEU scores in Appendix F.†: SFT stage has already been applied to these models."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td colspan=\"6\">WMT22</td></tr><tr><td></td><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td></tr><tr><td>BLOOMZ†</td><td>77.24</td><td>69.32</td><td>84.95</td><td>78.77</td><td>77.57</td></tr><tr><td>+REF</td><td>77.41</td><td>68.47</td><td>84.76</td><td>79.50</td><td>77.53</td></tr><tr><td>+BEST</td><td>77.48</td><td>68.64</td><td>85.15</td><td>79.59</td><td>77.72</td></tr><tr><td>+PL</td><td>77.83</td><td>69.84</td><td>85.36</td><td>80.67</td><td>78.42</td></tr><tr><td>Mistral-Ins.†</td><td>82.68</td><td>81.23</td><td>82.49</td><td>77.73</td><td>81.03</td></tr><tr><td>+REF</td><td>83.06</td><td>82.63</td><td>83.39</td><td>78.07</td><td>81.79</td></tr><tr><td>+BEST</td><td>82.98</td><td>81.84</td><td>83.34</td><td>78.33</td><td>81.62</td></tr><tr><td>+PL</td><td>83.35</td><td>82.94</td><td>84.71</td><td>79.25</td><td>82.56</td></tr></table>",
+        "bbox": [
+            115,
+            329,
+            484,
+            473
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Limited gains with additional parallel data. Section 5.2 shows that the MAPLE dataset, which contains 4.4K preference examples, can be more valuable than an equivalent amount of parallel data with either the reference or the best translations. A natural follow-up question is whether adding more parallel data can close the gap. To answer this question, we collect more data by concatenating WMT20, WMT21 test data with News Commentary v16, making 1.4M parallel sentences in total.<sup>6</sup> We fine-tune VicunaMT and Mistral-InstructMT (i.e., Mistral-Instruct after SFT stage) on different proportions of this data and plot the performance curve in Figure 2. In both cases, similar to observations in (Xu et al., 2023), adding more parallel data does not always improve these models and they never attain the performance level reached by using PL with MAPLE.",
+        "bbox": [
+            110,
+            583,
+            490,
+            876
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/faef91349ac235a8fbfda2d45d776ba313c7b63e67eeaa89affe0d292c7beb33.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 2: Performance comparison between PL using 4.4K examples from MAPLE and SFT, employing up to 1.4M parallel data. Evaluation is done on WMT22, and COMET scores are averaged across four translation directions. Performing SFT on more parallel data does not always lead to performance gain. PL consistently outperforms SFT in all cases."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            512,
+            82,
+            878,
+            218
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Diverse translations help more. By default, we perform PL using all five translations provided by MAPLE. We now study the relation between the final model performance and the number of preference translations used. We select $K = \\{ 2 , 3 , 4 \\}$ translations and rerun the PL algorithm on VicunaMT and Mistral-InstructMT. We explore two selection modes for selecting K translations. Given five translations sorted by human preference scores in descending order, theforward mode selects the first K translations (i.e., the best K), while the reverse mode select the first and last $K - 1$ translations. We compare both modes varying K and present the results in Figure 3. There is a clear disparity in performance with these two selection modes. The reverse mode consistently outperforms the forward mode given the same number of translations, with a larger advantage in low-resource cases, such as when $K = 2 .$ . This is intuitive since the reverse mode always includes the highest- and lowest-scored translations and thus, PL may have a better chance to see “hard negatives” which have low human preference score but high generation probability. The general trend shows that including more preference samples is better, and using all available samples yields the best performance.",
+        "bbox": [
+            507,
+            360,
+            887,
+            781
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Distance information is crucial. Our framework considers the distance information in preference scores (Equation 5). We now investigate if this information can be replaced by simply using the ranking information. That is, we set $d _ { i } ^ { j } = 1$ for all translations and rerun the PL algorithm. Table 6 shows that when the distance information is available, excluding the SFT loss does not harm the performance much. In fact, we achieve the best performance when setting $\\beta = 0$ for VicunaMT. However, when the distance information is withheld, we see a clear degradation in performance. We find that a larger β value is required when relying only on the ranking information, but this makes the PL algorithm closer to SFT. As a result, when only the ranking information is provided, VicunaMT performs similarly to the <sub>SFT</sub> only baseline. Finally, disabling both ${ \\cal L } _ { S F T }$ and distance cause a large performance drop.",
+        "bbox": [
+            507,
+            793,
+            887,
+            923
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>6</sup>We select News Commentary for its high-quality, domainmatching parallel data to WMT test data. WMT20/21 are included as MAPLE is built on a subset from them.",
+        "bbox": [
+            112,
+            883,
+            490,
+            922
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "3392",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "chart",
+        "img_path": "images/4456870a95526e15d82c2cee78095d236e7f58e46b5bb315e9a1cee8dbf0ab04.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 3: Model performance varying number of translations (K) per source sentence. Evaluation conducted on WMT22 and COMET scores averaged across four translation directions are reported. Reverse mode selects more diverse translations and achieves better performance, especially when fewer translations are provided."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            117,
+            82,
+            484,
+            217
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "table",
+        "img_path": "images/bfde6b114b38fb94fc24548f5cda9292673652d5c9e6682be12a690cad17425a.jpg",
+        "table_caption": [
+            "Table 6: Ablation study. PL is less sensitive to $\\mathcal { L } _ { S F T }$ than the distance information. Disabling both factors leads to substantial model degradation."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>VicunaMT</td><td>Mistral-InstrctMT</td></tr><tr><td>SFT stage</td><td>81.25 81.03</td></tr><tr><td>PL stage</td><td>83.00 82.56</td></tr><tr><td>w/o  $\\mathcal { L } _ { S F T }$ </td><td>83.00 82.54</td></tr><tr><td>w/o distance</td><td>82.22 81.92</td></tr><tr><td>w/o  $\\mathscr { L } _ { S F T } / \\mathrm { d i s t } .$ </td><td>74.65 60.70</td></tr><tr><td> $\\mathcal { L } _ { S F T } \\mathrm { o n l y }$ </td><td>82.07 81.79</td></tr></table>",
+        "bbox": [
+            119,
+            331,
+            484,
+            456
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            538,
+            490,
+            718
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Better Model Calibration. In our preference learning framework, the model learns both translation and the ability to differentiate between different translation quality. We analyze if PL has successfully transferred human preference to the model. Using the held-out set of MAPLE, we examine the sentence-level correlation between the scores assigned by the human annotators and model generation probability. Specifically, we compute the average Pearson and Kendall’s tau correlation varying the number of preference samples (reverse mode). The results are presented in Figure 4. Compared to the SFT baseline, VicunaMT, PL substantially improves the correlation, suggesting that our final model aligns better with human preference.",
+        "bbox": [
+            110,
+            728,
+            490,
+            923
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "chart",
+        "img_path": "images/6b273051be05471b629bb59706346f54a04e9c5df07230e7c1f178d768656ddb.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 4: Sentence-level correlation between model generation probability and human preference scores varying number of translations (K). PL helps the model align better with human judgement."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            512,
+            82,
+            880,
+            222
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            317,
+            885,
+            367
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "7 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            379,
+            643,
+            395
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We present a preference learning framework to break the performance plateau faced when performing SFT. It enhances the translation capabilities of LLMs by motivating them to differentiate the nuances in different translations. To support this framework, we have carefully curated a preference dataset, named MAPLE, featuring translations of varying quality, each scored by professional translators. Extensive experiments, including human evaluations, confirm the effectiveness of this framework. In addition, we demonstrate that MAPLE can be reused to enhance other LLMs, further bolstering its practical usability. Future research could consider extending our framework into an iterative process for continuous improvement of LLMs translation capabilities.",
+        "bbox": [
+            507,
+            406,
+            887,
+            665
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Limitations",
+        "text_level": 2,
+        "bbox": [
+            509,
+            676,
+            616,
+            693
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "This work demonstrates that preference learning can effectively improve LLMs’ translation capabilities. However, our study is not exhaustive and has the following limitations.",
+        "bbox": [
+            507,
+            702,
+            885,
+            769
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Low-resource languages. This work centers on translation directions involving high-resource languages where LLMs already exhibit proficiency. The extent to which translations for low-resource languages can leverage our framework remains uncertain. Nevertheless, it is important to emphasize that our framework is language- and modelagnostic, implying its potential applicability to lowresource languages. We leave the investigation into this aspect to future work.",
+        "bbox": [
+            505,
+            777,
+            889,
+            923
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "3393",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            114,
+            85,
+            310,
+            99
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Annotation cost. Assigning preference scores for five translations per sentence can be costly, which may hinder the scaling up of the preference dataset. However, as we show in Section 6, a preference learning dataset such as MAPLE offers distinct learning signal that is not covered by massive parallel data. In addition, we highlight that the preference data can be reused to benefit other LLMs. Thus, the collected data is a valuable and reusable resource, rather than a one-time expense.",
+        "bbox": [
+            112,
+            110,
+            489,
+            271
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Noise in human judgement. Inevitably, human preference scores can be subjective, and annotators may not always agree. Additionally, there is a risk of annotators finding shortcuts in the annotation process (Ipeirotis et al., 2010; Hosking et al., 2023). To reduce the potential annotation mistakes, we average the scores of two translators for each sample and all translators we employ are experienced in translation assessment.",
+        "bbox": [
+            112,
+            279,
+            490,
+            424
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgements",
+        "text_level": 2,
+        "bbox": [
+            114,
+            436,
+            287,
+            451
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Bill Byrne holds concurrent appointments as an Amazon Scholar and as Professor of Information Engineering at the University of Cambridge. This paper describes work performed at Amazon.",
+        "bbox": [
+            114,
+            461,
+            487,
+            525
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "We thank Felix Hieber, Lei Sun, and Tobias Domhan for their thoughtful advice, in-depth discussions, and implementation support. We would also like to thank our anonymous reviewers for their constructive feedback.",
+        "bbox": [
+            112,
+            525,
+            489,
+            606
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            114,
+            632,
+            213,
+            648
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Duarte M. Alves, Nuno Miguel Guerreiro, João Alves, José Pombal, Ricardo Rei, José G. C. de Souza, Pierre Colombo, and André F. T. Martins. 2023. Steering large language models for machine translation with finetuning and in-context learning. CoRR, abs/2310.13448.",
+            "Rachel Bawden and François Yvon. 2023. Investigating the translation performance of a large multilingual language model: the case of BLOOM. In Proceedings ofthe 24th Annual Conference ofthe European Association for Machine Translation, EAMT 2023, Tampere, Finland, 12-15 June 2023, pages 157–170. European Association for Machine Translation.",
+            "Ralph Allan Bradley. 1953. Some statistical methods in taste testing and quality evaluation. Biometrics, 9(1):22–38.",
+            "Ralph Allan Bradley and Milton E Terry. 1952. Rank analysis of incomplete block designs: I. the method",
+            "of paired comparisons. Biometrika, 39(3/4):324– 345.",
+            "Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. 2020. Language models are few-shot learners. Advances in neural information processing systems, 33:1877–1901.",
+            "Yijie Chen, Yijin Liu, Fandong Meng, Yufeng Chen, Jinan Xu, and Jie Zhou. 2023. Improving translation faithfulness of large language models via augmenting instructions. arXiv preprint arXiv:2308.12674.",
+            "Weiwei Cheng, Krzysztof Dembczynski, and Eyke Hüllermeier. 2010. Label ranking methods based on the plackett-luce model. In Proceedings of the 27th International Conference on Machine Learning (ICML-10), June 21-24, 2010, Haifa, Israel, pages 215–222. Omnipress.",
+            "Weiwei Cheng and Eyke Hüllermeier. 2008. Learning similarity functions from qualitative feedback. In LNAI 5239 Advances in Case-Based Reasoning: The 9th European Conference on Case-Based Reasoning (ECCBR-08), pages 129–134, Trier, Germany. Springer.",
+            "Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham, Hyung Won Chung, Charles Sutton, Sebastian Gehrmann, Parker Schuh, Kensen Shi, Sasha Tsvyashchenko, Joshua Maynez, Abhishek Rao, Parker Barnes, Yi Tay, Noam Shazeer, Vinodkumar Prabhakaran, Emily Reif, Nan Du, Ben Hutchinson, Reiner Pope, James Bradbury, Jacob Austin, Michael Isard, Guy Gur-Ari, Pengcheng Yin, Toju Duke, Anselm Levskaya, Sanjay Ghemawat, Sunipa Dev, Henryk Michalewski, Xavier Garcia, Vedant Misra, Kevin Robinson, Liam Fedus, Denny Zhou, Daphne Ippolito, David Luan, Hyeontaek Lim, Barret Zoph, Alexander Spiridonov, Ryan Sepassi, David Dohan, Shivani Agrawal, Mark Omernick, Andrew M. Dai, Thanumalayan Sankaranarayana Pillai, Marie Pellat, Aitor Lewkowycz, Erica Moreira, Rewon Child, Oleksandr Polozov, Katherine Lee, Zongwei Zhou, Xuezhi Wang, Brennan Saeta, Mark Diaz, Orhan Firat, Michele Catasta, Jason Wei, Kathy Meier-Hellstern, Douglas Eck, Jeff Dean, Slav Petrov, and Noah Fiedel. 2023. Palm: Scaling language modeling with pathways. Journal of Machine Learning Research, 24(240):1–113.",
+            "Marta R. Costa-jussà, James Cross, Onur Çelebi, Maha Elbayad, Kenneth Heafield, Kevin Heffernan, Elahe Kalbassi, Janice Lam, Daniel Licht, Jean Maillard, Anna Sun, Skyler Wang, Guillaume Wenzek, Al Youngblood, Bapi Akula, Loïc Barrault, Gabriel Mejia Gonzalez, Prangthip Hansanti, John Hoffman, Semarley Jarrett, Kaushik Ram Sadagopan, Dirk Rowe, Shannon Spruit, Chau Tran, Pierre Andrews, Necip Fazil Ayan, Shruti Bhosale, Sergey Edunov, Angela Fan, Cynthia Gao, Vedanuj Goswami, Francisco Guzmán, Philipp"
+        ],
+        "bbox": [
+            115,
+            655,
+            489,
+            733
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "3394",
+        "bbox": [
+            480,
+            929,
+            521,
+            941
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Koehn, Alexandre Mourachko, Christophe Ropers, Safiyyah Saleem, Holger Schwenk, and Jeff Wang. 2022. No language left behind: Scaling human-centered machine translation. CoRR, abs/2207.04672.",
+            "Yi Dong, Zhilin Wang, Makesh Narsimhan Sreedhar, Xianchao Wu, and Oleksii Kuchaiev. 2023. Steerlm: Attribute conditioned SFT as an (user-steerable) alternative to RLHF. CoRR, abs/2310.05344.",
+            "Markus Freitag, Ricardo Rei, Nitika Mathur, Chi-kiu Lo, Craig Stewart, Eleftherios Avramidis, Tom Kocmi, George Foster, Alon Lavie, and André F. T. Martins. 2022. Results of WMT22 metrics shared task: Stop using BLEU – neural metrics are better and more robust. In Proceedings of the Seventh Conference on Machine Translation (WMT), pages 46–68, Abu Dhabi, United Arab Emirates (Hybrid). Association for Computational Linguistics.",
+            "Marjan Ghazvininejad, Hila Gonen, and Luke Zettlemoyer. 2023. Dictionary-based phrase-level prompting of large language models for machine translation. CoRR, abs/2302.07856.",
+            "Ian Hamilton, Nick Tawn, and David Firth. 2023. The many routes to the ubiquitous Bradley-Terry model. (arXiv:2312.13619).",
+            "Zhiwei He, Tian Liang, Wenxiang Jiao, Zhuosheng Zhang, Yujiu Yang, Rui Wang, Zhaopeng Tu, Shuming Shi, and Xing Wang. 2023. Exploring humanlike translation strategy with large language models. CoRR, abs/2305.04118.",
+            "Joey Hejna, Rafael Rafailov, Harshit Sikchi, Chelsea Finn, Scott Niekum, W. Bradley Knox, and Dorsa Sadigh. 2023. Contrastive preference learning: Learning from human feedback without RL. CoRR, abs/2310.13639.",
+            "Amr Hendy, Mohamed Abdelrehim, Amr Sharaf, Vikas Raunak, Mohamed Gabr, Hitokazu Matsushita, Young Jin Kim, Mohamed Afify, and Hany Hassan Awadalla. 2023. How good are GPT models at machine translation? a comprehensive evaluation. arXiv preprint arXiv:2302.09210.",
+            "Christian Herold, Jan Rosendahl, Joris Vanvinckenroye, and Hermann Ney. 2022. Detecting various types of noise for neural machine translation. In Findings of the Associationfor Computational Linguistics: ACL 2022, Dublin, Ireland, May 22-27, 2022, pages 2542– 2551. Association for Computational Linguistics.",
+            "Ari Holtzman, Jan Buys, Li Du, Maxwell Forbes, and Yejin Choi. 2020. The curious case of neural text degeneration. In 8th International Conference on Learning Representations, ICLR 2020, Addis Ababa, Ethiopia, April 26-30, 2020. OpenReview.net.",
+            "Tom Hosking, Phil Blunsom, and Max Bartolo. 2023. Human feedback is not gold standard. CoRR, abs/2309.16349.",
+            "Jian Hu, Li Tao, June Yang, and Chandler Zhou. 2023. Aligning language models with offline reinforcement learning from human feedback. CoRR, abs/2308.12050.",
+            "Shengyi Huang, Rousslan Fernand Julien Dossa, Antonin Raffin, Anssi Kanervisto, and Weixun Wang. 2022. The 37 implementation details of proximal policy optimization. In ICLR Blog Track. Https://iclr-blog-track.github.io/2022/03/25/ppoimplementation-details/.",
+            "Panagiotis G Ipeirotis, Foster Provost, and Jing Wang. 2010. Quality management on Amazon Mechanical Turk. In Proceedings of the ACM SIGKDD workshop on human computation, pages 64–67.",
+            "Riashat Islam, Peter Henderson, Maziar Gomrokchi, and Doina Precup. 2017. Reproducibility of benchmarked deep reinforcement learning tasks for continuous control. CoRR, abs/1708.04133.",
+            "Albert Q. Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford, Devendra Singh Chaplot, Diego de Las Casas, Florian Bressand, Gianna Lengyel, Guillaume Lample, Lucile Saulnier, Lélio Renard Lavaud, Marie-Anne Lachaux, Pierre Stock, Teven Le Scao, Thibaut Lavril, Thomas Wang, Timothée Lacroix, and William El Sayed. 2023. Mistral 7b. CoRR, abs/2310.06825.",
+            "Wenxiang Jiao, Jen-tse Huang, Wenxuan Wang, Xing Wang, Shuming Shi, and Zhaopeng Tu. 2023a. Parrot: Translating during chat using large language models. arXiv preprint arXiv:2304.02426.",
+            "Wenxiang Jiao, Wenxuan Wang, JT Huang, Xing Wang, and ZP Tu. 2023b. Is ChatGPT a good translator? yes with GPT-4 as the engine. arXiv preprint arXiv:2301.08745.",
+            "Huda Khayrallah and Philipp Koehn. 2018. On the impact of various types of noise on neural machine translation. In Proceedings of the 2nd Workshop on Neural Machine Translation and Generation, NMT@ACL 2018, Melbourne, Australia, July 20, 2018, pages 74–83. Association for Computational Linguistics.",
+            "Tom Kocmi, Rachel Bawden, Ondˇrej Bojar, Anton Dvorkovich, Christian Federmann, Mark Fishel, Thamme Gowda, Yvette Graham, Roman Grundkiewicz, Barry Haddow, Rebecca Knowles, Philipp Koehn, Christof Monz, Makoto Morishita, Masaaki Nagata, Toshiaki Nakazawa, Michal Novák, Martin Popel, and Maja Popovic. 2022.´ Findings of the 2022 conference on machine translation (WMT22). In Proceedings of the Seventh Conference on Machine Translation (WMT), pages 1–45, Abu Dhabi, United Arab Emirates (Hybrid). Association for Computational Linguistics.",
+            "R. Duncan Luce. 1959. Individual choice behaviour. John Wiley."
+        ],
+        "bbox": [
+            131,
+            85,
+            489,
+            151
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "3395",
+        "bbox": [
+            480,
+            929,
+            521,
+            941
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Jean Maillard, Cynthia Gao, Elahe Kalbassi, Kaushik Ram Sadagopan, Vedanuj Goswami, Philipp Koehn, Angela Fan, and Francisco Guzman. 2023. Small data, big impact: Leveraging minimal data for effective machine translation. In Proceedings of the 61st Annual Meeting of the Associationfor Computational Linguistics (Volume 1: Long Papers), pages 2740–2756, Toronto, Canada. Association for Computational Linguistics.",
+            "Lucas Maystre and Matthias Grossglauser. 2015. Fast and accurate inference of Plackett-Luce models. In Advances in Neural Information Processing Systems, volume 28.",
+            "Frederick Mosteller. 1951. Remarks on the method of paired comparisons: I. the least squares solution assuming equal standard deviations and equal correlations. Psychometrika, 16(1):3–9.",
+            "Yongyu Mu, Abudurexiti Reheman, Zhiquan Cao, Yuchun Fan, Bei Li, Yinqiao Li, Tong Xiao, Chunliang Zhang, and Jingbo Zhu. 2023. Augmenting large language model translators via translation memories. In Findings of the Association for Computational Linguistics: ACL 2023, pages 10287–10299, Toronto, Canada. Association for Computational Linguistics.",
+            "Niklas Muennighoff, Thomas Wang, Lintang Sutawika, Adam Roberts, Stella Biderman, Teven Le Scao, M. Saiful Bari, Sheng Shen, Zheng Xin Yong, Hailey Schoelkopf, Xiangru Tang, Dragomir Radev, Alham Fikri Aji, Khalid Almubarak, Samuel Albanie, Zaid Alyafeai, Albert Webson, Edward Raff, and Colin Raffel. 2023. Crosslingual generalization through multitask finetuning. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL 2023, Toronto, Canada, July 9-14, 2023, pages 15991–16111. Association for Computational Linguistics.",
+            "OpenAI. 2023. GPT-4 technical report. CoRR, abs/2303.08774.",
+            "Myle Ott, Michael Auli, David Grangier, and Marc’Aurelio Ranzato. 2018. Analyzing uncertainty in neural machine translation. In Proceedings ofthe 35th International Conference on Machine Learning, ICML 2018, Stockholmsmässan, Stockholm, Sweden, July 10-15, 2018, volume 80 of Proceedings ofMachine Learning Research, pages 3953–3962. PMLR.",
+            "Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser Kelton, Luke Miller, Maddie Simens, Amanda Askell, Peter Welinder, Paul F Christiano, Jan Leike, and Ryan Lowe. 2022. Training language models to follow instructions with human feedback. In Advances in Neural Information Processing Systems, volume 35, pages 27730–27744. Curran Associates, Inc.",
+            "Kishore Papineni, Salim Roukos, Todd Ward, and Wei-Jing Zhu. 2002. Bleu: a method for automatic evaluation of machine translation. In Proceedings ofthe 40th Annual Meeting of the Association for Computational Linguistics, pages 311–318, Philadelphia, Pennsylvania, USA. Association for Computational Linguistics.",
+            "Robin L Plackett. 1975. The analysis of permutations. Journal of the Royal Statistical Society Series C: Applied Statistics, 24(2):193–202.",
+            "Rafael Rafailov, Archit Sharma, Eric Mitchell, Stefano Ermon, Christopher D. Manning, and Chelsea Finn. 2023. Direct preference optimization: Your language model is secretly a reward model. CoRR, abs/2305.18290.",
+            "Ricardo Rei, José G. C. de Souza, Duarte M. Alves, Chrysoula Zerva, Ana C. Farinha, Taisiya Glushkova, Alon Lavie, Luísa Coheur, and André F. T. Martins. 2022. COMET-22: Unbabel-IST 2022 submission for the metrics shared task. In Proceedings of the Seventh Conference on Machine Translation, WMT 2022, Abu Dhabi, United Arab Emirates (Hybrid), December 7-8, 2022, pages 578–585. Association for Computational Linguistics.",
+            "Joshua David Robinson, Ching-Yao Chuang, Suvrit Sra, and Stefanie Jegelka. 2021. Contrastive learning with hard negative samples. In 9th International Conference on Learning Representations, ICLR 2021, Virtual Event, Austria, May 3-7, 2021. OpenReview.net.",
+            "Teven Le Scao, Angela Fan, Christopher Akiki, Ellie Pavlick, Suzana Ilic, Daniel Hesslow, Roman Castagné, Alexandra Sasha Luccioni, François Yvon, Matthias Gallé, Jonathan Tow, Alexander M. Rush, Stella Biderman, Albert Webson, Pawan Sasanka Ammanamanchi, Thomas Wang, Benoît Sagot, Niklas Muennighoff, Albert Villanova del Moral, Olatunji Ruwase, Rachel Bawden, Stas Bekman, Angelina McMillan-Major, Iz Beltagy, Huu Nguyen, Lucile Saulnier, Samson Tan, Pedro Ortiz Suarez, Victor Sanh, Hugo Laurençon, Yacine Jernite, Julien Launay, Margaret Mitchell, Colin Raffel, Aaron Gokaslan, Adi Simhi, Aitor Soroa, Alham Fikri Aji, Amit Alfassy, Anna Rogers, Ariel Kreisberg Nitzav, Canwen Xu, Chenghao Mou, Chris Emezue, Christopher Klamm, Colin Leong, Daniel van Strien, David Ifeoluwa Adelani, and et al. 2022. BLOOM: A 176b-parameter open-access multilingual language model. CoRR, abs/2211.05100.",
+            "John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. 2017. Proximal policy optimization algorithms. CoRR, abs/1707.06347.",
+            "Feifan Song, Bowen Yu, Minghao Li, Haiyang Yu, Fei Huang, Yongbin Li, and Houfeng Wang. 2023. Preference ranking optimization for human alignment. CoRR, abs/2306.17492.",
+            "Saurabh Srivastava, Chengyue Huang, Weiguo Fan, and Ziyu Yao. 2023. Instance needs more care: Rewriting"
+        ],
+        "bbox": [
+            115,
+            85,
+            489,
+            204
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "3396",
+        "bbox": [
+            480,
+            929,
+            522,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "prompts for instances yields better zero-shot performance. CoRR, abs/2310.02107.",
+            "Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann Dubois, Xuechen Li, Carlos Guestrin, Percy Liang, and Tatsunori B. Hashimoto. 2023. Stanford Alpaca: An instruction-following LLaMA model. https:// github.com/tatsu-lab/stanford\\_alpaca.",
+            "Louis L Thurstone. 1927. Psychophysical analysis. The American journal ofpsychology, 38(3):368–389.",
+            "Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, Aurélien Rodriguez, Armand Joulin, Edouard Grave, and Guillaume Lample. 2023a. LLaMA: Open and efficient foundation language models. CoRR, abs/2302.13971.",
+            "Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Dan Bikel, Lukas Blecher, Cristian Canton-Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller, Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel Kloumann, Artem Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, Ranjan Subramanian, Xiaoqing Ellen Tan, Binh Tang, Ross Taylor, Adina Williams, Jian Xiang Kuan, Puxin Xu, Zheng Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melanie Kambadur, Sharan Narang, Aurélien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas Scialom. 2023b. Llama 2: Open foundation and fine-tuned chat models. CoRR, abs/2307.09288.",
+            "Kenneth Train. 2003. Discrete Choice Method With Simulation. Cambridge University Press.",
+            "Haoran Xu, Young Jin Kim, Amr Sharaf, and Hany Hassan Awadalla. 2023. A paradigm shift in machine translation: Boosting translation performance of large language models. CoRR, abs/2309.11674.",
+            "Zheng Yuan, Hongyi Yuan, Chuanqi Tan, Wei Wang, Songfang Huang, and Fei Huang. 2023. RRHF: rank responses to align language models with human feedback without tears. CoRR, abs/2304.05302.",
+            "Jiali Zeng, Fandong Meng, Yongjing Yin, and Jie Zhou. 2023. Tim: Teaching large language models to translate with comparison. arXiv preprint arXiv:2307.04408.",
+            "Biao Zhang, Barry Haddow, and Alexandra Birch. 2023a. Prompting large language model for machine translation: A case study. In International",
+            "Conference on Machine Learning, ICML 2023, 23- 29 July 2023, Honolulu, Hawaii, USA, volume 202 of Proceedings ofMachine Learning Research, pages 41092–41110. PMLR.",
+            "Miaoran Zhang, Vagrant Gautam, Mingyang Wang, Jesujoba O. Alabi, Xiaoyu Shen, Dietrich Klakow, and Marius Mosbach. 2024. The impact of demonstrations on multilingual in-context learning: A multidimensional analysis.",
+            "Xuan Zhang, Navid Rajabi, Kevin Duh, and Philipp Koehn. 2023b. Machine translation with large language models: Prompting, few-shot learning, and fine-tuning with QLoRA. In Proceedings of the Eighth Conference on Machine Translation, pages 466–479, Singapore. Association for Computational Linguistics.",
+            "Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica. 2023. Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. CoRR, abs/2306.05685.",
+            "Chunting Zhou, Pengfei Liu, Puxin Xu, Srini Iyer, Jiao Sun, Yuning Mao, Xuezhe Ma, Avia Efrat, Ping Yu, Lili Yu, et al. 2023. Lima: Less is more for alignment. arXiv preprint arXiv:2305.11206.",
+            "Dawei Zhu, Xiaoyu Shen, Marius Mosbach, Andreas Stephan, and Dietrich Klakow. 2023. Weaker than you think: A critical look at weakly supervised learning. In Proceedings ofthe 61st Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), pages 14229–14253, Toronto, Canada. Association for Computational Linguistics."
+        ],
+        "bbox": [
+            132,
+            85,
+            489,
+            112
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "3397",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "A Incorporating multiple preferences with distance information",
+        "text_level": 2,
+        "bbox": [
+            112,
+            83,
+            457,
+            117
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In Section 3.2, we demonstrated how the distance information of two preferences can be integrated into preference modeling, as illustrated in Equation 9. A similar analysis can be done for the Plackett-Luce ranking model to incorporate distance metrics across multiple preferences. Specifically, we model the probability of a particular ordering $X _ { 1 } , \\cdots , X _ { L }$ as follows:",
+        "bbox": [
+            110,
+            126,
+            489,
+            256
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "equation",
+        "img_path": "images/b677d3eaf63a8302d4810b039d203f4c3beb02d96fc310d01e555c7bc186b7e1.jpg",
+        "text": "$$\n\\begin{array} { l } { P ( X _ { 1 } \\geq X _ { 2 } \\cdot \\cdot \\cdot \\geq X _ { L } ) } \\\\ { \\quad \\quad } \\\\ { \\quad = \\displaystyle \\prod _ { i = 1 } ^ { L - 1 } P _ { i } ( X _ { i } > X _ { j } , \\forall j > i ) } \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            132,
+            267,
+            468,
+            331
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "For each distribution $P _ { i }$ , let $X _ { j } = s _ { j } + \\varepsilon _ { j }$ for $j \\geq i ,$ with $\\varepsilon _ { j } \\sim$ standard Gumbel and independent so that (following Train (2003), Section 3)",
+        "bbox": [
+            112,
+            341,
+            489,
+            391
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "equation",
+        "img_path": "images/5bf3fbe31ece1aaa01860aa0a7fd166d934ab83b90b5ca94502246695a2a5df0.jpg",
+        "text": "$$\nP _ { i } ( X _ { i } > X _ { j } , \\forall j > i ) = \\frac { e ^ { s _ { i } } } { \\sum _ { j \\ge i } e ^ { s _ { j } } }\n$$",
+        "text_format": "latex",
+        "bbox": [
+            171,
+            399,
+            430,
+            436
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "This ranking can be interpreted as a sequence of $L - 1$ independent choices: choose the first item, then choose the second among the remaining alternatives, etc. (Maystre and Grossglauser, 2015). It is usually assumed that each independent choice is made by the same judge whose underlying preferences do not change. If we assume $s _ { j } = \\log \\pi _ { \\theta } ( x , y ^ { j } )$ for this judge then Equation 4 results.",
+        "bbox": [
+            112,
+            445,
+            489,
+            589
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Suppose instead that, rather than a single judge, a succession of $L - 1$ different judges each make one of the sequence of independent choices. The distributions $P _ { i }$ should change to reflect the changing preferences of the judges. In particular, if we introduce the preference distances $d _ { i } ^ { j }$ for the $i ^ { t h }$ judge, then we obtain Equation 5 if for each $P _ { i }$ the location parameters are set to $s _ { j } = d _ { i } ^ { j } \\log \\pi _ { \\theta } ( x , y ^ { j } )$ for $j \\geq i$ . We find that this modified version of the Placket-Luce model can work well in practice although we note that these modifications may violate Luce’s Choice Axiom (Luce, 1959; Hamilton et al., 2023).",
+        "bbox": [
+            110,
+            590,
+            489,
+            799
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Consider the case of $L = 3 .$ . The Choice Axiom requires the odds of choosing $X _ { 2 }$ over $X _ { 3 }$ are independent of the presence of $X _ { 1 }$ as an option, i.e. that the odds should not depend on whether this is a choice for the first or the second position",
+        "bbox": [
+            112,
+            800,
+            489,
+            881
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "equation",
+        "img_path": "images/22dfb894318feffde8033607091b1a208411e7bc958fb8876275fd0cef7ad5f0.jpg",
+        "text": "$$\n{ \\frac { P _ { 1 } ( X _ { 2 } > X _ { j } , j = 1 , 3 ) } { P _ { 1 } ( X _ { 3 } > X _ { j } , j = 1 , 2 ) } } = { \\frac { P _ { 2 } ( X _ { 2 } > X _ { 3 } ) } { P _ { 2 } ( X _ { 3 } > X _ { 2 } ) } }\n$$",
+        "text_format": "latex",
+        "bbox": [
+            142,
+            890,
+            457,
+            927
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "With the location parameters from above, the Choice Axiom requires",
+        "bbox": [
+            507,
+            84,
+            882,
+            117
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "equation",
+        "img_path": "images/c4dc87adffe39d84270ed157f585f79c951f24660c31e31374296d914c57daa7.jpg",
+        "text": "$$\n\\frac { \\pi _ { \\theta } ( x , y ^ { 2 } ) ^ { d _ { 1 } ^ { 2 } } } { \\pi _ { \\theta } ( x , y ^ { 3 } ) ^ { d _ { 1 } ^ { 3 } } } = \\frac { \\pi _ { \\theta } ( x , y ^ { 2 } ) ^ { d _ { 2 } ^ { 2 } } } { \\pi _ { \\theta } ( x , y ^ { 3 } ) ^ { d _ { 2 } ^ { 3 } } }\n$$",
+        "text_format": "latex",
+        "bbox": [
+            593,
+            124,
+            800,
+            164
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "or that $\\pi _ { \\boldsymbol { \\theta } } ( x , y ^ { 2 } ) ^ { ( d _ { 1 } ^ { 2 } - d _ { 2 } ^ { 2 } ) } = \\pi _ { \\boldsymbol { \\theta } } ( x , y ^ { 3 } ) ^ { ( d _ { 1 } ^ { 3 } - d _ { 2 } ^ { 3 } ) }$ . This holds for the default setting, $d _ { i } ^ { j } = 1$ , leading to Equation 4, but appears not to hold in general.",
+        "bbox": [
+            507,
+            171,
+            884,
+            222
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "We find that the ground truth preference values can be introduced as preference distances in the binary comparison case, but that doing so in the more general case, while useful, may not satisfy the Axiom of Choice.",
+        "bbox": [
+            507,
+            222,
+            885,
+            303
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B More details on MAPLE",
+        "text_level": 2,
+        "bbox": [
+            509,
+            312,
+            757,
+            330
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B.1 Data Construction",
+        "text_level": 2,
+        "bbox": [
+            509,
+            338,
+            707,
+            354
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "The source sentences in the training data of MAPLE are sampled from the test sets of WMT20 and WMT21. As mentioned in Section 4, four of the five translations are produced by VicunaMT. Considering that VicunaMT is already a strong MT system, often providing accurate translations free of mistakes, randomly selecting source sentences from WMT data could predominantly yield translations that are trivial for VicunaMT to translate, resulting in the collection of many uninformative samples with high human preference scores. To mitigate this, we prioritize source sentences that present difficulties for VicunaMT. Specifically, we use reference translations as a proxy to assess the quality of the model translations through COMET scores. We give priority to samples where the beam search output falls within a COMET score range of [75,85] and where there is a significant standard deviation in COMET scores among the four translations. Following these criteria, we select 1.1K samples for each translation direction. For the development set in MAPLE, we use monolingual data from News Crawl 2022. The sampling and selection process are the same as that of the training set, except that we do not have reference translations, instead, we use a strong commercial MT system to generate pseudo “reference” translations.",
+        "bbox": [
+            507,
+            360,
+            887,
+            796
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "B.2 Scoring Rubric",
+        "text_level": 2,
+        "bbox": [
+            509,
+            804,
+            682,
+            820
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "The annotators are asked to judge the translation on a scale of 1 to 6, following the guidelines outlined in the following scoring rubric. They can assign scores in increments of 0.2, allowing for more detailed assessments, such as 1.2, 1.4, and so on.",
+        "bbox": [
+            507,
+            825,
+            887,
+            921
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "3398",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "• Score it a 1 when the translation has nothing to do with the source; or when the translation has many unknown words; or when the translation looks like word salad.",
+        "bbox": [
+            136,
+            84,
+            490,
+            149
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "• Score it a 2 when you can understand why some of the words in the translation are there, but when the meaning of the source sentence is lost.",
+        "bbox": [
+            136,
+            159,
+            490,
+            223
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "• Score it a 3 when you understand why all or almost all the words in the translation are there and when some of the meaning of the source sentence are adequately transferred into the target language, but when the main meaning of the source sentence is lost.",
+        "bbox": [
+            136,
+            233,
+            489,
+            330
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "• Score it a 4 when the meaning of the source sentence is generally preserved, but when the translation is mechanical and possibly has vocabulary, grammatical, or date / numbering errors.",
+        "bbox": [
+            136,
+            340,
+            489,
+            420
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "• Score it a 5 when the meaning of the source sentence is fully preserved and the translation has no grammatical errors, but when the translation does not sound like the translation a native target language speaker would produce given the style and register of the source sentence.",
+        "bbox": [
+            136,
+            430,
+            490,
+            543
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "• Score it a 6 when the translation is perfect in every sense of the word – something a professional translator/interpreter would come up with when she understands well the context in which the source sentence was produced.",
+        "bbox": [
+            136,
+            552,
+            490,
+            634
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "B.3 Annotation UI",
+        "text_level": 2,
+        "bbox": [
+            112,
+            652,
+            280,
+            668
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "The UI shows the different translations in a blind and randomized order. All translations are scored simultaneously. A screenshot of the UI is shown in Figure 5.",
+        "bbox": [
+            112,
+            673,
+            489,
+            738
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "B.4 More Examples",
+        "text_level": 2,
+        "bbox": [
+            114,
+            747,
+            290,
+            764
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Table 7 shows two additional examples in which the model’s translation scores higher than the reference translation. This once again highlights the presence of noise in parallel datasets.",
+        "bbox": [
+            112,
+            769,
+            489,
+            834
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "C More implementation details",
+        "text_level": 2,
+        "bbox": [
+            114,
+            844,
+            403,
+            862
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "C.1 Dataset statistics",
+        "text_level": 2,
+        "bbox": [
+            114,
+            869,
+            299,
+            884
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "The data statistics are presented in Table 8. We use different validation sets in different training stages",
+        "bbox": [
+            112,
+            890,
+            489,
+            922
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/74f1aa1d6bd0ad2afa8bd894f0443f33dabf7c3622c55bbe8ffd030513dd9019.jpg",
+        "table_caption": [
+            "Table 7: Two additional examples showing the reference translations can be less accurate than the best model prediction."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Source</td><td>Other MPs criticised Twitter for al- lowing the tweets to remain visible.</td></tr><tr><td>Reference translation</td><td>其他议员也批评Twitter未能及时 删贴。 (Other MPs have also criticized Twitter for failing to promptly delete tweets in time.)</td></tr><tr><td>Best of five translation</td><td>其他议员批评了推特允许这些推 文仍然可见。 (Other MPs have criticized Twitter for allowing these tweets to remain visible.)</td></tr><tr><td>Source</td><td>When he refused, the officials tipped his cart over, destroying all the eggs, the boy alleged.</td></tr><tr><td>Reference translation</td><td>男孩说，他拒绝交出100卢 比后，那些官员就把他的小车掀 翻，把所有鸡蛋砸碎。 (The boy said that after he refused to hand over 100 rupees, the officials overturned his car and smashed all the eggs.)</td></tr><tr><td>Best of five translation</td><td>当他拒绝时，官员将他的车子推 倒，破坏了所有的蛋，男孩称。 (When he refused, officials pushed his car over and broke all the eggs, the boy said.)</td></tr></table>",
+        "bbox": [
+            531,
+            83,
+            862,
+            450
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "because MAPLE contains a subset of the parallel data in WMT20/21.",
+        "bbox": [
+            507,
+            530,
+            884,
+            563
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "C.2 Prompt format",
+        "text_level": 2,
+        "bbox": [
+            509,
+            573,
+            680,
+            589
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "For each source sentence, we attach a MT instruction asking the LLM to generate the translation. The MT instructions come from a instruction pool based on the list of MT instructions released by (Jiao et al., 2023a)<sup>7</sup>. We list all 31 instructions in our instruction pool in Table 9. During training (in both SFT and PL stages), an instruction is randomly sampled from the instruction pool. During evaluation, the first instruction from Table 9 is always used. In addition to instructions, instructiontuned models like Vicuna requires specific prompt formats. Table 10 presents a depiction of the conversion process from raw data points to the final model input.",
+        "bbox": [
+            507,
+            594,
+            889,
+            821
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "C.3 Hyper-parameter search",
+        "text_level": 2,
+        "bbox": [
+            509,
+            831,
+            756,
+            846
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Hyper-parameter search is done for $\\beta \\in$ [0.0, 0.05, 0.1], and best values are selected according to the validation loss.",
+        "bbox": [
+            509,
+            852,
+            885,
+            900
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>7</sup>https://github.com/wxjiao/ParroT",
+        "bbox": [
+            531,
+            907,
+            786,
+            921
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "3399",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "image",
+        "img_path": "images/7399b32cd6a2538f73e57cd30e0c1900548947a9c6d3f91661fd618bb7b118c0.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            131,
+            83,
+            863,
+            321
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/6fc3321a663db31fb59c422cdd9d2b91414414c15f9ccb42b61a3941c30f8858.jpg",
+        "table_caption": [
+            "Figure 5: User interface of translation assessment.",
+            "Table 8: Datasets used for training, validation and testing. ∗: a subset WMT20 and WMT21 is used."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\"></td><td rowspan=\"2\">Training stage</td><td rowspan=\"2\">Data source</td><td colspan=\"3\">Number of samples</td><td></td></tr><tr><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td></tr><tr><td rowspan=\"4\">Training</td><td rowspan=\"3\">SFT stage</td><td>WMT17</td><td>3004</td><td>3004</td><td>2001</td><td>2001</td></tr><tr><td>WMT18</td><td>2998</td><td>2998</td><td>3981</td><td>3981</td></tr><tr><td>WMT19</td><td>2000</td><td>1997</td><td>1997</td><td>2000</td></tr><tr><td>PL stage</td><td>MAPLE</td><td>1100</td><td>1100</td><td>1100</td><td>1100</td></tr><tr><td rowspan=\"2\">Validation</td><td>SFT stage</td><td>WMT21</td><td>1000</td><td>1002</td><td>1002</td><td>1948</td></tr><tr><td>PL stage</td><td>WMT20 &amp; 21*</td><td>500</td><td>500</td><td>500</td><td>500</td></tr><tr><td rowspan=\"2\">Test</td><td rowspan=\"2\"></td><td>WMT22</td><td>1984</td><td>2037</td><td>2037</td><td>1875</td></tr><tr><td>FLORES-200</td><td>1012</td><td>1012</td><td>1012</td><td>1012</td></tr><tr><td>Preference testing</td><td></td><td>MAPLE-dev</td><td>217</td><td>195</td><td>208</td><td>180</td></tr></table>",
+        "bbox": [
+            149,
+            360,
+            845,
+            588
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "C.4 Evaluation packages",
+        "text_level": 2,
+        "bbox": [
+            114,
+            639,
+            329,
+            655
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "We use the Unbabel/wmt22-comet-da model<sup>8</sup> to compute the COMET scores and sacre-BLEU<sup>9</sup> for computing BLEU scores. The signature of the sacreBLEU package is nrefs:1, case:mixed, eff:no, tok:13a, smooth:exp, version:2.0.0 for all translation directions but en zh, in which we use tok:zh.",
+        "bbox": [
+            110,
+            659,
+            490,
+            774
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "C.5 Hardware specifications and runtime",
+        "text_level": 2,
+        "bbox": [
+            114,
+            785,
+            457,
+            801
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "All experiments are either run on a host with eight NVIDIA A100-40GB GPUs or with eight H100- 80GB GPUs. Mixed precision with bfloat16 is used in both SFT and PL. Deepspeed<sup>10</sup> zero-stage",
+        "bbox": [
+            112,
+            807,
+            489,
+            872
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "3 is used when running PL with five preference samples. Each experiment runs no longer than 15 minutes on H100 GPUs.",
+        "bbox": [
+            507,
+            639,
+            884,
+            688
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "D SFT results in BLEU score",
+        "text_level": 2,
+        "bbox": [
+            507,
+            697,
+            781,
+            714
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "We present model performance after SFT stage measured by BLEU score in Table 11. While the general trend remains consistent in comparison to the performance evaluated by COMET, there are some exceptions. For example, although VicunaMT still achieves the top average score on FLORES-200, it is outperformed by MistralMT (i.e., Mistral + SFT) on WMT22.",
+        "bbox": [
+            507,
+            724,
+            887,
+            854
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "E Model comparison in BLEU score",
+        "text_level": 2,
+        "bbox": [
+            507,
+            864,
+            842,
+            881
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "We present model performance measured by BLEU score in Table 12. In this case, there is no clear winner. Interestingly, VicunaMT+PL attains lower BLEU scores than VicunaMT on en de and zh en when evaluated on WMT22. However, both COMET score and our human evaluation in Table 4 show the opposite, highlighting that BLEU scores may less correlated to human judgement, as also noticed in (Freitag et al., 2022).",
+        "bbox": [
+            507,
+            890,
+            885,
+            922
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>8</sup>https://github.com/Unbabel/COMET",
+        "bbox": [
+            134,
+            881,
+            391,
+            895
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>9</sup>https://github.com/mjpost/sacrebleu",
+        "bbox": [
+            134,
+            895,
+            415,
+            909
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>10</sup>https://github.com/microsoft/DeepSpeed",
+        "bbox": [
+            131,
+            908,
+            435,
+            922
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "3400",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "table",
+        "img_path": "images/ce12411512dbbe6fb3bd03425d36ffa22882eed6f9dae57438a2b14f9011b327.jpg",
+        "table_caption": [
+            "Table 9: An instruction pool containing 31 MT prompts. An instruction is randomly sampled from this pool to form a training sample. At inference time, the first instruction is always used. [SRC] and [TGT] will be replaced by the source and target sentence in the dataset, respectively."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=2>Instruction pool</td></tr><tr><td rowspan=1 colspan=2>Translate the following text from[SRC] to[TGT]</td></tr><tr><td rowspan=1 colspan=2>Please provide the [TGT] translationfor the following text</td></tr><tr><td rowspan=1 colspan=2>Convert the subsequent sentences from[SRC]into [TGT]</td></tr><tr><td rowspan=1 colspan=2>Render the listed sentences in[TGT] from their original [SRC] form:</td></tr><tr><td rowspan=1 colspan=2>Transform the upcoming sentences from [SRC] language to [TGT] language:</td></tr><tr><td rowspan=1 colspan=2>Translate the given text from [SRC]to[TGT]</td></tr><tr><td rowspan=1 colspan=2>Turn the following sentencesfrom their [SRC] version to the[TGT]version:</td></tr><tr><td rowspan=1 colspan=2>Adapt the upcoming text from [SRC] to[TGT]</td></tr><tr><td rowspan=1 colspan=2>Transpose the next sentencesfrom the[SRC] format to the [TGT]format.</td></tr><tr><td rowspan=1 colspan=2>Reinterpret the ensuing text from[SRC]to [TGT] language.</td></tr><tr><td rowspan=1 colspan=2>Modify the forthcoming sentences,converting them from[SRC]to[TGT]</td></tr><tr><td rowspan=1 colspan=2>What is the meaning of these sentences when translatedto [TGT]?</td></tr><tr><td rowspan=1 colspan=2>In the context of [TGT]  what do the upcoming text signify? Thetext is:</td></tr><tr><td rowspan=1 colspan=2>How would you express themeaning of the following sentences in [TGT]2</td></tr><tr><td rowspan=1 colspan=2>What is the significanceof the mentioned sentences in[TGT]?</td></tr><tr><td rowspan=1 colspan=2>In[TGT]  what do the following text convey?</td></tr><tr><td rowspan=1 colspan=2>When translated to [TGT]  what message do these sentences carry?</td></tr><tr><td rowspan=1 colspan=2>What is the intended meaning of the ensuing sentencesin [TGT]?</td></tr><tr><td rowspan=1 colspan=2>How should the following sentencesbecomprehended in [TGT]?</td></tr><tr><td rowspan=1 colspan=2>In terms of [TGT]  what do the next:sentences imply?</td></tr><tr><td rowspan=1 colspan=2>Kindly furnish the[TGT] translation of the subsequent sentences.</td></tr><tr><td rowspan=1 colspan=2>Could you supply the [TGT] translation for the upcoming sentences?</td></tr><tr><td rowspan=1 colspan=2>Please offer the [TGT] rendition for the following statements.</td></tr><tr><td rowspan=1 colspan=2>I&#x27;d appreciate it if you could present the[TGT]translation for the followingtext:</td></tr><tr><td rowspan=1 colspan=2>Can you deliver the [TGT] translation for the mentioned sentences?</td></tr><tr><td rowspan=1 colspan=2>Please share the [TGT] version of the givensentences.</td></tr><tr><td rowspan=1 colspan=2>It would be helpful if you could provide the [TGT] translation of the ensuingsentences.</td></tr><tr><td rowspan=1 colspan=2>Kindly submit the [TGT] interpretation for the next sentences.</td></tr><tr><td rowspan=1 colspan=2>Please make available the [TGT] translationfor the listed sentences.</td></tr><tr><td rowspan=1 colspan=2>Can you reveal the[TGT] translation of the forthcoming sentences?</td></tr><tr><td rowspan=1 colspan=1>Translate from[SRC]to</td><td rowspan=1 colspan=1>[TGT]</td></tr></table>",
+        "bbox": [
+            134,
+            82,
+            862,
+            686
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            765,
+            489,
+            879
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "F Data reuse in BLEU score and Results on FLORES-200",
+        "text_level": 2,
+        "bbox": [
+            509,
+            763,
+            877,
+            797
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "We reuse MAPLE to enhance BLOOMZMT and MistralInstructMT (i.e., BLOOMZ and MistralInstruct after the SFT stage) and report model performance on WMT22 in BLEU score in Table 13. In addition, we evaluate MistralInstructMT on FLO-RES and present the results in Table 14.",
+        "bbox": [
+            507,
+            806,
+            887,
+            904
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "3401",
+        "bbox": [
+            480,
+            928,
+            519,
+            942
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "table",
+        "img_path": "images/8ee30678e6b6730384fce1930ddbf068211b9f9b0a744e90c413044eba8768d9.jpg",
+        "table_caption": [
+            "(a)"
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=4>Model                             Instruction template</td></tr><tr><td rowspan=1 colspan=1>Vicuna</td><td rowspan=1 colspan=1>USER:</td><td rowspan=1 colspan=2>[MT Instruction]\\nASSISTANT:\\n</td></tr><tr><td rowspan=1 colspan=4>Mistral-Instruct     [INST]  [MT Instruction]\\n[\\INST]</td></tr><tr><td rowspan=1 colspan=1>BLOOMZ</td><td rowspan=1 colspan=1>USER:</td><td rowspan=1 colspan=1>[MT Instruction]\\nASSISTANT:\\n</td><td rowspan=1 colspan=1></td></tr></table>",
+        "bbox": [
+            240,
+            82,
+            757,
+            165
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "table",
+        "img_path": "images/dd148bae1bca929b83a0d645505cb3b8cd3c02681a0b8921a1dc873d18cc2605.jpg",
+        "table_caption": [
+            "(b)",
+            "Table 10: (a) Instruction template used for Vicuna, Mistral-Instruct, and BLOOMZ. Raw template is marked in red . BLOOMZ shares the same template as Vicuna at the SFT and PL stage. When performing BLOOMZ on zero-shot tasks, we directly use the first instruction from Table 9 without any instruction template. (b) An example that converts the raw input (marked in green ) to the final input."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td colspan=\"3\">Example</td></tr><tr><td>USER: Translate the following text from English to German:</td><td></td><td>Hello, world.</td></tr><tr><td>\\nASSISTANT:\\n Hallo, Welt.</td><td></td><td></td></tr></table>",
+        "bbox": [
+            144,
+            199,
+            855,
+            267
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "table",
+        "img_path": "images/63910016d5f1edb6fa694f7c48a77bee3ad7a1d97644242efd2298e6dbafca80.jpg",
+        "table_caption": [
+            "Table 11: Model performance (in BLEU score) before and after performing SFT on parallel data. Rows in blue indicate instruction-tuned LLMs. Best results are in bold. Instruction-tuned LLMs perform well even without SFT. Raw LLMs benefits the most from SFT. We exclude BLOOMZ on FLORES-200 as it is a part of BLOOMZ’s training data."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td></tr><tr><td colspan=\"6\">WMT22</td></tr><tr><td>BLOOM</td><td>1.51</td><td>0.53</td><td>1.74</td><td>5.43</td><td>2.30</td></tr><tr><td>+SFT</td><td>23.73</td><td>16.15</td><td>35.15</td><td>21.64</td><td>24.17</td></tr><tr><td>BLOOMZ</td><td>21.59</td><td>6.79</td><td>28.72</td><td>18.54</td><td>18.91</td></tr><tr><td>+SFT</td><td>23.89</td><td>16.79</td><td>35.41</td><td>21.01</td><td>24.28</td></tr><tr><td>Mistral</td><td>4.32</td><td>2.65</td><td>4.93</td><td>7.01</td><td>4.73</td></tr><tr><td>+SFT</td><td>29.39</td><td>24.60</td><td>31.51</td><td>22.09</td><td>26.90</td></tr><tr><td>Mistral-Ins.</td><td>28.04</td><td>21.27</td><td>21.85</td><td>17.77</td><td>22.23</td></tr><tr><td>+SFT</td><td>28.26</td><td>24.61</td><td>31.90</td><td>20.60</td><td>26.35</td></tr><tr><td>LLaMA-1</td><td>6.30</td><td>4.00</td><td>0.88</td><td>3.01</td><td>3.55</td></tr><tr><td>+SFT</td><td>28.28</td><td>19.09</td><td>25.31</td><td>20.27</td><td>23.24</td></tr><tr><td>Vicuna</td><td>26.16</td><td>22.11</td><td>26.26</td><td>13.91</td><td>22.11</td></tr><tr><td>+SFT</td><td>29.26</td><td>25.70</td><td>29.98</td><td>20.61</td><td>26.39</td></tr><tr><td colspan=\"6\">FLORES-200</td></tr><tr><td>BLOOM</td><td>3.88</td><td>1.48</td><td>7.00</td><td>3.75</td><td>4.03</td></tr><tr><td>+SFT</td><td>31.85</td><td>16.26</td><td>34.66</td><td>23.78</td><td>26.64</td></tr><tr><td>Mistral</td><td>3.58</td><td>1.37</td><td>0.16</td><td>1.06</td><td>1.54</td></tr><tr><td>+SFT</td><td>40.48</td><td>29.18</td><td>29.43</td><td>24.67</td><td>30.94</td></tr><tr><td>Mistral-Ins.</td><td>36.81</td><td>25.64</td><td>19.81</td><td>19.25</td><td>25.38</td></tr><tr><td>+SFT</td><td>39.16</td><td>27.79</td><td>29.77</td><td>23.10</td><td>29.96</td></tr><tr><td>LLaMA-1</td><td>4.08</td><td>2.80</td><td>1.73</td><td>1.60</td><td>2.55</td></tr><tr><td>+SFT</td><td>40.70</td><td>29.95</td><td>20.21</td><td>20.66</td><td>27.88</td></tr><tr><td>Vicuna</td><td>35.07</td><td>26.86</td><td>26.09</td><td>17.53</td><td>26.39</td></tr><tr><td>+SFT</td><td>41.90</td><td>30.63</td><td>28.52</td><td>23.34</td><td>31.10</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></table>",
+        "bbox": [
+            115,
+            423,
+            485,
+            763
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "3402",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "table",
+        "img_path": "images/2d92266153063aed24bd5c8642dfa7514309690b82e8586c712fbbdc305d36e8.jpg",
+        "table_caption": [
+            "Table 12: Model performance in BLEU scores. Best results with LLaMA-1 based models are in bold. ⊗: LLaMA-2 based models were not evaluated due to license constraints. WMT22 results are extracted from the original paper. ∗: BLOOMZ-family models use FLORES-200 for training."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=\"2\">System</td><td colspan=\"5\">WMT22</td><td colspan=\"5\">FLORES-200</td></tr><tr><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td></tr><tr><td colspan=\"10\">Commercial &amp; LLaMA-2-7B based MT systems</td></tr><tr><td> $\\mathrm { C h a t G P T } _ { ( 3 . 5 - \\mathrm { t u r b o - } 0 6 1 3 ) }$ </td><td>33.13</td><td>33.56</td><td>44.59</td><td>25.63</td><td>31.62</td><td>43.06</td><td>40.07</td><td>45.69</td><td>25.57</td><td>36.55</td></tr><tr><td> $\\mathrm { G P T } – 4 _ { ( \\mathrm { g p t } - 4 - 0 6 1 3 ) }$ </td><td>33.72</td><td>34.84</td><td>42.75</td><td>26.33</td><td>34.41</td><td>43.79</td><td>41.81</td><td>46.10</td><td>27.39</td><td>39.77</td></tr><tr><td> $\\mathrm { A L M A { - } 7 B _ { ( L L a M A { - } 2 ) } }$ </td><td>29.49</td><td>30.31</td><td>36.48</td><td>23.52</td><td>29.95</td><td>_8</td><td>_8</td><td>_8</td><td>_⊗</td><td>_8</td></tr><tr><td colspan=\"10\">BLOOMZ-mt-7B based LLMs</td></tr><tr><td>ParroT(BLOOMZ-mt)</td><td>24.90</td><td>20.50</td><td>34.50</td><td>22.70</td><td>25.65</td><td>*</td><td>*</td><td></td><td>关</td><td></td></tr><tr><td>TIM(BLOOMZ-mt)</td><td>24.31</td><td>20.63</td><td>37.20</td><td>23.42</td><td>26.39</td><td>_*</td><td>*</td><td>、*</td><td>*</td><td>_*</td></tr><tr><td> $\\mathbf { S W I E _ { ( B L O O M Z - m t ) } }$ </td><td>25.95</td><td>21.83</td><td>36.88</td><td>23.33</td><td>27.00</td><td>*</td><td>*</td><td>*</td><td>_*</td><td>_*</td></tr><tr><td colspan=\"10\">LLaMA-1-7B based LLMs</td></tr><tr><td> $\\mathrm { P a r r o T _ { ( L L a M A - 1 ) } }$ </td><td>27.30</td><td>26.10</td><td>30.30</td><td>20.20</td><td>25.98</td><td>39.40</td><td>30.70</td><td>29.10</td><td>21.30</td><td>32.38</td></tr><tr><td> $\\mathrm { T I M } _ { \\mathrm { ( L L a M A - 1 ) } }$ </td><td>27.91</td><td>25.02</td><td>30.07</td><td>19.33</td><td>25.58</td><td>39.15</td><td>29.31</td><td>28.43</td><td>22.30</td><td>29.80</td></tr><tr><td> $\\mathbf { S W I E } _ { ( \\mathrm { L L a M A - 1 } ) }$ </td><td>30.48</td><td>27.10</td><td>31.08</td><td>21.19</td><td>27.47</td><td>40.20</td><td>31.41</td><td>29.07</td><td>21.59</td><td>30.57</td></tr><tr><td>VicunaMT(LLaMA-1)</td><td>29.26</td><td>25.70</td><td>29.98</td><td>20.61</td><td>26.39</td><td>41.90</td><td>30.63</td><td>28.52</td><td>23.34</td><td>31.10</td></tr><tr><td>+ REF</td><td>31.12</td><td>24.72</td><td>30.07</td><td>20.38</td><td>26.58</td><td>39.03</td><td>29.36</td><td>28.87</td><td>22.84</td><td>30.03</td></tr><tr><td>+ BEST</td><td>29.44</td><td>24.93</td><td>30.91</td><td>20.39</td><td>26.16</td><td>41.29</td><td>29.34</td><td>30.07</td><td>23.48</td><td>31.05</td></tr><tr><td>+PL</td><td>30.63</td><td>24.63</td><td>31.52</td><td>20.44</td><td>26.81</td><td>40.07</td><td>29.33</td><td>30.50</td><td>21.99</td><td>30.47</td></tr></table>",
+        "bbox": [
+            115,
+            80,
+            852,
+            346
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "table",
+        "img_path": "images/812ace8d39f1328cf95bd0e03abc5fd4083e98edf533c41e93b70667783e8956.jpg",
+        "table_caption": [
+            "Table 13: Model performance on WMT22 in BLEU scores. Best results are in bold. †: SFT stage has already been applied to these models."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td colspan=\"6\">WMT22</td></tr><tr><td></td><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td></tr><tr><td>BLOOMZ†</td><td>23.89</td><td>16.79</td><td>35.41</td><td>21.01</td><td>24.28</td></tr><tr><td>+REF</td><td>24.51</td><td>15.26</td><td>33.43</td><td>21.80</td><td>23.75</td></tr><tr><td>+BEST</td><td>23.80</td><td>16.33</td><td>34.99</td><td>21.49</td><td>24.15</td></tr><tr><td>+PL</td><td>24.84</td><td>16.81</td><td>36.48</td><td>23.15</td><td>25.32</td></tr><tr><td>Mistral-Ins.†</td><td>28.26</td><td>24.61</td><td>31.90</td><td>20.60</td><td>26.35</td></tr><tr><td>+REF</td><td>30.94</td><td>25.62</td><td>31.66</td><td>21.52</td><td>27.44</td></tr><tr><td>+BEST</td><td>29.76</td><td>24.30</td><td>31.12</td><td>20.83</td><td>26.50</td></tr><tr><td>+PL</td><td>29.32</td><td>24.78</td><td>33.00</td><td>21.76</td><td>27.47</td></tr></table>",
+        "bbox": [
+            117,
+            439,
+            484,
+            583
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "table",
+        "img_path": "images/f422195ab7b78c46e46db5d2cb2209d3c6b2d93869fef7fb637210d472b08429.jpg",
+        "table_caption": [
+            "Table 14: Model performance on FLORES-200 in COMET and BLEU scores. Best results are in bold. †: SFT stage has already been applied to these models."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td colspan=\"5\">FLORES-200</td></tr><tr><td></td><td>de→en</td><td>en→de</td><td>en→zh</td><td>zh→en</td><td>Avg.</td></tr><tr><td></td><td colspan=\"5\">COMET</td></tr><tr><td>Mistral-Ins.†</td><td>88.21</td><td>83.73</td><td>82.41</td><td>84.77</td><td>84.78</td></tr><tr><td>+REF</td><td>88.10</td><td>85.04</td><td>83.59</td><td>84.74</td><td>85.37</td></tr><tr><td>+BEST</td><td>88.41</td><td>84.55</td><td>83.46</td><td>84.94</td><td>85.34</td></tr><tr><td>+PL</td><td>88.56</td><td>84.98</td><td>83.86</td><td>85.34</td><td>85.67</td></tr><tr><td></td><td colspan=\"5\">BLEU</td></tr><tr><td>Mistral-Ins.†</td><td>39.16</td><td>27.79</td><td>29.77</td><td>23.10</td><td>29.96</td></tr><tr><td>+REF</td><td>38.10</td><td>28.39</td><td>31.24</td><td>23.09</td><td>30.21</td></tr><tr><td>+BEST</td><td>39.35</td><td>28.33</td><td>30.46</td><td>22.98</td><td>30.28</td></tr><tr><td>+PL</td><td>39.80</td><td>27.97</td><td>31.00</td><td>23.44</td><td>30.55</td></tr></table>",
+        "bbox": [
+            117,
+            676,
+            484,
+            847
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "3403",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 18
+    }
+]

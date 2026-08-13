@@ -1,0 +1,4008 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Simple and effective data augmentation for compositional generalization"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                124,
+                89,
+                873,
+                111
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Yuekun Yao and Alexander Koller Department of Language Science and Technology Saarland Informatics Campus Saarland University, Saarbrücken, Germany {ykyao, koller}@coli.uni-saarland.de"
+                    }
+                ]
+            },
+            "bbox": [
+                285,
+                131,
+                721,
+                215
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                260,
+                252,
+                342,
+                268
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Compositional generalization, the ability to predict complex meanings from training on simpler sentences, poses challenges for powerful pretrained seq2seq models. In this paper, we show that data augmentation methods that sample MRs and backtranslate them can be effective for compositional generalization, but only if we sample from the right distribution. Remarkably, sampling from a uniform distribution performs almost as well as sampling from the test distribution, and greatly outperforms earlier methods that sampled from the training distribution. We further conduct experiments to investigate the reason why this happens and where the benefit of such data augmentation methods come from."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                273,
+                462,
+                502
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                510,
+                260,
+                525
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Compositional generalization is the ability of a system to correctly predict the meaning of complex sentences when trained only on simpler sentences (Lake and Baroni, 2018; Keysers et al., 2020). It has been studied in particular detail in the context of semantic parsing, the task of mapping sentences to symbolic meaning representations. Recent findings suggest that even powerful pretrained seq2seq models such as BART (Lewis et al., 2020) and T5 (Raffel et al., 2020), which excel at broad-coverage semantic parsing (Bevilacqua et al., 2021), perform very poorly on compositional generalization (Yao and Koller, 2022)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                533,
+                489,
+                743
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One promising method for compositional generalization is data augmentation (Andreas, 2020; Yang et al., 2022; Qiu et al., 2022). The idea is to generate additional training data by sampling from an augmentation distribution, in the hope that a model trained on the augmented data will generalize better to the out-of-distribution test data. Data augmentation for semantic parsing is complicated by the fact that it needs to recombine matching pieces of the sentence and of the meaning representation, but this matching is not made explicit in the training data. Many approaches therefore use somewhat complex methods to e.g. induce synchronous grammars (Qiu et al., 2022). As a simpler alternative, Wang et al. (2021) proposed to learn only a grammar for generating meaning representations, and then to use backtranslation to map the sampled meaning representations into sentence-MR pairs."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                743,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/792c56273ac4af31fe61eed77ab6d8801f05abc887fe2dc64b4b59eaf887d7cd.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: A diagram to show data augmentation from different distributions with PCFG."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                534,
+                250,
+                862,
+                360
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                430,
+                885,
+                544
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The effectiveness of a data augmentation regime depends on the distribution from which the augmented data is sampled. Wang et al. (2021) sample from the training distribution and find that this improves semantic parsing accuracy on out-ofdistribution text-to-SQL tasks. However, it is not clear that augmenting from the training distribution is universally helpful, especially on compositional generalization tasks where the test instances are deliberately designed to be unlikely under the training distribution."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                546,
+                887,
+                724
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we investigate the impact that the choice of augmentation distribution has on the ability of a semantic parser to generalize compositionally. We compare Wang et al.’s approach (fit a grammar for meaning representations to the training data) to an approach where we fit the MR grammar to the test data (as an upper bound). Finally, we look at an MR grammar with uniform rule weights. Figure 1 shows the difference between these three methods. In an evaluation across four compositional generalization datasets (COGS, CFQ, Geo-Query, SCAN), we find that augmentation based on the test data strongly outperforms augmentation based on the training data; but surprisingly, augmentation with the uniform grammar is almost as effective as augmentation from the test data. This can be partially explained by the ability of the uniform grammar to contribute unseen local structures (Bogin et al., 2022) and assign low perplexity to the test MRs. Our findings point to a remarkably simple method for effective data augmentation for compositional generalization: obtain a grammar for the meaning representations (a formal language), set uniform rule weights, sample, and backtranslate."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                727,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "434"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                941
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 434–449 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                946,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will release our code online <sup>1</sup>."
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                294,
+                386,
+                311
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                325,
+                267,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Compositional generalization Compositional generalization has been shown challenging for neural sequence-to-sequence models. For example, Lake and Baroni (2018) shows that LSTM (Hochreiter and Schmidhuber, 1997) fails to generalize to new combinations or longer sequences of symbolic commands; Kim and Linzen (2020) shows that both LSTM and Transformers (Vaswani et al., 2017) cannot generalize to complex linguistic structures; Yao and Koller (2022) find that structural generalization, a difficult compositional generalization type, is consistently hard for BART and T5; Bogin et al. (2022) find that unobserved local structures can explain the difficulty of compositional generalization across multiple tasks."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                354,
+                490,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Data augmentation The idea of augmenting the training data with synthetic instances originates in low-resource NLP tasks. For semantic parsing, Jia and Liang (2016) induced a synchronous CFG from the training set using domain-specific heuristics. Yu et al. (2018) and Zhong et al. (2020) generate new sentence-SQL pairs by identifying complex SQL patterns in the training set and filling their slots with different table or column names."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                607,
+                489,
+                752
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Data augmentation also successfully improves compositional generalization. Andreas (2020) propose a heuristic for sampling new parallel data by replacing tokens in training samples with similar tokens sharing the same context; Yang et al. (2022); Li et al. (2023) extend this idea by exchanging subtrees and spans to leverage linguistically rich phrases. Compared to their methods, we sample arbitrary meaning representations that can be derived from our hand-written grammar."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                753,
+                490,
+                883
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/05d40c248524c5174232944cc4f720bc358100b3ddd76ca3b3966990b4a36d76.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Comparison of different data augmentation methods based on COGS meaning representation."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                509,
+                84,
+                892,
+                180
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                247,
+                884,
+                279
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Qiu et al. (2022) propose a data augmentation procedure based on inducing probabilistic quasisynchronous grammars from the training data. Although their system achieves promising results, it requires a complicated algorithm to induce clean grammar rules. Oren et al. (2021) also propose to sample structurally diverse synthetic data from a manually designed synchronous context-free grammar. Compared to these works, our method only considers a grammar of the meaning representation, which is easy to access."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                280,
+                887,
+                456
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Similar to our method, Guo et al. (2021) adopt iterative back-translation for compositional semantic parsing, but they directly use a subset of meaning representations from development or test set as augmented meaning representations. Our work instead shows that meaning representations generated from a probabilistic grammar still work."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                457,
+                887,
+                570
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Closest in spirit to this paper is the work of Wang et al. (2021), who also sample only meaning representations and generate input sentences through backtranslation. Figure 2 illustrates their method. The key difference to our work is that we explore the impact of augmentation distributions."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                571,
+                887,
+                669
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Methodology"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                681,
+                660,
+                699
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our method consists of two steps: sample meaning representations and then backtranslate them into natural language sentences. It exploits the fact that in many realistic use cases of a semantic parser, one can generate arbitrary amounts of symbolic meaning representations from a grammar: These are from a formal language, and the developer of a semantic parser either has access to a grammar for this formal language or can easily write one."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                708,
+                885,
+                854
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 Data augmentation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                866,
+                709,
+                882
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Context-free grammar For a semantic parsing task, we assume as given a context-free grammar that describes all possible meaning representations. Figure 3 shows an example. Figure 3a shows part of our grammar for the GeoQuery dataset, which consists of multiple production rules. Based on these rules, we can parse a meaning representation answer ( loc_1 ( cityid ( houston, _ )) ) as shown in Figure 3b. In a probabilistic context-free grammar (PCFG), each production rule has a rule probability. The probability of a parse tree can be calculated as the product of the probability of each production rule that constitutes the parse tree."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                888,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>https://github.com/coli-saar/"
+                    }
+                ]
+            },
+            "bbox": [
+                134,
+                892,
+                411,
+                907
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "data-augmentation-compgen"
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                907,
+                351,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "435"
+                    }
+                ]
+            },
+            "bbox": [
+                484,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                85,
+                490,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Parameter estimation To estimate the probability of each production rule, we can use maximum likelihood estimation, which is based on counting the rule occurrences in parse trees. Given a sequence of meaning representations "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { 1 } , \\ldots , y _ { n } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the probability of a grammar rule "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N  \\zeta \\mathrm { c a n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be calculated by the equation below, where Count() denotes counting the occurrences of a rule in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { 1 } , \\ldots , y _ { n }"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                271,
+                490,
+                417
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P = \\frac { C o u n t ( N  \\zeta ) } { \\sum _ { \\gamma } C o u n t ( N  \\gamma ) }",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a39847c444981c7fb1e3a380218524b23e4cf7ba36578a26f4f13963b7b3869d.jpg"
+                }
+            },
+            "bbox": [
+                200,
+                425,
+                400,
+                461
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Data augmentation After estimating the rule probabilities, we can sample novel meaning representations from the resulted grammar. We then backtranslate (Sennrich et al., 2016) each sampled meaning representation to obtain the synthetic natural language text. Specifically, we train another sequence-to-sequence model on the in-distribution train set, which takes as input a meaning representation and outputs a sentence."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                470,
+                490,
+                615
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To utilize the generated parallel data, we can either concatenate it with the original training data, or we can first pretrain the baseline parser on the generated data and then fine-tune the parser on the original training set. Since Wang et al. (2021) show that concatenation can hurt the performance of the parser, we experiment with both methods and report results of the best method for each dataset."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                615,
+                489,
+                745
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Augmentation distribution for compositional generalization"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                755,
+                398,
+                787
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our data generation method differs from Wang et al. (2021) in that we consider different distributions for sampling the augmentation data. We hypothesize that this will be advantageous for compositional generalization, for two reasons."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                791,
+                489,
+                872
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "First, test sets for such tasks are generally designed to contain structures that are not observed in the train set; these are difficult to sample from the training distribution. For example, in Figure 3, the rule (e) will be estimated to have zero probability, so the generated meaning representations will never contain the pattern most River. Second, the test set may involve generalization to meaning representations with deep recursion depth or longer symbol sequence. These are unlikely under the training distribution when the train set only contains shallow recursions or short sequences, and will thus be rare in the sampled data."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                872,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/9f6c0a0f93d773e239112b2f48484c418ac5cdf500ff297a6584ed92bc125699.jpg"
+                },
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                608,
+                87,
+                800,
+                214
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/8e07c98f1defe5d029d0fac83a36dd88262cf9934c9ebbc5cd1fbc37609b340c.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Grammar rules for GeoQuery."
+                    },
+                    {
+                        "type": "text",
+                        "content": "(b) Parse tree of a GeoQuery meaning representation."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Figure 3: An example to show part of our grammar from GeoQuery. Blue color refers to non-terminal and green color refers to terminal symbols. Special symbols (e.g. brackets) are ignored for space."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                594,
+                237,
+                805,
+                369
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                483,
+                887,
+                645
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We compare the effect of different augmentation distributions. Specifically, we look at augmentation PCFGs whose parameters are estimated from the training data "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( P _ { t r a i n } ) ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "those estimated from the test data "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( P _ { t e s t } ) ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; and PCFGs with uniform rule distributions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( P _ { u n i f o r m } ) ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "i.e. each of the k rules for a nonterminal N has probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / k . \\ P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "represents an ideal case where the test distribution is accessible, which generally does not hold for realistic scenarios. In this paper we only use "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as an upper bound, to show the importance of the choice of augmentation distribution."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                646,
+                885,
+                841
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                858,
+                657,
+                875
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we introduce our datasets, experiment setup and results."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                888,
+                887,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "436"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Datasets"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                85,
+                230,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "COGS COGS (Kim and Linzen, 2020) is a semantic parsing dataset where the input is an English sentence and the output is a logical form. We use the variable-free meaning representation (e.g. A girl in a house sneezed  sneeze ( agent = girl ( nmod . in = house ) )) of COGS following Qiu et al. (2022). COGS is generated with a PCFG, where the train set consists of data with simple linguistic structures and the generalization set consists of 21 generalization types to test different generalization abilities. This includes 18 lexical generalization types (i.e. a novel combination of a familiar structure with a familiar word) and 3 structural generalization types (i.e. a novel combination of two familiar structures). Here \"familiar\" means the structure or word is observed in the train set."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                107,
+                492,
+                365
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We focus on the three challenging structural generalization types obj_pp_to_subj_pp, pp_recursion and cp_recursion, which were highlighted as particularly difficult by Yao and Koller (2022). The original train set comprises instances with prepositional phrase (PP) and clauses (CP) recursion depths limited to 2, while pp_recursion and cp_recursion instances range from depths 3 to 12. In obj_pp_to_subj_pp instances, PP structure modifies subject nouns, which only modifies object nouns in the train set (e.g. Emma ate the ring beside a bed A girl in a house sneezed)."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                366,
+                492,
+                560
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "CFQ CFQ (Keysers et al., 2020) is a semantic parsing dataset where the input is an English sentence and the output is a SPARQL query (e.g. Did M1 acquire a company  select count (*) where{(x0 a employer) . (M1 company_acquired x0)}). Previous works (Herzig et al., 2021) shows that preprocessing leads to a large difference for CFQ results. Thus we use the RIR meaning representations in Herzig et al. (2021) and additionally normalize reversible relation tokens following Zheng and Lapata (2022). We use three MCD splits generated by maximizing the similarity of atom distribution and the divergence of compound distribution between train and test sets together."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                570,
+                490,
+                797
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Geoquery For GeoQuery, we focus on the FunQL formalism (Kate et al., 2005), where the input is an English sentence and the output is a FunQL query (e.g. what is the tallest mountain in america answer highest mountain loc_2 countryid usa). We use the dataset created by Herzig and Berant (2021) and follow Lindemann et al."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                807,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(2023) to remove special symbols in the meaning representation. We use template (Finegan-Dollak et al., 2018) and length splits created based on the program template and length respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                505,
+                85,
+                885,
+                151
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SCAN SCAN (Lake and Baroni, 2018) is a semantic parsing dataset where the input is a command and the output is a sequence of actions (e.g. jump twice JUMP JUMP). SCAN provides many primitive-based splits and length split. We use turnleft and length split, which have been shown challenging in Qiu et al. (2022)."
+                    }
+                ]
+            },
+            "bbox": [
+                505,
+                156,
+                889,
+                271
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Set up"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                280,
+                610,
+                296
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Models. We address all our semantic parsing tasks with a sequence-to-sequence model. Given its strong performance on semantic parsing and sentence generation tasks, we fine-tune T5 (Raffel et al., 2020) as our baseline semantic parser as well as for backtranslation. Training details are reported in Appendix B. All our results are averaged over 5 random runs and we report standard deviation in Appendix C. Exact match accuracy is used as the evaluation metric for all datasets. For GeoQuery, the same input sentence can be mapped into multiple correct programs, so we also report execution accuracy following Herzig and Berant (2021)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                302,
+                887,
+                512
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Grammars. To apply our data augmentation method to a dataset, we need a context-free grammar that can generate its meaning representations. For COGS, we adopt the official grammar provided by authors. For CFQ, GeoQuery and SCAN, we manually write a context-free grammar to apply our method. We use "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "_ { \\mathrm { T } } 5 { + } P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to refer to the model trained with the union of original train set and the data sampled from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and so for the other distributions. For all three augmentation distributions, we sample the same number of unique meaning representations. Details of grammar design and sampling are described in Appendix D. For COGS and SCAN, we directly concatenate the synthesized data with the original data set. For CFQ and GeoQuery, we find that concatenation hurts the performance and thus pretrain the model on the synthesized data first and then fine-tune it on the original train set. We report detailed results for both settings in Appendix C."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                519,
+                887,
+                843
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                851,
+                618,
+                866
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "COGS Table 1 shows exact match accuracies on COGS. We observe that the distribution of the augmented meaning representations makes a large difference on the performance: the grammar estimated on the test set (e.g. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "substantially improves performance (+8.3) and achieves near-perfect accuracy overall, while the grammar estimated on the train set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\bf e . g . \\nabla } P _ { t r a i n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "only slightly improves the performance (+1.9). We consider this is because the grammar estimated on train set tends to produce simple structures, which does not help improve complex structure predictions. Noticeably, the uniform grammar "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "yields a much higher improvement than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This suggests that the importance of the distribution of meaning representations for compositional generalization."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                871,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "437"
+                    }
+                ]
+            },
+            "bbox": [
+                484,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/4004f16bcea726ad015b7b6dd1dc2dcd8315da18b681f58231ba5fb26ef01261.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Results on COGS. Obj, PP, CP refers to structural generalization types obj_pp_to_subj_pp, pp_recursion and cp_recursion respectivly. refers to parsers using data augmentation method. refers to structured parsers."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Models</td><td>Obj</td><td>PP</td><td>CP</td><td>All</td></tr><tr><td>T5 (Qiu et al., 2022)</td><td></td><td>一</td><td>一</td><td>89.8</td></tr><tr><td>LeAR(Liu et al., 2021)</td><td>92.5</td><td>100</td><td>98.5</td><td>98.9</td></tr><tr><td>SpanSub ↓(Li et al., 2023)</td><td>一</td><td>一</td><td>-</td><td>92.3</td></tr><tr><td>T5+CSL  (Qiu et al., 2022)</td><td>-</td><td>-</td><td>-</td><td>99.5</td></tr><tr><td>T5</td><td>88.2</td><td>24.1</td><td>32.3</td><td>91.0</td></tr><tr><td> $+ P _ { t r a i n } \\ddag$ </td><td>89.4</td><td>51.2</td><td>43.5</td><td>92.9</td></tr><tr><td> $+ P _ { t e s t } \\ddag$ </td><td>94.6</td><td>96.7</td><td>95.1</td><td>99.3</td></tr><tr><td> $+ P _ { u n i f o r m } \\dagger$ </td><td>92.9</td><td>87.8</td><td>50.7</td><td>95.9</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                82,
+                487,
+                211
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/fc79efbeed5eb8e774524d11d6dd181fda1bf7913854a8999265bb8a90c453ba.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: Results on CFQ. +dev MRs refers to using meaning representations from development set for our data augmentation method."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Models</td><td>MCD1MCD2MCD3Avg</td></tr><tr><td>T5 (Herzig et al., 2021)</td><td>85.8 64.0</td><td>53.6 67.8</td></tr><tr><td>T5-large (Herzig et al., 2021)</td><td>88.6 79.2</td><td>72.7 80.2</td></tr><tr><td>T5-3B (Herzig et al., 2021)</td><td>88.4 85.3</td><td>77.9 83.8</td></tr><tr><td>LeAR(Liu et al., 2021)</td><td>91.7 89.2</td><td>91.7 90.9</td></tr><tr><td>Least-to-Most (Drozdov et al., 2022)</td><td>94.3 95.3</td><td>95.5 95.0</td></tr><tr><td>T5</td><td>89.9 75.3</td><td>72.2</td><td>79.1</td></tr><tr><td> $+ P _ { t r a i n } \\ddag$ </td><td>89.9</td><td>77.9 75.8</td><td>81.2</td></tr><tr><td> $+ P _ { t e s t } \\ddag$ </td><td>90.4</td><td>79.1 75.5</td><td>81.7</td></tr><tr><td> $+ P _ { u n i f o r m } \\dagger$ </td><td>91.2</td><td>78.8 74.3</td><td>81.4</td></tr><tr><td>+dev MRs ‡</td><td>87.1</td><td>89.5 89.3</td><td>88.6</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                311,
+                484,
+                469
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                552,
+                489,
+                763
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "CFQ Table 2 shows exact match accuracies on CFQ. All three augmentation strategies are roughly on par with each other. We attribute this limitation to the fact that the CFQ dataset is generated by mapping intermediate logical forms into SPARQL, which incorporates variables and conjuncts. Such complex relationships are difficult to capture accurately using context-free grammars, resulting in many sampled meaning representations containing nonsensical elements (e.g., redundant conjuncts)."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                775,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/f2f6881949f9bab4605dd6ffa651406da0a8405c5bfe857f990cf2c6ffae1761.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Template</td><td>Length</td><td></td></tr><tr><td>Models</td><td>EM Exe</td><td></td><td>EM Exe</td></tr><tr><td>BART (Herzig and Berant, 2021)</td><td></td><td>67.0</td><td>19.3</td></tr><tr><td>Span+lexicon(Herzig and Berant, 2021)</td><td></td><td>82.2</td><td>63.6</td></tr><tr><td>LeAR(Liu et al., 2021)</td><td></td><td>84.1</td><td></td></tr><tr><td>SUBS (gold tree) ↓(Yang et al., 2022)</td><td>88.3 -</td><td></td><td></td></tr><tr><td>SpanSub (gold tree) ↓(Li et al., 2023)</td><td>89.5 -</td><td></td><td></td></tr><tr><td>T5</td><td>73.9 79.9</td><td></td><td>35.8 50.5</td></tr><tr><td> $+ P _ { t r a i n } \\stackrel { . } { \\frac { 1 } { + } }$ </td><td>74.1 84.3</td><td></td><td>56.1 72.1</td></tr><tr><td> $+ P _ { t e s t } \\dagger$ </td><td>80.1 88.2</td><td></td><td>60.1 74.1</td></tr><tr><td> $+ P _ { u n i f o r m } \\ddag$ </td><td>79.3 87.6</td><td></td><td>60.4 73.7</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                510,
+                82,
+                885,
+                241
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/daf8a60bd4c153d0dc95a731a0864e35d0cdc8d69a2c754edbcbb6ac4c4153f4.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Results on GeoQuery. EM denotes exact match accuracy and Exe denotes execution accuracy."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 4: Results on SCAN."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Models</td><td>Turnleft</td><td>Length</td></tr><tr><td>T5 (Qiu et al., 2022)</td><td>62.0</td><td>14.4</td></tr><tr><td>T5+GECA ‡ (Qiu et al., 2022)</td><td>57.6</td><td>10.5</td></tr><tr><td>T5+CSL ‡ (Qiu et al., 2022)</td><td>100</td><td>100</td></tr><tr><td>T5</td><td>61.2</td><td>4.4</td></tr><tr><td> $+ P _ { t r a i n } \\stackrel { . } { \\frac { 1 } { + } }$ </td><td>92.9</td><td>8.1</td></tr><tr><td> $+ P _ { t e s t } \\dagger$ </td><td>92.9</td><td>60.5</td></tr><tr><td> $+ P _ { u n i f o r m } \\ddag$ </td><td>92.9</td><td>60.5</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                512,
+                296,
+                882,
+                412
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                509,
+                463,
+                877,
+                480
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To verify our hypothesis, we further experiment with a setting where instead of sampling MRs from estimated PCFG, we directly backtranslate MRs from development set as augmented data. Since the development set of CFQ shares the same distribution as the test set, this setting represents what a perfect method for augmenting from the test distribution would achieve, illustrating that the issue really comes from our flawed grammar."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                481,
+                885,
+                625
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also observe that our T5 baseline outperforms the T5 model from Herzig et al. (2021). We attribute this to the additional preprocessing steps we adopted from Zheng and Lapata (2022)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                626,
+                885,
+                692
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "GeoQuery Table 3 shows exact match accuracies and execution accuracy on GeoQuery. On the template split, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gives the best performance (+6.2 EM and +8.3 Exe). On the length split, all three strategies substantially improve the performance. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "achieves on-par performance with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and outperforms "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on both splits, which is consistent with the results on COGS."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                700,
+                885,
+                829
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SCAN Table 4 shows exact match accuracies on SCAN. We observe "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "substantially improve the performance on both splits, whereas the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "only performs well on turnleft split. All three strategies achieves the same performance on turnleft split. This is because the meaning representation space of SCAN is too small and thus all possible meaning representations can be sampled by three strategies, which results in the same train set. The same case happens for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the length split. Noticeably, our method outperforms GECA, which generates parallel data for data augmentation using templates. This suggests that sampling meaningful and useful meaning representations proves more effective than sampling limited parallel data in certain scenarios."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                839,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "438"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/57278e666adadec9d6d22c572966a8e420de4c8731478275b4264383f13aa2c8.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 5: Dataset statistics for different augmentation strategies. T5 denotes the statistics of the original train set. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "+ P _ { t r a i n } , + P _ { t e s t } , + P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote augmented datasets based on different PCFGs. We report the statsitics for both input sentence side and output meaning representation side. Thus, Avg length under English tab refers to the average length of input sentences. We report three statistics: average length (Avg length), the coverage (expressed as a percentage) of bigrams in the test set by the training set (Bigrams) and the coverage of entire instance in the test set by the training set (Instance)."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td></td><td colspan=\"3\">English</td><td colspan=\"3\">Meaning representations</td></tr><tr><td>Datasets</td><td></td><td>Avg length</td><td>Bigrams(%)</td><td>Instance(%)</td><td>Avg length</td><td>Bigrams(%)</td><td>Instance(%)</td></tr><tr><td></td><td>T5</td><td>7.5</td><td>30.5</td><td>0</td><td>13.8</td><td>88.7</td><td>0</td></tr><tr><td></td><td> $+ P _ { t r a i n }$ </td><td>7.5</td><td>37.8</td><td>0</td><td>13.8</td><td>93.2</td><td>0</td></tr><tr><td>COGS</td><td> $+ P _ { t e s t }$ </td><td>8.4</td><td>53.4</td><td>11.7</td><td>17.5</td><td>99.5</td><td>11.8</td></tr><tr><td></td><td> $+ P _ { u n i f o r m }$ </td><td>8.5</td><td>40.5</td><td>0</td><td>17.0</td><td>99.3</td><td>0.2</td></tr><tr><td></td><td>T5</td><td>13.5</td><td>91.2</td><td>0</td><td>44.3</td><td>98.9</td><td>6.5</td></tr><tr><td>CFQ</td><td> $+ P _ { t r a i n }$ </td><td>13.7</td><td>99.6</td><td>0.4</td><td>46.9</td><td>99.6</td><td>7.0</td></tr><tr><td>MCD1</td><td> $+ P _ { t e s t }$ </td><td>14.0</td><td>99.7</td><td>0.6</td><td>45.9</td><td>100</td><td>7.5</td></tr><tr><td></td><td> $+ P _ { u n i f o r m }$ </td><td>7.1</td><td>99.4</td><td>0.2</td><td>36.4</td><td>100</td><td>7.0</td></tr><tr><td></td><td> ${ \\mathrm { T 5 } }$ </td><td>8.3</td><td>66.5</td><td>0</td><td>6.1</td><td>74.8</td><td>0</td></tr><tr><td>GeoQuery</td><td> $+ P _ { t r a i n }$ </td><td>9.6</td><td>76.5</td><td>27.2</td><td>8.3</td><td>85.9</td><td>45.5</td></tr><tr><td>Template</td><td> $+ P _ { t e s t }$ </td><td>10.3</td><td>78.2</td><td>29.8</td><td>8.8</td><td>100</td><td>60.3</td></tr><tr><td></td><td> $+ P _ { u n i f o r m }$ </td><td>9.4</td><td>76.7</td><td>25.0</td><td>8.4</td><td>100</td><td>26.5</td></tr><tr><td></td><td>T5</td><td>7.0</td><td>100</td><td>0</td><td>10.8</td><td>100</td><td>0</td></tr><tr><td>SCAN</td><td> $+ P _ { t r a i n }$ </td><td>7.1</td><td>100</td><td>8.6</td><td>11.1</td><td>100</td><td>20.7</td></tr><tr><td>Length</td><td> $+ P _ { t e s t }$ </td><td>7.1</td><td>100</td><td>9.6</td><td>12.2</td><td>100</td><td>100</td></tr><tr><td></td><td> $+ P _ { u n i f o r m }$ </td><td>7.1</td><td>100</td><td>9.6</td><td>12.2</td><td>100</td><td>100</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                114,
+                82,
+                882,
+                338
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                461,
+                490,
+                639
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Discussion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                653,
+                242,
+                669
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The surprising finding so far is that across all four compositional generalization datasets, augmenting from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "performs on par with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This seems counterintuitive: the uniform augmentation strategy has no knowledge of the test data’s distribution, and one would expect that augmentation data sampled from a grammar-based approximation to the test distribution should perform much better. We therefore investigate this finding in detail."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                681,
+                489,
+                827
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Augmentation data statistics We present statistics of the generated augmentation data in Table 5. For each corpus and augmentation method, we show the average sequence length, bigram coverage, and instance (i.e. exact sequence match) coverage for both input sentences and output MRs. The bigram coverage is determined by dividing the number of observed bigrams in the test set that also exist in the training set by the total count of possible bigrams in the test set. Instance coverage is calculated analogously."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                839,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                461,
+                885,
+                557
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As expected, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "always yields the highest coverage values on the meaning representations, suggesting that the MR grammar approximates the test distribution effectively. On the other hand, instancelevel coverage on the English side does not grow very high for any dataset. This indicates that the backtranslation model, which is trained on the original in-distribution data, still struggles to produce novel recombinations of the English sentences."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                560,
+                887,
+                706
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is on par with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on many measures and datasets, and considerably outperforms "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This suggests that novel structural combinations are judged unlikely based on the training distribution, or are simply assigned a probability of zero because structures were entirely unobserved."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                708,
+                885,
+                804
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It is remarkable that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "produce meaning representations of similar length on COGS and could therefore be capable of generating augmentation data of similar structural complexity. At the same time, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "achieves a significantly higher parsing accuracy on the PP and CP recursion generalization types. A plot of the distribution of the augmentation instances according to recursion depth (Fig. 5) reveals that while "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "generates augmentation instances evenly across all recursion depths, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "emphasizes moderately (PP) or extremely (CP) shallow instances.<sup>2</sup> This explains the difference in parsing accuracy, and further emphasizes that compositional generalization is not just challenging because transformers struggle when generalizing to longer inputs (Hupkes et al., 2020), but also to structurally more complex inputs of similar length."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                807,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "439"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/a22440663d1853c3c769445ee80d868514e006899c55edf6d240a181bec280e0.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) COGS structural types"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                115,
+                80,
+                351,
+                147
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/1dd5e6602c8c3c3edfe2a261bf88c116e682117afc10652c7e7e4442b995689c.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) GeoQuery Template split"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                381,
+                80,
+                618,
+                147
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/70f33a8293505d53c0b0d2757185876e2de49e1f0a046237e6403837e8f4f186.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(c) SCAN Length split"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                647,
+                80,
+                882,
+                147
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/37ec1e0dca17ea8c4d5b1fae65005634f50b6eadf8d37880aa869bf1b6fce08f.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 4: Count of test instances with regard to different loss values."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                144,
+                212,
+                457,
+                293
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/92daa1ac87039d0a037b9d74b3d33ab6d9122ef6d0c2d48499adc3dab92f4478.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 5: Depth distribution of train set for COGS."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                146,
+                305,
+                457,
+                386
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                453,
+                489,
+                631
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Perplexity analysis We further investigate whether "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "produces useful augmentation data simply because it produces arbitrary instances of higher complexity than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", or if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "actually models the test distribution in some way. To this end, we measure the perplexity of the meaning representations of the test set across four corpus variants under each model (Table 6; see Appendix E.1 for details)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                639,
+                489,
+                783
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We find that across three of the four datasets, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are close together, considerably outperforming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the T5 baseline. An exception is CFQ, where the grammar introduces so much noise into the sampling process that all models are mostly on par. We consider this is because although "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has no particular knowledge of the test distribution built in, sampling from it covers enough MR n-grams that the test data becomes predictable."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                784,
+                489,
+                850
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/ce24b2b91d10d5201e7db1817887f89e83a09f759f00c1c57fa10570d7f3fb0c.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 6: Perplexity of models with different augmentation strategies on test set."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\">Models</td><td>COGS</td><td>CFQ</td><td>GeoQuery SCAN</td></tr><tr><td></td><td>MCD1</td><td>Template Length</td></tr><tr><td>T5</td><td>1.131</td><td>1.007</td><td>1.254 1.427</td></tr><tr><td> $+ P _ { t r a i n } \\stackrel { . } { \\frac { 1 } { + } }$ </td><td>1.133</td><td>1.005</td><td>1.252 1.124</td></tr><tr><td> $+ P _ { t e s t } \\dagger$ </td><td>1.001</td><td>1.005</td><td>1.166 1.006</td></tr><tr><td> $+ P _ { u n i f o r m } \\ddag$ </td><td>1.007</td><td>1.005</td><td>1.184 1.006</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                510,
+                214,
+                880,
+                307
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                375,
+                885,
+                472
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The increased perplexity of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in comparison to the other models is not evenly distributed across the test instances. In Fig. 4, we plot a count of test instances for each loss value. Compared to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the loss of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on some instances becomes exceptionally high, which results in higher perplexity and lower accuracy on such instances. Looking into the dataset, we find that such issue generally occurs on meaning representations with complex structures (e.g. deeper recursions for COGS and unseen program templates for GeoQuery). These structures are more predictable for models trained on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "augmentation data, which contains such structures more frequently."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                473,
+                887,
+                715
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Structure coverage According to Bogin et al. (2022), a key feature that makes compositional generalization difficult is the presence of unobserved local structures (i.e. a connected sub-graph that occurs in the meaning representation) in the test set. Is the better performance and perplexity of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "actually because they cover more structures in the test set?"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                726,
+                887,
+                854
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To answer this question, we further plot the accuracy of our models against the structure coverage on COGS and GeoQuery in Figure 6. Here “structure coverage” refers to dividing the number of observed structure in the test set that also exist in the training set by the total count of possible structures in the test set. For GeoQuery, we consider the template split and follow Bogin et al. (2022) in defining the local structure of a meaning representation as all pairs of parent nodes and their children in its parse tree (i.e. 2-LS). For COGS, we focus on the PP recursion generalization type. Instead of considering local structures, we observe that the accuracy on such data is related to the maximal recursion depth observed in the train set. Thus we use PP recursion depth as a representative of global structures to calculate the structure coverage."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                856,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>We hypothesize that the difference between PP and CP in the P<sub>uniform</sub> case is due to the fact that each level of CP recursion requires the use of two production rules, rather than just one for PP, making the generation of deeper structures comparatively less likely."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                857,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "440"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/e3bad68ecfc684db34a8defa5bab0dead6586534f92c79d7d75e2b3e14d51809.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 6: Performance against the local structure coverage for different augmentation distributions."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                146,
+                80,
+                458,
+                258
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                323,
+                489,
+                531
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our results show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "yields a larger coverage of structures that occur in the test set than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Furthermore, larger coverage is associated with higher accuracy. This is consistent with Bogin et al. (2022). Although Gupta et al. (2022) and Oren et al. (2021) also show the benefit of introducing more complex structures into the train set, our results further suggest that synthesized meaning representations with back-translated sentences can still help."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                531,
+                489,
+                694
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Qualitative error analysis Finally, we conducted a qualitative analysis to identify specific cases in which our approach led to improvements. In Table 7, the grammar rule River most River is not observed by baseline and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and thus the model struggles generating the bigram most river corresponding to this rule, which leads to a large loss value (i.e. 26.1) for this instance. In contrast, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "covers all local structures, which allows the model to predict the instance correctly with a substantially lower loss (i.e. 0.1)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                702,
+                490,
+                881
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Sentence generation We report the performance of our backtranslation model in Table 8. Both exact match accuracy and BLEU score (Papineni et al., 2002) are used as evaluation metrics. All models achieve good BLEU scores, indicating the effectiveness of our backtranslation models. However, none of the model yields high accuracy, which suggests that our model can still learn to utilize such noisy data to achieve better performance."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                888,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/4e725f8ced581d9e14faa7411feaedfee465324733974c71bfefd5427ab0de17.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Examples from GeoQuery test set."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Input</td><td>what is the length of the river that runs through the most states ?</td></tr><tr><td>Gold</td><td>len most river traverse_2 state all</td></tr><tr><td>T5</td><td>len intersection riverid most state all</td></tr><tr><td> $+ P _ { t r a i n }$ </td><td>len intersection river traverse_2 most state all</td></tr><tr><td> $+ P _ { t e s t }$ </td><td>len most river traverse_2</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                510,
+                82,
+                882,
+                236
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/39aff6b5328c463149867a877e33b458e723ca08c95b41723787a9d9d9b05ac2.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Results of our backtranslation model on the test sets for each task. Struct under COGS means we only calculate the metric on structural generalization types."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>COGS</td><td>CFQ</td><td>GeoQuery SCAN</td><td></td></tr><tr><td>Metric</td><td>Struct</td><td>MCD1</td><td>Template</td><td>Length</td></tr><tr><td>Exact Match</td><td>30.9</td><td>4.8</td><td>19.6</td><td>8.6</td></tr><tr><td>BLEU</td><td>78.5</td><td>42.9</td><td>61.6</td><td>51.7</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                510,
+                286,
+                882,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                447,
+                887,
+                561
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also present error examples in the augmented training data in Table 9. On COGS, the backtranslation model tends to generate sentences with seen linguistic structures in the training data (e.g. called the table to as a prepositional dative structure) instead of unseen structures (e.g. A teacher on the table as a Subject PP structure). Also, given a meaning representation with deep recursion structures, the model may ignore some structures (e.g. in the bottle ) and not translate them. Similar patterns can also be observed in GeoQuery and SCAN: what state has the most cities is an observed sentence in the training data of the backtranslation model for GeoQuery, and thus the model tends to translate the given MR into this sentence ignoring the structure river traverse_2; run around right thrice is never observed in the training set of the SCAN backtranslation model, and thus the model struggles with generating it. On CFQ, we further observe that the model may generate additional phrases whose meaning is not present in the MR (e.g. was written by M5)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                567,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "441"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                515,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/134184e2663144e8ab1016cb394c60eef88ab8e0c75e5071a0f8a8d86fda1db2.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 9: Examples of incorrect training data introduced by backtranslation. MR refers to the meaning representation sampled from the grammar. Backtranslation refers to the corresponding English sentence generated by the backtranslation model. Annotated refers to the human labeled English sentence for the MR."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>COGS</td></tr><tr><td>MR</td><td>call ( agent = teacher (nmod . on = * table ) , theme = Emma )</td></tr><tr><td colspan=\"2\">Backtranslation A teacher called the table to Emma .</td></tr><tr><td>Annotated</td><td>A teacher on the table called Emma .</td></tr><tr><td>MR</td><td>offer ( agent = * cat , theme = * block (nmod . in = house ( nmod . on = towel ( nmod . in = tin (nmod . in = * bottle ( nmod . in = car (nmod . beside = * corpse ( nmod . on = * canvas (nmod . beside = * bed ( nmod . beside = table (nmod . in = * bag (nmod . in = * hole))))))))))))</td></tr><tr><td></td><td>Backtranslation The cat offered the block in a house on a towel in a tin in a car beside the corpse on the canvas beside the bed beside a table in the bag in the hole .</td></tr><tr><td>Annotated</td><td>The cat offered the block in a house on a towel in a tin in the bottle in a car beside the corpse on the canvas beside the bed beside a table in the bag in the hole.</td></tr><tr><td colspan=\"2\">CFQ</td></tr><tr><td>MR</td><td>SELECT DISTINCT ?x0 WHERE { ( ?x0 ( film.film.prequel , film.film.sequel) (M5))}</td></tr><tr><td>Backtranslation What prequel and sequel of M5 was written by M5</td><td></td></tr><tr><td colspan=\"2\">Annotated What is the prequel and sequel of M5</td></tr><tr><td></td><td>GeoQuery (template split)</td></tr><tr><td>MR</td><td>answer most river traverse_2 most state loc_1 city all</td></tr><tr><td>Backtranslation what state has the most cities</td><td></td></tr><tr><td>Annotated</td><td>what river traverses the state that has the most cities</td></tr><tr><td colspan=\"2\">SCAN (length split)</td></tr><tr><td>MR</td><td>RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RTURN RUN RUN RUN RUN</td></tr><tr><td colspan=\"2\">Backtranslation run around right twice and run thrice</td></tr><tr><td>Annotated run around right thrice and run thrice</td><td></td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                114,
+                80,
+                882,
+                498
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                577,
+                247,
+                593
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We investigated the impact of the choice of augmentation distribution on compositional generalization. We found that a PCFG for the meaning representations with uniform rule weights supports much more effective data augmentation than one that is trained on the training data, and almost on part with one that is trained on the test data. A detailed analysis revealed that this is because the uniform grammar both achieves low perplexity on the test meaning representations and greatly improves structural coverage."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                611,
+                490,
+                789
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Thus, sampling meaning representations from a uniform PCFG and backtranslating them into natural-language sentences can serve as a simple and efficient data augmentation strategy for compositional generalization. It would be interesting to investigate the space of augmentation distributions in more detail in future work to see, for instance, how the generation of structurally even more diverse augmentation instances can be encouraged. Our findings also suggest that compositional generalization in MR-to-text generation tasks (Mehta et al., 2022), which is still an underexplored area, is also an interesting direction for future research."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                791,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                579,
+                887,
+                658
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                669,
+                647,
+                686
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our work assumes that the language of all possible meaning representations can be described with a context-free grammar, and that such a grammar is available or can be easily reconstructed by hand. Given that MRs are formal languages, this seems realistic, but can involve some manual effort. When the meaning representations are generated out of a knowledge base through a process that is not publicly accessible, such as in CFQ, hand-crafting a grammar for MRs can introduce noise."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                695,
+                885,
+                856
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our evaluation, we use corpora that are either synthetic (COGS, CFQ, SCAN) or very small (Geo-Query). Thus, one should interpret conclusions on data augmentation for such corpora with care. We leave experiments on compositional generalization datasets that use naturally occurring language (e.g. SMCalFlow-CS (Yin et al., 2021)) to future work. Nevertheless, the robustness of our results across corpora still suggests the generality of our findings."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                857,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "442"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                166
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgements"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                177,
+                287,
+                193
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We appreciate Najoung Kim for providing the code for generating COGS meaning representations. This work was supported by the Deutsche Forschungsgemeinschaft (DFG) through the project KO 2916/2-2."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                203,
+                489,
+                284
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                310,
+                215,
+                324
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jacob Andreas. 2020. Good-enough compositional data augmentation. In Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, pages 7556–7566, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Michele Bevilacqua, Rexhina Blloshmi, and Roberto Navigli. 2021. One SPRING to rule them both: Symmetric AMR semantic parsing and generation without a complex pipeline. In Proceedings of the AAAI Conference on Artificial Intelligence (AAAI-21), volume 35, pages 12564–12573. AAAI Press."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ben Bogin, Shivanshu Gupta, and Jonathan Berant. 2022. Unobserved local structures make compositional generalization hard. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, pages 2731–2747, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Róbert Csordás, Kazuki Irie, and Juergen Schmidhuber. 2021. The devil is in the detail: Simple tricks improve systematic generalization of transformers. In Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing, pages 619– 634, Online and Punta Cana, Dominican Republic. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Andrew Drozdov, Nathanael Schärli, Ekin Akyürek, Nathan Scales, Xinying Song, Xinyun Chen, Olivier Bousquet, and Denny Zhou. 2022. Compositional semantic parsing with large language models."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Catherine Finegan-Dollak, Jonathan K. Kummerfeld, Li Zhang, Karthik Ramanathan, Sesh Sadasivam, Rui Zhang, and Dragomir Radev. 2018. Improving textto-SQL evaluation methodology. In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 351–360, Melbourne, Australia. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Matt Gardner, Joel Grus, Mark Neumann, Oyvind Tafjord, Pradeep Dasigi, Nelson F. Liu, Matthew Peters, Michael Schmitz, and Luke Zettlemoyer. 2018."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "AllenNLP: A deep semantic natural language processing platform. In Proceedings of Workshop for NLP Open Source Software (NLP-OSS), pages 1–6, Melbourne, Australia. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jiaqi Guo, Qian Liu, Jian-Guang Lou, Zhenwen Li, Xueqing Liu, Tao Xie, and Ting Liu. 2020. Benchmarking meaning representations in neural semantic parsing. In Proceedings ofthe 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 1520–1540, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yinuo Guo, Hualei Zhu, Zeqi Lin, Bei Chen, Jian-Guang Lou, and Dongmei Zhang. 2021. Revisiting iterative back-translation from the perspective of compositional generalization. In Proceedings of the AAAI Conference on Artificial Intelligence, volume 35, pages 7601–7609."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shivanshu Gupta, Sameer Singh, and Matt Gardner. 2022. Structurally diverse sampling for sampleefficient training and comprehensive evaluation. In Findings of the Association for Computational Linguistics: EMNLP 2022, pages 4966–4979, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jonathan Herzig and Jonathan Berant. 2021. Spanbased semantic parsing for compositional generalization. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers), pages 908–921, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jonathan Herzig, Peter Shaw, Ming-Wei Chang, Kelvin Guu, Panupong Pasupat, and Yuan Zhang. 2021. Unlocking compositional generalization in pre-trained models using intermediate representations. Computing Research Repository (CoRR), arXiv:2104.07478."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sepp Hochreiter and Jürgen Schmidhuber. 1997. Long short-term memory. Neural computation, 9(8):1735– 1780."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Dieuwke Hupkes, Verna Dankers, Mathijs Mul, and Elia Bruni. 2020. Compositionality decomposed: how do neural networks generalise? Journal of Artificial Intelligence Research, 67:757–795."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Robin Jia and Percy Liang. 2016. Data recombination for neural semantic parsing. In Proceedings of the 54th Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), pages 12–22, Berlin, Germany. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rohit J Kate, Yuk Wah Wong, Raymond J Mooney, et al. 2005. Learning to transform natural to formal languages. In AAAI, volume 5, pages 1062–1068."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                332,
+                487,
+                399
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "443"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Daniel Keysers, Nathanael Schärli, Nathan Scales, Hylke Buisman, Daniel Furrer, Sergii Kashubin, Nikola Momchev, Danila Sinopalnikov, Lukasz Stafiniak, Tibor Tihon, Dmitry Tsarkov, Xiao Wang, Marc van Zee, and Olivier Bousquet. 2020. Measuring compositional generalization: A comprehensive method on realistic data. In International Conference on Learning Representations (ICLR)."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Najoung Kim and Tal Linzen. 2020. COGS: A compositional generalization challenge based on semantic interpretation. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 9087–9105, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Diederik P. Kingma and Jimmy Ba. 2015. Adam: A method for stochastic optimization. In 3rd International Conference on Learning Representations, ICLR 2015, San Diego, CA, USA, May 7-9, 2015, Conference Track Proceedings."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Brenden Lake and Marco Baroni. 2018. Generalization without systematicity: On the compositional skills of sequence-to-sequence recurrent networks. In Proceedings ofthe 35th International Conference on Machine Learning, volume 80 of Proceedings of Machine Learning Research, pages 2873–2882, Stockholmsmässan, Stockholm Sweden. PMLR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Mike Lewis, Yinhan Liu, Naman Goyal, Marjan Ghazvininejad, Abdelrahman Mohamed, Omer Levy, Veselin Stoyanov, and Luke Zettlemoyer. 2020. BART: Denoising sequence-to-sequence pre-training for natural language generation, translation, and comprehension. In Proceedings ofthe 58th Annual Meeting ofthe Associationfor Computational Linguistics, pages 7871–7880, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zhaoyi Li, Ying Wei, and Defu Lian. 2023. Learning to substitute spans towards improving compositional generalization. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 2791–2811, Toronto, Canada. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Matthias Lindemann, Alexander Koller, and Ivan Titov. 2023. Compositional generalisation with structured reordering and fertility layers. In Proceedings ofthe 17th Conference ofthe European Chapter ofthe Associationfor Computational Linguistics, pages 2172– 2186, Dubrovnik, Croatia. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chenyao Liu, Shengnan An, Zeqi Lin, Qian Liu, Bei Chen, Jian-Guang Lou, Lijie Wen, Nanning Zheng, and Dongmei Zhang. 2021. Learning algebraic recombination for compositional generalization. In Findings of the Association for Computational Linguistics: ACL-IJCNLP 2021, pages 1129–1144, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sanket Vaibhav Mehta, Jinfeng Rao, Yi Tay, Mihir Kale, Ankur Parikh, and Emma Strubell. 2022. Improving"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "compositional generalization with self-training for data-to-text generation. In Proceedings of the 60th Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), pages 4205– 4219, Dublin, Ireland. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Inbar Oren, Jonathan Herzig, and Jonathan Berant. 2021. Finding needles in a haystack: Sampling structurallydiverse training sets from synthetic data for compositional generalization. In Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing, pages 10793–10809, Online and Punta Cana, Dominican Republic. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Kishore Papineni, Salim Roukos, Todd Ward, and Wei-Jing Zhu. 2002. Bleu: a method for automatic evaluation of machine translation. In Proceedings of the 40th Annual Meeting ofthe Associationfor Computational Linguistics, pages 311–318, Philadelphia, Pennsylvania, USA. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Linlu Qiu, Peter Shaw, Panupong Pasupat, Pawel Nowak, Tal Linzen, Fei Sha, and Kristina Toutanova. 2022. Improving compositional generalization with latent structure and data augmentation. In Proceedings of the 2022 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, pages 4341–4362, Seattle, United States. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J. Liu. 2020. Exploring the limits of transfer learning with a unified text-to-text transformer. Journal ofMachine Learning Research, 21(140):1–67."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rico Sennrich, Barry Haddow, and Alexandra Birch. 2016. Improving neural machine translation models with monolingual data. In Proceedings of the 54th Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), pages 86–96, Berlin, Germany. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need. Advances in neural information processing systems, 30."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Bailin Wang, Wenpeng Yin, Xi Victoria Lin, and Caiming Xiong. 2021. Learning to synthesize data for semantic parsing. In Proceedings of the 2021 Conference of the North American Chapter of the Associationfor Computational Linguistics: Human Language Technologies, pages 2760–2766, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jingfeng Yang, Le Zhang, and Diyi Yang. 2022. SUBS: Subtree substitution for compositional semantic parsing. In Proceedings of the 2022 Conference of the"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                191
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "444"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, pages 169–174, Seattle, United States. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yuekun Yao and Alexander Koller. 2022. Structural generalization is hard for sequence-to-sequence models. In Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing, pages 5048–5062, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Pengcheng Yin, Hao Fang, Graham Neubig, Adam Pauls, Emmanouil Antonios Platanios, Yu Su, Sam Thomson, and Jacob Andreas. 2021. Compositional generalization for neural semantic parsing via spanlevel supervised attention. In Proceedings ofthe 2021 Conference of the North American Chapter of the Associationfor Computational Linguistics: Human Language Technologies, pages 2810–2823, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tao Yu, Michihiro Yasunaga, Kai Yang, Rui Zhang, Dongxu Wang, Zifan Li, and Dragomir Radev. 2018. SyntaxSQLNet: Syntax tree networks for complex and cross-domain text-to-SQL task. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing, pages 1653–1663, Brussels, Belgium. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Hao Zheng and Mirella Lapata. 2022. Disentangled sequence to sequence learning for compositional generalization. In Proceedings ofthe 60th Annual Meeting ofthe Associationfor Computational Linguistics (Volume 1: Long Papers), pages 4256–4268, Dublin, Ireland. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Victor Zhong, Mike Lewis, Sida I. Wang, and Luke Zettlemoyer. 2020. Grounded adaptation for zeroshot executable semantic parsing. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 6869– 6882, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                129,
+                85,
+                490,
+                140
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Dataset details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                686,
+                282,
+                702
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We report dataset statistics in Table 12. COGS provides both an in-distributional test set (i.e. test) and an out-of-distributional test set (i.e. gen). For the splits of CFQ, GeoQuery and SCAN we used no in-distributional test set is provided."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                713,
+                489,
+                795
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B Training details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                807,
+                290,
+                825
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B.1 Evaluation metrics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                834,
+                314,
+                850
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For all tasks, we report exact match accuracy of our model, which means that the output sequence is correct only if each output token is correctly predicted. For GeoQuery, we additionally report execution accuracy, which means we execute generated FunQL code and calculate the accuracy of the outputs. This metric can better measure the generalization ability of our model since one input sentence can be mapped into multiple correct FunQl queries. For example, how long is the rio grande river can be parsed into either answer ( len ( river ( riverid ( rio grande ) ) ) ) or answer ( len ( intersection ( riverid ( rio grande ), ( river ( all ) ) ) ) ). Both queries return the correct value. We use the code from (Herzig and Berant, 2021) to calculate the execution accuracy."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                856,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/90af357b01d3ce8e976d73e050dc7be301fa9fd0e167b50bd16bd42768f95af2.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td>Dataset</td><td>lr</td><td>batch_size</td><td>weight_decay</td><td>steps</td></tr><tr><td>COGS</td><td>1e-5</td><td>2048</td><td>0</td><td>25k</td></tr><tr><td>CFQ</td><td>7.4e-5</td><td>2048</td><td>1e-3</td><td>50k</td></tr><tr><td>GeoQuery</td><td>1e-5</td><td>4096</td><td>1e-3</td><td>10k</td></tr><tr><td>SCAN</td><td>1e-5</td><td>1024</td><td>1e-3</td><td>25k</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                514,
+                83,
+                894,
+                155
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/90169a816f78dcccc26399ef823e3551b2e802482f45ee3ff7b5a6f180d3cb28.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 10: Hyperparmeters of baseline models used in our experiments. Batch size is quantified in terms of input tokens. batch_size refers to the batch size during training. weight_decay refers to the weight decay used in the optimizer. lr refers to the learning rate. steps refers to the training steps we used to train the model."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 11: Training time for our model on each dataset (1 run) in our experiments."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td colspan=\"3\">Time (hours)</td></tr><tr><td>Dataset</td><td>w.o. aug</td><td>w. aug</td></tr><tr><td>COGS</td><td>7</td><td>8</td></tr><tr><td>CFQ</td><td>10</td><td>10</td></tr><tr><td>GeoQuery</td><td>0.5</td><td>1</td></tr><tr><td>SCAN</td><td>20</td><td>4</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                589,
+                269,
+                803,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                424,
+                887,
+                618
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B.2 Hyperparameters"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                630,
+                700,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Baseline. We use t5-base<sup>3</sup> (220 million parameters) as our baseline for all experiments. We use the default subword vocabulary and do not extend it with new words. We use Adam (Kingma and Ba, 2015) as our optimizer. Since (Csordás et al., 2021) shows that early stopping based on in-distribution validation set leads to low performance on out-ofdistribution test set, we do not apply early stopping for COGS, GeoQuery and SCAN and only use the checkpoint at the end of training, following (Herzig et al., 2021). CFQ provides out-of-distribution development set, so we use exact match accuracy on the development set as the validation metric. No learning rate scheduler is used for all experiments. During evaluation, we use beam search with beam size 4. Task-specific hyperparameters are present in Table 10."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                652,
+                887,
+                895
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>https://huggingface.co/t5-base"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                904,
+                816,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "445"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/d86df79d3ee4a9b43856edeaae37afbc9936565493fd71237b0e200ffe54c4b4.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 12: Statistics for all our datasets. # denotes the number of instances in the dataset. Vocab.size denotes the size of vocabulary for the dataset, which consists of input tokens and output tokens. Train.len denotes the maximum length of the input tokens and output tokens in the train set. Test.len and Gen.len denote the maximum length in the test and generalization set."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Dataset</td><td>Split</td><td># train</td><td># dev.</td><td># test</td><td># gen</td><td>Vocab. size</td><td>Train len.</td><td>Test len.</td><td>Gen len.</td></tr><tr><td>COGS</td><td></td><td>24155</td><td>3000</td><td>3000</td><td>21000</td><td>809</td><td>22/48</td><td>19/40</td><td>61/144</td></tr><tr><td rowspan=\"3\">CFQ</td><td>MCD1</td><td>95743</td><td>11968</td><td>11968</td><td></td><td>171</td><td>29/133</td><td>30/103</td><td></td></tr><tr><td>MCD2</td><td>95743</td><td>11968</td><td>11968</td><td>-</td><td>171</td><td>29/133</td><td>30/103</td><td></td></tr><tr><td>MCD3</td><td>95743</td><td>11968</td><td>11968</td><td></td><td>171</td><td>29/133</td><td>30/103</td><td></td></tr><tr><td rowspan=\"2\">GeoQuery</td><td>template</td><td>544</td><td>60</td><td>276</td><td></td><td>324</td><td>23/17</td><td>19/12</td><td></td></tr><tr><td>length</td><td>540</td><td>60</td><td>280</td><td></td><td>324</td><td>13/7</td><td>23/17</td><td></td></tr><tr><td rowspan=\"2\">SCAN</td><td>Turnleft</td><td>21890</td><td>-</td><td>1208</td><td></td><td>19</td><td>9/48</td><td>8/27</td><td></td></tr><tr><td>length</td><td>16990</td><td>-</td><td>3920</td><td></td><td>19</td><td>9/22</td><td>9/48</td><td></td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                147,
+                82,
+                848,
+                205
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                299,
+                489,
+                330
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We only perform hyperparameter selection for the learning rate hyperparameter. For CFQ, we perform random search 10 times and select the best learning rate based on the model accuracy on the development set. The search space for the learning rate is (1e-5, 1e-3). For other datasets where the development set is not distributed the same as the test set (i.e. COGS and GeoQuery) or the development set is not provided (i.e. SCAN), we sample a held-out development set from its test set following (Zheng and Lapata, 2022) for hyperparameter selection. The best learning rate is selected from values in {1e-4, 1e-5} based on the model accuracy on the sampled development set."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                331,
+                490,
+                557
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Data augmentation. We maximally sample 21k, 100k, 30k and 10k unique meaning representations for COGS, CFQ, GeoQuery and SCAN respectively. For SCAN, we find that the size of possible meaning representations is small (i.e. 9228 unique meaning representations) and thus we sample all possible unique meaning representations from our PCFG."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                564,
+                490,
+                693
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B.3 Other details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                702,
+                268,
+                719
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use Allennlp (Gardner et al., 2018) for our implementation. Experiments are run on Nvidia A100 GPU cards (80GB). Table 11 shows the training time cost."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                724,
+                489,
+                788
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C Detailed results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                799,
+                290,
+                815
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We report detailed experimental results in Table 16. Both means and standard deviations are reported over 5 runs for each model. As discussed in Section 3, we experiment with two ways to utilize synthesized data: concatenating them with the original train set and pretrain the model on them first and then finetune on the original train set. We report numbers for both settings, with Concat refers to concatenation and Pretrain refers to pretraining the model first and then fine-tuning it."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                824,
+                492,
+                921
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 13: Part of our FunQL grammar."
+                    }
+                ],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "S answer ( Var ) Var City Var Place Var State City  CityNonterm City CityTerm CityNonterm  city ( City ) CityNonterm loc_2 ( State ) CityTerm  city ( all ) CityTerm  capital ( all )"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                591,
+                294,
+                803,
+                424
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                473,
+                885,
+                538
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "D Grammar details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                548,
+                700,
+                564
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use PCFG provided in Kim and Linzen (2020) for COGS and hand-written grammars for CFQ, GeoQuery and SCAN. In this section, we mainly introduce details of our used grammar for these three hand-written grammars."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                573,
+                885,
+                655
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "D.1 Grammar design"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                664,
+                697,
+                680
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "GeoQuery The meaning represnetation of Geo-Query is based on FunQL. Following the definations of FunQL <sup>4</sup>, we can easily write a context-free grammar for it. We adopted the FunQL grammar used in (Guo et al., 2020) and extends it with some rules to fit our dataset. A selection of our contextfree grammar rules are shown in Table 13."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                684,
+                887,
+                799
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SCAN SCAN is a synthetic dataset generated by Lake and Baroni (2018). They generate the dataset by generating commands (i.e. input sentences) first and then translating commands into action sequences (i.e. meaning representations) with a translation function. Instead, we write a contextfree grammar for meaning representations. A selection of our context-free grammar rules are shown in Table 14."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                806,
+                887,
+                888
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>https://www.cs.utexas.edu/~ml/wasp/ geo-funql.html"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                892,
+                860,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "446"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 14: Part of our SCAN grammar."
+                    }
+                ],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "S Command Command Walk_command Walk_command Walk_actions Walk_actions LWalk LWalk Turn_left Walk Turn_left i_turn_left Walk i_walk"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                189,
+                82,
+                416,
+                174
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 15: Part of our SPARQL grammar."
+                    }
+                ],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "S Prefix Main Main lb Conjuncts rb Conjuncts Conjuncts . Conjunct Conjuncts Conjunct Conjunct Unary_relation Unary_relation ( Var a Film_unary_arg ) Film_unary_arg film.film Var M0"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                161,
+                217,
+                443,
+                321
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                376,
+                489,
+                441
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "CFQ CFQ is a synthetic dataset generated by Keysers et al. (2020). They generate the natural language sentences and corresponding intermediate logical forms first, and then apply multiple rules to obtain the SPARQL meaning representations. Designing a context-free grammar for SPARQL is hard because it contains variables and each relation only accepts specific typed variables as arguments. For example, the object of film.writer.film relation should be a film. In our grammar, we consider all variable strings are produced by the nonterminal Var and we do post-process to filter out samples that do not follow type constraints described above. A selection of our context-free grammar rules are shown in Table 15."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                456,
+                489,
+                699
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our experiments, we find this setting still generates most noisy meaning representations due to redundant conjuncts (e.g. SELECT DISTINCT ?x0 WHERE { ( FILTER ( ?x0 != M0 ) ) . ( M5 ( film.editor.film ) ( ?x1 ) ) }). A better solution might be to construct the PCFG based on the graph structure."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                701,
+                489,
+                814
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "D.2 Parameter estimation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                831,
+                336,
+                846
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To estimate parameters of a grammar on a dataset based on maximum likelihood estimation, we first parse meaning representations in the dataset with our grammar rules described above. We implement this with NLTK package<sup>5</sup>. We binarize our grammar rules to adopt parsing methods in NLTK."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                856,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                885,
+                118
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Ambiguous trees For CFQ, all meaning representations can be parsed into unambiguous trees. For GeoQuery and SCAN, parsing results in ambiguous trees for some cases. For a meaning representation with N ambiguous parse trees, we simply use a count 1/N as the count for rules in each tree to estimate their parameters."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                126,
+                887,
+                239
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E Additional experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                249,
+                752,
+                267
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E.1 Perplexity curve"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                274,
+                690,
+                291
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We plot the perplexity curve of different models on test set for each task in Figure 7. For CFQ and CFQ, the perplexity at the beginning is already very small. This is because on these two datasets we pretrain the model on synthesized data first, since direct concatenating the synthesized data only hurts the performance. We can observe that for COGS, GeoQuery and SCAN, the perplexity of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "always achieves the lowest perplexity and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { u n i f o r m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gives lower perplexity than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t r a i n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". On CFQ, all three augmentation distributions achieves lower perplexity than baseline T5 and performs on par. This pattern holds during the entire training process, which serves as further evidence for the discussion in Section 5."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                296,
+                885,
+                538
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E.2 Breakdown performance improvements"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                548,
+                873,
+                564
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also conduct a more detailed analysis to investigate how the performances evolve as more complex structures get observed. Specifically, we address the PP and CP recursion generalization types on COGS and GeoQuery template split. For COGS, we incrementally augment the train set with more complex data (i.e. deeper recursions) in increments of 100 instances per depth. For GeoQuery, we manually select four local structures population_1 stateid, len river, capital cityid, intersection river that pose challenges for the baseline parser’s predictions yet are present in the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t e s t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "set. We incrementally introduce each pattern into the train set. As shown in Figure 8, as more complex MR structures being observed by the model, its performance gets better improved."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                569,
+                887,
+                829
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>5</sup>https://www.nltk.org/"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                904,
+                732,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "447"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/4679933ebc289c5dee2ac5e26484af452f84847d8dc4f105602ccf57a49df911.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 16: Detailed results in our experiments."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td colspan=\"2\"></td><td colspan=\"4\">COGS</td></tr><tr><td colspan=\"2\">Model</td><td>Obj to Subj PP</td><td>CP recursion</td><td>PP recursion|</td><td>Overall</td></tr><tr><td rowspan=\"4\">Concat</td><td>T5</td><td> $8 8 . 2 \\pm 3 . 6 $ </td><td> $3 2 . 3 \\pm 3 . 7$ </td><td> $2 4 . 1 \\pm 6 . 4$ </td><td> $9 1 . 0 \\pm 0 . 5$ </td></tr><tr><td> $+ P _ { t r a i n }$ </td><td> $8 9 . 4 \\pm 2 . 3$ </td><td> $4 3 . 5 \\pm 8 . 7$ </td><td> $5 1 . 2 \\pm 7 . 5$ </td><td> $9 2 . 9 \\pm 0 . 9$ </td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $9 4 . 6 \\pm 0 . 1$ </td><td> $9 5 . 7 \\pm 2 . 8$ </td><td> $9 6 . 7 \\pm 5 . 0$ </td><td> $9 9 . 3 \\pm 0 . 4$ </td></tr><tr><td> $+ P _ { u n i f o r m }$ </td><td> $9 4 . 8 \\pm 0 . 0$ </td><td> $5 0 . 7 \\pm 2 . 4$ </td><td> $8 7 . 7 \\pm 1 . 0$ </td><td> $9 5 . 9 \\pm 0 . 1$ </td></tr><tr><td rowspan=\"3\">Pretrain</td><td> $+ P _ { t r a i n }$ </td><td> $8 5 . 8 \\pm 6 . 5$ </td><td> $4 1 . 3 \\pm 1 1 . 3$ </td><td> $5 1 . 6 \\pm 5 . 8$ </td><td> $9 2 . 8 \\pm 0 . 6$ </td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $9 4 . 8 \\pm 0 . 0$ </td><td> $4 3 . 1 \\pm 5 . 7$ </td><td> $8 5 . 0 \\pm 4 . 0$ </td><td> $9 9 . 2 \\pm 0 . 2 $ </td></tr><tr><td> $+ P _ { u n i f o r m }$ </td><td> $9 4 . 6 \\pm 0 . 1$ </td><td> $9 4 . 8 \\pm 0 . 2$ </td><td> $9 2 . 7 \\pm 4 . 9$ </td><td> $9 5 . 6 \\pm 0 . 5$ </td></tr><tr><td colspan=\"2\">Model</td><td colspan=\"4\"></td></tr><tr><td colspan=\"2\"></td><td>MCD1</td><td>CFQ MCD2</td><td>MCD3</td><td>Average</td></tr><tr><td rowspan=\"4\">Concat</td><td>T5</td><td> $8 9 . 8 \\pm 0 . 8$ </td><td> $7 4 . 7 \\pm 1 . 8$ </td><td> $7 4 . 0 \\pm 0 . 9$ </td><td> $7 9 . 4 \\pm 2 . 4$ </td></tr><tr><td> $+ P _ { t r a i n }$ </td><td> $4 9 . 5 \\pm 1 . 9$ </td><td> $4 7 . 1 \\pm 1 . 3$ </td><td> $5 1 . 2 \\pm 2 . 9$ </td><td> $4 9 . 2 \\pm 1 . 0$ </td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $3 9 . 0 \\pm 1 . 3$ </td><td> $4 4 . 7 \\pm 2 . 3$ </td><td> $4 2 . 3 \\pm 0 . 7$ </td><td> $4 2 . 0 \\pm 0 . 9$ </td></tr><tr><td> $+ P _ { u n i f o r m }$ </td><td> $5 7 . 5 \\pm 4 . 1$ </td><td> $5 9 . 4 \\pm 2 . 4$ </td><td> $5 5 . 2 \\pm 3 . 3$ </td><td> $5 7 . 4 \\pm 1 . 8$ </td></tr><tr><td rowspan=\"3\">Pretrain</td><td> $+ P _ { t r a i n }$ </td><td> $8 9 . 9 \\pm 1 . 2 $ </td><td> $7 7 . 9 \\pm 2 . 9$ </td><td> $7 5 . 8 \\pm 1 . 0$ </td><td> $8 1 . 2 \\pm 2 . 1$ </td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $9 0 . 4 \\pm 0 . 7$ </td><td> $7 9 . 1 \\pm 1 . 7$ </td><td> $7 5 . 5 \\pm 2 . 7$ </td><td> $8 1 . 7 \\pm 3 . 6 $ </td></tr><tr><td> $+ P _ { u n i f o r m }$ </td><td> $9 1 . 2 \\pm 1 . 1$ </td><td> $7 8 . 8 \\pm 1 . 7$ </td><td> $7 4 . 3 \\pm 1 . 7$ </td><td> $8 1 . 4 \\pm 1 . 1$ </td></tr><tr><td colspan=\"6\">GeoQuery</td></tr><tr><td rowspan=\"3\"></td><td>T5</td><td>Template  $7 3 . 9 \\pm 2 . 6$ </td><td>Length</td><td></td><td></td></tr><tr><td> $+ P _ { t r a i n }$ </td><td> $3 9 . 0 \\pm 0 . 9$ </td><td> $4 6 . 1 \\pm 1 . 5$   $2 0 . 7 \\pm 0 . 6$ </td><td></td><td></td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $5 2 . 3 \\pm 1 . 3$ </td><td> $3 5 . 6 \\pm 1 . 7$ </td><td></td><td></td></tr><tr><td rowspan=\"4\">Pretrain</td><td> $+ P _ { u n i f o r m }$ </td><td> $2 2 . 4 \\pm 1 . 7$ </td><td> $5 . 1 \\pm 0 . 3$ </td><td></td><td></td></tr><tr><td> $+ P _ { t r a i n }$ </td><td> $7 4 . 1 \\pm 1 . 6$ </td><td> $5 6 . 1 \\stackrel { + } { + } 2 . 1$   $5 6 . 1 \\pm 2 . 1$ </td><td></td><td></td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $8 0 . 1 \\pm 1 . 7$ </td><td> $6 0 . 4 \\pm 2 . 4$ </td><td></td><td></td></tr><tr><td> $+ P _ { u n i f o r m }$ </td><td> $7 9 . 3 \\pm 1 . 3$ </td><td> $6 0 . 1 \\pm 0 . 6$ </td><td></td><td></td></tr><tr><td colspan=\"2\"></td><td></td><td>SCAN</td><td></td><td></td></tr><tr><td colspan=\"2\">Model</td><td>Turnleft</td><td>Length</td><td>1</td><td></td></tr><tr><td rowspan=\"3\"></td><td>T5</td><td> $7 3 . 9 \\pm 2 . 6$ </td><td> $4 . 4 \\pm 0 . 9$ </td><td></td><td></td></tr><tr><td> $+ P _ { t r a i n }$ </td><td> $9 2 . 9 \\pm 1 4 . 4$ </td><td> $8 . 1 \\pm 1 . 3$ </td><td></td><td></td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $9 2 . 9 \\pm 1 4 . 4$ </td><td> $6 0 . 5 \\pm 2 . 5$ </td><td></td><td></td></tr><tr><td rowspan=\"4\">Pretrain</td><td> $+ P _ { u n i f o r m }$ </td><td> $9 2 . 9 \\pm 1 4 . 4$ </td><td> $6 0 . 5 \\pm 2 . 5$ </td><td></td><td></td></tr><tr><td> $+ P _ { t r a i n }$ </td><td> $7 5 . 5 \\pm 5 . 4$ </td><td> $1 5 . 5 \\pm 1 . 5$ </td><td></td><td></td></tr><tr><td> $+ P _ { t e s t }$ </td><td> $7 5 . 5 \\pm 5 . 4$ </td><td> $1 5 . 9 \\pm 1 . 3$ </td><td></td><td></td></tr><tr><td> $+ P _ { u n i f o r m }$ </td><td> $7 5 . 5 \\pm 5 . 4$ </td><td> $1 5 . 9 \\pm 1 . 3$ </td><td></td><td></td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                221,
+                243,
+                776,
+                730
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "448"
+                    }
+                ]
+            },
+            "bbox": [
+                484,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/a1476913497f35723459f7467025b6de7bd48e3879f2708c187b2869a9735ac7.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) COGS"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                124,
+                87,
+                499,
+                248
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/b541d927dc8ae648f55ebe6ccc6013fa743695571afbaaca7a78b6c0d5343966.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) CFQ MCD1"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                505,
+                87,
+                870,
+                249
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/7247a3825c214de4d5390e21812ee46c438d17bef104d452fc6eebcf55c83c45.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(c) GeoQuery Template split"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                122,
+                273,
+                499,
+                436
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/15b72cb192df9d7a0732e75bd9788e8aa12b85f33d13d57d9ab3c4b6c839d8f5.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(d) SCAN Length split"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                504,
+                273,
+                880,
+                435
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/601c66f11531d4ca2cf1a23366d2d25b87ea520cf95bcda44d1cc927799057d9.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 7: Perplexity of models with different augmentation strategies on test set. The x-axis refers to training steps."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                154,
+                516,
+                453,
+                645
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/f39c908652372144588a6853f3940f03275627d6e8c28ed8b02c171a715ec8af.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) Exact match accuracy of T5 on COGS generalization set with different maximum structure depths observed in the train set."
+                    },
+                    {
+                        "type": "text",
+                        "content": "(b) Execution accuracy of T5 on GeoQuery test set (template split) with increasingly observed rule combinations in the train set."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Figure 8: Performance curve with regard to train sets with incrementally added structures."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                152,
+                695,
+                448,
+                821
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "449"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ]
+]
