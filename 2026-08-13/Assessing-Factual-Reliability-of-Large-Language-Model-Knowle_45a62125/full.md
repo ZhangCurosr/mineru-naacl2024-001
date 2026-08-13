@@ -1,0 +1,370 @@
+# Assessing Factual Reliability of Large Language Model Knowledge
+
+Weixuan Wang<sup>1</sup>, Barry Haddow<sup>1</sup>, Alexandra Birch<sup>1</sup>, Wei Peng<sup>2</sup>
+
+<sup>1</sup> School of Informatics, University of Edinburgh
+
+weixuan.wang@ed.ac.uk, bhaddow@ed.ac.uk, a.birch@ed.ac.uk
+
+<sup>2</sup> Huawei Technologies Co., Ltd.
+
+peng.wei1@huawei.com
+
+## Abstract
+
+The factual knowledge of LLMs is typically evaluated using accuracy, yet this metric does not capture the vulnerability of LLMs to hallucination-inducing factors like prompt and context variability. How do we evaluate the capabilities of LLMs to consistently produce factually correct answers? In this paper, we propose MOdel kNowledge relIabiliTy scORe (MONITOR), a novel metric designed to directly measure LLMs’ factual reliability. MON-ITOR is designed to compute the distance between the probability distributions of a valid output and its counterparts produced by the same LLM probing the same fact using different styles of prompts and contexts. Experiments on a comprehensive range of 12 LLMs demonstrate the effectiveness of MONITOR in evaluating the factual reliability of LLMs while maintaining a low computational overhead. In addition, we release the FKTC (Factual Knowledge Test Corpus) to foster research along this line<sup>1</sup>.
+
+## 1 Introduction
+
+Recently, large pre-trained language models (LLMs) have been used as de facto storage for factual knowledge (Petroni et al., 2019). However, applying LLMs to real-world scenarios inevitably leads to language generation deviating from known facts (aka “factual hallucination” (Chang et al., 2023)) due to multiple causes. For example, Cao et al. (2021) argued that the performance of an LLM is over-estimated due to biased prompts overfitting datasets (also referred to as the framing effect in Jones and Steinhardt (2022)) and in-context information leakage.
+
+Given the variability of LLMs’ performance under different prompts and contexts, it becomes evident that relying solely on accuracy as an evaluation metric is insufficient. We also need to gauge
+
+![](images/0d1b09e9c3cd2186463cc3a6ad8d304a9de8d235553672bb600b5e40f3ba7a99.jpg)  
+Figure 1: ‘Accuracy instability” during language generation under various prompts.
+
+Prompt framing effect: An LLM generates different predictions depending on how prompts are framed. Predictions are associated with prompts instead of factual knowledge learned in LLMs. As shown in Figure 1(a), for a fact represented in a triplet  Cunter, is located in, Switzerland  , the generated predictions for re-framed prompts “Which country is Cunter situated?” and “Cunter is located in Switzerland. True or False?” are non-factual.
+
+Effect of in-context interference: An LLM leverages in-context information during its decoding stage, but this information may negatively affect an LLM’s prediction during knowledge probing. As shown in Figure 1(b), for the same fact, when presented with a context “England.” concatenated with the prompting question “Which country is the location of Cunter?”, an LLM generates a non-factual prediction “England”.
+
+How do we assess the reliability of factual knowledge of LLMs under the effects of these hallucination-inducing factors? Investigations into the behaviors of language models during knowledge probing (Petroni et al., 2019; Kassner and Schütze, 2020; Gupta, 2023) have mainly used metrics like precision and accuracy to quantify errors under a specified factor like prompt framing (Jones and Steinhardt, 2022) or mis-primed information (Kassner and Schütze, 2020). Despite the insights gained by showing the instability of LLMs during knowledge probing, these studies are subject to two limitations:
+
+![](images/54cc86ed64a28bcadf9fba00e495fd2b97f0740fd2b1f8fdbb10ee25a8f041a5.jpg)  
+Figure 2: The same top-1 answer with different output probabilities from two LLMs.
+
+No Exploration of Uncertainty. Metrics like top-one accuracy may capture the ordering of predictions in the output space, but they lack the resolution to reflect on the degree of factual knowledge being learned by LLMs. Figure 2 depicts an example where two LLMs (Models A and B) may produce the same result even though their output probabilities vary. By equating the performance of Model A with that of Model B, one introduces a level of approximation in representation, which can be regarded as a source of uncertainty. In this paper, we directly use the output probabilities and construct a high-resolution metric to perform knowledge assessment.
+
+Limited Scope. Previous works focus on understanding the effect of variability of a specific type. We design experiments to investigate the combined effects of multiple causes of accuracy instability: prompt framing and in-context interference during knowledge assessment. In addition, few studies have experimented on LLMs with billions of parameters. In contrast, we investigate the knowledge reliability of 12 freely downloadable LLMs with a range of parameter sizes and origins (with and without instruction fine-tuning).<sup>2</sup>
+
+In this paper, we propose a novel distancebased approach MOdel kNowledge relIabiliTy scORe (MONITOR) which captures the deviation of output probability distributions under contexts of prompting variance, interference from mispriming (Kassner and Schütze, 2020) and positively-primed prompts.
+
+We perform experiments on a comprehensive set of knowledge probing tasks and investigate the effectiveness of MONITOR in assessing LLMs’ factual reliability. Through experiments with a large variety of different facts, we show that a lower-MONITOR LLM is less likely to suffer from “accuracy instability” issue. Computing MON-ITOR takes only one-third GPU hours of those consumed by a comprehensive accuracy reliability study, making MONITOR a low-cost metric for assessing factual knowledge reliability of LLMs. Our contributions are:
+
+1. We propose a novel method to assess the factual reliability of LLMs in the presence of the prompt framing effect and in-context interference. The proposed metric, MON-ITOR, can be used in conjunction with an end-to-end metric (i.e., accuracy) as part of a multi-dimensional approach to LLM knowledge evaluation.
+
+2. We construct the FKTC (Factual Knowledge Test Corpus) by developing question answering probing prompts (210,171 prompts in total) based on 16,167 triplets of 20 fact datasets from T-REx corpus (Elsahar et al., 2018). We will release FKTC to the public to foster research works along this line.
+
+## 2 Related Work
+
+Petroni et al. (2019) demonstrated that factual knowledge can be directly extracted from language models without needing an external knowledge source. However, extracting knowledge (aka knowledge probing) from language models is errorprone due to various biases. For example, Elazar et al. (2021) showed that the consistency of knowledge extracted is generally low when the same fact is queried with different prompts. Many works in prompt engineering attempt to automatically construct prompts outperforming manual prompts (Shin et al., 2020; Jiang et al., 2020; Zhou et al., 2023; Kojima et al., 2022). Cao et al. (2021) argued that the decent performance of a language model is ascribed mainly to the application of these biased prompts, in other words “better” prompts are found to over-fit the answer distribution of the test set instead of reflecting on LLMs’ generalization ability to predict factual knowledge.
+
+LLMs are sensitive to in-context information. Kassner and Schütze (2020); Gupta (2023) showed that language models fail on most negated probes and are easily misled by misprimes added to the probing context. On the other hand, Zhao et al. (2021); Si et al. (2023); Webson and Pavlick (2022) found the presence of context biases in few-shot probing results. The works mentioned above focused on pinpointing issues affecting LLMs’ factual prediction. Few studies were motivated to develop evaluation approaches insensitive to the hallucination-inducing causes. Recently, Raj et al. (2023) presented a framework for evaluating the consistency of LLMs based on accuracy. Zhu et al. (2023) designed a benchmark for assessing the robustness of LLMs to adversarial instruction attacks, measuring the corresponding end-to-end performance drops. Dong et al. (2023) proposed a new metric to measure factual knowledge capability under the bias caused by aliases (alternative names for entities or relations) by reducing the effect of entity and relation aliases in the factual probing. Without tackling other factors like the prompt framing effect and in-context interference (and their interactions), the scope of the study is limited.
+
+## 3 LLMs in Hallucination
+
+In this section, we investigate LLMs’ accuracy under the influence of various hallucination-inducing causes mentioned above. We design five formats of prompts to demonstrate two categories of hallucination-inducing causes during knowledge probing (Table 1). Twelve LLMs with a wide range of parameter size (from 560 million to 30 billion parameters) are covered in this study and experiments (in Section 5), including foundation language models of OPT (Zhang et al., 2022), Galactica (Taylor et al., 2022), and instruction finetuned language model of BLOOMZ (Muennighoff et al., 2023), Vicuna (Zheng et al., 2023), Flan-T5 (Chung et al., 2022), WizardLM (Xu et al., 2023), Flan-UL2 (Tay, 2023; Tay et al., 2023), LLaMa-30b-instruct-2048 (upstage, 2023).
+
+## 3.1 Effect of Prompt Framing on Accuracy
+
+We design three probing templates based on the “subject”,“relation”,“object”  to show the effect of prompt framing on LLMs, depicted below, and for each task, we use seven paraphrased prompts to ensure diversity:
+
+Word Prediction (WP) Template: Given the “subject” and the prompt template, LLMs perform word prediction to complete the sentence, e.g., the template (1) in Table 1.
+
+Prompt frames   
+(1) WP: [X] is located in \_   
+(2) QA: Which country is [X] situated in?   
+(3) FC: Statement: [X] is located in [Y]. The statement is True of False?   
+In-context interference   
+(4) [Y]. Which country is the location of [X]?   
+(5) [Y\_]. Which country is the location of [X]?  
+Table 1: Examples of designed probing task templates extending the P17 (a fact dataset containing 931 subjectobject pairs with the “country” relation from T-REx (Elsahar et al., 2018)). [Y] is the object wrt the subject [X], [Y\_] is an entity weakly related to [X].
+
+Question-Answer (QA) Template: In the QA template, question prompts are constructed from paraphrasing templates in T-REx (Elsahar et al., 2018) targeting each fact. For example, a template “[X] is located in [Y].” for a triplet  [X], is located in, [Y] can be paraphrased to “Which country is [X] situated in?”.
+
+Fact Checking (FC) Template: An FC prompt is designed as a verification statement based on a template in T-REx, e.g., “Statement: [X] is located in [Y]. The statement is True or False?”. We build the positive checking probe (FC-pos) and negative checking probe (FC-neg) corresponding to whether the statement is factual or not. For a negative fact-checking prompt, we average the prediction accuracy for five random entities chosen from the same category.
+
+The probing results are shown in Table 2 as accuracy in predicting P17 factual knowledge for each involved LLM under prompting biases presented in terms of WP, QA, and FC templates. The performances of LLMs in predicting the fact test data vary significantly under prompt variability. Abnormal performances of LLMs between QA and WP template-based probes (bold numbers of Vicuna-7b) and between the FC probes for positive and negative interference (bold numbers of BLOOMZ-1b1) are strong evidences of the prompt framing effect. The fluctuation under WP, QA, and FC templates shown as box plots in Figure 9 (Appendix A.1) further demonstrates the effect of prompt framing on the performances of LLMs.
+
+## 3.2 Effect of In-context Interference
+
+To explore the effect of in-context interference bias, we add probes with misprimed (Kassner and Schütze, 2020) interference by concatenating contexts in terms of factual/non-factual information preceding the associated QA prompt (template (2) in Table 1). Table 3 captures the accuracy of LLMs in a comparative study using factual entity probes and misprimes consisting of weakly associated entities. We observe a strong interference effect from nonfactual antecedents for all 12 LLMs. A factual entity (positive interference) can improve the accuracy by up to +43.67 while a weakly related entity (negative interference) reduces the accuracy by -66.00 at most.
+
+<table><tr><td>LLMs</td><td>Size</td><td>WP</td><td>QA</td><td>FC- pos</td><td>FC- neg</td></tr><tr><td>BLOOMZ-560m</td><td>0.56</td><td>14.73</td><td>26.09</td><td>28.77</td><td>73.78</td></tr><tr><td>BLOOMZ-1b1</td><td>1.1</td><td>14.96</td><td>28.29</td><td>0.11</td><td>99.89</td></tr><tr><td>Galactica-1b3</td><td>1.3</td><td>2.36</td><td>46.43</td><td>86.05</td><td>12.29</td></tr><tr><td>OPT-2b7</td><td>2.7</td><td>28.27</td><td>55.67</td><td>75.80</td><td>22.07</td></tr><tr><td>BLOOMZ-3b</td><td>3</td><td>20.46</td><td>30.69</td><td>58.29</td><td>81.95</td></tr><tr><td>Vicuna-7b</td><td>7</td><td>34.89</td><td>73.25</td><td>91.19</td><td>85.67</td></tr><tr><td>BLOOMZ-7b1</td><td>7.1</td><td>26.26</td><td>33.72</td><td>88.32</td><td>64.98</td></tr><tr><td>Flan-T5-XXL</td><td>11</td><td>51.47</td><td>31.01</td><td>88.05</td><td>78.78</td></tr><tr><td>Vicuna-13b</td><td>13</td><td>38.96</td><td>78.15</td><td>90.87</td><td>89.68</td></tr><tr><td>WizardLM-13b</td><td>13</td><td>34.66</td><td>78.55</td><td>87.71</td><td>93.89</td></tr><tr><td>Flan-UL2</td><td>20</td><td>21.57</td><td>46.44</td><td>79.51</td><td>73.58</td></tr><tr><td>LLaMa-30b-ins.</td><td>30</td><td>67.94</td><td>87.72</td><td>96.99</td><td>86.69</td></tr></table>
+
+Table 2: Accuracy of various LLMs in predicting P17 fact dataset. The performances of LLMs have undergone significant variations for different prompting templates. The unit of “size” is billion.
+<table><tr><td>LLMs</td><td>X</td><td>[Y]</td><td>[Y_]</td></tr><tr><td>BLOOMZ-560m</td><td>25.91</td><td>66.17 (+40.26)</td><td>14.50 (-11.41)</td></tr><tr><td>BLOOMZ-1b1</td><td>27.74</td><td>64.02 (+36.28)</td><td>16.99 (-10.75)</td></tr><tr><td>Galactica-1b3</td><td>53.81</td><td>56.39 (+2.58)</td><td>10.42 (-43.39)</td></tr><tr><td>OPT-2b7</td><td>58.00</td><td>77.23 (+19.23)</td><td>19.83 (-38.17)</td></tr><tr><td>BLOOMZ-3b</td><td>35.38</td><td>79.05 (+43.67)</td><td>24.30 (-11.08)</td></tr><tr><td>Vicuna-7b</td><td>82.71</td><td>99.67 (+16.96)</td><td>16.71 (-66.00)</td></tr><tr><td>BLOOMZ-7b1</td><td>39.03</td><td>70.57 (+31.54)</td><td>26.40 (-12.63)</td></tr><tr><td>Flan-T5-XXL</td><td>37.85</td><td>42.53 (+4.68)</td><td>29.77 (-8.08)</td></tr><tr><td>Vicuna-13b</td><td>84.21</td><td>90.76 (+6.55)</td><td>44.58 (-39.63)</td></tr><tr><td>WizardLM-13b</td><td>85.61</td><td>55.75 (-29.86)</td><td>47.09 (-38.52)</td></tr><tr><td>Flan-UL2</td><td>33.44</td><td>47.58 (+14.14)</td><td>33.19 (-0.25)</td></tr><tr><td>LLaMa-30b-ins.</td><td>90.76</td><td>99.46 (+8.70)</td><td>47.78 (-42.98)</td></tr></table>
+
+Table 3: The effect of probing the P17 fact dataset with QA templates (4) and (5) in Table 1, where “ ” means experimental results with the original QA templates, “[Y]” means results using the factual information as incontext information, and “[Y\_]” refers to results using non-factual in-context information of entities weakly related to “[X]”.
+
+## 4 Methodology
+
+In this section, we introduce MONITOR, a distance-based score, to assess how the factual knowledge of LLMs is affected by the previously mentioned prompt framing and in-context interference.
+
+Firstly, we introduce a new variable (i) to represent hallucination-inducing in-context information into the initial knowledge representation triplet subject, relation, object . The newly formed knowledge representation quadruple can be expressed as $\langle \ s , r , o , i \ \rangle$ . The information i can be further categorized into two variables: we use a factual object entity to implement a positive information i<sup>+</sup>; and the negative information i− represents interference when predicting o. For example, “England” is considered as an i− when acting as a noisy condition to negatively affect an LLM in predicting a desirable outcome Switzerland for a fact Cunter, is located in, Switzerland . Corresponding to an object, $P ( o | s , r , i )$ is the probability of the model generating the object o with the conditions of subject s, prompt framing expression r, and the in-context information i.
+
+![](images/95b572e05e6fd5ca6d704a5d1a2644c9109621d632797a73a14d85e9a000c576.jpg)  
+Figure 3: A primary anchor (in red font) corresponds to its multiple foreign anchors with different output probabilities (blue fonts) when an LLM is exposed to different prompts and context interference. $^ { * } P F D ^ { * }$ and $" I R D "$ refer to the two distance measurements defined as the prompt-framing degree and interference-relevance degree.
+
+To quantify the effect of i on LLMs, we establish “anchor” as a reference point, which is the gold answer with its probability in the output space. A “primary anchor” (shown as the red font “Switzerland 0.9117” in Figure 3) is defined as an enforcedaccurate answer with its probability produced by an LLM in response to a knowledge probe. A primary anchor is produced by prompting an LLM with a QA template prefixed with positive information i<sup>+</sup> (i.e. template (4) in Table 1). A primary anchor has multiple foreign anchors with various output probabilities (i.e., “Switzerland” in blue fonts in Figure 3) when an LLM is exposed to different prompts and in-context interference. Foreign anchors are generated using paraphrased Templates $( 2 ) ^ { 3 }$ and (5)<sup>4</sup> presented in Table 1. By calculating the distance (using the probability changes) between a primary anchor and its corresponding foreign anchors in the influenced output space, we can measure how reliable an LLM is in predicting facts in the test set.
+
+MONITOR consists of two distance-based measurement components: Prompt-framing Degree (PFD) and Interference-relevance Degree (IRD).
+
+## 4.1 Prompt-framing Degree
+
+The prompt-framing degree (PFD) is the mean distance between the output probability distributions of a primary anchor $( P ( o | s , r , i ^ { + } ) )$ and those produced by the same LLM using prompting frames $r _ { j }$ probing the same fact without any add-on context (foreign anchors $P ( o | s , r _ { j } ) )$ . PFD evaluates the similarity of two output probabilities between prompting frame relation expressions r (the basic prompt framing) and $r _ { j }$ . It is defined as:
+
+$$
+P F D = \frac { 1 } { R } \sum _ { j = 1 } ^ { R } \frac { 1 } { L _ { c } } \sum _ { l = 1 } ^ { L _ { c } } | P ( o _ { c } | s _ { c } , r , i ^ { + } ) _ { l } - P ( o _ { c } | s _ { c } , r _ { j } ) _ { l } |\tag{1}
+$$
+
+where R is the count of prompt framing expressions for a subject, and the count of subject and object in a fact dataset is S, $c \in \{ 1 , . . . , S \}$ $L _ { c }$ is the length of the anchor in terms of the number of subwords in the c-th object. PFD is a cumulative metric for assessing an LLM’s capability in producing output probability distributions sharing the same characteristics under various prompting frames. PFD has a value between 0 and 1. The smaller the value is, the more robust an LLM is under the effect of prompt framing.
+
+## 4.2 Interference-relevance Degree
+
+Interference-relevance Degree (IRD) is the distance between the output probability distributions of a primary anchor $( P ( o | s , r , i ^ { + } ) )$ ) and the probability distributions generated by the same LLM under the influence of in-context interference (foreign anchors $P ( o | s , r , i ^ { - } ) )$ . IRD measures an LLM’s capability to predict factual knowledge under the effect of in-context interference.
+
+$$
+I R D = \frac { 1 } { M } \sum _ { m = 1 } ^ { M } \frac { 1 } { L _ { c } } \sum _ { l = 1 } ^ { L _ { c } } | P ( o _ { c } | s _ { c } , r , i ^ { + } ) _ { l } - P ( o _ { c } | s _ { c } , r , i _ { m } ^ { - } ) _ { l } |\tag{2}
+$$
+
+We define the count of positive and negative information as one and M, respectively, corresponding to an object. IRD has a value between 0 and 1. As positive contextual information likely leads to factual knowledge generation, a smaller value of IRD indicates a lower level of effect from in-context interference biases.
+
+## 4.3 MONITOR
+
+The prompt-framing degree PFD and interferencerelevance degree IRD are integrated to produce the proposed model knowledge reliability score (MONITOR). MONITOR captures the quadratic interaction of PFD and IRD, as illustrated in Eq 3 for a specified number of quadruples $\langle \ s , r , o , i \ \rangle$ where the count of subject and object is S. A set of coefficients $\left( \alpha _ { 1 - 3 } \right)$ is introduced to quantify the contributions from PFD, IRD, and their interaction on MONITOR. In this experiment, we consider an equal contribution scenario $( \alpha _ { 1 } = \alpha _ { 2 } = \alpha _ { 3 } =$ 0.33). The smaller the value of MONITOR, the less degree an LLM is influenced by hallucinationinduced factors when producing factual outputs. Taking the average output probabilities of primary anchors for an LLM as the denominator, MON-ITOR captures the degree of knowledge learned by an LLM when assessing its factual knowledge. MONITOR measures the effect of prompt framing and interference per unit of average primary anchor probability, demonstrating the strength of anchor representations.
+
+LLMs are resource-hungry even during their inference phases. It is essential to ensure that an assessment metric is computation-efficient. Combining PFD, IRD, and their interaction in one metric can reduce the computation cost when evaluating factual reliability. Considering a fact dataset with R prompt frames, M negative interference, and one positive interference, there are R M combinations required to compute the average accuracy (and accuracy range). In comparison, we only require $R + ( 1 + M )$ combinations to compute MONI-TOR. The computation complexity for calculating MONITOR $( O ( R { + } M ) )$ is considerably lower than that of accuracy $( O ( R \cdot M ) )$ .
+
+$$
+M O N I T O R = \frac { \sum _ { c } ^ { S } \sqrt { \alpha _ { 1 } P F D ^ { 2 } + \alpha _ { 2 } I R D ^ { 2 } + \alpha _ { 3 } P F D * I R D } } { \sum _ { c } ^ { S } \frac { 1 } { L _ { c } } \sum _ { l = 1 } ^ { L _ { c } } P ( o _ { c } | s _ { c } , r , i ^ { + } ) _ { l } }\tag{3}
+$$
+
+## 5 Experiments and Results
+
+In this section, we describe how to apply MON-ITOR to assess the factual knowledge of the 12 LLMs as mentioned above.
+
+## 5.1 Data Setting
+
+In this section, we describe how we develop a test corpus to accommodate prompts with various styles and in-context interference.
+
+Expanding Probing Prompt: Based on 16,167 subject, relation, object triplets from T-REx (Elsahar et al., 2018), we develop QA probing prompts. We expand the probing prompt dataset by paraphrasing using GPT-4 (OpenAI, 2023) to create seven prompt frames for each triplet. In order to maintain diversity of prompts, we choose prompts with a similarity score (BLEU) below a threshold (0.7). Moreover, we manually check the paraphrased prompts to ensure validity.
+
+<table><tr><td>LLMs</td><td>MONITOR ↓</td><td>avg↑</td><td>max ↑</td><td>min ↑</td><td>probs ↑</td></tr><tr><td>BLOOMZ-560m</td><td>0.701</td><td>27.770</td><td>40.411</td><td>15.062</td><td>0.467</td></tr><tr><td>BLOOMZ-1b1</td><td>0.692</td><td>30.055</td><td>43.369</td><td>16.654</td><td>0.501</td></tr><tr><td>Galactica-1b3</td><td>0.747</td><td>22.936</td><td>39.414</td><td>9.427</td><td>0.637</td></tr><tr><td>OPT-2b7</td><td>0.637</td><td>25.599</td><td>37.117</td><td>11.347</td><td>0.360</td></tr><tr><td>BLOOMZ-3b</td><td>0.686</td><td>30.638</td><td>44.760</td><td>16.760</td><td>0.610</td></tr><tr><td>Vicuna-7b</td><td>0.504</td><td>38.194</td><td>59.727</td><td>18.361</td><td>0.884</td></tr><tr><td>BLOOMZ-7b1</td><td>0.632</td><td>36.232</td><td>49.328</td><td>22.870</td><td>0.613</td></tr><tr><td>Flan-T5-XXL</td><td>0.630</td><td>32.968</td><td>48.864</td><td>19.868</td><td>0.798</td></tr><tr><td>Vicuna-13b</td><td>0.484</td><td>44.882</td><td>65.499</td><td>26.967</td><td>0.862</td></tr><tr><td>WizardLM-13b</td><td>0.560</td><td>51.477</td><td>66.036</td><td>33.076</td><td>0.774</td></tr><tr><td>Flan-UL2</td><td>0.684</td><td>32.723</td><td>51.442</td><td>16.319</td><td>0.711</td></tr><tr><td>LLaMa-30b-ins.</td><td>0.479</td><td>50.798</td><td>71.188</td><td>30.516</td><td>0.909</td></tr><tr><td>Correlation</td><td colspan="5">Pearson</td></tr><tr><td>r(MONITOR,avg acc)</td><td colspan="5">-0.846</td></tr></table>
+
+Table 4: Results are evaluated on FKTC with “bold” numbers indicating the best measurement over the same column category. The “avg”, “max”, and “min” mean the average, maximum, and minimum accuracy across the 20 fact datasets. The “probs.” depicts the probabilities of primary anchors. “ ” means a smaller measurement wins.
+
+Adding In-context Interference: Based on the QA prompts constructed above, we create a test dataset to explore the effectiveness of MONITOR with in-context interference. The corpus FKTC stands for “Factual Knowledge Test Corpus”. Following the template patterns (Templates 4 and 5) in Table 1, we concatenate interference information (in terms of positive and negative in-context information) with the probing question for each subject. The negative information is entities from the same category weakly related to the corresponding subject, sampled from all objects that share the same relation. This process is applied to all expanded templates presented in Table 10 (Appendix A.2).
+
+After applying these two processes (expanding the probing prompts and adding in-context interference) we produce 210,171 prompts focusing on 20 fact datasets.
+
+## 5.2 Results and Analysis
+
+## 5.2.1 Results on FKTC
+
+The results evaluated on FKTC are shown in Table 4, and the results of each fact dataset are shown in Table 11 (Appendix A.3), where MONITOR and the average accuracy (avg acc) are recorded for each LLM across the 20 fact datasets in our experiments. Each LLM’s minimal and maximal accuracy are also recorded to show the accuracy variability.
+
+As shown in Table 4, LLaMa-30b-ins. stands out as the most capable (with the smallest MONITOR 0.479) LLM, followed by Vicuna-13b (0.484) and Vicuna-7b (0.504). Even though MONITOR is a fundamentally different from an end-to-end metric (like accuracy), it correlates significantly with the average accuracy (0.846 Pearson coefficient). MONITOR adds a dimension to a point-measured metric (like accuracy) to show factual reliability of LLMs under prompt and context variability.
+
+As shown in Table 5 (bold italic fonts), MONITOR can differentiate LLMs, for example, BLOOMZ-3b and Vicuna-7b, with a similar average accuracy on P37, by considering distance and probability information. We further discuss this in Subsection 5.2.3.
+
+We present a detailed view of the knowledge assessment of LLMs by drilling down into specific facts. Unlike the results mentioned above, showing a general trend, the results disclosed here show more detailed insights. As shown in Table 5, the overall winning LLM (i.e., LLaMa-30b-ins.) can lose its edge in predicting a particular fact (P37).
+
+## 5.2.2 Accuracy Instability
+
+We analyze the LLMs’ “accuracy instability” when predicting P1412<sup>5</sup> with the results captured in Table 6 and Figure 4. A variety of statistics, including the base accuracy (“base acc”) and standard deviation (“std”) of an LLM’s accuracy, are recorded for comparisons. A significant correlation is observed between accuracy standard deviation and MONITOR (0.754), demonstrating that a lower-MONITOR LLM is less likely to suffer from “accuracy instability” (Figure 5). Furthermore, as shown in Figure 4, an LLM with a lower MONITOR has a smaller value of accuracy standard deviation when two LLMs with equivalent base accuracy are evaluated (bold fonts in Table 5). From an accuracy stability viewpoint, one may choose an LLM with a lower MONITOR. For example, we prefer Vicuna-13b over WizardLM-13b, as the MONITOR of Vicuna-13b is lower even though they have similar accuracy.
+
+## 5.2.3 Resolution Characteristics
+
+It can be observed in Table 4 that the correlation between MONITOR and average accuracy is significant. How should one use MONITOR when assessing the reliability of LLM knowledge?
+
+<table><tr><td rowspan="2">LLMs</td><td rowspan="2">MONITOR ↓</td><td colspan="3">P178</td><td colspan="3">P108</td><td colspan="2">P37</td></tr><tr><td>avg acc ↑</td><td>probs. ↑</td><td>MONITOR↓</td><td>avg acc ↑</td><td>probs. ↑</td><td>MONITOR↓</td><td>avg acc ↑</td><td>probs. ↑</td></tr><tr><td>BLOOMZ-560m</td><td>0.594</td><td>53.260</td><td>0.471</td><td>0.947</td><td>2.634</td><td>0.313</td><td>0.669</td><td>33.142</td><td>0.679</td></tr><tr><td>BLOOMZ-1b1</td><td>0.492</td><td>56.752</td><td>0.684</td><td>0.853</td><td>7.454</td><td>0.191</td><td>0.662</td><td>39.679</td><td>0.751</td></tr><tr><td>Galactica-1b3</td><td>0.595</td><td>27.763</td><td>0.543</td><td>0.876</td><td>0.686</td><td>0.393</td><td>0.639</td><td>42.444</td><td>0.703</td></tr><tr><td>OPT-2b7</td><td>0.470</td><td>64.119</td><td>0.348</td><td>0.739</td><td>12.420</td><td>0.343</td><td>0.471</td><td>52.866</td><td>0.419</td></tr><tr><td>BLOOMZ-3b</td><td>0.624</td><td>50.460</td><td>0.863</td><td>0.858</td><td>17.639</td><td>0.436</td><td>0.570</td><td>51.242</td><td>0.797</td></tr><tr><td>Vicuna-7b</td><td>0.339</td><td>64.575</td><td>0.969</td><td>0.620</td><td>32.756</td><td>0.969</td><td>0.432</td><td>51.384</td><td>0.931</td></tr><tr><td>BLOOMZ-7b1</td><td>0.492</td><td>60.865</td><td>0.865</td><td>0.770</td><td>31.340</td><td>0.443</td><td>0.462</td><td>61.114</td><td>0.827</td></tr><tr><td>FLAN-T5-XXL</td><td>0.368</td><td>67.065</td><td>0.852</td><td>0.676</td><td>29.968</td><td>0.855</td><td>0.650</td><td>34.773</td><td>0.865</td></tr><tr><td>Vicuna-13b</td><td>0.327</td><td>77.787</td><td>0.955</td><td>0.632</td><td>39.951</td><td>0.899</td><td>0.311</td><td>69.590</td><td>0.942</td></tr><tr><td>WizardLM-13b</td><td>0.411</td><td>84.878</td><td>0.850</td><td>0.626</td><td>54.735</td><td>0.769</td><td>0.467</td><td>69.907</td><td>0.856</td></tr><tr><td>Flan-UL2</td><td>0.613</td><td>49.968</td><td>0.792</td><td>0.844</td><td>23.942</td><td>0.836</td><td>0.575</td><td>56.731</td><td>0.738</td></tr><tr><td>LLaMa-30b-ins.</td><td>0.180</td><td>87.461</td><td>0.983</td><td>0.522</td><td>60.493</td><td>0.972</td><td>0.411</td><td>63.109</td><td>0.950</td></tr></table>
+
+Table 5: Performance of various LLMs in predicting factual knowledge captured in the P178, P108, and P37 fact datasets with “bold” numbers indicating the winning measurement over the same column category. P178, P108, and P37 are fact datasets representing relations of “developer”, “employer” and “official language”, respectively. The “bold and italic” fonts on P37 show how MONITOR can differentiate two LLMs (BLOOMZ-3b and Vicuna-7b) with similar average accuracy.
+
+<table><tr><td>LLMs</td><td>MONITOR↓</td><td>base acc ↑</td><td>std ↓</td></tr><tr><td>Flan-T5-XXL</td><td>0.772</td><td>51.713</td><td>31.023</td></tr><tr><td>OPT-2b7</td><td>0.536</td><td>64.027</td><td>12.087</td></tr><tr><td>Flan-UL2</td><td>0.706</td><td>67.029</td><td>33.981</td></tr><tr><td>BLOOMZ-560m</td><td>0.490</td><td>70.888</td><td>17.253</td></tr><tr><td>BLOOMZ-1b1</td><td>0.426</td><td>71.932</td><td>11.891</td></tr><tr><td>Galactica-1b3</td><td>0.659</td><td>74.086</td><td>26.576</td></tr><tr><td>BLOOMZ-7b</td><td>0.472</td><td>78.922</td><td>19.252</td></tr><tr><td>BLOOMZ-3b</td><td>0.456</td><td>79.143</td><td>18.016</td></tr><tr><td>Vicuna-7b</td><td>0.427</td><td>82.086</td><td>27.585</td></tr><tr><td>LLaMa-30b-ins.</td><td>0.543</td><td>85.340</td><td>34.131</td></tr><tr><td>WizardLM-13b</td><td>0.425</td><td>91.960</td><td>8.978</td></tr><tr><td>Vicuna-13b</td><td>0.190</td><td>93.099</td><td>5.768</td></tr><tr><td>Correlation</td><td>Pearson</td><td></td><td>p-value</td></tr><tr><td>r(MONITOR,std)</td><td>0.754</td><td></td><td>0.001</td></tr></table>
+
+Table 6: LLMs with lower MONITOR are strongly correlated with smaller values of accuracy standard deviation, indicating less influence from prompt and context variability. “base acc” is the accuracy associated with the base prompt evaluated on the P1412 fact dataset.
+
+<table><tr><td>Base Prompt</td><td colspan="3">What language is the official language of Haiti?</td></tr><tr><td>effect</td><td>input</td><td>output BLOOMZ/Vicuna</td><td>prob. BLOOMZ/Vicuna</td></tr><tr><td>pos. context</td><td>French.{base}</td><td>French/French</td><td>0.761/0.928</td></tr><tr><td>neg. context</td><td>Irish.{base}</td><td>French/French</td><td>0.411/0.622</td></tr><tr><td>framing</td><td>{base}</td><td>French/French</td><td>0.527/0.849</td></tr></table>
+
+Table 7: Vicuna-7b outperforms BLOOMZ-3b in MON-ITOR when evaluated on the P37 fact dataset by producing correct answers with higher output probabilities in response to positive, negative in-context interference and prompt framing effect. {base} refers to the base prompt.
+
+We regard MONITOR as a high-resolution metric because it directly uses output probabilities and their changes (in terms of anchored distance) induced by hallucination factors. MONITOR considers both the output (nominal or qualitative data) and the probability of the output (quantitative information). Comparatively, assessing LLMs’ knowledge with an end-to-end metric, such as accuracy, is purely reliant on a nominal output from the softmax layer of a transformer. It is shown in Table 5 that two LLMs (BLOOMZ-3b vs. Vicuna-7b) with almost identical average accuracy on P37 fact dataset have two distinctive values of MONITOR (0.570 vs 0.432). Delving into the log file of the inference task, we gain in-depth insights into why Vicuna-7b outperforms BLOOMZ-3b in the reliability score. As shown in Table 7, despite their similarities in the accuracy measurement, Vicuna-7b has much higher output probabilities than those of BLOOMZ-3b, contributing to the discrepancies in MONITOR.
+
+![](images/e0d4a052638e6ac560aefdb9138de7a1653176943648efdaa890e51b89cebb6f.jpg)  
+Figure 4: MONITOR can be used to differentiate LLMs factual knowledge reliability when models with an equivalent base accuracy are evaluated. The box plots show the related distributions of accuracy when testing on P1412 fact dataset.
+
+Additionally, we plot out the probability distribution of the above two LLMs with almost identical average accuracy but very distinctive MONITOR (Figure 10 Appendix (A.5). It can be observed that a more reliable LLM based on MONITOR, Vicuna-7b, has a much higher percentage of solid output probability $( \mathbf { i . e . , } \geq 0 . 8 )$ than those of a volatile LLM (BLOOMZ-3b). It is recommended to adopt MONITOR when using accuracy alone cannot differentiate LLMs’ knowledge reliability.
+
+![](images/fe60b0f3a876a877098a21fcd57cba3343d4d6534b02c02d5e5c12393f985828.jpg)  
+Figure 5: A significant correlation between MONI-TOR and accuracy standard deviation when testing the 12 LLMs on P1412 fact dataset, indicating lower-MONITOR models are less likely to suffer from the “accuracy instability” issue.
+
+<table><tr><td>Cost</td><td>MONITOR</td><td>Average Accuracy</td><td>MONITOR-saved</td></tr><tr><td>GPU hours</td><td>14.4</td><td>42.7</td><td>2.97X</td></tr></table>
+
+Table 8: GPU hours consumed calculating MONITOR and average accuracy on P1412 fact dataset for LLaMa-30b-ins.“MONITOR-saved” denotes that GPU hours saved from using MONITOR compared to accuracy.
+
+## 5.2.4 Lower Computation Cost
+
+We compare the GPU hours consumed by LLaMa-30b-ins. in producing MONITOR and a full-scale accuracy reliability score (average accuracy). The experiment is to test the model on a specific fact dataset (P1412) using 8 NVIDIA V100 GPUs. It can be observed in Table 8 that using MONITOR leads to a 2.97-fold resource saving in GPU hours compared to applying an accuracy metric to a factual reliability evaluation. MONITOR is an economical method to add a dimension to LLM knowledge assessment when performing a full-scale reliability study on accuracy is not an option.
+
+## 6 Discussion
+
+## 6.1 Attribution of In-Context Interference
+
+To demonstrate the resilience of LLMs with different MONITOR, we conduct an additional experiment by applying the Integrated Gradients (Sundararajan et al., 2017) technique implemented in Sarti et al. (2023). By examining and visualizing the attribution of input features to the model’s outputs, we can infer the reliability of LLMs with different MONITOR. We study the behaviors of two LLMs (OPT-2b7 vs. BLOOMZ-3b) with distinctive values of MONITOR (0.471 vs. 0.570). The heat map shown in Figure 6 illustrates that a more reliable model with a lower MONITOR, OPT-2b7, is less influenced by in-context interference.
+
+![](images/4c6ed874020a976e1334bec6f8dfe0b9f9f3b1568b4831ce10194b7786e55a07.jpg)  
+Figure 6: Visualizing model behaviors of BLOOMZ-3b and OPT-2b7 under the influence of an input with misprimed in-context interference. The input is “Danish. What language is the official language of Sotkamo?”.
+
+![](images/514f9926d17ed529bd6999b0f8fd7a0b77afb9aa13bb3cfe1033dd371128db2a.jpg)  
+Figure 7: Significant correlation of MONITOR between the 7-prompt group and the 4-prompt group when assessing the reliability of 12 LLMs in the P178 fact dataset.
+
+## 6.2 Prompt Ablation
+
+We design an ablation study to investigate the consistency of MONITOR across different prompt settings by analyzing the MONITOR in the P178 fact dataset. The MONITOR from an expanded prompts group setting (consisting of seven prompts) and a sub-sampled group with four prompts are captured in Figure 7. We observe a strong linear correlation between MONITOR of the expanded group and those from the sub-sampled group, indicating the scalability of MONITOR across prompt settings. Additionally, it is noted that MONITOR ranks LLMs in a consistent order for different prompt settings as show in Figure 8.
+
+## 6.3 Influence of Instruction Fine-tuning
+
+Furthermore, in order to conduct a more detailed difference analysis between the foundation model and the instruction fine-tuned model, we compare the foundation model BLOOM-7b1 and instructed model BLOOMZ-7b1. Both models share the same architecture and are evaluated on the P1412 dataset, as illustrated in Table 12. The comparison reveals that the instruction fine-tuning (IFT) approaches have an impact on the probability distribution. Specifically, the probability of the primary anchor in the foundation BLOOM-7b1 is 0.137, significantly lower than that in the IFT BLOOMZ-7b1 (0.541), resulting in higher MONITOR values and lower accuracy. This observation further supports the notion that instruction fine-tuning can enhance the reliability of Language Models.
+
+![](images/b72325be0a2c8599f987f0b13339647fb0d3a4c010218f67659355b873e9a903.jpg)  
+Figure 8: The consistency of MONITOR when assessing LLM’s factual reliability in predicting P178 facts across different prompts settings.
+
+<table><tr><td>LLMs</td><td>MONITOR ↓</td><td>avg↑</td><td>max ↑</td><td>min ↑</td><td>probs ↑</td></tr><tr><td>BLOOM-7b1</td><td>0.813</td><td>13.985</td><td>55.782</td><td>1.361</td><td>0.137</td></tr><tr><td>BLOOMZ-7b1</td><td>0.471</td><td>58.904</td><td>81.863</td><td>39.828</td><td>0.541</td></tr></table>
+
+Table 9: Results are evaluated on P1412 dataset with comparing between BLOOM-7b1 (foundation model) and BLOOMZ-7b1 (IFT model).
+
+## 7 Conclusion
+
+In this paper, we show that large language models are subject to the influence of various hallucinationinducing causes. We propose a novel distancebased metric, directly computing the output probabilities and their changes to address “accuracy instability” caused by the prompt framing effect and in-context interference. A comprehensive set of experiments demonstrates that the proposed MON-ITOR is a high-resolution economic method suitable for evaluating the reliability of large language model knowledge. MONITOR can be used in conjunction with an end-to-end metric (i.e., accuracy) as part of a multi-dimensional approach to LLM knowledge evaluation. The constructed FKTC, consisting of 210,171 question answering prompts on
+
+20 fact datasets, will be made available to the public to foster research along this line.
+
+## Limitations
+
+We focus on proposing MONITOR to assess the reliability of factual knowledge of LLMs during knowledge probing. Whether MONITOR can be generalized to a wider scope of tasks (e.g., summarization) warrants a future study. Additionally, the initial setup of contribution coefficients of PFD, IRD, and their interaction on MONITOR should be further investigated to establish an empirical benchmark. Currently MONITOR applies exact matching to obtain anchors to measure the reliability of LLM knowledge. Extending the automatic evaluation to anchors consisting of sentences is challenging. Our approach needs to access to the output probability distributions of an LLM, therefore is not applicable to SOTA commercialized LLMs such as GPT4. Additionally, FKTC is developed based on the latest version of T-REx benchmark dataset. The quality of the factual knowledge contents in FKTC is reliant on the alignment accuracy of T-REx. Even though we could argue that FKTC has already accommodated over 210 thousand prompts in the gold dataset to successfully support MONITOR in assessing LLMs behaviors under prompt and context variability, it can still be extended to host more knowledge categories.
+
+## Licensing and Intended Use
+
+FKTC is based on a widely adopted T-REx benchmark dataset, which is publicly available under a Creative Commons Attribution-ShareAlike 4.0 International License. FKTC is released to the public under the same license, consistent with the original intended use.
+
+## Acknowledgement
+
+This project has received funding from UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee [grant numbers 10039436].
+
+## References
+
+Boxi Cao, Hongyu Lin, Xianpei Han, Le Sun, Lingyong Yan, Meng Liao, Tong Xue, and Jin Xu. 2021. Knowledgeable or educated guess? revisiting language models as knowledge bases. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International
+
+Joint Conference on Natural Language Processing, ACL/IJCNLP 2021, (Volume 1: Long Papers), Virtual Event, August 1-6, 2021, pages 1860–1874. Association for Computational Linguistics.
+
+Yupeng Chang, Xu Wang, Jindong Wang, Yuan Wu, Kaijie Zhu, Hao Chen, Linyi Yang, Xiaoyuan Yi, Cunxiang Wang, Yidong Wang, Wei Ye, Yue Zhang, Yi Chang, Philip S. Yu, Qiang Yang, and Xing Xie. 2023. A survey on evaluation of large language models. CoRR, abs/2307.03109.
+
+Hyung Won Chung, Le Hou, Shayne Longpre, Barret Zoph, Yi Tay, William Fedus, Eric Li, Xuezhi Wang, Mostafa Dehghani, Siddhartha Brahma, Albert Webson, Shixiang Shane Gu, Zhuyun Dai, Mirac Suzgun, Xinyun Chen, Aakanksha Chowdhery, Sharan Narang, Gaurav Mishra, Adams Yu, Vincent Y. Zhao, Yanping Huang, Andrew M. Dai, Hongkun Yu, Slav Petrov, Ed H. Chi, Jeff Dean, Jacob Devlin, Adam Roberts, Denny Zhou, Quoc V. Le, and Jason Wei. 2022. Scaling instruction-finetuned language models. CoRR, abs/2210.11416.
+
+Qingxiu Dong, Jingjing Xu, Lingpeng Kong, Zhifang Sui, and Lei Li. 2023. Statistical knowledge assessment for generative language models. CoRR, abs/2305.10519.
+
+Yanai Elazar, Nora Kassner, Shauli Ravfogel, Abhilasha Ravichander, Eduard Hovy, Hinrich Schütze, and Yoav Goldberg. 2021. Measuring and improving consistency in pretrained language models. Transactions ofthe Associationfor Computational Linguistics, 9:1012–1031.
+
+Hady Elsahar, Pavlos Vougiouklis, Arslen Remaci, Christophe Gravier, Jonathon S. Hare, Frédérique Laforest, and Elena Simperl. 2018. T-REx: A Large Scale Alignment of Natural Language with Knowledge Base Triples. In Proceedings of the Eleventh International Conference on Language Resources and Evaluation, LREC 2018, Miyazaki, Japan, May 7-12, 2018. European Language Resources Association (ELRA).
+
+Akshat Gupta. 2023. Probing quantifier comprehension in large language models. CoRR, abs/2306.07384.
+
+Zhengbao Jiang, Frank F. Xu, Jun Araki, and Graham Neubig. 2020. How can we know what language models know. Trans. Assoc. Comput. Linguistics, 8:423–438.
+
+Erik Jones and Jacob Steinhardt. 2022. Capturing failures of large language models via human cognitive biases. In NeurIPS.
+
+Nora Kassner and Hinrich Schütze. 2020. Negated and misprimed probes for pretrained language models: Birds can talk, but cannot fly. In Proceedings ofthe 58th Annual Meeting of the Association for Computational Linguistics, ACL 2020, Online, July 5-10, 2020, pages 7811–7818. Association for Computational Linguistics.
+
+Takeshi Kojima, Shixiang Shane Gu, Machel Reid, Yutaka Matsuo, and Yusuke Iwasawa. 2022. Large language models are zero-shot reasoners. In NeurIPS.
+
+Niklas Muennighoff, Thomas Wang, Lintang Sutawika, Adam Roberts, Stella Biderman, Teven Le Scao, M. Saiful Bari, Sheng Shen, Zheng Xin Yong, Hailey Schoelkopf, Xiangru Tang, Dragomir Radev, Alham Fikri Aji, Khalid Almubarak, Samuel Albanie, Zaid Alyafeai, Albert Webson, Edward Raff, and Colin Raffel. 2023. Crosslingual generalization through multitask finetuning. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL 2023, Toronto, Canada, July 9-14, 2023, pages 15991–16111. Association for Computational Linguistics.
+
+OpenAI. 2023. GPT-4 technical report. CoRR, abs/2303.08774.
+
+Fabio Petroni, Tim Rocktäschel, Sebastian Riedel, Patrick S. H. Lewis, Anton Bakhtin, Yuxiang Wu, and Alexander H. Miller. 2019. Language models as knowledge bases? In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing, EMNLP-IJCNLP 2019, Hong Kong, China, November 3-7, 2019, pages 2463–2473. Association for Computational Linguistics.
+
+Harsh Raj, Vipul Gupta, Domenic Rosati, and Subhabrata Majumdar. 2023. Semantic consistency for assuring reliability of large language models. CoRR, abs/2308.09138.
+
+Gabriele Sarti, Nils Feldhus, Ludwig Sickert, and Oskar van der Wal. 2023. Inseq: An interpretability toolkit for sequence generation models. In Proceedings ofthe 61st Annual Meeting ofthe Associationfor Computational Linguistics: System Demonstrations, ACL 2023, Toronto, Canada, July 10-12, 2023, pages 421–435. Association for Computational Linguistics.
+
+Taylor Shin, Yasaman Razeghi, Robert L. Logan IV, Eric Wallace, and Sameer Singh. 2020. Autoprompt: Eliciting knowledge from language models with automatically generated prompts. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing, EMNLP 2020, Online, November 16-20, 2020, pages 4222–4235. Association for Computational Linguistics.
+
+Chenglei Si, Zhe Gan, Zhengyuan Yang, Shuohang Wang, Jianfeng Wang, Jordan L. Boyd-Graber, and Lijuan Wang. 2023. Prompting GPT-3 to be reliable. In The Eleventh International Conference on Learning Representations, ICLR 2023, Kigali, Rwanda, May 1-5, 2023. OpenReview.net.
+
+Mukund Sundararajan, Ankur Taly, and Qiqi Yan. 2017. Axiomatic attribution for deep networks. In Proceedings of the 34th International Conference on Machine Learning, ICML 2017, Sydney, NSW, Australia, 6-11
+
+August 2017, volume 70 of Proceedings ofMachine Learning Research, pages 3319–3328. PMLR.
+
+Yi Tay. 2023. A New Open Source Flan 20B with UL2. https://www.yitay.net/blog/flan-ul2-20b.
+
+Yi Tay, Mostafa Dehghani, Vinh Q. Tran, Xavier Garcia, Jason Wei, Xuezhi Wang, Hyung Won Chung, Dara Bahri, Tal Schuster, Huaixiu Steven Zheng, Denny Zhou, Neil Houlsby, and Donald Metzler. 2023. UL2: unifying language learning paradigms. In The Eleventh International Conference on Learning Representations, ICLR 2023, Kigali, Rwanda, May 1-5, 2023. OpenReview.net.
+
+Ross Taylor, Marcin Kardas, Guillem Cucurull, Thomas Scialom, Anthony Hartshorn, Elvis Saravia, Andrew Poulton, Viktor Kerkez, and Robert Stojnic. 2022. Galactica: A large language model for science. CoRR, abs/2211.09085.
+
+upstage. 2023. LLaMa-30b-instruct-2048. https://huggingface.co/upstage/ llama-30b-instruct-2048.
+
+Albert Webson and Ellie Pavlick. 2022. Do promptbased models really understand the meaning of their prompts? In Proceedings of the 2022 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, NAACL 2022, Seattle, WA, United States, July 10-15, 2022, pages 2300–2344. Association for Computational Linguistics.
+
+Can Xu, Qingfeng Sun, Kai Zheng, Xiubo Geng, Pu Zhao, Jiazhan Feng, Chongyang Tao, and Daxin Jiang. 2023. Wizardlm: Empowering large language models to follow complex instructions. arXiv preprint arXiv:2304.12244.
+
+Susan Zhang, Stephen Roller, Naman Goyal, Mikel Artetxe, Moya Chen, Shuohui Chen, Christopher Dewan, Mona T. Diab, Xian Li, Xi Victoria Lin, Todor Mihaylov, Myle Ott, Sam Shleifer, Kurt Shuster, Daniel Simig, Punit Singh Koura, Anjali Sridhar, Tianlu Wang, and Luke Zettlemoyer. 2022. OPT: open pre-trained transformer language models. CoRR, abs/2205.01068.
+
+Zihao Zhao, Eric Wallace, Shi Feng, Dan Klein, and Sameer Singh. 2021. Calibrate before use: Improving few-shot performance of language models. In Proceedings ofthe 38th International Conference on Machine Learning, ICML 2021, 18-24 July 2021, Virtual Event, volume 139 of Proceedings ofMachine Learning Research, pages 12697–12706. PMLR.
+
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica. 2023. Judging llm-as-a-judge with mt-bench and chatbot arena. CoRR, abs/2306.05685.
+
+Yongchao Zhou, Andrei Ioan Muresanu, Ziwen Han, Keiran Paster, Silviu Pitis, Harris Chan, and Jimmy Ba. 2023. Large language models are human-level prompt engineers. In The Eleventh International Conference on Learning Representations, ICLR 2023, Kigali, Rwanda, May 1-5, 2023. OpenReview.net.
+
+Kaijie Zhu, Jindong Wang, Jiaheng Zhou, Zichen Wang, Hao Chen, Yidong Wang, Linyi Yang, Wei Ye, Neil Zhenqiang Gong, Yue Zhang, and Xing Xie. 2023. Promptbench: Towards evaluating the robustness of large language models on adversarial prompts. CoRR, abs/2306.04528.
+
+## A Appendix
+
+## A.1 Prompt Framing Effect
+
+We paraphrase each fact dataset in three prompting templates (WP, QA, and FC) so that each template can be used to produce seven prompts. For example, the template “Which country is the location of [X]?” could be paraphrased as: “Which country is [X] situated in?”, “Which country can [X] be found?”, “Which country is the geographical position of [X]?”, “Which country is the site of [X]?”, “In Which country is [X] situated?”, “Whereabouts is [X] located?”. In this way, context diversity and semantic invariance are guaranteed. Figure 9 shows the “accuracy instability” of LLMs under the effect of prompt framing in predicting P17 facts based on three tasks (WP, QA, and FC).
+
+## A.2 Templates Examples
+
+Table 10 shows all templates and corresponding prompts on 20 fact datasets.
+
+## A.3 MONITOR for All LLMs Experimented on FKTC
+
+Table 11 shows the results of various LLMs evaluated on each fact dataset from FKTC.
+
+## A.4 Correlation between MONITOR and Accuracy
+
+Table 12 shows the Pearson correlation between MONITOR and average accuracy, evaluated on the 20 fact datasets from FKTC corpus.
+
+## A.5 Probability Distribution
+
+Figure 10 shows the probability distribution of two LLMs (BLOOMZ-3b and Vicuna-7b) with almost identical average accuracy but very distinctive MONITOR.
+
+## A.6 Analysis on LLMs Scale
+
+To further verify if MONITOR of LLMs follows the law of scaling, where larger LLMs are more knowledge-reliable, we present how MONITOR changes across BLOOMZ series for each specific fact dataset (shown in Figure 11). While MON-ITOR of LLMs may not conform to the scaling law at the granularity of each fact, their aggregated values in a comprehensive scope of experiments do follow the rule of scale (shown in Figures 11-12).
+
+![](images/3333362461f9918ddb6bd92643d8b22dad46d32afd8408b0368e1b09f0f2935c.jpg)  
+(a) QA
+
+![](images/6412c91e0d251bbbb64667506388ca51c7981dd76c91876c99a2585df39333a8.jpg)  
+(b) WP
+
+![](images/0c1ebf78fa24497641c7efd79441dc8b70484f9669a4a0bc958070b443817a02.jpg)  
+(c) FC-pos
+
+![](images/98ca6baa5b5120d1e59393c70408df6c9d7012073b38d2a760eeb8dfbf24c653.jpg)  
+(d) FC-neg  
+Figure 9: Box plots show the “accuracy instability” of LLMs under the effect of prompt framing in predicting P17 based on three tasks (WP, QA, and FC).
+
+![](images/70edd8fe18826ff13303fcaab2e9148bead5099a10d9fc1da9d885974e368727.jpg)
+
+![](images/661d20d7a4166fae21bdadc03b8186e65bfe5950b115f86b65dae8b5e7102ce5.jpg)  
+Figure 10: A comparison of the probability distribution of anchors between BLOOMZ-3b and Vicuna-7b on P37. The population percentages with a solid probability $( \mathrm { i . e . , } \geq 0 . 8 )$ are 59% and 85% for BLOOMZ-3b and Vicuna-7b, respectively.
+
+![](images/d428ee6afe420fd7a4ed53b4413f8c6e88460b26babeade753de7aedee1994b3.jpg)  
+Figure 11: The BLOOMZ series adheres to the scale law for the specific facts with smaller MONITOR for bigger models. The horizontal axis represents the model’s size in billions, and the vertical axis represents the results of MONITOR.
+
+<table><tr><td>Fact</td><td>Relation</td><td>Object Type</td><td>Template</td><td>Prompt example</td><td>Count</td></tr><tr><td>P17</td><td>country</td><td>sovereign state</td><td>[X] is located in [Y].</td><td>Which country is the location of [X]?</td><td>12,103</td></tr><tr><td>P19</td><td>place of birth</td><td>city</td><td>[X] was born in [Y].</td><td>Where was [X] born?</td><td>12,272</td></tr><tr><td>P20</td><td>place of death</td><td>city</td><td>[X] died in [Y].</td><td>In what place did [X] pass away?</td><td>12,389</td></tr><tr><td>P27</td><td>country of citizenship</td><td>sovereign state</td><td>[X] is [Y] citizen.</td><td>What country is [X] a citizen of?</td><td>12,558</td></tr><tr><td>P30</td><td>continent</td><td>continent</td><td>[X] is located in [Y].</td><td>Which continent is [X] located in?</td><td>12,675</td></tr><tr><td>P37</td><td>official language</td><td>language</td><td>The official language of [X] is [Y].</td><td>What language is the official language of [X]?</td><td>12,558</td></tr><tr><td>P101</td><td>field of work</td><td>organization</td><td>[X] works in the field of [Y].</td><td>What is [X]&#x27;s area of expertise?</td><td>9,048</td></tr><tr><td>P103</td><td>native language</td><td>Indo-European languages</td><td>The native language of [X] is [Y].</td><td>What is the native language of [X]?</td><td>12,701</td></tr><tr><td>P108</td><td>employer</td><td>business</td><td>[X] works for [Y].</td><td>Which organization does [X] work for?</td><td>4,979</td></tr><tr><td>P127</td><td>owned by</td><td>company</td><td>[X] is owned by[Y].</td><td>Which company is the owner of [X]?</td><td>7,059</td></tr><tr><td>P159</td><td>headquarters location</td><td>sovereign state</td><td>The headquarter of [X] is in [Y] .</td><td>In what city is [X] headquartered?</td><td>12,571</td></tr><tr><td>P176</td><td>manufacturer</td><td>manufacturer or producer</td><td>[X] is produced by [Y].</td><td>What is the manufacturer of [X]?</td><td>12,766</td></tr><tr><td>P178</td><td>developer</td><td>organisation</td><td>[X] is developed by [Y]</td><td>Which company is the creator of [X]?</td><td>7,696</td></tr><tr><td>P264</td><td>record label</td><td>record label</td><td>[X] is represented by music label [Y].</td><td>What is the record label for [X]?</td><td>5,577</td></tr><tr><td>P276</td><td>location</td><td>sovereign state</td><td>[X] is located in [Y].</td><td>What is the location of[X]?</td><td>12,467</td></tr><tr><td>P364</td><td>original language of film or TV show</td><td>Nostratic languages</td><td>The original language of [X] is [Y].</td><td>What is the native language of [X]?</td><td>11,128</td></tr><tr><td>P495</td><td>country of origin</td><td>sovereign state</td><td>[X] was created in [Y].</td><td>Which country was [X] created in?</td><td>11,817</td></tr><tr><td>P740</td><td>location of formation</td><td>sovereign state</td><td>[X] was founded in [Y].</td><td>Which city was [X] founded in?</td><td>12,168</td></tr><tr><td>P1376</td><td>capital of</td><td>country</td><td>[X] is the capital of [Y].</td><td>Which country&#x27;s capital is [X]?</td><td>3,042</td></tr><tr><td>P1412</td><td>languages spoken, written or signed</td><td>Indo-European languages</td><td>[X] used to communicate in [Y].</td><td>What language did [X] previously speak to communicate?</td><td>12,597</td></tr></table>
+
+Table 10: Examples of template for different fact datasets and the corresponding prompts we build in this work.
+<table><tr><td>Fact Dataset</td><td>BLOOMZ -560m</td><td>BLOOMZ -1b1</td><td>Galactica -1b3</td><td>OPT -2b7</td><td>BLOOMZ -3b</td><td>Vicuna -7b</td><td>BLOOMZ -7b1</td><td>Flan-T5 -XXL</td><td>Vicuna -13b</td><td>WizardLM -13b</td><td>Flan -UL2</td><td>LLaMa- 30b-ins.</td></tr><tr><td>P17</td><td>0.782</td><td>0.780</td><td>0.852</td><td>0.541</td><td>0.785</td><td>0.523</td><td>0.714</td><td>0.690</td><td>0.544</td><td>0.602</td><td>0.788</td><td>0.395</td></tr><tr><td>P19</td><td>0.866</td><td>0.927</td><td>0.914</td><td>0.858</td><td>0.898</td><td>0.719</td><td>0.873</td><td>0.882</td><td>0.629</td><td>0.752</td><td>0.918</td><td>0.817</td></tr><tr><td>P20</td><td>0.810</td><td>0.926</td><td>0.942</td><td>0.849</td><td>0.921</td><td>0.671</td><td>0.873</td><td>0.888</td><td>0.667</td><td>0.725</td><td>0.893</td><td>0.803</td></tr><tr><td>P27</td><td>0.704</td><td>0.746</td><td>0.868</td><td>0.597</td><td>0.706</td><td>0.460</td><td>0.724</td><td>0.674</td><td>0.489</td><td>0.573</td><td>0.786</td><td>0.490</td></tr><tr><td>P30</td><td>0.809</td><td>0.839</td><td>0.801</td><td>0.748</td><td>0.887</td><td>0.652</td><td>0.546</td><td>0.670</td><td>0.611</td><td>0.680</td><td>0.815</td><td>0.617</td></tr><tr><td>P37</td><td>0.669</td><td>0.662</td><td>0.639</td><td>0.471</td><td>0.570</td><td>0.432</td><td>0.462</td><td>0.650</td><td>0.311</td><td>0.467</td><td>0.575</td><td>0.411</td></tr><tr><td>P101</td><td>0.899</td><td>0.822</td><td>0.919</td><td>0.888</td><td>0.877</td><td>0.816</td><td>0.838</td><td>0.879</td><td>0.823</td><td>0.927</td><td>0.858</td><td>0.857</td></tr><tr><td>P103</td><td>0.512</td><td>0.515</td><td>0.671</td><td>0.468</td><td>0.457</td><td>0.424</td><td>0.451</td><td>0.599</td><td>0.296</td><td>0.506</td><td>0.561</td><td>0.410</td></tr><tr><td>P108</td><td>0.947</td><td>0.853</td><td>0.876</td><td>0.739</td><td>0.858</td><td>0.620</td><td>0.770</td><td>0.676</td><td>0.632</td><td>0.626</td><td>0.844</td><td>0.522</td></tr><tr><td>P127</td><td>0.522</td><td>0.613</td><td>0.676</td><td>0.627</td><td>0.712</td><td>0.547</td><td>0.545</td><td>0.437</td><td>0.382</td><td>0.438</td><td>0.621</td><td>0.346</td></tr><tr><td>P159</td><td>0.829</td><td>0.851</td><td>0.858</td><td>0.755</td><td>0.800</td><td>0.523</td><td>0.751</td><td>0.731</td><td>0.478</td><td>0.479</td><td>0.758</td><td>0.454</td></tr><tr><td>P176</td><td>0.684</td><td>0.461</td><td>0.457</td><td>0.527</td><td>0.609</td><td>0.244</td><td>0.632</td><td>0.290</td><td>0.437</td><td>0.467</td><td>0.518</td><td>0.322</td></tr><tr><td>P178</td><td>0.594</td><td>0.492</td><td>0.595</td><td>0.470</td><td>0.624</td><td>0.339</td><td>0.492</td><td>0.368</td><td>0.327</td><td>0.411</td><td>0.613</td><td>0.180</td></tr><tr><td>P264</td><td>0.887</td><td>0.923</td><td>0.916</td><td>0.863</td><td>0.748</td><td>0.678</td><td>0.887</td><td>0.883</td><td>0.606</td><td>0.661</td><td>0.799</td><td>0.560</td></tr><tr><td>P276</td><td>0.707</td><td>0.699</td><td>0.751</td><td>0.650</td><td>0.737</td><td>0.535</td><td>0.674</td><td>0.639</td><td>0.489</td><td>0.557</td><td>0.664</td><td>0.515</td></tr><tr><td>P364</td><td>0.756</td><td>0.762</td><td>0.850</td><td>0.662</td><td>0.780</td><td>0.576</td><td>0.751</td><td>0.786</td><td>0.619</td><td>0.714</td><td>0.774</td><td>0.599</td></tr><tr><td>P495</td><td>0.802</td><td>0.834</td><td>0.868</td><td>0.661</td><td>0.695</td><td>0.413</td><td>0.715</td><td>0.716</td><td>0.476</td><td>0.530</td><td>0.790</td><td>0.499</td></tr><tr><td>P740</td><td>0.941</td><td>0.961</td><td>0.961</td><td>0.858</td><td>0.931 0.352</td><td>0.689</td><td>0.905</td><td>0.837</td><td>0.646</td><td>0.669</td><td>0.882</td><td>0.647</td></tr><tr><td>P1376</td><td>0.505</td><td>0.451 0.426</td><td>0.606 0.659</td><td>0.602</td><td></td><td>0.299</td><td>0.202</td><td>0.158</td><td>0.501</td><td>0.555</td><td>0.202</td><td>0.079</td></tr><tr><td>P1412</td><td>0.490</td><td></td><td></td><td>0.536</td><td>0.456</td><td>0.427</td><td>0.472</td><td>0.772</td><td>0.190</td><td>0.425</td><td>0.706</td><td>0.543</td></tr></table>
+
+Table 11: MONITOR for all involved LLMs experimented on FKTC corpus.
+
+![](images/fa37106f44b59221d4fa9e1dec45d726bc9822a7b6848ce4185fb2dd05acb265.jpg)  
+Figure 12: The BLOOMZ and Vicuna series adhere to the scale law based on the overall MONITOR results obtained from experiments on 20 fact datasets. The horizontal axis represents the size of a model in billions, and the vertical axis represents the results of MONITOR.
+
+<table><tr><td>Pearson</td><td>P17</td><td>P19</td><td>P20</td><td>P27</td><td>P30</td><td>P37</td><td>P101</td><td>P103</td><td>P108</td><td>P127</td></tr><tr><td>correlation p-value</td><td>-0.579 0.048</td><td>-0.709 0.009</td><td>-0.685 0.013</td><td>-0.826 0.001</td><td>-0.648 0.023</td><td>-0.867 0.001</td><td>-0.474 0.119</td><td>-0.767 0.004</td><td>-0.889 0.001</td><td>-0.926 0.001</td></tr><tr><td></td><td>P159</td><td>P176</td><td>P178</td><td>P264</td><td>P276</td><td>P364</td><td>P495</td><td>P740</td><td>P1376</td><td>P1412</td></tr><tr><td>correlation p-value</td><td>-0.941 0.001</td><td>-0.941 0.001</td><td>-0.828 0.001</td><td>-0.950 0.001</td><td>-0.703 0.011</td><td>-0.740 0.006</td><td>-0.899 0.001</td><td>-0.919 0.001</td><td>-0.872 0.001</td><td>-0.900 0.001</td></tr></table>
+
+Table 12: Pearson correlation between MONITOR and the average accuracy, evaluated on FKTC corpus.
