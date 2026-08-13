@@ -1,0 +1,3851 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Self-generated Replay Memories for Continual Neural Machine Translation"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                114,
+                89,
+                882,
+                111
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Michele Resta♠ Davide Bacciu♠"
+                    }
+                ]
+            },
+            "bbox": [
+                351,
+                141,
+                650,
+                158
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "♠ University of Pisa, Largo B. Pontecorvo, 3, 56127, Pisa, Italy michele.resta@phd.unipi.it davide.bacciu@unipi.it"
+                    }
+                ]
+            },
+            "bbox": [
+                243,
+                159,
+                759,
+                193
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                260,
+                252,
+                342,
+                268
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Modern Neural Machine Translation systems exhibit strong performance in several different languages and are constantly improving. Their ability to learn continuously is, however, still severely limited by the catastrophic forgetting issue. In this work, we leverage a key property of encoder-decoder Transformers, i.e. their generative ability, to propose a novel approach to continually learning Neural Machine Translation systems. We show how this can effectively learn on a stream of experiences comprising different languages, by leveraging a replay memory populated by using the model itself as a generator of parallel sentences. We empirically demonstrate that our approach can counteract catastrophic forgetting without requiring explicit memorization of training data. Code will be publicly available upon publication<sup>1</sup>."
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                279,
+                462,
+                538
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                549,
+                260,
+                564
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Neural Machine Translation (NMT) systems have achieved remarkable performance on numerous language pairs, particularly those with abundant resources. The substantial growth in model parameters and the availability of large crawled corpora have greatly contributed to the adoption of advanced techniques like back-translation (Edunov et al., 2018; Sennrich et al., 2016) and denoising pre-training (Liu et al., 2020; Song et al., 2019; Xue et al., 2021), further increasing the translation quality of these models. Consequently, even low-resource languages have benefited from the increased multilingual capabilities of these models (Arivazhagan et al., 2019; Fan et al., 2021)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                575,
+                489,
+                800
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Despite their impressive quality, modern NMT systems exhibit limited Continual Learning (CL) capabilities and are susceptible to catastrophic forgetting (CF, McCloskey and Cohen, 1989; French, 2006). While the CL community has extensively investigated this phenomenon over the years, it has received relatively less attention from the Natural Language Processing (NLP) community. Previous works in this area have primarily focused on Domain Adaptation, and only recently have turned to different continual learning settings such as incremental language learning (Zhang et al., 2022a)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                800,
+                490,
+                898
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/cc817f504d42c69a05f49df6ac5840fc33c39079c6e00f4f5256ea7ce47c9999.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: A scheme of the CILL setting. A model is trained incrementally on a stream of experiences comprising training data for various language pairs."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                574,
+                253,
+                821,
+                428
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                508,
+                885,
+                606
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this paper, we present SG-Rep: a novel approach to continually train an NMT system on a stream of experiences comprising several language pairs while mitigating the detrimental effects of catastrophic forgetting. Our method leverages a replay memory populated by synthetic parallel sentences generated by the model itself. We evaluate the effectiveness of our approach across different translation directions and demonstrate its ability to alleviate CF without the need for explicit memorization of the training data. This aspect is crucial where is not possible to store real training samples for privacy reasons or data retention policies."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                607,
+                887,
+                816
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Related Works"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                828,
+                675,
+                845
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Continual Learning or Lifelong Learning (LL) research focuses on developing computational systems that can gradually acquire, refine, and transfer knowledge over extended periods, imitating biological systems. The primary challenge arises from the inherent plasticity of neural networks, which leads to catastrophic forgetting. This refers to a situation where performance on previously learned tasks deteriorates as the network parameters are updated, resulting in the loss of acquired knowledge."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                856,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>https://github.com/m-resta/sg-rep"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                906,
+                398,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "175"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 175–191 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                945,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                181
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In addition to mitigating CF, lifelong learning methods should also promote knowledge transfer across tasks in both forward and backward directions. Research work in the field can be broadly categorized into architecture, regularization, or databased approaches."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                184,
+                490,
+                279
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Architecture-based Methods"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                132,
+                281,
+                364,
+                297
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The central idea of this category of approaches is to allow the network architecture to change either by adding new parameters for specific tasks or by maintaining a fixed network size while allocating a different capacity to each task. Progressive networks (Rusu et al., 2016) maintain a pool of pretrained models throughout training and learn lateral connections to leverage useful features for the new task. Sodhani et al., 2020 combine Net2Net (Chen et al., 2016) (a network growing approach) together with a gradient episodic memory to enable RNNs to dynamically expand if they fail to learn the current task."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                300,
+                490,
+                510
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "PathNet (Fernando et al., 2017) presents an evolutionary-based algorithm that identifies which parts of the network to reuse for new tasks. By preserving parameters along a learned path from task A and evolving new paths for task B, accelerated learning is achieved compared to starting from scratch or fine-tuning."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                512,
+                489,
+                625
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Examples of architectural methods in NLP include instantiating a new decoder module for learning new translation directions in NMT (Escolano et al., 2019). Another approach is the use of small task-specific modules called \"adapters\" (Rebuffi et al., 2017; Houlsby et al., 2019; Pfeiffer et al., 2021) to avoid finetuning of large pre-trained models."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                626,
+                490,
+                755
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Berard, 2021 focuses on learning a set of language-specific embeddings to be used at inference time to boost translation quality. Other works (Liang et al., 2021; Gu et al., 2021) have explored pruning as a parameter partition strategy."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                757,
+                489,
+                839
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In contrast, Cao et al., 2021. propose a vocabulary-based approach to address CF, utilizing a vocabulary adaptation scheme that leverages the token overlap in the vocabulary of M-NMT systems that support multiple languages. When a new language is introduced, a new vocabulary is created, encompassing all the data. Embeddings for tokens in the intersection of the old and new vocabularies are reused, and training continues."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                840,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                885,
+                149
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We identify two main limitations: first, training a new vocabulary requires storing all data up to the current experience, second, the starting vocabulary must support a large number of languages (24 in the paper) to achieve significant token overlap with the newly trained vocabulary."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                151,
+                885,
+                248
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Regularization-based Methods"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                527,
+                250,
+                776,
+                265
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This family of methodologies is based on theoretical neuroscience models that suggest synapses with varying levels of plasticity can protect acquired knowledge. In computational terms, this is implemented by adding a regularization term to the loss function of a neural network, leading to constrained weight updates. Elastic Weight Consolidation (EWC) (Kirkpatrick et al., 2017) prevents catastrophic forgetting by slowing down learning on important weights for old tasks, using the Fisher information Matrix to estimate their importance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                268,
+                887,
+                445
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Memory Aware Synapses (MAS) (Aljundi et al., 2018) computes parameter importance in an unsupervised manner so that they approximate the sensitivity of the learned function to a parameter change. For domain adaptation, Thompson et al., 2019 employs EWC as a regularizer, while Li et al., 2022 propose an approach based on estimating the domain shift. Khayrallah et al., 2018 use a Knowledge Distillation (KD) inspired regularization approach. Shao and Feng, 2022 presents Online Knowledge Distillation (COKD) with complementary training and KD, distilling knowledge from n teachers to the student. Cao et al., 2021 proposes Dynamic KD, optimizing a weighted sum of translation and distillation loss, tested with fixed language pairs in both domain and time incremental fashions. Both COKD and Dynamic KD are resource-intensive, relying on external models for distillation, in contrast to our approach. Additionally, Cao et al., 2021 tested on fewer experiences."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                447,
+                887,
+                770
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Data-based Methods"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                527,
+                771,
+                699,
+                787
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Data-based methods retain a small number of training samples from previous tasks to limit weight updates based on the data distribution of past experiences. These samples can be either real or pseudo samples."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                789,
+                885,
+                870
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the case of real samples, the work of Chu et al., 2017 demonstrates the use of a mixture of old and new data during domain adaptation. Additionally, the incorporation of replay data and retrieval mechanisms has been shown to improve performance in neural machine translation (Bapna and Firat, 2019; Xu et al., 2020). GEM (Lopez-Paz and Ranzato, 2017) and A-GEM (Chaudhry et al., 2019) utilize real samples from previous tasks to constrain gradient updates within a favorable region for the current task, leading to better performance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                872,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "176"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                214
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Other approaches closer to our proposed methods, leverage generative models to create pseudo samples: LAMOL (Sun et al., 2020) and (Zhang et al., 2022b; Qin and Joty, 2022) are among the methods that adopt this strategy."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                215,
+                489,
+                296
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 The Self-Generated Replay Method"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                309,
+                457,
+                325
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The goal of our method,which we abbreviate as SG-Rep, is to incrementally learn a single model that is able to translate into many directions. The training data is not available as a whole but is presented to the model in incremental steps, as a stream of experiences that comprises one or more language directions. The key challenge is preserving translation performance on past experience while adapting effectively to new data. To this end, we use the encoder-decoder model learned in a given experience as a generator of synthetic training samples. The obtained pseudo-samples will populate a fixedsize replay memory that will be used in future tasks to mitigate catastrophic forgetting."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                336,
+                490,
+                564
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 Continual Incremental Language Learning"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                575,
+                423,
+                607
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Similarly to other works from the CL community, we design a setting where the learning process is divided into "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E"
+                    },
+                    {
+                        "type": "text",
+                        "content": "learning experiences. In each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i } \\in E"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the model is exposed to a pair of languages "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { 1 } ^ { i } , l _ { 2 } ^ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and has access to a training set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a validation set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "comprising a single or both translation directions. In the Continual Incremental Language Learning (CILL) scenario (Figure 1) the model is trained across all experiences: we want to model "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P ( \\mathbf { y } | \\mathbf { x } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for all the languages of interest, with x and y being the source and target sentence respectively. The model architecture and the number of parameters are kept fixed, together with the sub-word vocabulary which is built in advance. We design a set of experiments to quantify the amount of catastrophic forgetting occurring during the subsequent experiences and the effectiveness of our proposed replay strategy. We employ a fixed-size memory (the replay buffer) that is filled at the end of each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "experience. We experimented with different buffer sizes and performed also experiments without memory, to assess the amount of catastrophic forgetting. In all the experiments the replay buffer size is fixed and it is not allowed to grow."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                614,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                166
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Self-generated Replay Memories"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                174,
+                813,
+                191
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SG-Rep generates pseudo samples following three main steps: 1) generation of samples, 2) filtering, and 3) samples translation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                196,
+                885,
+                243
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Encoder input. Consider "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { s }  l _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as translation direction, and a model M capable of translating in both directions: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { s }  l _ { t }"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                244,
+                884,
+                292
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the initial stage, our method generates a sentence in language "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by using as encoder input a short text "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that contains a special token indicating the translation direction <2lang>. Here, \"lang\" represents a 2-letter language code that identifies the target language "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We experimented with concatenating "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with random words to improve input diversity but we observed a detrimental effect on the overall performance."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                293,
+                885,
+                437
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Generation and Filtering. We generate n pseudo sentences in language "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "iteratively by top-k sampling with k equal to vocabulary size. At each step, we process the sentences by 1) eliminating duplicates and 2) filtering out low-quality ones."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                438,
+                885,
+                518
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The filtering criterion considers morphological correctness. We use the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { P y E n c h a n t ^ { 2 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "spellchecker to identify the number of misspelled words wˆ in each sentence and filter out those with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat { w } \\geq 2"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                519,
+                884,
+                582
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Translation. The pseudo sentences are then translated into language "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by using the same model, obtaining a set of self-generated samples "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R = \\{ ( x _ { i } , y _ { i } ) \\} _ { i = 1 } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and y in language "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                583,
+                884,
+                663
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The last step populates the replay memory "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by reservoir sampling from R. The total amount of samples in the replay buffer is constant during all the experiences, while their proportions vary for the effect of the sampling. The training samples for the next experience "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will then be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T _ { i } \\cup R ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "We repeat the process for each translation direction present in the current experience. The pseudo-code of SG-Rep is reported in Algorithm 1."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                664,
+                884,
+                809
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Experimental Setting"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                820,
+                729,
+                837
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Multilingual Translation Model"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                845,
+                806,
+                860
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A single Transformer model (Vaswani et al., 2017) was chosen as the architecture of the multilingual"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                865,
+                885,
+                898
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>https://github.com/pyenchant/pyenchant"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                906,
+                786,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "177"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                515,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 1 SG-Rep pseudocode Input: M: NMT model n: # samples to generate "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { s } , l _ { t } \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "source and target language Output: R: list of source-target pairs 1: procedure GENERATE_REPLAY_DATA 2: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R  [ ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "3: t<sub>e</sub> GET_ENCODER_INPUT(l<sub>t</sub>) 4: src  [ ] ▷ Pseudo-source sentences 5: tgt  [ ] ▷ Translated sentences 6: while length(src) < n do 7: out GENERATE(t , M) 8: out  FILTER(out) 9: tgt tgt + out 10: tgt DEDUPLICATE(tgt) 11: end while 12: src TRANSLATE(tgt, l<sub>s</sub>, M) ▷ Translate src into source language "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "13: R  [src, tgt] 14: return R 15: end procedure"
+                    }
+                ],
+                "algorithm_footnote": []
+            },
+            "bbox": [
+                114,
+                82,
+                489,
+                442
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "NMT system. We started from the T5 small v1.1 described by Google (Raffel et al., 2020) and available via Huggingface’s Transformer library. We reduced the number of encoder and decoder blocks to 6, and the number of attention heads to 8 in both the encoder and decoder. The total amount of parameters with this configuration is 54.15  10<sup>6</sup>. Before training all weights were reinitialized."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                468,
+                489,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We prepend language tokens to the source sentences to denote the desired translation direction as in (Arivazhagan et al., 2019). The SentencePiece (Kudo and Richardson, 2018) tokenizer is trained with a minimum merge frequency of 5 and a vocabulary size of 32k tokens by using HuggingFace (Wolf et al., 2019). We trained in advance a total of 3 tokenizers: two for the two sets of languages from IWSLT17 and one for those from UNPC."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                598,
+                490,
+                744
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 Datasets and experiences"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                753,
+                359,
+                770
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We run experiments with both small and large-scale datasets. In the small scale setting we employ a subset of the IWSLT17 (Cettolo et al., 2017) dataset while for the large scale one we resort to the United Nation Parallel Corpus (UNPC) (Ziemski et al., 2016). For all the experiments the chosen language pairs are organized into four bidirectional experiences. In each experience, the model is exposed to a language pair and learns to translate from the source language to the target language and vice versa. This choice is motivated by two main reasons. Firstly, the inherent bidirectionality of the translation task. Secondly, in principle, in future steps, we may not have access to the training samples of a particular experience. Therefore, by alternating the roles of source and target languages in the training samples, we aim to ensure the model receives as much relevant information as possible."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                775,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/128d026b68d8842fd7f93f8790aed21639827577faf24e1f3d0eef0b97560847.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Summary of the different streams of experiences. IWSLT17: the first one (top) is composed of European-only languages while the second one (bottom) contains also non-European ones. UNPC: The four experiences contain European and non-European languages. We report the total size of train, validation, and test datasets. In a single experience, each direction has the same amount of samples for each split."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td colspan=\"5\">IWSLT17</td></tr><tr><td>Exp.</td><td>Direction</td><td># Train</td><td># Dev</td><td># Test</td></tr><tr><td>1</td><td>Fr ↔ En</td><td>465,650</td><td>1,780</td><td>17,194</td></tr><tr><td>2</td><td> $\\mathrm { I t }  \\mathrm { N I }$ </td><td>466,830</td><td>2,002</td><td>3,338</td></tr><tr><td>3</td><td> $\\mathrm { E n }  \\mathrm { R o }$ </td><td>441,076</td><td>1,828</td><td>3,356</td></tr><tr><td>4</td><td> $\\mathbf { I t }  \\mathbf { R o }$ </td><td>435,102</td><td>1,828</td><td>3,268</td></tr><tr><td>1</td><td> $\\overline { { \\mathrm { A r }  \\mathrm { E n } } }$ </td><td>463,426</td><td>1,776</td><td>17,166</td></tr><tr><td>2</td><td> $\\mathrm { E n }  \\mathrm { F r }$ </td><td>465,650</td><td>1,780</td><td>17,194</td></tr><tr><td>3</td><td> $\\mathrm { K o }  \\mathrm { E n }$ </td><td>460,480</td><td>1,758</td><td>17,028</td></tr><tr><td>4</td><td> $\\mathrm { I t }  \\mathrm { N I }$ </td><td>466,830</td><td>2,002</td><td>3,338</td></tr><tr><td></td><td></td><td>UNPC</td><td></td><td></td></tr><tr><td>1</td><td>Ar ↔ En</td><td>20,040,478</td><td>4,000</td><td>4,000</td></tr><tr><td>2</td><td></td><td></td><td></td><td>4,000</td></tr><tr><td>3</td><td> $\\mathrm { E s }  \\mathrm { R u }$ </td><td>22,290,106</td><td>4,000</td><td></td></tr><tr><td></td><td> $\\mathrm { E n }  \\mathrm { F r }$ </td><td>30,336,652</td><td>4,000</td><td>4,000</td></tr><tr><td>3</td><td> $\\mathrm { E n }  \\mathrm { E s }$ </td><td>25,223,004</td><td>4,000</td><td>4,000</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                561,
+                80,
+                833,
+                254
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                405,
+                887,
+                550
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "IWSLT17. To create the first stream we focus on the following translation directions: French English, Dutch Italian, English Romanian, and Italian Romanian. The second stream contains also non-European languages: Arabic  English, English French, Korean English, and Italian Dutch."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                550,
+                885,
+                663
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "UNPC. In this dataset we focus on a mix of European and non-European languages: Arabic English, Spanish Russian, and English French."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                664,
+                885,
+                727
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 1 summarizes the experiences and their corresponding data sizes for all streams."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                728,
+                885,
+                762
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Systems"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                772,
+                623,
+                789
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We evaluate different systems against our proposed self-replay approach (SG-Rep). Each system follows the architecture described in Section 4.1 and has been implemented using the Transformers library (Wolf et al., 2019) except where explicitly indicated."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                794,
+                887,
+                891
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• SG-Rep (ours). We fix top-k sampling temperature at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T = 0 . 9 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The translation phase is conducted with a beam search approach with a beam size of 12. The replay buffer size is always computed based on the total training data for the first IWSLT17 stream (the one with European-only languages). This allows us to have a relatively small memory also for experiments with large corpora and to compare results. We varied both the buffer sizes and the amount of generated samples. The latter is indicated with a superscript. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { S G - R E P } _ { 0 . 0 5 } ^ { 1 0 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes a buffer size of 5% of the data randomly filled using 100K generated translation pairs. Once set, the buffer size is not allowed to increase and stays constant throughout the experiences. We explicitly report the different sizes of the memory in Appendix D."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                903,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "178"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                147,
+                85,
+                490,
+                360
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Incremental Training. The model is directly trained on each experience, one after another."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                367,
+                490,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Multitask (Joint training). The classical upper bound for CL: the model is trained on data from all experiences simultaneously."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                409,
+                490,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Replay. The model has a fixed memory buffer. At the end of each experience, the memory is randomly populated with examples from the training set of the current experience using reservoir sampling. We tested different memory sizes, expressed as a percentage as we did for SG-Rep. We indicate the buffer percentage with a subscript: Replay<sub>0.05</sub> denotes a 5% replay memory buffer."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                467,
+                490,
+                613
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• EWC. The model uses Elastic Weight Consolidation as a regularization strategy. EWC computes the importance of the parameters using the Fisher information matrix and penalizes changes to important ones so that they stay close to the original ones. The regularized loss function is:"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                621,
+                490,
+                733
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathcal { L } ( \\theta ) = \\mathcal { L } _ { C E } ( \\theta ) + \\frac { \\lambda } { 2 } \\sum _ { i } F _ { i } ( \\theta _ { i } - \\theta _ { 0 , i } ^ { * } ) ^ { 2 }\\tag{1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ef88b4335b94c367d593483ef5a80b59674e4ba1fbf07180bee9f9bac4ae852c.jpg"
+                }
+            },
+            "bbox": [
+                159,
+                738,
+                458,
+                776
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "with λ controlling the relevance of the old task compared to the new one. We follow the implementation from the Avalanche library (Lomonaco et al., 2021)."
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                782,
+                489,
+                847
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• A-GEM. This GEM followup (Lopez-Paz and Ranzato, 2017) uses a small episodic memory to store a subset of the examples from each experience. When training on subsequent tasks, a random batch is sampled from the memory, and the losses on the episodic memories are treated as inequality constraints. A-GEM tries to ensure that the average episodic memory loss over the previous tasks does not increase, and improves on GEM computational requirements. We set the batch size equal to 150 when sampling from the memory. The implementation follows the one from the Avalanche library (Lomonaco et al., 2021)."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                856,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                544,
+                85,
+                887,
+                247
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• LAMOL. A language model is treated as both the learner and the generator. The model is trained by casting different tasks to question answering (QA) in a SQuaD (Rajpurkar et al., 2016) format. During training, each example is formatted into both the QA format and the language modeling (LM) format. The total loss optimized by the model is a weighted sum of the QA loss, and the classical LM loss:"
+                    }
+                ]
+            },
+            "bbox": [
+                529,
+                260,
+                885,
+                406
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array} { r } { \\mathcal { L } ( \\boldsymbol { \\theta } ) = \\mathcal { L } _ { \\boldsymbol { Q } \\boldsymbol { A } } ( \\boldsymbol { \\theta } ) + \\lambda \\mathcal { L } _ { \\boldsymbol { L } \\boldsymbol { M } } ( \\boldsymbol { \\theta } ) . } \\end{array}\\tag{2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a142005f4c8db6db59618414f97235337c974fd291d6b48afe2acb8646a7b79f.jpg"
+                }
+            },
+            "bbox": [
+                601,
+                420,
+                825,
+                438
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use the authors’ original implementation after pre-processing the IWSLT17 dataset in the required format. We ran experiments with both GPT and GPT-2 (Radford et al., 2019) models with a total of 116M and 124M trainable parameters, respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                453,
+                885,
+                551
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Training Details"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                564,
+                685,
+                581
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We train all configurations for a maximum of 50 epochs with early stopping (patience = 10) using the Adam optimizer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\beta _ { 1 } = 0 . 9 , \\beta _ { 2 } = 0 . 9 9 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We adjust the learning rate with a cosine scheduler ( warmup_steps = 16k). We evaluate the models every 5k steps, starting with an initial learning rate of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "5 \\cdot 1 0 ^ { - 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and apply a dropout rate of 0.1. For decoding, we use beam search (size 12) with a maximum length of 128 tokens. We train all systems on a single A100 GPU, with a batch size of 150 in FP16 precision.For LAMOL, we train both the GPT and GPT-2 models using the author’s code and the hyperparameters reported as the best in their paper. We train for 9 epochs on 8 H100 GPUs with a batch size of 310."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                587,
+                887,
+                829
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Experimental Results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                843,
+                732,
+                860
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The translation output of the models is scored using the 4-gram case-sensitive BLEU (Papineni et al., 2002) with the SacreBLEU tool (Post, 2018) using the default tokenization scheme<sup>3</sup> based on mosestokenizer<sup>4</sup>. COMET scores are reported in Appendix G."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                872,
+                885,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "179"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                84,
+                489,
+                133
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each model is evaluated at the end of training on the last experience on all translation directions. In addition to the average BLEU, we also report a metric for comparative analysis to compensate for the diversity of the different test sets for each language. It quantifies the performance delta between the chosen system and the upper bound (i.e. joint training) for each language pair. Specifically, we define the language pair delta as"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                134,
+                490,
+                279
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\Delta L p ^ { * } = \\sum _ { i = 0 } ^ { n } U _ { i } - S _ { i }",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d81524206ff64e2e6ea06fe9d87a942baa5eda73a5ca5a62b56538466cfcbfc5.jpg"
+                }
+            },
+            "bbox": [
+                218,
+                290,
+                383,
+                332
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the BLEU scores for language pair i under the upper bound and the system under consideration, respectively and n is the number of language pairs. We indicate with ’*’ the system representing the upper bound. Additionally, we conducted an analysis on data leakage and generated pseudo samples that we report in Section 5.7 and Appendix H, respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                342,
+                490,
+                473
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 IWSLT17 European Languages only"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                482,
+                448,
+                499
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our main results are summarized in Table 2. As can be seen, incremental training results in extreme catastrophic forgetting causing the model to completely lose its translation capabilities with the exception of languages present in the last experience. EWC brings only a slight performance improvement over fine-tuning in this training scenario."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                504,
+                490,
+                618
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "All data-based methods perform better than EWC. Surprisingly, in this experimental setting, A-GEM surpasses LAMOL. We hypothesize that this result is due to the difficulty of the task as LAMOL was originally designed to deal with training data cast as QA. Compared to the original setting, casting a translation task as QA will yield longer answers, and consequently, increased generation difficulty. Thus the external memory used by A-GEM proves advantageous."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                618,
+                490,
+                778
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "SG-Rep has the best overall performance among all tested methods and is the one getting closer to both joint training and replay using real samples."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                778,
+                489,
+                827
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2 shows the forgetting curve of the various baselines: we compute the averaged BLEU scores on the first experience at the end of each subsequent one. SG-Rep exhibits more forgetting with respect to A-GEM but has a significantly better BLEU when considering the whole stream of experiences. To investigate whether the order of the ex-"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                827,
+                489,
+                860
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                166
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/926853706506c52e260420c7515dbce2aeea0b6f56125bbdd107d36f8a9849af.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Forgetting curve of the different approaches. Average BLEU score on the first task evaluated at the end of the training process of each experience."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                541,
+                195,
+                831,
+                353
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "periences has an effect on the different approaches compared, we ran additional experiments under 3 different permutations of the experiences. We found SG-Rep to be quite resilient in this setting showing lower variations for the average BLEU score and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Delta L p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "than those exhibited by EWC and AGEM. We report full data for these additional experiments in the Appendix B"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                423,
+                885,
+                552
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 Sub-word Tokens Overlap"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                561,
+                764,
+                577
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this particular setting, we observed that utilizing EWC regularization leads to subpar performance and fails to effectively mitigate catastrophic forgetting. We attribute this outcome to the inherent characteristics of this CL scenario, where the model must learn distinct target distributions that often exhibit minimal overlap, despite the utilization of a shared sub-word vocabulary."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                581,
+                885,
+                711
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To validate our hypothesis, we performed tokenization on the labels within each training set of the individual experiences. Subsequently, we computed the token frequencies and selected the top k most frequent tokens for each experience. By measuring the intersection between these selected tokens, we quantified the overlap as a percentage. The results of this analysis, presented in Table 3, highlight the degree of overlap for various values of k. The findings demonstrate that while there is a higher overlap percentage between experiences that share the same target language, even for larger values of k, the overlap remains relatively low."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                711,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>BLEU+case.mixed+numrefs.1+smooth.exp+tok.13a +version.2.3.1"
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                869,
+                472,
+                894
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>https://github.com/moses-"
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                894,
+                307,
+                907
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "smt/mosesdecoder/blob/master/scripts/tokenizer/tokenizer.perl"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                906,
+                490,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "180"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/659a4f5ea0bf1b4ff20d316a8c39bb016f7757888baeffb2771c1b0df3692c12.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: Scores of the different methods evaluated at the end of the last experience. The Avg column is the average BLEU score across all translation directions. Joint training and Replay are shown as upper bounds at the bottom."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Systems</td><td>Fr→En</td><td>En→Fr</td><td>NI→It</td><td>It→NI</td><td>En→Ro</td><td>Ro→En</td><td>It→Ro</td><td>Ro→It</td><td>Avg.</td><td> $\\overline { { \\Delta \\mathbf { L } \\mathbf { p } ^ { * } \\downarrow } }$ </td></tr><tr><td>Incremental train</td><td>0.44</td><td>0.82</td><td>1.58</td><td>1.05</td><td>17.92</td><td>0.97</td><td>24.14</td><td>23.11</td><td>8.75</td><td>20.48</td></tr><tr><td>EWC</td><td>1.32</td><td>1.12</td><td>12.41</td><td>1.08</td><td>22.02</td><td>1.12</td><td>20.60</td><td>22.18</td><td>10.23</td><td>19.00</td></tr><tr><td> $\\mathrm { L A M O L _ { G P T - 2 } }$ </td><td>11.69</td><td>5.54</td><td>3.14</td><td>1.93</td><td>9.66</td><td>12.83</td><td>6.52</td><td>6.24</td><td>7.19</td><td>22.04</td></tr><tr><td> $\\mathbf { L A M O L _ { G P T } }$ </td><td>15.27</td><td>12.55</td><td>6.20</td><td>4.89</td><td>18.39</td><td>18.97</td><td>12.37</td><td>10.81</td><td>12.43</td><td>16.80</td></tr><tr><td> $\\mathbf { A } \\mathrm { - G E M _ { 0 . 2 } }$ </td><td>33.81</td><td>31.06</td><td>1.48</td><td>0.95</td><td>23.69</td><td>4.63</td><td>21.36</td><td>23.51</td><td>17.56</td><td>11.67</td></tr><tr><td> $\\mathrm { S G { - R e p } _ { 0 . 1 } ^ { 1 8 0 } }$ </td><td>24.70</td><td>20.84</td><td>16.74</td><td>13.18</td><td>26.48</td><td>23.00</td><td>24.44</td><td>23.51</td><td>21.61</td><td>7.62</td></tr><tr><td> $\\mathrm { S G } { \\mathrm { - R e p } } _ { 0 . 2 } ^ { 1 0 0 }$ </td><td>28.65</td><td>25.35</td><td>17.08</td><td>15.13</td><td>24.68</td><td>26.04</td><td>21.41</td><td>23.04</td><td>22.67</td><td>6.56</td></tr><tr><td> $\\mathrm { S G { - R e p } _ { 0 . 2 } ^ { 1 8 0 } }$ </td><td>27.51</td><td>24.92</td><td>18.01</td><td>14.94</td><td>26.81</td><td>25.71</td><td>24.57</td><td>23.38</td><td>23.23</td><td>6.00</td></tr><tr><td> $\\mathrm { S G } { \\mathrm { - R e p } } _ { 0 . 2 } ^ { 2 5 0 }$ </td><td>29.00</td><td>26.65</td><td>18.11</td><td>15.06</td><td>28.00</td><td>24.91</td><td>24.36</td><td>23.17</td><td>23.66</td><td>5.57</td></tr><tr><td> $\\mathrm { \\bar { \\ R e p l a y } _ { 0 . 1 } ^ { - } }$ </td><td>36.06</td><td>33.92</td><td>19.94</td><td>19.45</td><td>29.79</td><td>31.59</td><td>24.27</td><td>23.34</td><td>27.30</td><td>1.94</td></tr><tr><td>Joint Training*</td><td>40.60</td><td>39.47</td><td>21.98</td><td>22.03</td><td>28.17</td><td>35.10</td><td>21.95</td><td>23.66</td><td>29.12</td><td></td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                171,
+                80,
+                825,
+                255
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/44e44043c742ea94771bd2a73fb08319bde24be4673e73189acddb8af8d078ec.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Overlap percentage between the top-k tokens of different experiences for several values of k."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\">Exp.</td><td colspan=\"3\">Overlap % of k most frequent tokens</td></tr><tr><td> $k = 1 0 ^ { 2 }$ </td><td> $k = 5 \\cdot 1 0 ^ { 2 }$ </td><td> $k = 1 0 ^ { 3 }$   $k = 5 \\cdot 1 0 ^ { 3 }$ </td></tr><tr><td>1-2</td><td>20.20</td><td>26.45 26.22</td><td>26.74</td></tr><tr><td>1-3</td><td>57.57</td><td>57.51 55.65</td><td>55.47</td></tr><tr><td>1-4</td><td>16.16</td><td>22.22 23.52</td><td>26.02</td></tr><tr><td>2-3</td><td>17.17</td><td>27.65 28.22</td><td>27.74</td></tr><tr><td>2-4</td><td>50.50</td><td>55.71</td><td>56.65 58.75</td></tr><tr><td>3-4</td><td>47.47</td><td>58.31</td><td>58.95</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                144,
+                316,
+                458,
+                413
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For a visual insight into the token distribution, we provide Figure 3, which presents a plot comparing the top-200 sub-word tokens in Experience 1 with their occurrences in the top-200 tokens of Experience 2. In the CILL setting, the token dis-"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                478,
+                490,
+                560
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/2ab8f4e91fbb114cf64c9168e469d694aa9861f77c3803ffdb90b174be75dd7e.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: In light blue, frequencies of the top-200 subword tokens of exp. 1. The green bars represent the frequency of the same tokens that also appear in the 200 most frequent tokens of exp 2."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                129,
+                583,
+                443,
+                747
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "tribution affects the output layer in a manner akin to a class-incremental scenario, albeit to a lesser extent. Consequently, it is normal to expect a degradation of the performance: in such scenarios, EWC performs on par with fine-tuning (Lesort et al., 2019) and the effectiveness of regularization methods is generally acknowledged to be relatively low (van de Ven and Tolias, 2019). Although A-GEM demonstrates a relatively smaller decline in performance compared to other methods, its performance remains suboptimal. Under a task order that simulates a Domain Incremental setting (e.g. with subsequent tasks sharing a language), EWC has a stronger performance. We report the scores for both EWC and AGEM in Appendix C."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                840,
+                489,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                318,
+                887,
+                481
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 Effects of The Different Hyper-parameters"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                493,
+                744,
+                525
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We investigated the impact of various hyperparameters on the performance of our models."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                531,
+                885,
+                563
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In SG-Rep, we examined the effects of different memory sizes, specifically 5%, 10%, and 20%. Additionally, we maintained a fixed memory size of 20% and varied the number of self-generated samples, exploring values of n = [100k, 180k, 250k]."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                564,
+                887,
+                645
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the A-GEM method, we utilized different memory sizes, namely 5%, 10%, and 20% . To investigate the impact of regularization strength, we varied the values of λ for the EWC method, specifically using λ = [0.25, 2, 200, 2000]. Figure 4 presents a comparison between A-GEM and our proposed approach across different memory sizes. Notably, increasing the memory size from 10% to 20% had a negligible effect on A-GEM, while it resulted in a relative improvement of nearly 1 BLEU for the self-generated replay approach."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                645,
+                887,
+                824
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By maintaining a fixed memory size and increasing the quantity of generated pseudo-samples, we obtain a larger initial population for reservoir sampling, leading to increased diversity within the memory. This diversity proved to be beneficial for the overall performance. Figure 5 illustrates the average BLEU score at the conclusion of each experience, considering various values of self-generated samples while keeping a fixed replay buffer size of 20%. We report a plot of the forgetting trend in Appendix E."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                824,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "181"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                515,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/700f12560393ee13e270aa91394e0dcaeb88c226d277625a9f7be77665188c96.jpg"
+                },
+                "table_caption": [],
+                "table_footnote": [],
+                "html": "<table><tr><td>Systems</td><td>Ar→En</td><td>En→Ar</td><td>En→Fr</td><td>Fr→En</td><td>Ko→En</td><td>En→Ko</td><td>Nl→It</td><td>It→NI</td><td>Avg.</td><td>∆Lp*↓</td></tr><tr><td>Incremental train</td><td>0.01</td><td>0.06</td><td>0.48</td><td>0.56</td><td>0.03</td><td>0.16</td><td>21.29</td><td>21.59</td><td>5.52</td><td>17.60</td></tr><tr><td>EWC</td><td>29.79</td><td>12.37</td><td>1.15</td><td>14.68</td><td>2.64</td><td>0.38</td><td>0.07</td><td>0.11</td><td>7.65</td><td>15.47</td></tr><tr><td>A-GEM0.2</td><td>13.8</td><td>3.91</td><td>0.83</td><td>0.63</td><td>0.17</td><td>0.25</td><td>20.73</td><td>21.61</td><td>7.74</td><td>15.38</td></tr><tr><td>SG-Rep250 250</td><td>16.53</td><td>6.74</td><td>21.12</td><td>28.21</td><td>9.65</td><td>3.41</td><td>21</td><td>21.47</td><td>16.02</td><td>7.11</td></tr><tr><td>Replay0.1</td><td>26.53</td><td>10.19</td><td>33.7</td><td>35.19</td><td>14.66</td><td>4.83</td><td>20.85</td><td>21.38</td><td>20.92</td><td>2.21</td></tr><tr><td>Joint training*</td><td>30.98</td><td>12.7</td><td>37.69</td><td>39.5</td><td>17.29</td><td>5.74</td><td>20.33</td><td>23.12</td><td>20.55</td><td></td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                191,
+                82,
+                806,
+                158
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/9b2c041fa2f23ebdb3b23a28fce8ae109f9a275328716da59cad8bf1ac4cf248.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: BLEU scores for experiments with non-European languages. The scores are computed at the end of the last experience (after training on Nl It pair) on the corresponding IWSLT17 test sets."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Table 5: BLEU scores for experiments with UNPC. The scores are computed at the end of the last experience (after training on Es En pair) on the corresponding UNPC test sets."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Systems</td><td>Ar→En</td><td>En→Ar</td><td>Es→Ru</td><td>Ru→Es</td><td>En→Fr</td><td>Fr→En</td><td>En→Es</td><td>Es→En</td><td>Avg.</td><td> $\\overline { { \\Delta \\mathbf { L } \\mathbf { p } ^ { * } \\downarrow } }$ </td></tr><tr><td>Incremental train</td><td>6.74</td><td>5.08</td><td>6.42</td><td>6.53</td><td>7.85</td><td>11.56</td><td>49.93</td><td>57.31</td><td>18.93</td><td>27.01</td></tr><tr><td>EWC</td><td>53.84</td><td>36.31</td><td>2.64</td><td>5.05</td><td>4.79</td><td>9.26</td><td>8.49</td><td>9.02</td><td>16.18</td><td>29.76</td></tr><tr><td>A-GEM0.2</td><td>45.02</td><td>22.81</td><td>5.92</td><td>5.03</td><td>7.93</td><td>11.92</td><td>49.07</td><td>57.32</td><td>25.63</td><td>20.31</td></tr><tr><td>SG-Rep250 250</td><td>29.07</td><td>13.53</td><td>19.39</td><td>30.81</td><td>16.42</td><td>15.78</td><td>49.95</td><td>57.45</td><td>29.05</td><td>16.89</td></tr><tr><td>Replay0.1</td><td>39.84</td><td>18.96</td><td>26.55</td><td>39.04</td><td>22.4</td><td>32.39</td><td>47.04</td><td>55.51</td><td>35.22</td><td>10.73</td></tr><tr><td>Joint training*</td><td>52.41</td><td>34.9</td><td>39.15</td><td>44.82</td><td>45.02</td><td>50.77</td><td>45.01</td><td>55.46</td><td>45.94</td><td></td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                191,
+                209,
+                806,
+                286
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6d85a61e112118530bf1c24510384664e53dac0e2f7150fa74da2c542353b669.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 4: Effect of different memory sizes for A-GEM and SG-Rep."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                144,
+                368,
+                438,
+                526
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                592,
+                489,
+                674
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 IWSLT17 with Eastern Languages"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                686,
+                433,
+                701
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 4 summarizes the results on the stream of experiences containing also non-European languages. In this setting, both AGEM and EWC perform poorly, with the latter being able to retain most translation proficiency for Ar En but failing to learn in other directions. SG-Rep outperforms both AGEM and EWC by a larger margin with respect to the setting containing only European languages."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                707,
+                492,
+                838
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.5 UNPC"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                848,
+                215,
+                864
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We ran additional experiments on the United Nations Parallel Corpus in a high-resource context. Informed by the previous experiments on IWSLT and given the high computational costs we avoid to train low scoring approaches such as LAMOL. We keep EWC as an instance of regularization-based approaches. Table 5 summarizes the results. EWC maintains the strongest performance on the Ar En but impairs model learning in subsequent experiences. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { \\bf A G E M _ { 0 . 2 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is slightly better. SG-Rep has a larger gap with the classical Replay compared with the IWSLT setting, but it’s still the strongest performer scoring more than 3 BLEU points higher than AGEM and having lower "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Delta L p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with the jointly trained model."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                871,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/2aec1a430905197a66ead903cc2da3fcefcd7be6b46a92dec7af63dd56cd8dd6.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 5: Average BLEU score on all language directions at the end of each training experience."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                541,
+                368,
+                831,
+                526
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                505,
+                593,
+                885,
+                787
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.6 Pseudo-samples Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                800,
+                754,
+                816
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We conducted an analysis of generated pseudo samples, covering duplicate counts and length statistics, to assess their characteristics and compare them with the original data. For diversity assessment, we utilized self-BLEU scores (Alihosseini et al., 2019). Due to computational constraints, self-BLEU was calculated with a sampling approach, evaluating 5k sentences and reporting the average over 10 runs. Results are provided in Appendix H for both IWSLT17 data (Table 16) and UNPC (Table 17). In general, generated data exhibit higher self-BLEU scores, indicating lower diversity compared to the original data, except for the Arabic-English language pair. Conversely, for UNPC, generated samples are more diverse than the original ones. Pseudo samples for both UNPC and IWSLT17 are shorter than the original data."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                824,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "182"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/04831d150c69e26b37af064fa76bc7f7bc6b80147c084c768ba2ff5045024865.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 6: Data leakage stats for IWSLT17 and UNPC datasets. Left: leakage in generated data before populating replay buffers. Right: data leaked into replay buffers. Stats are computed without mitigation."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\"></td><td colspan=\"9\">IWSLT17</td></tr><tr><td>Fr-En</td><td>Nl-It</td><td>En-Ro</td><td></td><td>Fr-En</td><td></td><td colspan=\"2\">NI-It</td><td>En-Ro</td></tr><tr><td>% of leaked source</td><td>Generated data 0.23 (623)</td><td>Generated data 0.32 (887)</td><td>Generated data 0.29 (760)</td><td>Buffer exp 1 0.13 (487)</td><td>Buffer exp 2 0.076 (276)</td><td>Buffer exp 3 0.05 (211)</td><td>Buffer exp 2</td><td>Buffer exp 3 0.06 (227)</td><td>Buffer exp 3 0.09 (325)</td></tr><tr><td>% of leaked target</td><td>0.26 (666)</td><td>0.30 (790)</td><td>0.26 (693)</td><td>0.19 (710)</td><td>0.14 (520)</td><td>0.11 (430)</td><td>0.08 (302) 0.20 (743)</td><td>0.174 (629)</td><td>0.18 (654)</td></tr><tr><td>Avg. length of leaked source</td><td>14.5</td><td>14.83</td><td>14.81</td><td>13.03</td><td>12.21</td><td>11.62</td><td>13.72</td><td>13.12</td><td>12.32</td></tr><tr><td>Avg. length of leaked target</td><td>13.64</td><td>13.31</td><td>11.79</td><td>11.78</td><td>1.51</td><td>11.14</td><td>12.66</td><td>11.98</td><td>9.9</td></tr><tr><td></td><td>Ar-En</td><td>En-Fr</td><td>Ko-En</td><td></td><td>Ar-En</td><td></td><td>Fr-En</td><td></td><td>Ko-En</td></tr><tr><td></td><td colspan=\"2\">Generated data</td><td></td><td>Buffer exp 1</td><td>Buffer exp 2</td><td>Buffer exp 3</td><td>Buffer exp 2</td><td>Buffer exp 3</td><td>Buffer exp 3</td></tr><tr><td>% of leaked source</td><td>0.1 (264)</td><td>Generated data 0.21 (560)</td><td>Generated data 0.20 (557)</td><td>0.05 (208)</td><td>0.04 (153)</td><td>0.03 (123)</td><td>0.12 (461)</td><td>0.12 (449)</td><td>0.03 (136)</td></tr><tr><td>% of leaked target</td><td>0.24 (630)</td><td>0.005 (13)</td><td>0.30 (764)</td><td>0.15 (542)</td><td>0.11 (419)</td><td>0.09 (349)</td><td>0.13 (498)</td><td>0.21 (786)</td><td>0.088 (319)</td></tr><tr><td>Avg. length of leaked source</td><td>7.70</td><td>12.73</td><td>6.88</td><td>6.92</td><td>6.451</td><td>6.15</td><td>12.67</td><td>13.13</td><td>6.74</td></tr><tr><td>Avg. length of leaked target</td><td>13.04</td><td>4.08</td><td>14.34</td><td>6.5</td><td>6.39</td><td>5.77</td><td>8.74</td><td>11.14</td><td>4.83</td></tr><tr><td colspan=\"8\">UNPC</td><td></td><td>En-Fr</td></tr><tr><td colspan=\"8\">Ar-En Es-Ru En-Fr</td><td>Es-Ru</td><td></td></tr><tr><td>% of leaked source</td><td>Generated data</td><td>Generated data</td><td>Generated data</td><td>Buffer exp 1</td><td>Ar-En Buffer exp 2</td><td>Buffer exp 3</td><td>Buffer exp 2</td><td>Buffer exp 3</td><td>Buffer exp 3</td></tr><tr><td></td><td>5.63 (14517)</td><td>5.55 (14177)</td><td>6.54 (16607)</td><td>3.68</td><td>2.21</td><td>1.86</td><td>2.38</td><td>2.07</td><td>3.07</td></tr><tr><td>% of leaked target</td><td>5.74 (14635)</td><td>4.44 (11361)</td><td>7.12 (18011)</td><td>4.62</td><td>3.21</td><td>2.8</td><td>3.25</td><td>2.98</td><td>4.24</td></tr><tr><td>Avg. length of leaked source</td><td>12.48</td><td>13.87</td><td>11.86</td><td>11.55</td><td>10.73</td><td>10.21</td><td>11.25</td><td>10.44</td><td>10.3</td></tr><tr><td>Avg. length of leaked target</td><td>10.62</td><td>11.91</td><td>11.97</td><td>10.62</td><td>9.86</td><td>9.4</td><td>9.82</td><td>9.37</td><td>9.42</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                134,
+                82,
+                863,
+                271
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                336,
+                490,
+                513
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.7 Data leakage Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                524,
+                336,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Table 6 summarizes the analysis quantifying training data leakage during model generation. For IWSLT17, the leaked data proportion is extremely low, below 0.5%. It generally decreases for a single language pair when examining buffers and across experiences. English leakage consists of very short, common sentences with simple grammatical construction, like \"Thank you\" or \"I am.\" Comparatively, UNPC has a larger data leakage, but the percentage remains low. Also for UNPC the leaked sentences are short and frequent names (e.g., country names) and section titles (e.g., \"Introduction,\" \"B. Text\")."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                544,
+                490,
+                755
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Conclusions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                765,
+                257,
+                782
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We proposed a simple yet effective continual learning method for NMT that uses a replay memory to mitigate catastrophic forgetting. Differently from other data-based approaches, we do not memorize training samples explicitly and instead use the model itself as a generator of parallel sentences. The experimental results prove that our method can achieve significant improvement over several strong continual learning baselines."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                791,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                509,
+                336,
+                774,
+                353
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations. Our method has a computational overhead to standard replay due to pseudo-sample generation. However, the overall training time for a stream of experiences is comparable to other baselines. To assess the performance of SG-Rep in challenging scenarios, we choose a model architecture with a relatively low number of parameters compared to state-of-the-art M-NMT systems."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                360,
+                885,
+                489
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Ethics Statement. Our work pertains to the continual training of NMT systems to adapt them with low forgetting. In this work, we use only publicly available data."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                497,
+                887,
+                561
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgement Work supported by the EU NextGenerationEU programme under the funding scheme PNRR-PE-AI (PE00000013) FAIR - Future Artificial Intelligence Research (spoke 1)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                568,
+                885,
+                633
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                658,
+                610,
+                674
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Danial Alihosseini, Ehsan Montahaei, and Mahdieh Soleymani Baghshah. 2019. Jointly measuring diversity and quality in text generation models. In Proceedings ofthe Workshop on Methodsfor Optimizing and Evaluating Neural Language Generation, pages 90–98, Minneapolis, Minnesota. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rahaf Aljundi, Francesca Babiloni, Mohamed Elhoseiny, Marcus Rohrbach, and Tinne Tuytelaars. 2018. Memory aware synapses: Learning what (not) to forget. In Computer Vision - ECCV 2018 - 15th European Conference, Munich, Germany, September 8-14, 2018, Proceedings, Part III, volume 11207 of Lecture Notes in Computer Science, pages 144–161. Springer."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Naveen Arivazhagan, Ankur Bapna, Orhan Firat, Dmitry Lepikhin, Melvin Johnson, Maxim Krikun,"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                680,
+                885,
+                771
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "183"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Mia Xu Chen, Yuan Cao, George F. Foster, Colin Cherry, Wolfgang Macherey, Zhifeng Chen, and Yonghui Wu. 2019. Massively multilingual neural machine translation in the wild: Findings and challenges. CoRR, abs/1907.05019."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ankur Bapna and Orhan Firat. 2019. Non-parametric adaptation for neural machine translation. In Proceedings ofthe 2019 Conference ofthe North American Chapter of the Association for Computational Linguistics: Human Language Technologies, NAACL HLT 2019, Minneapolis, MN, USA, June 2-7, 2019, Volume 1 (Long and Short Papers), pages 1921–1931. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alexandre Berard. 2021. Continual learning in multilingual NMT via language-specific embeddings. In Proceedings ofthe Sixth Conference on Machine Translation, WMT@EMNLP 2021, Online Event, November 10-11, 2021, pages 542–565. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yue Cao, Hao-Ran Wei, Boxing Chen, and Xiaojun Wan. 2021. Continual learning for neural machine translation. In Proceedings ofthe 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, NAACL-HLT 2021, Online, June 6-11, 2021, pages 3964–3974. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Mauro Cettolo, Marcello Federico, Luisa Bentivogli, Jan Niehues, Sebastian Stüker, Katsuhito Sudoh, Koichiro Yoshino, and Christian Federmann. 2017. Overview of the IWSLT 2017 evaluation campaign. In Proceedings ofthe 14th International Conference on Spoken Language Translation, pages 2–14, Tokyo, Japan. International Workshop on Spoken Language Translation."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Arslan Chaudhry, Marc’Aurelio Ranzato, Marcus Rohrbach, and Mohamed Elhoseiny. 2019. Efficient lifelong learning with A-GEM. In 7th International Conference on Learning Representations, ICLR 2019, New Orleans, LA, USA, May 6-9, 2019. OpenReview.net."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tianqi Chen, Ian J. Goodfellow, and Jonathon Shlens. 2016. Net2net: Accelerating learning via knowledge transfer. In 4th International Conference on Learning Representations, ICLR 2016, San Juan, Puerto Rico, May 2-4, 2016, Conference Track Proceedings."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chenhui Chu, Raj Dabre, and Sadao Kurohashi. 2017. An empirical comparison of domain adaptation methods for neural machine translation. In Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics, ACL 2017, Vancouver, Canada, July 30 - August 4, Volume 2: Short Papers, pages 385–391. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sergey Edunov, Myle Ott, Michael Auli, and David Grangier. 2018. Understanding Back-Translation at Scale. In Proceedings of the 2018 Conference on"
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Empirical Methods in Natural Language Processing, pages 489–500, Brussels, Belgium. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Carlos Escolano, Marta R. Costa-jussà, and José A. R. Fonollosa. 2019. From bilingual to multilingual neural machine translation by incremental training. In Proceedings of the 57th Conference of the Associationfor Computational Linguistics, ACL 2019, Florence, Italy, July 28 - August 2, 2019, Volume 2: Student Research Workshop, pages 236–242. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Angela Fan, Shruti Bhosale, Holger Schwenk, Zhiyi Ma, Ahmed El-Kishky, Siddharth Goyal, Mandeep Baines, Onur Celebi, Guillaume Wenzek, Vishrav Chaudhary, Naman Goyal, Tom Birch, Vitaliy Liptchinsky, Sergey Edunov, Michael Auli, and Armand Joulin. 2021. Beyond english-centric multilingual machine translation. J. Mach. Learn. Res., 22:107:1–107:48."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chrisantha Fernando, Dylan Banarse, Charles Blundell, Yori Zwols, David Ha, Andrei A. Rusu, Alexander Pritzel, and Daan Wierstra. 2017. Pathnet: Evolution channels gradient descent in super neural networks. CoRR, abs/1701.08734."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Robert French. 2006. Catastrophic Forgetting in Connectionist Networks. In Trends in Cognitive Sciences - TRENDS COGN SCI, volume 3."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shuhao Gu, Yang Feng, and Wanying Xie. 2021. Pruning-then-expanding model for domain adaptation of neural machine translation. In Proceedings of the 2021 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, NAACL-HLT 2021, Online, June 6-11, 2021, pages 3942–3952. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin de Laroussilhe, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly. 2019. Parameter-efficient transfer learning for NLP. In Proceedings ofthe 36th International Conference on Machine Learning, ICML 2019, 9-15 June 2019, Long Beach, California, USA, volume 97 of Proceedings of Machine Learning Research, pages 2790–2799. PMLR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Huda Khayrallah, Brian Thompson, Kevin Duh, and Philipp Koehn. 2018. Regularized training objective for continued training for domain adaptation in neural machine translation. In Proceedings of the 2nd Workshop on Neural Machine Translation and Generation, NMT@ACL 2018, Melbourne, Australia, July 20, 2018, pages 36–44. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume Desjardins, Andrei A Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka Grabska-Barwinska, et al. 2017. Overcoming catastrophic forgetting in neural networks."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                85,
+                489,
+                152
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "184"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Proceedings of the national academy of sciences, 114(13):3521–3526."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Taku Kudo and John Richardson. 2018. Sentencepiece: A simple and language independent subword tokenizer and detokenizer for neural text processing. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing, EMNLP 2018: System Demonstrations, Brussels, Belgium, October 31 - November 4, 2018, pages 66–71. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Timothée Lesort, Andrei Stoian, and David Filliat. 2019. Regularization shortcomings for continual learning. CoRR, abs/1912.03049."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Dingcheng Li, Zheng Chen, Eunah Cho, Jie Hao, Xiaohu Liu, Fan Xing, Chenlei Guo, and Yang Liu. 2022. Overcoming catastrophic forgetting during domain adaptation of seq2seq language generation. In Proceedings of the 2022 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, NAACL 2022, Seattle, WA, United States, July 10-15, 2022, pages 5441–5454. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jianze Liang, Chengqi Zhao, Mingxuan Wang, Xipeng Qiu, and Lei Li. 2021. Finding sparse structures for domain specific neural machine translation. In Thirty-Fifth AAAI Conference on Artificial Intelligence, AAAI 2021, Thirty-Third Conference on Innovative Applications ofArtificial Intelligence, IAAI 2021, The Eleventh Symposium on Educational Advances in Artificial Intelligence, EAAI 2021, Virtual Event, February 2-9, 2021, pages 13333–13342. AAAI Press."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yinhan Liu, Jiatao Gu, Naman Goyal, Xian Li, Sergey Edunov, Marjan Ghazvininejad, Mike Lewis, and Luke Zettlemoyer. 2020. Multilingual denoising pretraining for neural machine translation. Transactions ofthe Associationfor Computational Linguistics, 8:726–742."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Vincenzo Lomonaco, Lorenzo Pellegrini, Andrea Cossu, Antonio Carta, Gabriele Graffieti, Tyler L. Hayes, Matthias De Lange, Marc Masana, Jary Pomponi, Gido van de Ven, Martin Mundt, Qi She, Keiland Cooper, Jeremy Forest, Eden Belouadah, Simone Calderara, German I. Parisi, Fabio Cuzzolin, Andreas Tolias, Simone Scardapane, Luca Antiga, Subutai Amhad, Adrian Popescu, Christopher Kanan, Joost van de Weijer, Tinne Tuytelaars, Davide Bacciu, and Davide Maltoni. 2021. Avalanche: an end-to-end library for continual learning. In Proceedings of IEEE Conference on Computer Vision and Pattern Recognition, 2nd Continual Learning in Computer Vision Workshop."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "David Lopez-Paz and Marc’Aurelio Ranzato. 2017. Gradient episodic memory for continual learning. In Advances in Neural Information Processing Systems 30: Annual Conference on Neural Information Processing Systems 2017, December 4-9, 2017, Long Beach, CA, USA, pages 6467–6476."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Michael McCloskey and Neal J. Cohen. 1989. Catastrophic interference in connectionist networks: The sequential learning problem. volume 24 of Psychology ofLearning and Motivation, pages 109–165. Academic Press."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Kishore Papineni, Salim Roukos, Todd Ward, and Wei-Jing Zhu. 2002. Bleu: A method for automatic evaluation of machine translation. In Proceedings of the 40th Annual Meeting on Association for Computational Linguistics, ACL ’02, page 311–318, USA. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jonas Pfeiffer, Aishwarya Kamath, Andreas Rücklé, Kyunghyun Cho, and Iryna Gurevych. 2021. Adapterfusion: Non-destructive task composition for transfer learning. In Proceedings of the 16th Conference ofthe European Chapter ofthe Association for Computational Linguistics: Main Volume, EACL 2021, Online, April 19 - 23, 2021, pages 487–503. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Matt Post. 2018. A call for clarity in reporting BLEU scores. In Proceedings of the Third Conference on Machine Translation: Research Papers, pages 186– 191, Belgium, Brussels. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chengwei Qin and Shafiq R. Joty. 2022. LFPT5: A unified framework for lifelong few-shot language learning based on prompt tuning of T5. In The Tenth International Conference on Learning Representations, ICLR 2022, Virtual Event, April 25-29, 2022. OpenReview.net."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Alec Radford, Jeff Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J. Liu. 2020. Exploring the limits of transfer learning with a unified text-to-text transformer. J. Mach. Learn. Res., 21:140:1–140:67."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016. Squad: 100, 000+ questions for machine comprehension of text. In Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing, EMNLP 2016, Austin, Texas, USA, November 1-4, 2016, pages 2383–2392. The Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Sylvestre-Alvise Rebuffi, Hakan Bilen, and Andrea Vedaldi. 2017. Learning multiple visual domains with residual adapters. In Advances in Neural Information Processing Systems 30: Annual Conference on Neural Information Processing Systems 2017, December 4-9, 2017, Long Beach, CA, USA, pages 506– 516."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Andrei A. Rusu, Neil C. Rabinowitz, Guillaume Desjardins, Hubert Soyer, James Kirkpatrick, Koray Kavukcuoglu, Razvan Pascanu, and Raia Hadsell. 2016. Progressive neural networks. CoRR, abs/1606.04671."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                131,
+                85,
+                489,
+                112
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "185"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Rico Sennrich, Barry Haddow, and Alexandra Birch. 2016. Improving neural machine translation models with monolingual data. In Proceedings of the 54th Annual Meeting ofthe Associationfor Computational Linguistics, ACL 2016, August 7-12, 2016, Berlin, Germany, Volume 1: Long Papers. The Association for Computer Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chenze Shao and Yang Feng. 2022. Overcoming catastrophic forgetting beyond continual learning: Balanced training for neural machine translation. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL 2022, Dublin, Ireland, May 22-27, 2022, pages 2023–2036. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shagun Sodhani, Sarath Chandar, and Yoshua Bengio. 2020. Toward training recurrent neural networks for lifelong learning. Neural Comput., 32(1):1–35."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Kaitao Song, Xu Tan, Tao Qin, Jianfeng Lu, and Tie-Yan Liu. 2019. MASS: masked sequence to sequence pre-training for language generation. In Proceedings of the 36th International Conference on Machine Learning, ICML 2019, 9-15 June 2019, Long Beach, California, USA, volume 97 of Proceedings of Machine Learning Research, pages 5926–5936. PMLR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Fan-Keng Sun, Cheng-Hao Ho, and Hung-Yi Lee. 2020. LAMOL: language modeling for lifelong language learning. In 8th International Conference on Learning Representations, ICLR 2020, Addis Ababa, Ethiopia, April 26-30, 2020. OpenReview.net."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Brian Thompson, Jeremy Gwinnup, Huda Khayrallah, Kevin Duh, and Philipp Koehn. 2019. Overcoming catastrophic forgetting during domain adaptation of neural machine translation. In Proceedings of the 2019 Conference of the North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, NAACL-HLT 2019, Minneapolis, MN, USA, June 2-7, 2019, Volume 1 (Long and Short Papers), pages 2062–2068. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Gido M. van de Ven and Andreas S. Tolias. 2019. Three scenarios for continual learning. CoRR, abs/1904.07734."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need. In Advances in Neural Information Processing Systems 30: Annual Conference on Neural Information Processing Systems 2017, December 4-9, 2017, Long Beach, CA, USA, pages 5998–6008."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Thomas Wolf, Lysandre Debut, Victor Sanh, Julien Chaumond, Clement Delangue, Anthony Moi, Pierric Cistac, Tim Rault, Rémi Louf, Morgan Funtowicz, and Jamie Brew. 2019. Huggingface’s transformers: State-of-the-art natural language processing. CoRR, abs/1910.03771."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jitao Xu, Josep Maria Crego, and Jean Senellart. 2020. Boosting neural machine translation with similar translations. In Proceedings ofthe 58th Annual Meeting of the Association for Computational Linguistics, ACL 2020, Online, July 5-10, 2020, pages 1580–1590. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Linting Xue, Noah Constant, Adam Roberts, Mihir Kale, Rami Al-Rfou, Aditya Siddhant, Aditya Barua, and Colin Raffel. 2021. mT5: A massively multilingual pre-trained text-to-text transformer. In Proceedings ofthe 2021 Conference ofthe North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies, pages 483–498, Online. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Han Zhang, Sheng Zhang, Yang Xiang, Bin Liang, Jinsong Su, Zhongjian Miao, Hui Wang, and Ruifeng Xu. 2022a. CLLE: A benchmark for continual language learning evaluation in multilingual machine translation. In Findings ofthe Associationfor Computational Linguistics: EMNLP 2022, pages 428– 443, Abu Dhabi, United Arab Emirates. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yanzhe Zhang, Xuezhi Wang, and Diyi Yang. 2022b. Continual sequence generation with adaptive compositional modules. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), ACL 2022, Dublin, Ireland, May 22-27, 2022, pages 3653–3667. Association for Computational Linguistics."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Michal Ziemski, Marcin Junczys-Dowmunt, and Bruno Pouliquen. 2016. The united nations parallel corpus v1.0. In Proceedings of the Tenth International Conference on Language Resources and Evaluation LREC 2016, Portorož, Slovenia, May 23-28, 2016. European Language Resources Association (ELRA)."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                178
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "186"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                929,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Self-Generated Sentences"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                374,
+                99
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/9ffcfe4f95d9d83d80f7709f6d69e62b8f002cc16763c94a02c80f2c4744bbef.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Generated samples for several languages and filtered-out English sentences (bottom right) in the selfgeneration process. Underlined words indicate errors detected by PyEnchant."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=2>Self-Generated Sentences</td></tr><tr><td rowspan=1 colspan=1>English</td><td rowspan=1 colspan=1>Dutch</td></tr><tr><td rowspan=1 colspan=1>It has been something that most of them do.It kind of leads in the back of the wayIt&#x27;s counterintuitive and heart failure.They would turn to their concretes.At least the very same thing.</td><td rowspan=1 colspan=1>Ik zou het kunnen zijn..Ik hoorde het, oké, maar ik was er niet bij.Waarom?? Het was niet zo?Dus ik ga het hebben over een bepaald soort ding.</td></tr><tr><td rowspan=1 colspan=1>French</td><td rowspan=1 colspan=1>Italian</td></tr><tr><td rowspan=1 colspan=1>puisqu’il s’agit de construire des courantes.Et voici ce qu’il faut.Leurs biens étaient engendrés par le passé.C’est simplement la homme qui fait le charge.</td><td rowspan=1 colspan=1>È fantastico.Così ho fatto una cosa come il gruppo di bambiniEppure, si tratta di piccole specie.Quelli che lo provoquono.</td></tr><tr><td rowspan=1 colspan=1>Romanian</td><td rowspan=1 colspan=1>Filtered Sentences in English</td></tr><tr><td rowspan=1 colspan=1>Arena Pahăriări!&#x27;Iată.Cu Cuvântul!&#x27;Weea with that</td><td rowspan=1 colspan=1>It turns out, ates are &quot;w gravk.&quot;It&#x27;s called a c l’homme-afour.fourn fourn économied the question –It&#x27;s sort ofky knifery to us.</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                124,
+                117,
+                873,
+                399
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B IWSLT17 Score Under Different Task Order"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                469,
+                544,
+                486
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/5010d9085e7e8cedc8bb460fae45ede41dbebc7abf373e6dfd5d7d86a9b76be5.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Performance scores on IWSLT17 test set computed at the end of the fourth experience under different task permutations."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\">Systems</td><td colspan=\"8\">Permutation 1</td><td rowspan=\"2\">Avg.</td><td rowspan=\"2\"> $\\Delta \\mathbf { L } \\mathbf { p } ^ { * } \\downarrow$ </td></tr><tr><td>It→Ro</td><td>Ro→It</td><td>Fr→En</td><td>En→Fr</td><td>Nl→It</td><td>It→Nl</td><td>En→Ro</td><td>Ro→En</td></tr><tr><td>EWC</td><td>20.32</td><td>22.29</td><td>13.1</td><td>4.74</td><td>3.92</td><td>0.73</td><td>0.15</td><td>0.92</td><td>8.27</td><td>20.97</td></tr><tr><td> $\\mathbf { A } { \\mathrm { - G E M } } _ { 0 . 2 }$ </td><td>15.99</td><td>18.02</td><td>10.74</td><td>24.65</td><td>1.65</td><td>1.12</td><td>40.88</td><td>39.96</td><td>19.12</td><td>10.11</td></tr><tr><td> $\\mathrm { S G } { \\mathrm { - R e p } } _ { 0 . 2 } ^ { 2 5 0 }$ </td><td>15.14</td><td>17.62</td><td>18.96</td><td>28.99</td><td>16.98</td><td>15.7</td><td>40.77</td><td>39.62</td><td>24.22</td><td>5.02</td></tr><tr><td colspan=\"9\">Permutation 2</td><td colspan=\"2\"></td></tr><tr><td>EWC</td><td>En→Ro</td><td>Ro→En</td><td>It→Ro</td><td>Ro→It</td><td>Fr→En</td><td>En→Fr</td><td>Nl→It</td><td>It→NI</td><td></td><td></td></tr><tr><td></td><td>20.81</td><td>22.36</td><td>4.14</td><td>3.23</td><td>1.28</td><td>1.01</td><td>1.53</td><td>0.91</td><td>6.90</td><td>22.33</td></tr><tr><td> $\\mathbf { A } { \\mathrm { - G E M } } _ { 0 . 2 }$ </td><td>18.7</td><td>19.0</td><td>4.55</td><td>1.13</td><td>3.47</td><td>0.99</td><td>28.41</td><td>35.6</td><td>13.98</td><td>15.26</td></tr><tr><td> $\\mathrm { S G } { \\mathrm { - R e p } } _ { 0 . 2 } ^ { 2 5 0 }$ </td><td>18.4</td><td>18.23</td><td>34.08</td><td>28.98</td><td>16.31</td><td>15.87</td><td>27.51</td><td>35.11</td><td>24.31</td><td>4.93</td></tr><tr><td colspan=\"9\">Permutation 3</td><td colspan=\"2\"></td></tr><tr><td>EWC</td><td>En→Ro</td><td>Ro→En</td><td>It→Ro</td><td>Ro→It</td><td>Fr→En</td><td>En→Fr</td><td>Nl→It</td><td>It→NI</td><td colspan=\"2\"></td></tr><tr><td></td><td>7.67</td><td>10.48</td><td>2.05</td><td>0.48</td><td>2.91</td><td>0.87</td><td>0.04</td><td>0.35</td><td>3.10</td><td>26.13</td></tr><tr><td> $\\mathbf { A } { \\mathrm { - G E M } } _ { 0 . 2 }$  SG-Rep250 250</td><td>20.23</td><td>26.37</td><td>3.06</td><td>14.31</td><td>7.76</td><td>1.09</td><td>21.77</td><td>21.99</td><td>14.57</td><td>14.67</td></tr><tr><td></td><td>19.96</td><td>25.63</td><td>14.73</td><td>19</td><td>30.38</td><td>24.5</td><td>21.69</td><td>22.13</td><td>22.25</td><td>6.99</td></tr><tr><td>Joint training*</td><td>28.13</td><td>35.11</td><td>22.10</td><td>23.58</td><td>40.90</td><td>39.77</td><td>22.22</td><td>22.10</td><td>29.24</td><td>--</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                114,
+                502,
+                880,
+                756
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "187"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "C AGEM and EWC Scores Different Task Order"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                83,
+                556,
+                99
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/9c2cb06a9346b0a4d5166b772f692534e704ed81c3edec9c009309dd8639c623.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 9: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { A { \\mathrm { - } } G E M _ { 0 . 1 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "performance under a different experience order. Training data of the various experiences is from IWSLT17 dataset."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Exp.</td><td>Fr→En</td><td>En→Fr</td><td>En→Ro</td><td>Ro→En</td><td>It→Ro</td><td>Ro→It</td><td>Avg.</td></tr><tr><td>1</td><td>39.49</td><td>38.07</td><td>0.95</td><td>0.85</td><td>0.45</td><td>0.18</td><td>13.33</td></tr><tr><td>2</td><td>33.50</td><td>27.70</td><td>27.98</td><td>34.36</td><td>1.01</td><td>0.74</td><td>20.88</td></tr><tr><td>3</td><td>29.22</td><td>26.16</td><td>22.06</td><td>8.33</td><td>21.14</td><td>23.40</td><td>21.71</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                200,
+                117,
+                796,
+                185
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/c409ab3fc11082a0307b2aaa55d81b76a3c6f0787a8e357db59aadd55ce179aa.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 10: EWC performance under a different experience order. Training data of the various experiences is from the IWSLT17 dataset. λ = 2k"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Exp.</td><td>Fr→En</td><td>En→Fr</td><td>En→Ro</td><td>Ro→En</td><td>It→Ro</td><td>Ro→It</td><td>Avg.</td></tr><tr><td>1</td><td>39.63</td><td>38.32</td><td>1.04</td><td>0.54</td><td>0.18</td><td>0.13</td><td>13.30</td></tr><tr><td>2</td><td>28.43</td><td>1.15</td><td>27.14</td><td>34.01</td><td>0.89</td><td>0.82</td><td>15.40</td></tr><tr><td>3</td><td>1.22</td><td>1.07</td><td>22.04</td><td>0.92</td><td>20.19</td><td>21.48</td><td>11.15</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                198,
+                252,
+                798,
+                321
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "188"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "D Sizes of the Replay Buffer"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                83,
+                378,
+                101
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/23dbbbf635c1d6b35884365c829172ae92a56d1bc93dff7d9ea1516b7973d3c3.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 11: Total sizes of the replay buffer. A size of 100% is the sum of all the training samples across the four experiences created out of the IWSLT17 dataset (European-only languages)."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Memory size</td><td>Num. samples</td></tr><tr><td>5%</td><td>90433</td></tr><tr><td>10%</td><td>180866</td></tr><tr><td>20%</td><td>361732</td></tr><tr><td>100%</td><td>1,808,658</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                369,
+                120,
+                626,
+                204
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "E Forgetting curve for different sizes of generated samples"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                271,
+                636,
+                290
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/7fe585474e9030b895b1c62c74ff81a781b027af4d7b9cf8ff1e2bb47a1ee6fd.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 6: Forgetting curve of SG-Rep for different numbers of self-generated samples. Average BLEU score on the first task evaluated at the end of the training process of each experience."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                326,
+                330,
+                653,
+                511
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "F Training time of the different methodologies"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                579,
+                532,
+                596
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/b37ab1323159f096847b61e2fe9bdce0e50320259e31759e1b978491a27aff0c.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 12: Total training time measured in hours for the different approaches. SG-Rep is faster than AGEM and EWC and very close to pure replay."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td colspan=\"2\">Time (h) for Dataset</td></tr><tr><td>Method</td><td>UNPC IWSLT17 non-Europ.</td></tr><tr><td>Incremental</td><td>62.45 6.21</td></tr><tr><td>EWC 128.13</td><td>29.08</td></tr><tr><td>AGEM</td><td>67.81 14.43</td></tr><tr><td>SG-Rep</td><td>64.03 11.74</td></tr><tr><td>Replay 57.66</td><td>14.84</td></tr><tr><td>Joint</td><td>62.66 11.94</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                307,
+                615,
+                690,
+                749
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "189"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "G COMET Scores"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                83,
+                294,
+                99
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/4a5e9ea0ac5ab213d82bbe107f9e9e987bdcedc5daaea2af7ea6c4e14492cb3d.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 13: COMET scores for experiments on IWSLT17 with non-European languages. Scores are computed at the end of the last experience. The Avg column is the average COMET score across all translation directions. Joint training and Replay are shown as upper bounds at the bottom."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Systems</td><td>Fr→En</td><td>En→Fr</td><td>Nl→It</td><td>It→NI</td><td>En→Ro</td><td>Ro→En</td><td>It→Ro</td><td>Ro→It</td><td>Avg.</td><td>∆Lp*↓</td></tr><tr><td>Incremental train</td><td>0.33</td><td>0.51</td><td>0.33</td><td>0.67</td><td>0.69</td><td>0.7</td><td>0.82</td><td>0.81</td><td>0.61</td><td>0.20</td></tr><tr><td>EWC</td><td>0.83</td><td>0.79</td><td>0.37</td><td>0.39</td><td>0.56</td><td>0.53</td><td>0.23</td><td>0.3</td><td>0.5</td><td>0.31</td></tr><tr><td>A-GEM0.2</td><td>0.75</td><td>0.69</td><td>0.32</td><td>0.67</td><td>0.76</td><td>0.69</td><td>0.82</td><td>0.81</td><td>0.69</td><td>0.12</td></tr><tr><td>SG-Rep250 250</td><td>0.75</td><td>0.68</td><td>0.71</td><td>0.68</td><td>0.79</td><td>0.77</td><td>0.82</td><td>0.81</td><td>0.75</td><td>0.06</td></tr><tr><td>Replay0.1</td><td>0.81</td><td>0.76</td><td>0.74</td><td>0.74</td><td>0.82</td><td>0.82</td><td>0.82</td><td>0.81</td><td>0.79</td><td>0.02</td></tr><tr><td>Joint training*</td><td>0.84</td><td>0.8</td><td>0.77</td><td>0.78</td><td>0.83</td><td>0.84</td><td>0.82</td><td>0.81</td><td>0.81</td><td></td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                114,
+                117,
+                882,
+                217
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/beb3dc0f6421fed405c33068812b23750a75325f59a223987c76672986b33197.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 14: COMET scores for experiments on IWSLT17 with non-European languages. The scores are computed at the end of the last experience (after training on Nl It pair) on the corresponding test sets. Joint training and Replay are shown as upper bounds at the bottom."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Systems</td><td>Ar→En</td><td>En→Ar</td><td>En→Fr</td><td>Fr→En</td><td>Ko→En</td><td>En→Ko</td><td>NI→It</td><td>It→NI</td><td>Avg.</td><td> $\\Delta \\mathbf { L } \\mathbf { p } ^ { * } \\downarrow$ </td></tr><tr><td>Incremental</td><td>0.23</td><td>0.28</td><td>0.31</td><td>0.29</td><td>0.29</td><td>0.33</td><td>0.77</td><td>0.78</td><td>0.41</td><td>0.32</td></tr><tr><td>EWC</td><td>0.77</td><td>0.78</td><td>0.27</td><td>0.57</td><td>0.46</td><td>0.24</td><td>0.25</td><td>0.26</td><td>0.45</td><td>0.28</td></tr><tr><td>A-GEM0.2</td><td>0.69</td><td>0.69</td><td>0.52</td><td>0.33</td><td>0.3</td><td>0.46</td><td>0.77</td><td>0.78</td><td>0.57</td><td>0.16</td></tr><tr><td>SG-Rep250 250</td><td>0.66</td><td>0.64</td><td>0.61</td><td>0.74</td><td>0.67</td><td>0.67</td><td>0.77</td><td>0.78</td><td>0.69</td><td>0.04</td></tr><tr><td>Replayo.1</td><td>0.74</td><td>0.75</td><td>0.76</td><td>0.8</td><td>0.73</td><td>0.77</td><td>0.77</td><td>0.77</td><td>0.76</td><td>-0.02</td></tr><tr><td>Joint training*</td><td>0.73</td><td>0.74</td><td>0.75</td><td>0.8</td><td>0.72</td><td>0.74</td><td>0.69</td><td>0.71</td><td>0.73</td><td></td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                298,
+                882,
+                395
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/ae9d2b1056e0067f922ead4b176336ccd0a2cb03dae8272ecab185bbe407080c.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 15: COMET scores for experiments with UNPC. The scores are computed at the end of the last experience (after training on Es En pair) on the corresponding UNPC test sets.Joint training and Replay are shown as upper bounds at the bottom."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Systems</td><td>Ar→En</td><td>En→Ar</td><td>Es→Ru</td><td>Ru→Es</td><td>En→Fr</td><td>Fr→En</td><td>En→Es</td><td>Es→En</td><td>Avg.</td><td>∆Lp*</td></tr><tr><td>Incremental train</td><td>0.61</td><td>0.53</td><td>0.5</td><td>0.73</td><td>0.74</td><td>0.77</td><td>0.87</td><td>0.89</td><td>0.7</td><td>0.12</td></tr><tr><td>EWC</td><td>0.87</td><td>0.84</td><td>0.45</td><td>0.3</td><td>0.6</td><td>0.76</td><td>0.63</td><td>0.73</td><td>0.65</td><td>0.18</td></tr><tr><td>AGEM0.2</td><td>0.77</td><td>0.63</td><td>0.51</td><td>0.73</td><td>0.73</td><td>0.77</td><td>0.86</td><td>0.89</td><td>0.74</td><td>0.09</td></tr><tr><td>SG-Rep250 250</td><td>0.76</td><td>0.56</td><td>0.56</td><td>0.77</td><td>0.74</td><td>0.8</td><td>0.88</td><td>0.9</td><td>0.74</td><td>0.08</td></tr><tr><td>Replay0.1</td><td>0.77</td><td>0.61</td><td>0.66</td><td>0.79</td><td>0.73</td><td>0.81</td><td>0.87</td><td>0.89</td><td>0.77</td><td>0.06</td></tr><tr><td>Joint training*</td><td>0.83</td><td>0.81</td><td>0.83</td><td>0.82</td><td>0.81</td><td>0.86</td><td>0.84</td><td>0.87</td><td>0.83</td><td></td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                115,
+                475,
+                882,
+                571
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "190"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                517,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "H Statistics of Original and Pseudo-samples"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                83,
+                512,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We conducted an analysis of generated pseudo samples, covering duplicate counts and length statistics, to assess their characteristics and compare them with the original data."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                109,
+                884,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For diversity assessment, we utilized self-BLEU scores (Alihosseini et al., 2019). Due to computational constraints, self-BLEU was calculated with a sampling approach, evaluating 5k sentences and reporting the average over 10 runs. Results are provided for both IWSLT17 data in Table16 and UNPC in Table 17."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                142,
+                885,
+                190
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/a11218722e7ab812cdb3773ba101f4d37a6edbaeb15a9e68df313759f7a18681.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 16: Comparison of dataset statistics between language pairs in IWSLT17 and generated pseudo samples. Avg. Self-BLEU represents the average over 10 runs with a sample size of 5k sentences."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\"></td><td colspan=\"2\">Fr-En</td><td colspan=\"2\">NI-It</td><td colspan=\"2\">En-Ro</td><td colspan=\"2\">Ar-En</td><td colspan=\"2\">Ko-En</td></tr><tr><td>Original data</td><td>Generated</td><td>Original</td><td>Generated</td><td>Original</td><td>Generated</td><td>Original data</td><td>Generated</td><td>Original</td><td>Generated</td></tr><tr><td>Avg. length source</td><td>105.62 ± 74.88</td><td>24.74 ± 12.15</td><td>85.94 ± 58.63</td><td>26.82 ± 13.39</td><td>94.09 ± 66.62</td><td>23.04 ± 10.88</td><td>77.89 ± 55.93</td><td>25.10 ± 15.92</td><td>49.60 ± 34.38</td><td>12.587 ± 6.37</td></tr><tr><td>Min. source length</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr><tr><td>Max. source length</td><td>557</td><td>265</td><td>547</td><td>184</td><td>523</td><td>264</td><td>490</td><td>262</td><td>357</td><td>294</td></tr><tr><td>Duplicated source sents</td><td>2887</td><td>0</td><td>3666</td><td>0</td><td>2474</td><td>0</td><td>2032</td><td>0</td><td>2286</td><td>0</td></tr><tr><td>Avg. Self-BLEU source</td><td>23.97</td><td>21.02</td><td>18.68</td><td>21.08</td><td>26.48</td><td>47.67</td><td>10.9</td><td>15.93</td><td>11.44</td><td>14.04</td></tr><tr><td>Avg. length target</td><td>94.95 ± 67.34 24.15 ± 12.09</td><td></td><td>89.45 ± 61.28 28.64 ± 14.78</td><td></td><td></td><td>92.55 ± 66.06 22.74 ± 11.43</td><td>94.96 ± 67.8</td><td>14.93 ± 12.21</td><td>95.02 ± 68.12 28.95 ± 21.12</td><td></td></tr><tr><td>Min. target length</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>3</td><td>1</td></tr><tr><td>Max. source length</td><td>523</td><td>256</td><td>562</td><td>174</td><td>556</td><td>258</td><td>514</td><td>886</td><td>531</td><td>895</td></tr><tr><td>Avg. Self-BLEU target</td><td>26.52</td><td>28.02</td><td>18.33</td><td>27.56</td><td>18.14</td><td>36.22</td><td>26.5</td><td>20.45</td><td>26.42</td><td>40.77</td></tr><tr><td>Duplicated target sents</td><td>2827</td><td>20502</td><td>2582</td><td>20681</td><td>2431</td><td>32326</td><td>2836</td><td>14418</td><td>2816</td><td>40052</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                114,
+                263,
+                882,
+                369
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/c2bc912a81cf6da6d8be597b976f1f18fce51c5179526728614ebd8a617bb741.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 17: Comparison of dataset statistics between language pairs in UNPC and generated pseudo samples. Avg. Self-BLEU represents the average over 10 runs with a sample size of 5k sentences."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=\"2\"></td><td colspan=\"2\">Ar-En</td><td colspan=\"2\">Es-Ru</td><td colspan=\"2\">En-Fr</td></tr><tr><td>Original data</td><td>Generated</td><td>Original</td><td>Generated</td><td>Original</td><td>Generated</td></tr><tr><td>Avg. length source</td><td>132.42 ± 112.08</td><td>19.66 ± 15.75</td><td>171.20 ± 147.66</td><td>23.39 ± 22.91</td><td>140.747 ± 126.661</td><td>24.253 ± 23.53</td></tr><tr><td>Min. source length</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr><tr><td>Max. source length</td><td>15523</td><td>641</td><td>14164</td><td>684</td><td>15024</td><td>601</td></tr><tr><td>Duplicated source sents</td><td>3828415</td><td>0</td><td>5086430</td><td>0</td><td>8696252</td><td>0</td></tr><tr><td>Avg. Self-BLEU source</td><td>16.37</td><td>14.59</td><td>34.98</td><td>17.7</td><td>26.86</td><td>14.02</td></tr><tr><td>Avg. length target</td><td>157.28 ± 132.64</td><td></td><td>20.19 ± 18.70 166.97 ± 144.29</td><td>21.98 ± 22.54</td><td>166.41 ± 151.952</td><td>27.492 ±28.745</td></tr><tr><td>Min. target length</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr><tr><td>Max. source length</td><td>15024</td><td>655</td><td>13684</td><td>800</td><td>22285</td><td>669</td></tr><tr><td>Avg. Self-BLEU target</td><td>29.46</td><td>16.73</td><td>21.83</td><td>15.1</td><td>40.19</td><td>20.97</td></tr><tr><td>Duplicated target sents</td><td>4517013</td><td>35608</td><td>5053606</td><td>50771</td><td>8276589</td><td>17988</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                114,
+                434,
+                880,
+                583
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "191"
+                    }
+                ]
+            },
+            "bbox": [
+                485,
+                928,
+                515,
+                942
+            ]
+        }
+    ]
+]
