@@ -1,0 +1,3185 @@
+[
+    {
+        "type": "text",
+        "text": "XferBench: a Data-Driven Benchmark for Emergent Language",
+        "text_level": 1,
+        "bbox": [
+            169,
+            90,
+            826,
+            110
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Brendon Boldt, David Mortensen",
+        "bbox": [
+            354,
+            128,
+            647,
+            143
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Language Technologies Institute Carnegie Mellon University Pittsburgh, PA 15213, USA {bboldt,dmortens}@cs.cmu.edu",
+        "bbox": [
+            332,
+            145,
+            673,
+            210
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            260,
+            239,
+            342,
+            254
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we introduce a benchmark for evaluating the overall quality of emergent languages using data-driven methods. Specifically, we interpret the notion of the “quality” of an emergent language as its similarity to human language within a deep learning framework. We measure this by using the emergent language as pretraining data for a downstream NLP tasks in human language—the better the downstream performance, the better the emergent language. We implement this benchmark as an easy-to-use Python package that only requires a text file of utterances from the emergent language to be evaluated. Finally, we empirically test the benchmark’s validity using human, synthetic, and emergent language baselines.",
+        "bbox": [
+            141,
+            268,
+            462,
+            512
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            115,
+            539,
+            258,
+            556
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Neural language models learn many things in pretraining, but research suggests (Artetxe et al., 2020) that a substantial part of that knowledge is not simply knowledge of a particular language or domain, but rather knowledge of “how to language.” We currently teach models to “language” using vast quantities of text dredged from the dark recesses of the Web—text that is full of bias, toxicity, and potential intellectual property violations. Ideally, we would be able to teach models to “language” without such compromises through the use of synthetic data, but mainstream approaches to synthesizing data produce outputs that do not have the same structural and social properties as human language.",
+        "bbox": [
+            112,
+            567,
+            489,
+            752
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Emergent communication (EC), also called emergent language (EL), is a potential solution to this problem (Yao et al., 2022; Downey et al., 2023; Mu et al., 2023). Emergent languages are communication systems developed de novo among multiple agents in a reinforcement learning simulation. Because the conditions under which they develop mirror, reductively, the conditions under which languages develop among humans, there is reason to believe that ELs will ultimately be more like human language than other sources of synthetic data. However, up to this point, there is no way of quantifying—in a holistic way—how much like human languages any particular EL really is, or to what extent it may provide useful pretraining signals.",
+        "bbox": [
+            112,
+            753,
+            489,
+            925
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            241,
+            884,
+            269
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Research on deep learning-based emergent communication has seen the introduction of many metrics to measure various aspects of the language. These metrics quantify notions such as compositionality (Brighton and Kirby, 2006; Lazaridou et al., 2018), expressivity (Guo et al., 2023), ease-of-teaching (Li and Bowling, 2019), and zero-shot transfer (Bullard et al., 2020), to name a few. Despite this proliferation of metrics, emergent language largely lacks evaluation metrics. An evaluation metric is specifically one that measures the overall quality ofan emergent language and not simply a particular property. Thus, we introduce XferBench, a data-driven benchmark for evaluating the overall quality of emergent languages using transfer learning with deep neural models.",
+        "bbox": [
+            507,
+            269,
+            885,
+            482
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Evaluation metrics are critical in gauging progress in technical fields since they quantify otherwise vague notions of improvement over time. Benchmarks, in particular, pair evaluation metrics with specific data and evaluation procedures to compare various systems on common ground. Benchmarks and shared tasks have been critical to the development of NLP from the Penn Treebank (Marcus et al., 1993) to the WMT datasets (Bojar et al., 2014) to GLUE (Wang et al., 2018).",
+        "bbox": [
+            507,
+            482,
+            885,
+            611
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In the field of emergent communication specifically, Yao et al. (2022) introduced the idea of using corpus transfer as means of practically applying emergent communication to deep learning-based NLP via transfer learning. In corpus transfer, a language model is pretrained on a corpus of emergent language utterances before being tuned on real data for a human languagebased downstream task. As a corollary, they suggest that the effectiveness of this transfer can serve as a means of evaluating the quality of the emergent in a more general sense. This is based on the intuition that the more similar two language are, the better transfer learning works from one to the other (observed in Zoph et al. (2016), for example).",
+        "bbox": [
+            507,
+            611,
+            887,
+            809
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "This paper takes the transfer learning-as-anevaluation metric idea from Yao et al. (2022) and expands it into a full benchmark, XferBench, for emergent languages (illustrated in Figure 1). An evaluation metric for emergent languages in a benchmark format is the first of its kind. Additionally, XferBench is unique within emergent communication for being primarily data-driven instead of relying on particular handcrafted algorithms for quantifying a given phenomenon. This means that XferBench can be easily scaled up in the future as the field of emergent communication advances and requires expanded means of evaluating emergent languages. Finally, XferBench is distributed as a userfriendly Python package, allowing researchers from across the field of emergent communication to apply XferBench to their own work on emergent communication.",
+        "bbox": [
+            507,
+            810,
+            887,
+            923
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "1475",
+        "bbox": [
+            482,
+            928,
+            521,
+            941
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "footer",
+        "text": "Proceedings ofthe 2024 Conference ofthe North American Chapter ofthe Associationfor Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 1475–1489 June 16-21, 2024 ©2024 Association for Computational Linguistics",
+        "bbox": [
+            139,
+            946,
+            857,
+            985
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/afc04aa5d1eb51d1a07874f0d4d920e0b25797dc1bd969f4b436b8df85567d84.jpg",
+        "image_caption": [
+            "Figure 1: Illustration of the architecture of XferBench."
+        ],
+        "image_footnote": [],
+        "bbox": [
+            142,
+            82,
+            855,
+            187
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            236,
+            489,
+            365
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Contributions This paper makes the following contributions: (1) Introduces XferBench, a data-driven benchmark for evaluating the overall quality of an emergent language, the first of its kind in emergent communication. (2) Provides a analysis of the quality human, synthetic, and emergent language according to XferBench. (3) Provides an easy-to-use Python implementation of XferBench.",
+        "bbox": [
+            112,
+            370,
+            490,
+            485
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work",
+        "text_level": 2,
+        "bbox": [
+            114,
+            495,
+            272,
+            511
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Emergent Communication This paper is situated in the field of emergent communication (a.k.a. emergent language) which is generally covered by the review Lazaridou and Baroni (2020). The field centers around the invention of language by deep neural networks typically using multi-agent reinforcement learning techniques. The study of emergent communication is intended to (1) shed light on the origin and nature of the human language (LaCroix, 2019; Moulin-Frier and Oudeyer, 2020; Galke et al., 2022) and (2) provide an alternative approach to problems in NLP and multi-agent reinforcement learning which relies on constructing language from the ground up and not just pre-existing (human) languages alone (Li et al., 2020; Yao et al., 2022; Mu et al., 2023; Downey et al., 2023).",
+        "bbox": [
+            112,
+            518,
+            490,
+            733
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Transfer Learning Transfer learning for deep neural networks is a key component of XferBench and follows in general tradition of Zoph et al. (2016). Specifically, this paper draws heavily from Yao et al. (2022) (see also Papadimitriou and Jurafsky (2020); Artetxe et al. (2020)) which introduce the technique of corpus transfer for emergent language, that is, pretraining a neural model on an emergent language corpus before tuning it on a downstream human language task. In particular, this paper takes Yao et al. (2022)’s idea of using corpus transfer as a metric and adapts it into a benchmark pipeline which can easily be applied to new emergent languages.",
+        "bbox": [
+            110,
+            738,
+            490,
+            925
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Benchmarks Work such as Guo et al. (2023) and Perkins (2022) have looked at benchmarking particular aspects of emergent languages, but XferBench is the first of its kind in benchmarking the overall quality of an emergent language. Yao et al. (2022) also explicitly provide a metric for emergent language quality, but this metric is restrictive in that it can only be applied to emergent languages derived from a model that takes images (that have captions available) as input; this conflicts with the design goals of XferBench discussed below.",
+        "bbox": [
+            507,
+            236,
+            885,
+            379
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Outside of emergent communication, XferBench is more analogous to benchmarks for generative models (e.g., Fréchet Inception Distance (Heusel et al., 2017) for image generation) than more traditional NLP benchmarks like GLUE (Wang et al., 2018) or SQuAD (Rajpurkar et al., 2016). This is because emergent communication is a generative enterprise, where one of the main goals is to create samples (emergent languages) which resemble a target distribution (human languages) either generally or in some particular respect. Furthermore, metrics like FID are primarily self-supervised, data-driven measures of similarity in the same vein as XferBench. This is in contrast to more traditional NLP benchmarks which combine data-driven methods with many human judgments (i.e., through labeled examples).",
+        "bbox": [
+            507,
+            379,
+            887,
+            608
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3 XferBench",
+        "text_level": 2,
+        "bbox": [
+            509,
+            619,
+            640,
+            636
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.1 Design Goals",
+        "text_level": 2,
+        "bbox": [
+            509,
+            645,
+            648,
+            659
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We frame the primary design goals of the benchmark as three desiderata:",
+        "bbox": [
+            507,
+            659,
+            884,
+            688
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "D1 Quantitatively capture a meaningful notion of the overall quality<sup>1</sup> of an emergent language from a data-driven perspective.",
+        "bbox": [
+            512,
+            688,
+            884,
+            731
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "D2 Be applicable to as wide a variety of emergent languages as possible, not restricted to a specific game, environment, or agent architecture.",
+        "bbox": [
+            514,
+            732,
+            884,
+            774
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "D3 Be relevant and accessible to the broader EC/EL community, by being: (a) easy to interpret, (b) minimally biased with regards to language typology, (c) runnable with minimal coding experience, and (d) runnable on modest hardware.",
+        "bbox": [
+            514,
+            774,
+            885,
+            845
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "While there are other consideration in the benchmark, these form the bulk of the motivation. In the following paragraphs we expand upon the motivation for each design goal.",
+        "bbox": [
+            509,
+            846,
+            885,
+            876
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup>We are aiming for a meaningful notion of overall quality: we are not claiming that this is the only meaningful notion nor that it is the best among all possible notions of “quality”.",
+        "bbox": [
+            509,
+            885,
+            885,
+            923
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "1476",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            487,
+            114
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "D1: Quantifying quality D1 is the core of what a benchmark seeks to do: to quantify a desirable property of a given system such that it can be compared directly to other systems (i.e., be an evaluation metric). There are two distinct senses in which XferBench strives towards this goal. First, XferBench measures how good an emergent language is from a specifically machine learning perspective; that is, it addresses the question, “How useful would this emergent language be for practical machine learning tasks?” The second sense is more general: XferBench addresses the question, “How similar is an emergent language to human language according to how deep neural networks process language?” That is, it uses data-driven techniques to quantify the similarity between emergent language and human language in some general sense.",
+        "bbox": [
+            110,
+            121,
+            490,
+            350
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "D2: Wide applicability D2 is intended to make Xfer-Bench practically applicable to a wide range of EC research. The field of EC has an especially diverse set of possible approaches, environments, agents, games, etc. Thus, it is especially salient that the benchmark be designed with interoperability in mind, having minimal assumptions as to the nature of the EC system being evaluated.",
+        "bbox": [
+            112,
+            356,
+            489,
+            470
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The influence of this design goal is primarily seen through the use of a textual corpus as the sole input to the benchmark: the vast majority of EC systems generate utterances which can be represented as sequences of discrete tokens.<sup>2</sup> EC presents the opportunity for much richer representations of its language: leveraging the grounded semantics of the communication, incorporating non-verbal behavior, and even directly interacting with the agents themselves. Yet such richer representations also limit the range of EC systems to which XferBench could apply. Even if it is possible to define some universal EC interface that could allow for richer representations, the implementation cost for each and every EC system to be tested is significant compared to the ease of producing a corpus of utterances from the emergent language.",
+        "bbox": [
+            112,
+            470,
+            489,
+            701
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "D3: Easy-to-use D3 is critical to the success of Xfer-Bench as a practical tool for diverse field of researchers— a benchmark is expresslyfor the broader research community, and, as such, should be widely accessible. In particular, D3a demands that XferBench be conceptually simple with results that can easily be reported, compared, and incorporated into a research program. D3b is relevant to both aspects of D1. First, if XferBench is to gauge an EL’s practical use in machine learning, it should seek to use a typologically diverse set of human languages in the downstream tasks. Second, since XferBench is trying to capture a notion of “similarity to human language generally”, it is important to test this against a wide range of language typologies so as not to unnecessarily narrow the criteria for “similar to human language”. D3c is particularly important for incorporating interdisciplinary researchers into the field of EC who might not have a background in computer programming. Finally, D3d ensures that XferBench is accessible not only to labs and researchers with fewer financial resources but also makes it much easier to incorporate into the fast-paced research and development cycles prevalent in contemporary ML reserach.",
+        "bbox": [
+            110,
+            706,
+            492,
+            878
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            85,
+            887,
+            243
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.2 Methods",
+        "text_level": 2,
+        "bbox": [
+            509,
+            252,
+            618,
+            266
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The following procedure describes the benchmark (illustrated in Figure 1):",
+        "bbox": [
+            507,
+            267,
+            885,
+            296
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "1. Initialize a causal language model.",
+        "bbox": [
+            522,
+            296,
+            781,
+            310
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2. Train the model on the corpus of utterances from the EL being evaluated.",
+        "bbox": [
+            521,
+            310,
+            884,
+            338
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3. Re-initialize the input and output (i.e., language modelling head) embedding layers; this is the base model.",
+        "bbox": [
+            522,
+            338,
+            884,
+            380
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4. For each downstream human language:",
+        "bbox": [
+            521,
+            381,
+            813,
+            397
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "(a) Train the base model on the human language data.",
+        "bbox": [
+            547,
+            399,
+            884,
+            428
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "(b) Evaluate the cross-entropy on a held-out test set of the human language.",
+        "bbox": [
+            547,
+            430,
+            884,
+            458
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "5. Average the cross-entropies across the downstream human languages; this is the corpus’s score on the benchmark (lower is better).",
+        "bbox": [
+            521,
+            461,
+            885,
+            504
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The structure of the benchmark is derived from the corpus transfer method presented in Yao et al. (2022).",
+        "bbox": [
+            507,
+            505,
+            885,
+            535
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Task For XferBench’s evaluation task, we choose causal language modeling for a few different reasons. In principle, language modeling is a component of a wide variety of NLP tasks, especially generative tasks; the prevalence of language modeling is in line with the benchmark providing a very general notion of quality that will be familiar to anyone acquainted with NLP. On a practical level, language modeling is easy to acquire data for—especially helpful for evaluating against low-resource languages—and there are fewer hyperparameters and confounding variables compared to other downstream tasks like machine translation or questionanswering. The main limitation from using language modeling is that it itself is not a widespread downstream task and so cannot guarantee direct correlation with metrics on more concrete downstream tasks (e.g., accuracy on a QA task).",
+        "bbox": [
+            507,
+            543,
+            887,
+            785
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "For the pretraining task we also use causal language modeling. Due to requiring a wide applicability across emergent languages (Design Goal 2), we select causal language modeling for our pretraining task since it requires only a corpus without any additional annotations or stipulations.",
+        "bbox": [
+            507,
+            785,
+            885,
+            872
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Data The data for the transfer learning targets (viz. human languages) comes from Wikipedia dumps (Wikimedia Foundation) (under the GFDL and CC-BY-SA",
+        "bbox": [
+            507,
+            881,
+            887,
+            923
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup>In the minority case, there are EC methods which use communication channels that are, for example, continuous (Eloff et al., 2021) or even pictorial (Mihai and Hare, 2021).",
+        "bbox": [
+            112,
+            885,
+            489,
+            923
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "1477",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.0 License) hosted by Hugging Face<sup>3</sup>. This dataset provides a diverse set of languages each with sufficient amounts of data. For our downstream human languages, we use the same 10 languages presented in Yao et al. (2022), namely: Basque, Danish, Finnish, Hebrew, Indonesian, Japanese, Kazakh, Persian, Romanian, and Urdu. Having a variety of languages reduces the likelihood that XferBench will be biased toward specific typologies of human language (Design Goal 3b).",
+        "bbox": [
+            112,
+            84,
+            490,
+            214
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We use 15 and 2 million tokens for the pretraining and fine tuning phases, respectively following Yao et al. (2022). Datasets are always repeated or truncated to fit the required size so that the number of training steps stays constant.",
+        "bbox": [
+            112,
+            212,
+            489,
+            285
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Tokenization For tokenization we use byte pair encoding (BPE) (Gage, 1994) with a vocabulary size of 30 000 for all human languages. Using BPE across all human languages is done primarily to simplify the implementation and keep tokenization methods consistent across all of the selected human languages. Emergent languages are generally considered to be pre-tokenized since most communication channels consist of one-hot vectors; thus, no additional tokenization or preprocessing is applied.<sup>4</sup>",
+        "bbox": [
+            110,
+            291,
+            490,
+            435
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Model For our model, we use a small configuration of GPT-2 (Radford et al., 2019), similar to that used in Yao et al. (2022): 6 attention heads, 6 layers, context length of 256, and hidden size of 768 with the remainder of the model parameters being the same as the defaults in the Hugging Face Transformers implementation.<sup>5</sup> This yields 65 million parameters in total. We kept the model on the smaller size to better suit it for the generally small amounts of data emergent languages corpora provide as well as to be more accessible (Design Goal 3d). Further details are listed in Appendix A.1.",
+        "bbox": [
+            110,
+            441,
+            489,
+            599
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Metric Given the use of language modeling for our evaluation task, we use token-level cross-entropy as the evaluation metric on the downstream task. This is a very common metric, making the outputs easy to interpret (Design Goal 3a). Although perplexity is more common as an evaluation of language models, the exponential nature of perplexity leads to more circuitous analyses and interpretation in our case, whereas cross-entropy is comparatively linear and additive (loosely speaking).<sup>6</sup> For the final score of the benchmark, we take the arithmetic mean of the cross-entropy across the 10 downstream human languages. That is, we define the benchmark’s score for a given source language s as as $h _ { s }$",
+        "bbox": [
+            110,
+            605,
+            490,
+            763
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            84,
+            884,
+            114
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/2d61c02dceaf8aca9562776f6abb0b36cb1320742d35715debfebe7bf08fc8eb.jpg",
+        "text": "$$\nh _ { s } = \\operatorname* { m e a n } _ { t \\in T } \\left( h _ { s , t } \\right)\\tag{1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            633,
+            124,
+            757,
+            146
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where $h _ { s , t }$ is the test cross-entropy of a model trained on source language s and finetuned and tested on target language $t ; T$ is the set of target languages. Since the score is based on cross-entropy, a lower score means better performance.",
+        "bbox": [
+            507,
+            156,
+            885,
+            229
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.3 Implementation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            237,
+            670,
+            252
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "XferBench is implemented as a small Python codebase which relies primarily on Hugging Face Transformers (Wolf et al., 2019) (Apache-2.0 license) and PyTorch (Paszke et al., 2019) (BSD-3-Clause license) libraries. To run the benchmark, all that is required is to install the environment with either pip or conda, and run python -m xferbench path/to/corpus.jsonl (Design Goal 3c). The input corpus is simply formatted as a newline-separated list of integer arrays, specifically in the JSON Lines format (see Appendix B for an example); a Hugging Face dataset (backed by Apache Arrow) can also be used for larger input corpora. The script executes all of the steps of the benchmark and yields a single floating point number which is that corpus’s score on XferBench (the benchmark also saves the individual score across target languages for further analysis). Finer-grained functionalities are available and documented in the codebase. The benchmark takes about 5.5 hours to run on a single NVIDIA GeForce RTX 2080 Ti: 90 minutes to train the base model and 30 minutes for tuning and testing on each of the target languages (Design Goal 3d). Since the model is tuned independently on each target language, it is easy to parallelize this step and drastically shorten the wall-clock time of XferBench.",
+        "bbox": [
+            507,
+            252,
+            887,
+            608
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The implementation is available at https://gi thub.com/brendon-boldt/xferbench under the MIT license.",
+        "bbox": [
+            507,
+            607,
+            885,
+            651
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4 Experiments",
+        "text_level": 2,
+        "bbox": [
+            509,
+            662,
+            657,
+            680
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.1 Procedures",
+        "text_level": 2,
+        "bbox": [
+            509,
+            687,
+            636,
+            700
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "XferBench The causal language modeling experiment is simply running XferBench as described in Section 3.2 on the reference and emergent languages discussed in Sections 4.2 and 4.3.",
+        "bbox": [
+            507,
+            701,
+            885,
+            759
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Machine translation The machine translation experiment is structured similarly to XferBench except with the downstream task being English-to-French translation (using the WMT 2014 dataset (Bojar et al., 2014)). The primary purpose of this experiment is to determine how well XferBench correlates with a more concrete downstream task (especially one that incorporates language modeling). We choose this language pair in part to gauge the relative differences between the task languages and the baseline human languages (in contrast to XferBench which we want to be largely agnostic to human languages). Looking at our reference human languages, we have: French, the target language itself; Spanish, closely related to French; Russian and Hindi, distantly related to French; and Chinese, Korean and Arabic, not related to French. Instead of using a GPT-2–based model, we use a BART-based model since MT is a conditional generation task (see Appendix A.2 for details). The pretraining dataset size is increased to 100 million due to the increased difficulty of this task compared to language modeling. We evaluate the translation performance with chrF (Popovic´, 2015) and BLEU (Papineni et al., 2002) using the default Hugging Face Evaluate metrics (derived from sacreBLEU (Post, 2018)). Evaluation is performed with beam sizes of 1, 3, and 5, and the resulting values are averaged.",
+        "bbox": [
+            507,
+            766,
+            887,
+            925
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_footnote",
+        "text": "3 https://huggingface.co/datasets/wikimedia/wikipe dia/tree/97323c5edeffcf4bd6786b4ed0788c84abd24b03",
+        "bbox": [
+            114,
+            771,
+            487,
+            793
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>4</sup>Whether the tokens of an EL should be treated as words or subword units is an open question, although tokens as words is more common (but see Ueda et al. (2023) for tokens as subword units). Practically speaking, many emergent languages are small enough that applying a 30 000-item BPE model would severely reduce the corpus size.",
+        "bbox": [
+            112,
+            793,
+            489,
+            865
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_footnote",
+        "text": "https://huggingface.co/docs/transformers/v4.36.1 /en/model\\_doc/gpt2#transformers.GPT2Config",
+        "bbox": [
+            114,
+            865,
+            489,
+            888
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>6</sup>For example, it would make more sense to use logarithmic scales and geometric means to average and compare perplexities, but this would just be reverting back to cross-entropy!",
+        "bbox": [
+            112,
+            887,
+            489,
+            925
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "1478",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            110,
+            85,
+            490,
+            299
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We present three settings for this experiment. The first is Full which tunes on 50 million source tokens at a higher learning rate $( 1 \\cdot 1 0 ^ { - 4 }$ for training and $2 \\cdot 1 0 ^ { - 4 }$ for the AdamW optimizer (Kingma and Ba, 2015)), which we found empirically to lead to the best performance. The second is Frozen, in which we use the same configuration as Full but freeze all but the embedding layers before tuning the model for translation (as in Papadimitriou and Jurafsky (2020); Artetxe et al. (2020)). Finally, we also present Reduced which uses a smaller tuning dataset of 10 million tokens and lower learning learning $( 2 \\cdot 1 0 ^ { - 5 } )$ ; the lower rate helped the random baselines converge better as well as showed better distinction between languages.",
+        "bbox": [
+            110,
+            299,
+            490,
+            499
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.2 Reference languages",
+        "text_level": 2,
+        "bbox": [
+            114,
+            510,
+            305,
+            524
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The following reference languages serve as a way to contextualize the results of XferBench as well as to validate that it is capturing some notion of the quality of the emergent languages (cf. Section 4.4).",
+        "bbox": [
+            112,
+            525,
+            489,
+            583
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Human languages For our baseline line human languages, we selected French, Spanish, Russian, Chinese, Korean, Arabic, and Hindi.<sup>7</sup> Like the evaluation languages, the data is derived from Wikipedia articles (same source as the target languages).",
+        "bbox": [
+            112,
+            592,
+            490,
+            665
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Synthetic languages For synthetic languages, we follow Yao et al. (2022) and use “Zipfian parentheses” from Papadimitriou and Jurafsky (2020). This synthetic dataset—referred to as Paren, real—is hierarchically balanced “parentheses” where each parenthesis is the token ID sampled from the unigram distribution of a human language (hence “Zipfian”). This datasets mimics both the unigram distribution of a human language as well as the basic recursive hierarchical structure. This yields a reasonably strong yet simple baseline for synthetic data.",
+        "bbox": [
+            112,
+            674,
+            490,
+            831
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We also test a fully synthetic dataset (Paren, synth) which uses the same hierarchical parenthesis generation script from Papadimitriou and Jurafsky (2020), replacing the data-derived unigram distribution with Zipf– Mandelbrot distribution:",
+        "bbox": [
+            112,
+            831,
+            490,
+            876
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "table",
+        "img_path": "images/7d66962317f612e6cd4fcfbe5e37683c629a13e274f3a331f14c502b19795b07.jpg",
+        "table_caption": [
+            "Table 1: Summary of key hyperparameters in the tested emergent languages. Observations are either one-hot vectors or embeddings. V , M , and C refer to the vocabulary, message, and corpus size respectively."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Setting</td><td>Observ.</td><td>|V|</td><td>|M|</td><td>|C|</td></tr><tr><td>Disc, small</td><td>one-hot</td><td>6</td><td>11</td><td>700</td></tr><tr><td>Disc, large</td><td>one-hot</td><td>100</td><td>31</td><td>100M</td></tr><tr><td>Recon, large</td><td>one-hot</td><td>100</td><td>31</td><td>31M</td></tr><tr><td>Mu+, CUB</td><td>embed</td><td>20</td><td>10</td><td>1.3M</td></tr><tr><td>Mu+, SW</td><td>embed</td><td>14</td><td>7</td><td>1.2M</td></tr><tr><td>Yao+</td><td>embed</td><td>4028</td><td>15</td><td>43M</td></tr></table>",
+        "bbox": [
+            524,
+            82,
+            867,
+            195
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            507,
+            290,
+            885,
+            319
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/e59806cefb603909bd224c841d5f6808178f2d4422ef63f99fcf11c5c4f5dfd1.jpg",
+        "text": "$$\nf ( w _ { i } ) = \\frac { 1 } { \\left( i + \\beta \\right) ^ { \\alpha } }\\tag{2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            628,
+            326,
+            761,
+            357
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where $f ( w _ { i } )$ is non-normalized probability weight of word w with 1-based index (rank) $i , \\alpha = 1 , \\beta = 2 . 7$ (Mandelbrot et al., 1953; Piantadosi, 2014).",
+        "bbox": [
+            507,
+            367,
+            885,
+            411
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Random baselines We use two random baselines. The first is simply a uniform unigram distribution across the whole vocabulary with no additional structure (referred to as Random). This baseline sheds light on whether the optimization itself, no matter training data, primes the network in some way for transfer learning. The second “random” baseline is no pretraining at all (No pretrain); that is, a network which has been freshly initialized at the tuning stage. This baseline helps establish whether or not pretraining on other languages has any impact beyond tuning alone.",
+        "bbox": [
+            507,
+            418,
+            887,
+            577
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.3 Emergent languages",
+        "text_level": 2,
+        "bbox": [
+            509,
+            587,
+            700,
+            601
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We present a summary of the key hyperparameters of emergent languages in Table 1. The emergent language corpora below come from reproductions from existing codebases with the exception of Yao et al. (2022), whose emergent language corpus is available for download. Emergent languages which have a corpus size smaller than the required size are simply repeated and shuffled as many times as necessary so that the model receives the same number of optimization steps.",
+        "bbox": [
+            507,
+            601,
+            885,
+            731
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Generic signalling game The first set of emergent languages we test are generic versions of the of the signalling game (reference game) as implemented in EGG (Kharitonov et al., 2019) (MIT license). These games use one-hot vectors to represent attribute–value observations, that is, observations are elements of the set $V ^ { | A | }$ where V is the set of values and A is the number of attributes. The signalling game is one of the simplest and most used games in emergent communication research.",
+        "bbox": [
+            507,
+            738,
+            887,
+            866
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The first two language are Disc, small and Disc, large which are two configurations of the discrimination version of the signalling game. Here, the sender makes an observation and sends a message; then, the receiver must select the corresponding observation from a small set of potential observations (like a multiple-choice question). The small configuration consists of 4 attributes and 4 values with a small vocabulary size and medium message length; this setting is intended to represent a toy environment that one might find in an emergent communication paper. The large configuration consists of 12 attributes and 8 values with a larger vocabulary and longer message length. Both environments show 5 distractor observations to the receiver (i.e., 6-way multiple choice). Both settings converge to a success rate >95% compared to a random baseline of 17%.",
+        "bbox": [
+            507,
+            866,
+            885,
+            923
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>7</sup>The main reason for choosing the high-resource language is due to the higher data requirements of machine translation experiment discussed below.",
+        "bbox": [
+            112,
+            885,
+            489,
+            923
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "1479",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            490,
+            256
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The Recon, large environment is based on the reconstruction version of the signalling game. In this version, the receiver does not make any observations and instead must recreate the sender’s observation based on the message alone (similar to an autoencoder). The observation space has 8 attributes and 8 values with other settings identical to that of Disc, large. Since the reconstruction game considerably harder, the game does not converge but does reach an overall accuracy of 0.014% and per-attribute accuracy of 24% compared to a random baseline of 0.000006% and 13% random baseline, respectively. For details, see Appendix A.3.",
+        "bbox": [
+            112,
+            256,
+            490,
+            429
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Mu and Goodman (2021) present the second pair of emergent languages which we test XferBench on (code under MIT license). The emergent communication game is also a discriminative signalling game but with (1) richer observations and (2) more abstract information needing to be communicated. In one setting, the observations are images from ShapeWorld (Kuhnle and Copestake, 2017) (Mu+, SW), a synthetic data of various geometric shapes, and the other setting is CUB (Wah et al., 2011) (Mu+, CUB) which contains labeled images of birds; both settings encode features with a CNN which is the passed to the sender and receiver. In the basic discriminative game, the observation made by the sender is the exact same one seen by the receiver. Mu and Goodman (2021) instead uses a “concept game” where the sender must communicate some abstract concept shared by a set of input images which the receiver will then have to a pick out from a different set of images, some sharing the same concept (e.g., isolating the concept of “triangle” or “bird size”). The ShapeWorld and CUB games had test accuracies of 71% and 66% respectively compared to a random baseline of 50%, comparable to the reported values in the paper. All messages were taken from observations seen in training.",
+        "bbox": [
+            110,
+            441,
+            490,
+            784
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Yao et al. (2022) present a standard discrimination game which uses natural images (Conceptual Captions (Sharma et al., 2018) (images only)) as inputs to the sender and receiver (code unlicensed but distributed on GitHub with paper). The accuracy for the particular emergent language corpus is not reported in the paper, but comparable experiments from the paper would suggest that it converged to an accuracy of >90% compared to a baseline of 0.4% (i.e., 255 distractors).",
+        "bbox": [
+            112,
+            795,
+            490,
+            925
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.4 Hypotheses",
+        "text_level": 2,
+        "bbox": [
+            509,
+            85,
+            636,
+            98
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The following hypotheses are directly relate to determining whether or not XferBench is quantifying some meaningful notion of the quality of a language (i.e., Design Goal 1).",
+        "bbox": [
+            507,
+            99,
+            885,
+            156
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(H1) Human languages will perform best, followed by the synthetic and emergent languages, followed by the random baselines.",
+        "bbox": [
+            507,
+            158,
+            885,
+            200
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(H2) Human languages will have similar performance on XferBench (also key for Design Goal 3b); the intuition here is that human languages share deep structural similarities. This hypothesis is supported, in part, by Artetxe et al. (2020). For the MT experiment, we expect to see the following order of performance based on language relatedness: {French}, {Spanish}, {Russian, Hindi}, {Chinese, Korean, Arabic}.",
+        "bbox": [
+            507,
+            200,
+            885,
+            315
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(H3) Languages with a larger vocabulary, longer message length, and larger corpora will perform better. In particular, we expect Disc, large will perform better than Disc, small since the former is a more “complex” version of the latter. This hypothesis (for vocabulary size and message length) is supported by some experiments in Yao et al. (2022, app. B.4).",
+        "bbox": [
+            507,
+            316,
+            885,
+            416
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(H4) XferBench will correlate well with scores on the machine translation task (i.e., cross-entropy will correlate negatively with chrF).",
+        "bbox": [
+            507,
+            417,
+            884,
+            461
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5 Results",
+        "text_level": 2,
+        "bbox": [
+            509,
+            473,
+            610,
+            488
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.1 XferBench",
+        "text_level": 2,
+        "bbox": [
+            509,
+            499,
+            631,
+            513
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In Figure 2 we show the results of the benchmark (i.e., causal language modeling) on the various baselines. Each mean is displayed with error bars showing the 95% confidence interval of mean as calculated with bootstrapping (details in Appendix E). For reference, the cross-entropies range from about 5.2 to 5.5 corresponding to perplexities of 180 to 240.",
+        "bbox": [
+            507,
+            519,
+            887,
+            620
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The human languages show the best score (lowest cross-entropy) on the benchmark with Chinese, Korean, and Arabic performing the best in one cluster and French, Spanish, Russian, and Hindi performing slightly worse in their own cluster (based on confidence intervals). The synthetic and emergent languages all show similar performance with only small variations with the exception of the Disc, large language which is better than the rest of the emergent languages but still worse than the human languages. Finally, the random baselines perform worse than the rest of the tested languages. No pretrain’s performance is worse than the cluster of synthetic and emergent languages but better than the fully random language (Random).",
+        "bbox": [
+            507,
+            620,
+            885,
+            821
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.2 Machine Translation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            832,
+            704,
+            846
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The chrF scores of the machine translation experiment are given in Table 2 (BLEU scores in Appendix D.1). Additionally, we give Pearson correlation coefficients between each setting and the scores generated by Xfer-Bench (scatter plots shown in Appendix D.4). In all settings, we see that XferBench is strongly correlated with the results of the machine translation experiment.",
+        "bbox": [
+            507,
+            852,
+            887,
+            925
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "1480",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "chart",
+        "img_path": "images/790eb9ec610f971a6b07b2aa12f247c9b02ed20f261a0c7186c1654d3f206ae5.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 2: Average cross-entropy on target language datasets for each source language. Lower is better. Error bars represent 95% confidence intervals."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            124,
+            80,
+            873,
+            269
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/ff5aa5f21e113472ef5dab9380c1dfb2691548a369fb3520042f202f625b322d.jpg",
+        "table_caption": [
+            "Table 2: chrF scores across three English-to-French machine translation settings. Correlation measured with the Pearson correlation coefficient. Colors normalized by column."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=4>Source          Full Frozen  Reduced</td></tr><tr><td rowspan=1 colspan=1>French</td><td rowspan=1 colspan=1>47.8</td><td rowspan=1 colspan=1>31.4</td><td rowspan=1 colspan=1>35.8</td></tr><tr><td rowspan=1 colspan=1>Spanish</td><td rowspan=1 colspan=1>48.0</td><td rowspan=1 colspan=1>27.9</td><td rowspan=1 colspan=1>34.8</td></tr><tr><td rowspan=1 colspan=1>Russian</td><td rowspan=1 colspan=1>47.6</td><td rowspan=1 colspan=1>29.0</td><td rowspan=1 colspan=1>37.2</td></tr><tr><td rowspan=1 colspan=1>Chinese</td><td rowspan=1 colspan=1>47.5</td><td rowspan=1 colspan=1>22.2</td><td rowspan=1 colspan=1>35.2</td></tr><tr><td rowspan=1 colspan=1>Korean</td><td rowspan=1 colspan=1>47.7</td><td rowspan=1 colspan=1>23.3</td><td rowspan=1 colspan=1>35.6</td></tr><tr><td rowspan=1 colspan=1>Arabic</td><td rowspan=1 colspan=1>47.8</td><td rowspan=1 colspan=1>27.6</td><td rowspan=1 colspan=1>36.6</td></tr><tr><td rowspan=1 colspan=1>Hindi</td><td rowspan=1 colspan=1>47.5</td><td rowspan=1 colspan=1>26.0</td><td rowspan=1 colspan=1>31.7</td></tr><tr><td rowspan=1 colspan=1>Paren, real</td><td rowspan=1 colspan=1>47.5</td><td rowspan=1 colspan=1>10.5</td><td rowspan=1 colspan=1>35.0</td></tr><tr><td rowspan=1 colspan=1>Paren, synth</td><td rowspan=1 colspan=1>48.2</td><td rowspan=1 colspan=1>12.0</td><td rowspan=1 colspan=1>34.3</td></tr><tr><td rowspan=1 colspan=1>Disc, large</td><td rowspan=1 colspan=1>47.7</td><td rowspan=1 colspan=1>24.7</td><td rowspan=1 colspan=1>30.7</td></tr><tr><td rowspan=1 colspan=1>Disc, small</td><td rowspan=1 colspan=1>14.3</td><td rowspan=1 colspan=1>16.2</td><td rowspan=1 colspan=1>17.3</td></tr><tr><td rowspan=1 colspan=1>Rec, large</td><td rowspan=1 colspan=1>22.5</td><td rowspan=1 colspan=1>18.4</td><td rowspan=1 colspan=1>25.4</td></tr><tr><td rowspan=2 colspan=1>Yao+Mu+, SW</td><td rowspan=1 colspan=1>4.0</td><td rowspan=1 colspan=1>20.1</td><td rowspan=1 colspan=1>25.6</td></tr><tr><td rowspan=1 colspan=1>3.3</td><td rowspan=1 colspan=1>18.4</td><td rowspan=1 colspan=1>23.3</td></tr><tr><td rowspan=1 colspan=1>Mu+, CUB</td><td rowspan=1 colspan=1>47.6</td><td rowspan=1 colspan=1>21.6</td><td rowspan=1 colspan=1>24.6</td></tr><tr><td rowspan=1 colspan=1>Random</td><td rowspan=1 colspan=1>1.8</td><td rowspan=1 colspan=1>3.0</td><td rowspan=1 colspan=1>19.7</td></tr><tr><td rowspan=1 colspan=1>No pretrain</td><td rowspan=1 colspan=1>11.4</td><td rowspan=1 colspan=1>4.3</td><td rowspan=1 colspan=1>28.1</td></tr><tr><td rowspan=1 colspan=4>Correl. with    -0.75  -0.84    -0.79XferBench</td></tr></table>",
+        "bbox": [
+            141,
+            334,
+            455,
+            630
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            724,
+            487,
+            752
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "For the Full setting, the results are somewhat inconclusive. Human languages perform the best and similarly to each other. Paren, real, Paren, syn, Disc, large, and Mu+, CUB all match the performance of human languages as well. The rest of the language perform significantly worse than the aforementioned languages, especially Yao+ and Mu+, SW (see Appendix F for sample outputs). In the case of Random, the training loss did not decrease during training likely due to the high learning rate.",
+        "bbox": [
+            112,
+            752,
+            490,
+            895
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "In Frozen, we see the best correlation with the hypothesis regarding human languages (as well as with",
+        "bbox": [
+            112,
+            895,
+            489,
+            925
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "XferBench itself). Disc, large performs comparably to the worst human languages and better than the rest of the languages. The remainder of the synthetic and emergent languages perform worse than the human languages but better than the random baselines.",
+        "bbox": [
+            507,
+            336,
+            884,
+            407
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Finally, Reduced (i.e., lower learning rate and tuning data) displays better separation than Full, but not as significant as Frozen. Human languages still perform the best, although they are matched by the Paren languages. Disc, large underperforms the human languages but still outperforms all other emergent languages. All emergent languages, apart from Disc., large underperform the No pretrain baseline. The better half of languages performed better (compared to themselves) with a higher learning rate while the lower half performed better with a reduced learning rate.",
+        "bbox": [
+            507,
+            407,
+            885,
+            564
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6 Discussion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            575,
+            638,
+            590
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.1 Experiments",
+        "text_level": 2,
+        "bbox": [
+            509,
+            598,
+            645,
+            613
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "The basic ordering of the language by XferBench follows basic a priori assumptions: random baselines perform the worst, human languages perform the best, and emergent and synthetic languages are bounded above and below by these (supporting Hypothesis 1). Human languages cluster together in XferBench although there is still variation with non-overlapping confidence intervals (partially supporting Hypothesis 2).",
+        "bbox": [
+            507,
+            617,
+            887,
+            732
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Intra-EL differences Generally speaking, there is very little variation shown by XferBench on the emergent languages; nevertheless, we can still draw a handful of conclusions. First, Disc, large outperforms Disc, small while sharing the same codebase, task, etc. and differing only in message length, vocabulary size, observation space, and corpus size (supporting Hypothesis 3). This result matches the trend seen in Yao et al. (2022) that larger vocabularies and message lengths in an emergent language lead to better performance on downstream data. On the other hand, Disc, small performs similarly to other languages with larger vocabularies and longer message lengths (contradicting Hypothesis 3).",
+        "bbox": [
+            507,
+            738,
+            887,
+            925
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "1481",
+        "bbox": [
+            480,
+            929,
+            519,
+            942
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Second, it seems that the underlying complexity of the emergent communication game does not directly correlate with XferBench score: the abstract visual reasoning of Mu+, SW and Mu+, CUB does not lead to it outperform Disc, small. Additionally, the richer observations (i.e., image embeddings) of Mu+, CUB and Yao+ also do not, by their mere presence, confer an advantage to the emergent language with respect to XferBench.",
+        "bbox": [
+            112,
+            85,
+            490,
+            198
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Finally, Disc, large and Recon, large both share hyperparameters in terms of the vocabulary size, message length, and corpus size, yet Disc, large shows significantly better performance on XferBench. This indicates that XferBench is not solely concerned with surfacelevel features as we see that the nature of the game (e.g., discrimination versus reconstruction, success rate) is relevant as well.",
+        "bbox": [
+            112,
+            198,
+            490,
+            312
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Correlation with MT The results from the machine translation experiment show strong, though not perfect, (negative) correlation with XferBench (supporting Hypothesis 4). For example, in all cases, Disc, large outperforms all other emergent languages. This strongly supports the notion that XferBench performance is predictive of downstream performance on more concrete NLP tasks.",
+        "bbox": [
+            112,
+            318,
+            489,
+            432
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "The results from the Full setting of the MT experiment do show some correlation with XferBench but fail to show expected trends in other ways. For example, there is no clear ordering among the human languages (e.g., French does not outperform Arabic). Additionally Yao+ and Mu+, SW drastically underperform the other emergent languages and the No pretrain baseline. We suspect that these aberrations from expected results come in part due to the high learning rate which cause unstable training or generation. On the other hand, the Frozen setting gives us the clearest ordering of human languages that matches with a priori expectations; this setting also has the strongest correlation with XferBench scores. The Reduced setting shows better correlation than Full but is not as clear as Frozen.",
+        "bbox": [
+            112,
+            432,
+            490,
+            648
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Random baselines In all of our experiments, the pretraining on random tokens (Random) performed notably worse than not pretraining at all (No pretrain), suggesting that ill-conditioning the neural network can be a significant hindrance to performing well on XferBench. This is important to note in light of the fact that a perfectly one-to-one compositional language describing uniformly sampled attribute–value vectors would yield a corpus with a uniformly random unigram distribution. This is to say, a fully compositional language, which is often seen as desirable in emergent communication research, could make for a very poor source of pretraining data as shown by Random’s performance on XferBench.",
+        "bbox": [
+            112,
+            653,
+            490,
+            838
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "This fact along with the observations about sensitivity to learning rate indicates that performance on Xfer-Bench is not simply a function of the particular features of the emergent language in relation to the downstream human languages but also a function of the dynamics of optimization (i.e., priming the model to adapt well).",
+        "bbox": [
+            112,
+            838,
+            490,
+            925
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Although this increases the difficulty of developing and interpreting a tool like XferBench, it is almost an unavoidable part of deep learning methods.",
+        "bbox": [
+            507,
+            84,
+            885,
+            129
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.2 Future work",
+        "text_level": 2,
+        "bbox": [
+            509,
+            140,
+            645,
+            153
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We identify three main directions for future work with XferBench. The first direction is determining what Xfer-Bench is measuring and how its scores correlate with the different factors of emergent languages. Yao et al. (2022, app. B.4) pursued this on a small scale with factors like vocabulary size and message length, but there exist a host of other factors worth exploring: speaker model size, game design, language entropy, observation modality, etc.",
+        "bbox": [
+            507,
+            159,
+            885,
+            287
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "The second direction is more extensively investigating the correlation of XferBench with downstream tasks. We would expect that tasks that rely heavily on a language model—such as automatic speech recognition, abstractive summarization, and generative question-answering—to correlate well with XferBench. On the other hand, tasks that are more focused on classification—such as named entity recognition, sentiment analysis, and multiple choice question-answering— might not correlate as well.",
+        "bbox": [
+            507,
+            288,
+            887,
+            431
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Finally, XferBench would benefit greatly from improved compute efficiency. For example, if the results of XferBench could be replicated with a fraction of the training steps, it could (1) allow for a larger number of downstream languages to be tested which would reduce the size of the confidence intervals, allowing more more precise scoring. And (2), it would open the door to using larger models which would better capture the deeper structures of language and likely correlate better with realistic downstream tasks.",
+        "bbox": [
+            507,
+            431,
+            885,
+            574
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "7 Conclusion",
+        "text_level": 2,
+        "bbox": [
+            509,
+            587,
+            643,
+            602
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "In this paper we have introduced XferBench, a firstof-its-kind benchmark for evaluating the quality of an emergent language corpus based on its transfer learning performance on human languages. This approach to evaluating emergent language scales with data and compute as opposed to requiring increasingly complex handcrafted rules to measure the desirable qualities of emergent language. We provide empirical results of XferBench across human, synthetic, and emergent languages and demonstrate that these results correlate with downstream performance on a machine translation task. XferBench is implemented as an easy-to-use Python package that will permit researchers in the field to easily apply XferBench to new emergent languages.",
+        "bbox": [
+            507,
+            613,
+            887,
+            814
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "8 Limitations",
+        "text_level": 2,
+        "bbox": [
+            509,
+            826,
+            647,
+            841
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "The first limitation of XferBench is that it relies on a restricted interface with the emergent communication system. With emergent communication we have access not only to the grounding of all of the utterances of the emergent language but also full access to the agents themselves. Language is fundamentally a contextual phenomenon, so only a small part of it can be understood from looking at corpora in isolation. Thus, although XferBench is much more broadly applicable because of this restricted interface, it is also quite limited in what it can detect from a theoretical point of view.",
+        "bbox": [
+            507,
+            852,
+            885,
+            925
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "1482",
+        "bbox": [
+            480,
+            929,
+            522,
+            942
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            112,
+            85,
+            489,
+            184
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "The other set of limitations we will discuss have to do with the model and data size. First, the model and data size (60 M parameters and 15 M tokens) are quite small by contemporary standards, limiting the direct applicability of results from XferBench to relevant downstream tasks involving large language models, for example. On the other hand, scaling up the models, data, and methods of XferBench comes with its own difficulties. First, it would start to bias the benchmark towards high-resource languages, as only those could provide the necessary data to accommodate larger models. Second, it would make XferBench, which is already relatively slow as a metric (6 GPU-hours) even slower. This would decrease the speed of the iterative design process of emergent communication systems and, thus, the utility of the metric as a whole.",
+        "bbox": [
+            112,
+            184,
+            489,
+            412
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "References",
+        "text_level": 2,
+        "bbox": [
+            115,
+            438,
+            215,
+            454
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Mikel Artetxe, Sebastian Ruder, and Dani Yogatama. 2020. On the cross-lingual transferability of monolingual representations. In Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, pages 4623–4637, Online. Association for Computational Linguistics.",
+            "Ondrej Bojar, Christian Buck, Christian Federmann, Barry Haddow, Philipp Koehn, Johannes Leveling, Christof Monz, Pavel Pecina, Matt Post, Herve Saint-Amand, Radu Soricut, Lucia Specia, and Ale s Tamchyna. 2014. Findings of the 2014 workshop on statistical machine translation. In Proceedings ofthe Ninth Workshop on Statistical Machine Translation, pages 12–58, Baltimore, Maryland, USA. Association for Computational Linguistics.",
+            "Henry Brighton and Simon Kirby. 2006. Understanding linguistic evolution by visualizing the emergence of topographic mappings. Artificial Life, 12:229–242.",
+            "Kalesha Bullard, Franziska Meier, Douwe Kiela, Joelle Pineau, and Jakob N. Foerster. 2020. Exploring zeroshot emergent communication in embodied multiagent populations. ArXiv, abs/2010.15896.",
+            "C.m. Downey, Xuhui Zhou, Zeyu Liu, and Shane Steinert-Threlkeld. 2023. Learning to translate by learning to communicate. In Proceedings of the 3rd Workshop on Multi-lingual Representation Learning (MRL), pages 218–238, Singapore. Association for Computational Linguistics.",
+            "Kevin Eloff, Arnu Pretorius, Okko Johannes Räsänen, Herman Arnold Engelbrecht, and Herman Kamper. 2021. Towards learning to speak and hear through",
+            "multi-agent communication over a continuous acoustic channel. ArXiv, abs/2111.02827.",
+            "Philip Gage. 1994. A new algorithm for data compression. The C Users Journal archive, 12:23–38.",
+            "Lukas Galke, Yoav Ram, and Limor Raviv. 2022. Emergent communication for understanding human language evolution: What’s missing? ArXiv, abs/2204.10590.",
+            "Yuxuan Guo, Yifan Hao, Rui Zhang, Enshuai Zhou, Zidong Du, Xishan Zhang, Xinkai Song, Yuanbo Wen, Yongwei Zhao, Xuehai Zhou, Jiaming Guo, Qi Yi, Shaohui Peng, Di Huang, Ruizhi Chen, Qi Guo, and Yunji Chen. 2023. Emergent communication for rules reasoning. In Thirty-seventh Conference on Neural Information Processing Systems.",
+            "Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter. 2017. Gans trained by a two time-scale update rule converge to a local nash equilibrium. In Advances in Neural Information Processing Systems, volume 30. Curran Associates, Inc.",
+            "Eugene Kharitonov, Rahma Chaabouni, Diane Bouchacourt, and Marco Baroni. 2019. EGG: a toolkit for research on emergence of lanGuage in games. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP): System Demonstrations, pages 55–60, Hong Kong, China. Association for Computational Linguistics.",
+            "Diederik P. Kingma and Jimmy Ba. 2015. Adam: A method for stochastic optimization. In 3rd International Conference on Learning Representations, ICLR 2015, San Diego, CA, USA, May 7-9, 2015, Conference Track Proceedings.",
+            "Alexander Kuhnle and Ann A. Copestake. 2017. Shapeworld - a new test methodology for multimodal language understanding. ArXiv, abs/1704.04517.",
+            "Travis LaCroix. 2019. Biology and compositionality: Empirical considerations for emergentcommunication protocols. CoRR, abs/1911.11668.",
+            "Angeliki Lazaridou and Marco Baroni. 2020. Emergent multi-agent communication in the deep learning era. ArXiv, abs/2006.02419.",
+            "Angeliki Lazaridou, Karl Moritz Hermann, Karl Tuyls, and Stephen Clark. 2018. Emergence of linguistic communication from referential games with symbolic and pixel input. ArXiv, abs/1804.03984.",
+            "Fushan Li and Michael Bowling. 2019. Ease-of-Teaching and Language Structure from Emergent Communication. Curran Associates Inc., Red Hook, NY, USA.",
+            "Yaoyiran Li, Edoardo Maria Ponti, Ivan Vulic, and Anna´ Korhonen. 2020. Emergent communication pretraining for few-shot machine translation. In Proceedings of the 28th International Conference on Computational Linguistics, pages 4716–4731, Barcelona,"
+        ],
+        "bbox": [
+            115,
+            463,
+            487,
+            542
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "1483",
+        "bbox": [
+            480,
+            929,
+            521,
+            941
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "list",
+        "sub_type": "ref_text",
+        "list_items": [
+            "Spain (Online). International Committee on Computational Linguistics.",
+            "Benoit Mandelbrot et al. 1953. An informational theory of the statistical structure of language. Communication theory, 84:486–502.",
+            "Mitchell P. Marcus, Beatrice Santorini, and Mary Ann Marcinkiewicz. 1993. Building a large annotated corpus of english: The penn treebank. Comput. Linguistics, 19:313–330.",
+            "Daniela Mihai and Jonathon S. Hare. 2021. Learning to draw: Emergent communication through sketching. In Neural Information Processing Systems.",
+            "Clément Moulin-Frier and Pierre-Yves Oudeyer. 2020. Multi-agent reinforcement learning as a computational tool for language evolution research: Historical context and future challenges. ArXiv, abs/2002.08878.",
+            "Jesse Mu and Noah Goodman. 2021. Emergent communication of generalizations. In Advances in Neural Information Processing Systems, volume 34, pages 17994–18007. Curran Associates, Inc.",
+            "Yao Mu, Shunyu Yao, Mingyu Ding, Ping Luo, and Chuang Gan. 2023. Ec2: Emergent communication for embodied control. In 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), pages 6704–6714.",
+            "Isabel Papadimitriou and Dan Jurafsky. 2020. Learning music helps you read: Using transfer to study linguistic structure in language models. In Conference on Empirical Methods in Natural Language Processing.",
+            "Kishore Papineni, Salim Roukos, Todd Ward, and Wei-Jing Zhu. 2002. Bleu: a method for automatic evaluation of machine translation. In Proceedings of the 40th Annual Meeting ofthe Associationfor Computational Linguistics, pages 311–318, Philadelphia, Pennsylvania, USA. Association for Computational Linguistics.",
+            "Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, Alban Desmaison, Andreas Kopf, Edward Yang, Zachary DeVito, Martin Raison, Alykhan Tejani, Sasank Chilamkurthy, Benoit Steiner, Lu Fang, Junjie Bai, and Soumith Chintala. 2019. Pytorch: An imperative style, high-performance deep learning library. In Advances in Neural Information Processing Systems, volume 32. Curran Associates, Inc.",
+            "Hugh Perkins. 2022. Icy: A benchmark for measuring compositional inductive bias of emergent communication models.",
+            "Steven T Piantadosi. 2014. Zipf’s word frequency law in natural language: a critical review and future directions. Psychon. Bull. Rev., 21(5):1112–1130.",
+            "Maja Popovic. 2015.´ chrF: character n-gram F-score for automatic MT evaluation. In Proceedings ofthe",
+            "Tenth Workshop on Statistical Machine Translation, pages 392–395, Lisbon, Portugal. Association for Computational Linguistics.",
+            "Matt Post. 2018. A call for clarity in reporting BLEU scores. In Proceedings of the Third Conference on Machine Translation: Research Papers, pages 186– 191, Belgium, Brussels. Association for Computational Linguistics.",
+            "Alec Radford, Jeff Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. 2019. Language models are unsupervised multitask learners.",
+            "Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016. SQuAD: 100,000+ questions for machine comprehension of text. In Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing, pages 2383–2392, Austin, Texas. Association for Computational Linguistics.",
+            "Piyush Sharma, Nan Ding, Sebastian Goodman, and Radu Soricut. 2018. Conceptual captions: A cleaned, hypernymed, image alt-text dataset for automatic image captioning. In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 2556–2565, Melbourne, Australia. Association for Computational Linguistics.",
+            "Ryo Ueda, Taiga Ishii, and Yusuke Miyao. 2023. On the word boundaries of emergent languages based on harris’s articulation scheme. In The Eleventh International Conference on Learning Representations.",
+            "C. Wah, S. Branson, P. Welinder, P. Perona, and S. Belongie. 2011. The caltech-UCSD birds-200-2011 dataset. Technical Report CNS-TR-2011-001, California Institute of Technology.",
+            "Alex Wang, Amanpreet Singh, Julian Michael, Felix Hill, Omer Levy, and Samuel R. Bowman. 2018. Glue: A multi-task benchmark and analysis platform for natural language understanding. In BlackboxNLP@EMNLP.",
+            "Wikimedia Foundation. Wikimedia downloads.",
+            "Thomas Wolf, Lysandre Debut, Victor Sanh, Julien Chaumond, Clement Delangue, Anthony Moi, Pierric Cistac, Tim Rault, Rémi Louf, Morgan Funtowicz, and Jamie Brew. 2019. Huggingface’s transformers: State-of-the-art natural language processing. ArXiv, abs/1910.03771.",
+            "Shunyu Yao, Mo Yu, Yang Zhang, Karthik R Narasimhan, Joshua B. Tenenbaum, and Chuang Gan. 2022. Linking emergent and natural languages via corpus transfer. In International Conference on Learning Representations.",
+            "Barret Zoph, Deniz Yuret, Jonathan May, and Kevin Knight. 2016. Transfer learning for low-resource neural machine translation. In Proceedings ofthe 2016 Conference on Empirical Methods in Natural Language Processing, pages 1568–1575, Austin, Texas. Association for Computational Linguistics."
+        ],
+        "bbox": [
+            129,
+            85,
+            489,
+            112
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "1484",
+        "bbox": [
+            480,
+            929,
+            522,
+            942
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "A Hyperparameters",
+        "text_level": 2,
+        "bbox": [
+            114,
+            83,
+            309,
+            98
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "A.1 Causal language modeling",
+        "text_level": 2,
+        "bbox": [
+            114,
+            98,
+            351,
+            112
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "For values not listed, see Hugging Face Transformers defaults at https://huggingface.co/docs/ transformers/v4.36.1/en//model\\_doc/g pt2#transformers.GPT2Config.",
+        "bbox": [
+            112,
+            112,
+            489,
+            171
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Model: GPT-2",
+        "bbox": [
+            132,
+            174,
+            252,
+            189
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Tokenizer: Byte pair encoding",
+        "bbox": [
+            132,
+            187,
+            357,
+            200
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Hidden size: 768 (default)",
+        "bbox": [
+            134,
+            199,
+            331,
+            211
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Vocabulary size: 30 000",
+        "bbox": [
+            132,
+            210,
+            315,
+            223
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Context length: 256",
+        "bbox": [
+            134,
+            222,
+            289,
+            235
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of layers: 6",
+        "bbox": [
+            134,
+            234,
+            290,
+            246
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of attention heads: 6",
+        "bbox": [
+            134,
+            244,
+            351,
+            258
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Learning rate: 1 10−<sup>4</sup>",
+        "bbox": [
+            134,
+            256,
+            307,
+            269
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Optimizer: AdamW",
+        "bbox": [
+            134,
+            268,
+            289,
+            281
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Weight decay: 0.01",
+        "bbox": [
+            134,
+            280,
+            284,
+            293
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Learning rate schedule: linear (to 0)",
+        "bbox": [
+            132,
+            292,
+            396,
+            305
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Batch size: 32",
+        "bbox": [
+            134,
+            303,
+            252,
+            316
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Train dataset size: 15 10<sup>6</sup> tokens",
+        "bbox": [
+            132,
+            313,
+            381,
+            328
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Train epochs: 5",
+        "bbox": [
+            134,
+            326,
+            258,
+            340
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Tune dataset size: 2 10<sup>6</sup> tokens",
+        "bbox": [
+            132,
+            337,
+            371,
+            351
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Train epochs: 10",
+        "bbox": [
+            132,
+            350,
+            267,
+            363
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "A.2 Machine translation",
+        "text_level": 2,
+        "bbox": [
+            114,
+            372,
+            307,
+            386
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "For values not listed, see Hugging Face Transformers defaults at https://huggingface.co/docs/ transformers/v4.36.1/en/model\\_doc/ba rt#transformers.BartConfig. The following is for the Full setting.",
+        "bbox": [
+            112,
+            386,
+            489,
+            458
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Model: BART",
+        "bbox": [
+            132,
+            462,
+            252,
+            475
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Training objective: text infilling only (see note below)",
+        "bbox": [
+            132,
+            474,
+            487,
+            501
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Tokenizer: Byte pair encoding",
+        "bbox": [
+            132,
+            501,
+            359,
+            514
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Hidden size: 512",
+        "bbox": [
+            134,
+            513,
+            270,
+            525
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Vocabulary size: 30 000",
+        "bbox": [
+            134,
+            524,
+            314,
+            536
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Context length: 512",
+        "bbox": [
+            134,
+            536,
+            289,
+            548
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of encoder layers: 6",
+        "bbox": [
+            134,
+            548,
+            347,
+            560
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of decoder layers: 6",
+        "bbox": [
+            134,
+            558,
+            347,
+            571
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of encoder attention heads: 8",
+        "bbox": [
+            132,
+            570,
+            410,
+            582
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of decoder attention heads: 8",
+        "bbox": [
+            134,
+            582,
+            410,
+            594
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Encoder feedforward dimension: 2048",
+        "bbox": [
+            132,
+            594,
+            413,
+            606
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Decoder feedforward dimension: 2048",
+        "bbox": [
+            134,
+            606,
+            415,
+            618
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Train learning rate: 1 10−<sup>4</sup>",
+        "bbox": [
+            134,
+            617,
+            342,
+            630
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Tune learning rate: 2  10−<sup>4</sup>",
+        "bbox": [
+            134,
+            629,
+            341,
+            640
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Optimizer: AdamW",
+        "bbox": [
+            134,
+            640,
+            289,
+            652
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Weight decay: 0.01",
+        "bbox": [
+            134,
+            652,
+            285,
+            664
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Learning rate schedule: linear (to 0)",
+        "bbox": [
+            132,
+            663,
+            394,
+            676
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Batch size: 32",
+        "bbox": [
+            134,
+            675,
+            252,
+            687
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Train dataset size: 100 10<sup>6</sup> tokens",
+        "bbox": [
+            134,
+            686,
+            389,
+            700
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Train epochs: 5",
+        "bbox": [
+            134,
+            699,
+            258,
+            711
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Tune dataset size: 50 10<sup>6</sup> tokens",
+        "bbox": [
+            132,
+            708,
+            379,
+            722
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Train epochs: 3",
+        "bbox": [
+            134,
+            721,
+            260,
+            733
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Test beam size: 1, 3, 5 (final metric averaged across each size)",
+        "bbox": [
+            132,
+            732,
+            487,
+            759
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Test context size: 128",
+        "bbox": [
+            132,
+            759,
+            302,
+            772
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The objective used to pretrain BART was text infilling only; we cannot use the sentence permutation objective because we do not know a priori what constitutes a sentence in an emergent language, hence we do not use it for any settings. For the Frozen setting, all is as above, but all non-embedding layers are frozen for the duration of tuning. For the Reduced setting, all is as above except for the following:",
+        "bbox": [
+            112,
+            777,
+            489,
+            892
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Tune learning rate: $1 \\cdot 1 0 ^ { - 5 }$",
+        "bbox": [
+            132,
+            896,
+            339,
+            910
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Tune dataset size: 10 10<sup>6</sup>",
+        "bbox": [
+            132,
+            909,
+            332,
+            922
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "A.3 Generic signalling game",
+        "text_level": 2,
+        "bbox": [
+            509,
+            84,
+            731,
+            98
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "We use the following hyperparameters for the Disc, small emergent language.",
+        "bbox": [
+            507,
+            98,
+            885,
+            129
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Game (from EGG):",
+        "bbox": [
+            529,
+            137,
+            682,
+            152
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "egg.zoo.basic\\_games.play",
+        "bbox": [
+            544,
+            153,
+            791,
+            167
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Message optimization: Gumbel-softmax (as opposed to REINFORCE)",
+        "bbox": [
+            529,
+            166,
+            885,
+            193
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Game type: discrimination",
+        "bbox": [
+            529,
+            193,
+            731,
+            206
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of attributes: 4",
+        "bbox": [
+            529,
+            206,
+            709,
+            219
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of values: 4",
+        "bbox": [
+            529,
+            219,
+            689,
+            233
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of distractors: 5",
+        "bbox": [
+            529,
+            233,
+            715,
+            246
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Vocabulary size: 6",
+        "bbox": [
+            529,
+            246,
+            673,
+            259
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Max message length: 10",
+        "bbox": [
+            529,
+            259,
+            715,
+            273
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of examples: 32 768",
+        "bbox": [
+            529,
+            273,
+            744,
+            286
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Batch size; 1024",
+        "bbox": [
+            529,
+            286,
+            662,
+            299
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of epochs: 10",
+        "bbox": [
+            529,
+            299,
+            702,
+            312
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Sender hidden size: 256",
+        "bbox": [
+            529,
+            312,
+            712,
+            325
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Receiver hidden size: 512",
+        "bbox": [
+            529,
+            325,
+            726,
+            338
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Sender embedding size: 32",
+        "bbox": [
+            529,
+            338,
+            734,
+            353
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Receiver embedding size: 32",
+        "bbox": [
+            529,
+            353,
+            744,
+            366
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Sender network type: GRU",
+        "bbox": [
+            529,
+            366,
+            732,
+            379
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Receiver network type: GRU",
+        "bbox": [
+            529,
+            379,
+            744,
+            392
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Learning rate: 0.001",
+        "bbox": [
+            529,
+            392,
+            687,
+            406
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The Disc, large setting uses the same hyperparameters as above with the exception of the following.",
+        "bbox": [
+            507,
+            416,
+            884,
+            447
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of attributes: 12",
+        "bbox": [
+            529,
+            455,
+            717,
+            469
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of values: 8",
+        "bbox": [
+            529,
+            469,
+            690,
+            482
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of distractors: 5",
+        "bbox": [
+            529,
+            482,
+            715,
+            495
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of examples: 3.5 10<sup>6</sup>",
+        "bbox": [
+            529,
+            494,
+            757,
+            508
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Max message length: 30",
+        "bbox": [
+            529,
+            510,
+            715,
+            521
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Vocabulary size: 100",
+        "bbox": [
+            529,
+            523,
+            692,
+            536
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of epochs: 100",
+        "bbox": [
+            529,
+            536,
+            710,
+            549
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The Recon, large setting is as in Disc, large with the following changes.",
+        "bbox": [
+            507,
+            560,
+            882,
+            589
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Game type: reconstruction",
+        "bbox": [
+            529,
+            599,
+            729,
+            612
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of attributes: 8",
+        "bbox": [
+            529,
+            613,
+            709,
+            626
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of distractors: N/A",
+        "bbox": [
+            529,
+            626,
+            736,
+            638
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of examples: 1 10<sup>6</sup>",
+        "bbox": [
+            529,
+            639,
+            744,
+            652
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "• Number of epochs: 10",
+        "bbox": [
+            529,
+            652,
+            700,
+            667
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "B Example of benchmark input format",
+        "text_level": 2,
+        "bbox": [
+            509,
+            678,
+            865,
+            695
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The input format for the benchmark is simple: integer arrays in a JSON format separated by newlines (i.e., JSON Lines, JSONL, <sub>\\*</sub>.jsonl). The following is an example of file contents in this format:",
+        "bbox": [
+            507,
+            695,
+            885,
+            753
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_footnote": [],
+        "code_body": "[3, 1, 4, 1, 5, 9, 2]   \n[6, 5, 3, 5, 8, 9, 7, 9, 3]   \n[2, 3, 8, 4]   \n[6, 2, 6, 4, 3, 3]   \n[8, 3, 2, 7, 9, 5, 0, 2, 8, 8, 4]",
+        "bbox": [
+            510,
+            757,
+            847,
+            832
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "C Computing resources used",
+        "text_level": 2,
+        "bbox": [
+            509,
+            841,
+            778,
+            858
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "See Table 3 for rough estimates of the compute used in writing this paper. Most experiments were run on a shared cluster comprising approximately 150 NVIDIA A6000 (or comparable) GPUs.",
+        "bbox": [
+            507,
+            865,
+            885,
+            923
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "1485",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "table",
+        "img_path": "images/d729fb883c549816532f563625f574b35ba556bea6dacd0eca5bbc8928f4c6f5.jpg",
+        "table_caption": [
+            "Table 3: Estimate of compute used for this paper in GPU-hours (specifically NVIDIA RTX 2080 Ti–hours)."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Item</td><td>Base GH</td><td>n items</td><td>Total</td></tr><tr><td>XferBench</td><td>6</td><td>45</td><td>270</td></tr><tr><td>MT</td><td>8</td><td>50</td><td>400</td></tr><tr><td>Other experiments</td><td>2</td><td>50</td><td>100</td></tr><tr><td>Total</td><td></td><td></td><td>770</td></tr></table>",
+        "bbox": [
+            124,
+            179,
+            477,
+            269
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "table",
+        "img_path": "images/a70f6c7a92307b3c89566563c15433d9c08395574b786451e93be6644cbc1b14.jpg",
+        "table_caption": [
+            "Table 4: BLEU scores for machine translation experiment. Colors normalized by column."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=4>Source          Full Frozen Reduced</td></tr><tr><td rowspan=1 colspan=1>French</td><td rowspan=1 colspan=1>12.93</td><td rowspan=1 colspan=1>5.33</td><td rowspan=1 colspan=1>6.61</td></tr><tr><td rowspan=1 colspan=1>Spanish</td><td rowspan=1 colspan=1>13.32</td><td rowspan=1 colspan=1>4.52</td><td rowspan=1 colspan=1>6.35</td></tr><tr><td rowspan=1 colspan=1>Russian</td><td rowspan=1 colspan=1>12.93</td><td rowspan=1 colspan=1>4.37</td><td rowspan=1 colspan=1>7.02</td></tr><tr><td rowspan=1 colspan=1>Chinese</td><td rowspan=1 colspan=1>12.71</td><td rowspan=1 colspan=1>3.04</td><td rowspan=1 colspan=1>6.03</td></tr><tr><td rowspan=1 colspan=1>Korean</td><td rowspan=1 colspan=1>12.83</td><td rowspan=1 colspan=1>2.95</td><td rowspan=1 colspan=1>6.36</td></tr><tr><td rowspan=1 colspan=1>Arabic</td><td rowspan=1 colspan=1>13.12</td><td rowspan=1 colspan=1>4.16</td><td rowspan=1 colspan=1>6.74</td></tr><tr><td rowspan=1 colspan=1>Hindi</td><td rowspan=1 colspan=1>12.72</td><td rowspan=1 colspan=1>3.20</td><td rowspan=1 colspan=1>5.24</td></tr><tr><td rowspan=1 colspan=1>Paren, real</td><td rowspan=1 colspan=1>12.60</td><td rowspan=1 colspan=1>0.65</td><td rowspan=1 colspan=1>6.26</td></tr><tr><td rowspan=1 colspan=1>Paren, synth</td><td rowspan=1 colspan=1>13.19</td><td rowspan=1 colspan=1>0.82</td><td rowspan=1 colspan=1>6.15</td></tr><tr><td rowspan=1 colspan=1>Disc, large</td><td rowspan=1 colspan=1>12.93</td><td rowspan=1 colspan=1>2.08</td><td rowspan=1 colspan=1>4.44</td></tr><tr><td rowspan=2 colspan=1>Disc, smallRec, large</td><td rowspan=1 colspan=1>0.17</td><td rowspan=1 colspan=1>0.19</td><td rowspan=1 colspan=1>0.38</td></tr><tr><td rowspan=1 colspan=1>1.92</td><td rowspan=1 colspan=1>0.86</td><td rowspan=1 colspan=1>2.50</td></tr><tr><td rowspan=1 colspan=1>Yao+</td><td rowspan=1 colspan=1>0.01</td><td rowspan=1 colspan=1>1.04</td><td rowspan=1 colspan=1>2.57</td></tr><tr><td rowspan=1 colspan=1>Mu+, SW</td><td rowspan=1 colspan=1>0.00</td><td rowspan=1 colspan=1>1.05</td><td rowspan=1 colspan=1>1.86</td></tr><tr><td rowspan=1 colspan=1>Mu+, CUB</td><td rowspan=1 colspan=1>12.71</td><td rowspan=1 colspan=1>1.45</td><td rowspan=1 colspan=1>2.35</td></tr><tr><td rowspan=2 colspan=1>RandomNo pretrain</td><td rowspan=1 colspan=1>0.00</td><td rowspan=1 colspan=1>0.00</td><td rowspan=1 colspan=1>1.02</td></tr><tr><td rowspan=1 colspan=1>0.10</td><td rowspan=1 colspan=2>0.06      3.43</td></tr></table>",
+        "bbox": [
+            141,
+            513,
+            457,
+            781
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "D Additional results",
+        "text_level": 2,
+        "bbox": [
+            509,
+            83,
+            705,
+            98
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "D.1 BLEU scores for machine translation See Table 4.",
+        "text_level": 2,
+        "bbox": [
+            509,
+            108,
+            823,
+            139
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "D.2 Raw cross-entropies on XferBench See Table 5.",
+        "text_level": 2,
+        "bbox": [
+            509,
+            151,
+            805,
+            181
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "D.3 Writing system matrix for normalized XferBench scores",
+        "text_level": 2,
+        "bbox": [
+            509,
+            193,
+            830,
+            222
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "See Tables 7 and 8. Scores for reach writing system are aggregated by taking the mean. Table 6 gives the writing system classification for the languages used in the experiments. Although the class imbalance makes it impossible to draw any definitive claims, the preliminary results do not suggest any correlation in XferBench between the writing systems of the source and target languages.",
+        "bbox": [
+            507,
+            224,
+            885,
+            340
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "D.4 Scatter plots for XferBench and MT See Figure 3.",
+        "text_level": 2,
+        "bbox": [
+            509,
+            350,
+            816,
+            381
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "E Cross-entropy confidence interval computation",
+        "text_level": 2,
+        "bbox": [
+            509,
+            395,
+            838,
+            428
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Let $s \\in \\ S$ and $t ~ \\in ~ T$ represent source and target languages, respectively. $h _ { s , t }$ represents the test crossentropy of a model pretrained on s and evaluated on t. As sated in Equation (1), the score on XferBench is the mean cross-entropy across all target languages:",
+        "bbox": [
+            507,
+            429,
+            885,
+            501
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "img_path": "images/df4f857c4a718f0e9469f9ea64eb99a2d88a8f6c9023d393d95eb39057280927.jpg",
+        "text": "$$\nh _ { s } = \\operatorname* { m e a n } _ { t ^ { \\prime } \\in T } \\left( h _ { s , t ^ { \\prime } } \\right) .\\tag{3}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            628,
+            513,
+            763,
+            535
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "We would like to calculate a confidence interval $( \\mathrm { i } . \\mathrm { e } . , h _ { s } ^ { - }$ and $h _ { s } ^ { + } )$ for a source language’s mean cross-entropy using the different cross-entropies on the target languages $( \\mathrm { i } . \\mathrm { e } . , h _ { s , t }$ for $t \\in T )$ , yet these samples are not i.i.d., since the mean of cross-entropy each target language can vary. Thus, if we would like to use bootstrapping to calculate confidence intervals, we must first normalize the cross-entropies. Let $\\hat { h } _ { s , t }$ be the normalized score:",
+        "bbox": [
+            507,
+            548,
+            885,
+            663
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "img_path": "images/fc06ef3b6527673d4c4cf7c86ec5a2252428e481f86e35d1d0cd10b69ff774a9.jpg",
+        "text": "$$\n\\hat { h } _ { s , t } = \\frac { h _ { s , t } - \\mathrm { m e a n } _ { s ^ { \\prime } \\in S } \\left( h _ { s ^ { \\prime } , t } \\right) } { \\mathrm { s t d e v } _ { s ^ { \\prime } \\in S } \\left( h _ { s ^ { \\prime } , t } \\right) } .\\tag{4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            584,
+            675,
+            806,
+            707
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Given the normalized scores, we can now bootstrap in order to compute confidence intervals for $\\hat { h } _ { s } \\ ( \\mathrm { i . e . }$ , in the normalized space).<sup>8</sup> Let $\\hat { h } _ { s } ^ { + }$ and $\\hat { h } _ { s } ^ { - }$ be the upper and lower bounds of the confidence interval computed using bootstrapping in the normalized space. We can now translate these back into the raw cross-entropy space using the means and standard deviations from before:",
+        "bbox": [
+            507,
+            718,
+            884,
+            819
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "img_path": "images/0f1a548e2cafa6ebf2c5599a7d63e0421685e57ad582df9da926c41d79949b45.jpg",
+        "text": "$$\nh _ { s } ^ { + } = \\hat { h } _ { s } ^ { + } \\cdot \\underset { s ^ { \\prime } \\in S } { \\mathrm { s t d e v } } \\left( h _ { s ^ { \\prime } , t } \\right) + \\underset { s ^ { \\prime } \\in S } { \\operatorname* { m e a n } } \\left( h _ { s ^ { \\prime } , t } \\right)\\tag{5}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            559,
+            829,
+            826,
+            853
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "img_path": "images/cce843d9f61a58618b7c89e6fce8e17481508006a9813c3207fd736f27165150.jpg",
+        "text": "$$\nh _ { s } ^ { - } = \\hat { h } _ { s } ^ { - } \\cdot \\smash { \\operatorname { s t d e v } _ { s ^ { \\prime } \\in S } \\left( h _ { s ^ { \\prime } , t } \\right) } + \\operatorname* { m e a n } _ { s ^ { \\prime } \\in S } \\left( h _ { s ^ { \\prime } , t } \\right) .\\tag{6}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            559,
+            856,
+            831,
+            878
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>8</sup>This is not intended to be statistically rigorous. Our crossentropies are unlikely to be normally distributed, but this still be helpful for generally gauging uncertainty.",
+        "bbox": [
+            509,
+            885,
+            884,
+            923
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "1486",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "table",
+        "img_path": "images/c753d1d3ce45a222c71696a86c357ed4fdd8e24db1f404cb8a204b0a6ea45852.jpg",
+        "table_caption": [
+            "Table 5: Cross-entropies across all source and target languages. Colors normalized by column."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Source</td><td>Danish</td><td>Basque</td><td>Persian</td><td>Finnish</td><td>Hebrew</td><td>Indonesian</td><td>Japanese</td><td>Kazakh</td><td>Romanian</td><td>Urdu</td><td>Mean</td></tr><tr><td>French</td><td>4.93</td><td>6.03</td><td>5.04</td><td>5.62</td><td>5.48</td><td>4.87</td><td>5.23</td><td>5.46</td><td>5.15</td><td>4.43</td><td>5.22</td></tr><tr><td>Spanish</td><td>4.92</td><td>6.06</td><td>5.03</td><td>5.61</td><td>5.47</td><td>4.82</td><td>5.25</td><td>5.46</td><td>5.12</td><td>4.42</td><td>5.22</td></tr><tr><td>Russian</td><td>4.94</td><td>6.04</td><td>5.04</td><td>5.65</td><td>5.48</td><td>4.88</td><td>5.27</td><td>5.48</td><td>5.14</td><td>4.45</td><td>5.24</td></tr><tr><td>Chinese</td><td>4.89</td><td>6.02</td><td>5.01</td><td>5.58</td><td>5.43</td><td>4.76</td><td>5.18</td><td>5.44</td><td>5.12</td><td>4.39</td><td>5.18</td></tr><tr><td>Korean</td><td>4.89</td><td>6.01</td><td>5.02</td><td>5.57</td><td>5.44</td><td>4.78</td><td>5.20</td><td>5.45</td><td>5.12</td><td>4.38</td><td>5.19</td></tr><tr><td>Arabic</td><td>4.90</td><td>6.02</td><td>5.02</td><td>5.59</td><td>5.45</td><td>4.81</td><td>5.22</td><td>5.44</td><td>5.13</td><td>4.40</td><td>5.20</td></tr><tr><td>Hindi</td><td>4.94</td><td>6.06</td><td>5.08</td><td>5.65</td><td>5.47</td><td>4.83</td><td>5.29</td><td>5.52</td><td>5.20</td><td>4.46</td><td>5.25</td></tr><tr><td>Paren, real</td><td>5.07</td><td>6.11</td><td>5.11</td><td>5.75</td><td>5.59</td><td>5.06</td><td>5.38</td><td>5.57</td><td>5.22</td><td>4.56</td><td>5.34</td></tr><tr><td>Paren, synth</td><td>5.08</td><td>6.13</td><td>5.14</td><td>5.74</td><td>5.58</td><td>5.09</td><td>5.43</td><td>5.58</td><td>5.26</td><td>4.57</td><td>5.36</td></tr><tr><td>Disc, large</td><td>5.00</td><td>6.06</td><td>5.11</td><td>5.71</td><td>5.52</td><td>4.92</td><td>5.34</td><td>5.56</td><td>5.25</td><td>4.49</td><td>5.30</td></tr><tr><td>Disc, small</td><td>5.09</td><td>6.06</td><td>5.17</td><td>5.80</td><td>5.59</td><td>5.05</td><td>5.41</td><td>5.65</td><td>5.31</td><td>4.56</td><td>5.37</td></tr><tr><td>Rec, large</td><td>5.09</td><td>6.06</td><td>5.16</td><td>5.79</td><td>5.57</td><td>5.04</td><td>5.41</td><td>5.64</td><td>5.30</td><td>4.55</td><td>5.36</td></tr><tr><td>Yao+</td><td>5.07</td><td>6.03</td><td>5.17</td><td>5.79</td><td>5.56</td><td>5.03</td><td>5.41</td><td>5.65</td><td>5.31</td><td>4.56</td><td>5.36</td></tr><tr><td>Mu+, SW</td><td>5.09</td><td>6.10</td><td>5.18</td><td>5.80</td><td>5.58</td><td>5.05</td><td>5.42</td><td>5.65</td><td>5.33</td><td>4.58</td><td>5.38</td></tr><tr><td>Mu+, CUB</td><td>5.08</td><td>6.06</td><td>5.18</td><td>5.79</td><td>5.58</td><td>5.05</td><td>5.42</td><td>5.65</td><td>5.32</td><td>4.56</td><td>5.37</td></tr><tr><td>Random</td><td>5.23</td><td>6.17</td><td>5.31</td><td>5.92</td><td>5.71</td><td>5.22</td><td>5.55</td><td>5.76</td><td>5.45</td><td>4.72</td><td>5.50</td></tr><tr><td>No pretrain</td><td>5.17</td><td>6.10</td><td>5.23</td><td>5.85</td><td>5.66</td><td>5.14</td><td>5.47</td><td>5.68</td><td>5.38</td><td>4.65</td><td>5.43</td></tr><tr><td>Mean</td><td>5.02</td><td>6.07</td><td>5.12</td><td>5.72</td><td>5.54</td><td>4.96</td><td>5.35</td><td>5.57</td><td>5.24</td><td>4.51</td><td>5.31</td></tr></table>",
+        "bbox": [
+            124,
+            173,
+            865,
+            409
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "chart",
+        "img_path": "images/c3fd17c71752a9bd874a986b78935bad0e038238ccb1cad3abd31d57c2a26465.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            121,
+            626,
+            374,
+            795
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "chart",
+        "img_path": "images/a53a4b00ed1e083a053c87a0acc9b348575140cfd3bb3e631afcce2a899eb610.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            388,
+            626,
+            620,
+            803
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "chart",
+        "img_path": "images/d835a13ce6dfc28f63b9ebf5ae8d870162721f198a9fb5b3e0fb8bb44076788e.jpg",
+        "content": "",
+        "chart_caption": [
+            "Figure 3: Scatter plots showing XferBench score versus machine translation score."
+        ],
+        "chart_footnote": [],
+        "bbox": [
+            633,
+            625,
+            862,
+            796
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "1487",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "table",
+        "img_path": "images/3849e60e361d126a8923feb98b2796c01680a74c72557d4ba137bd527d2ab2ab.jpg",
+        "table_caption": [
+            "Table 6: Coarse and fine classifications of writing systems of human languages (source and target) used in the experiments."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Type</td><td>Writing System</td><td>Language</td></tr><tr><td rowspan=\"3\">Abjad</td><td>Arabic</td><td>ar fa</td></tr><tr><td></td><td>ur</td></tr><tr><td>Hebrew</td><td>he</td></tr><tr><td>Abugida</td><td>Devanagari</td><td>hi</td></tr><tr><td rowspan=\"8\">Alphabet</td><td rowspan=\"2\">Cyrillic</td><td>kk</td></tr><tr><td>ru</td></tr><tr><td>Hangul</td><td>ko</td></tr><tr><td rowspan=\"6\">Latin</td><td>da</td></tr><tr><td>es</td></tr><tr><td>eu</td></tr><tr><td>f</td></tr><tr><td>fr</td></tr><tr><td>id</td></tr><tr><td>Logographic</td><td>Chinese</td><td>ro zh</td></tr><tr><td>Mixed</td><td>Japanese</td><td>ja</td></tr></table>",
+        "bbox": [
+            139,
+            83,
+            462,
+            393
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "F Error analysis",
+        "text_level": 2,
+        "bbox": [
+            114,
+            473,
+            277,
+            489
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In the Full setting of the machine translation task, the Yao+ and Mu+, SW settings perform worse than expected (a priori and compared to the other results in the setting). Validation loss converged while chrF and BLEU scores remained near zero. We provide a couple examples (taken from the predefined test set of WMT 2014) of model output to provide some insight into the reason for this. No post processing used, generation is capped at 50 tokens, and “\\u0000” represent single non-printable characters.",
+        "bbox": [
+            112,
+            491,
+            489,
+            634
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Example 1 Input: “And while Congress can’t agree on whether to proceed, several states are not waiting.”",
+        "bbox": [
+            114,
+            645,
+            487,
+            675
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Reference: “Et tandis que les membres du Congrès n’arrivent pas à se mettre d’accord pour savoir s’il faut continuer, plusieurs États n’ont pas attendu.”",
+        "bbox": [
+            112,
+            676,
+            489,
+            719
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "[Model pretrained on] French: “#Et alors que le Congrès ne peut pas convenir de poursuivre, plusieurs États ne sont pas en attente. » (traduction libre) Le Parlement européen. Le Parlement européen est d’avis que le Parlement européen doit être en mesure de faire preuve#”",
+        "bbox": [
+            114,
+            719,
+            490,
+            791
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Disc, large: “#Et bien que le Congrès ne puisse pas convenir de la marche à suivre, plusieurs États ne sont pas en attente.\\u2028\\u2028[Traduit par la Rédaction]\\u2028(Traduit par la Rédaction)\\u2028(Tra#”",
+        "bbox": [
+            114,
+            793,
+            489,
+            850
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Yao+: “#Annexe II, par.\\xa02.2.2.2.2.2.2.2.2.2.2.2.2. 2.2.2.2.2.2.2.2.#”",
+        "bbox": [
+            114,
+            851,
+            489,
+            878
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Mu+, SW: “#Annexe II.\\xa0\\xa0: Appendice I.\\xa0I. \\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I. \\xa0I.\\xa0I.\\xa0I#”",
+        "bbox": [
+            112,
+            881,
+            487,
+            923
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Example 2 Input: “This really is a must for our nation.”",
+        "bbox": [
+            509,
+            84,
+            885,
+            112
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Reference: “Cela est vraiment indispensable pour notre nation.”",
+        "bbox": [
+            509,
+            112,
+            884,
+            141
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "French: “#C’est vraiment une nécessité pour notre nation. Nous devons y parvenir. Nous devons y parvenir. Nous devons y parvenir. Nous devons y parvenir. Nous devons y parvenir. Nous devons y parvenir. Nous devons y parvenir. Nous devons y#”",
+        "bbox": [
+            509,
+            141,
+            885,
+            212
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Disc, large: “#C’est vraiment un devoir pour notre nation. C’est un devoir.\\u2028\\u2028(...)\\u2028 \\u2028(...)\\u2028(...)\\u2028(...)\\u2028(...)\\u2028(...) \\u2028(...)\\u2028(#”",
+        "bbox": [
+            507,
+            212,
+            884,
+            268
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Yao+: “#Annexe II, par.\\xa02.2.2.2.2.2.2.2.2.2.2.2.2. 2.2.2.2.2.2.2.2.#”",
+        "bbox": [
+            509,
+            268,
+            885,
+            297
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Mu+, SW: “#Annexe II.\\xa0\\xa0: Appendice I.\\xa0I. \\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I.\\xa0I. \\xa0I.\\xa0I.\\xa0I#”",
+        "bbox": [
+            507,
+            297,
+            885,
+            341
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Discussion Although all of the models have trouble terminating properly, the French and Disc, large models (which have high chrF scores) clearly condition their generation on the text, whereas Yao+ and Mu+, SW give the same output regardless of the input. Although this is unexpected, we can see in the Full setting in Figure 3 that there is sharp drop off between high-performing and low-performing languages. We suspect that the higher learning rate during tuning caused this bimodal distribution of results and is at least in part responsible for the poor performance Yao+ and Mu+, SW models on the MT experiment’s Full setting.",
+        "bbox": [
+            507,
+            348,
+            885,
+            520
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "1488",
+        "bbox": [
+            480,
+            928,
+            521,
+            942
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "table",
+        "img_path": "images/635ccd0beda2a71680ae93f94f2f35eb9cbf3f94c30b13ec05aead18cb2c5a19.jpg",
+        "table_caption": [
+            "Table 7: Normalized XferBench scores by writing system (lower is better). Color is normalized across all values."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td rowspan=1 colspan=6>Source        Arabic Cyrillic  Hebrew  Japanese    Latin</td></tr><tr><td rowspan=1 colspan=1>Arabic</td><td rowspan=1 colspan=1>-0.65</td><td rowspan=1 colspan=1>-0.81</td><td rowspan=1 colspan=1>-0.42</td><td rowspan=1 colspan=2>-0.35     -0.56</td></tr><tr><td rowspan=1 colspan=1>Chinese</td><td rowspan=1 colspan=1>–1.05</td><td rowspan=1 colspan=1>-0.93</td><td rowspan=1 colspan=1>-1.60</td><td rowspan=1 colspan=2>-1.46    -1.00</td></tr><tr><td rowspan=1 colspan=1>Cyrillic</td><td rowspan=1 colspan=1>0.63</td><td rowspan=1 colspan=1>0.68</td><td rowspan=1 colspan=1>1.07</td><td rowspan=1 colspan=2>0.90     0.78</td></tr><tr><td rowspan=1 colspan=1>Devanagari</td><td rowspan=1 colspan=1>1.62</td><td rowspan=1 colspan=1>1.93</td><td rowspan=1 colspan=1>0.39</td><td rowspan=1 colspan=2>1.47     1.23</td></tr><tr><td rowspan=1 colspan=1>Hangul</td><td rowspan=1 colspan=1>-0.98</td><td rowspan=1 colspan=1>–0.41</td><td rowspan=1 colspan=1>–0.89</td><td rowspan=1 colspan=1>-0.80</td><td rowspan=1 colspan=1>–1.04</td></tr><tr><td rowspan=1 colspan=1>Latin</td><td rowspan=1 colspan=1>0.22</td><td rowspan=1 colspan=1>–0.22</td><td rowspan=1 colspan=1>0.72</td><td rowspan=1 colspan=2>0.12     0.29</td></tr></table>",
+        "bbox": [
+            262,
+            223,
+            726,
+            336
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "table",
+        "img_path": "images/6135d658bd98b0a4cd2a916cbf9b924061f87c97441c59262bfc409c0be92ba4.jpg",
+        "table_caption": [
+            "Table 8: Normalized XferBench scores by writing system type (lower is better). Color is normalized across all values."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Source</td><td>Abjad</td><td>Alphabet</td><td>Mixed</td></tr><tr><td>Abjad</td><td>–0.57</td><td>-0.60</td><td>-0.35</td></tr><tr><td>Abugida</td><td>1.21</td><td>1.35</td><td>1.47</td></tr><tr><td>Alphabet</td><td>0.15</td><td>0.06</td><td>0.09</td></tr><tr><td>Logographic</td><td>-1.23</td><td>–0.99</td><td>-1.46</td></tr></table>",
+        "bbox": [
+            331,
+            652,
+            660,
+            738
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "1489",
+        "bbox": [
+            480,
+            928,
+            522,
+            942
+        ],
+        "page_idx": 14
+    }
+]

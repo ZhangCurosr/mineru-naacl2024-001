@@ -1,0 +1,4310 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Evaluating Large Language Models as Generative User Simulators for Conversational Recommendation"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                136,
+                89,
+                863,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Se-eun Yoon Zhankui He Jessica Maria Echterhoff Julian McAuley University of California, San Diego {seeuny, zhh004, jechterh, jmcauley}@ucsd.edu"
+                    }
+                ]
+            },
+            "bbox": [
+                168,
+                154,
+                836,
+                205
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                260,
+                252,
+                342,
+                268
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Synthetic users are cost-effective proxies for real users in the evaluation of conversational recommender systems. Large language mod els show promise in simulating human-like behavior, raising the question of their ability to represent a diverse population of users. We introduce a new protocol to measure the degree to which language models can accurately emulate human behavior in conversational recommendation. This protocol is comprised of five tasks, each designed to evaluate a key property that a synthetic user should exhibit: choosing which items to talk about, expressing binary preferences, expressing open-ended preferences, requesting recommendations, and giving feedback. Through evaluation of baseline simulators, we demonstrate these tasks effectively reveal deviations of language models from human behavior, and offer insights on how to reduce the deviations with model selection and prompting strategies.<sup>1</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                278,
+                462,
+                579
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                115,
+                588,
+                260,
+                602
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In everyday life, recommendations are often sought through conversations: we ask others for advice on which movies to watch, appliances to buy, or restaurants to explore. Such experience is what conversational recommendation systems (CRSs) seek to provide, by developing autonomous agents that could chat with users, understand their needs, and provide well-tailored recommendations. A core challenge that hinders the advancement of the field is evaluation (Gao et al., 2021). While an ideal approach would involve comprehensive testing with real user interactions, the associated costs and risks drive studies towards proxy methods, which are limited in representing real user evaluation. Offline evaluation restricts evaluation to non-interactive modes, allowing only single-turn assessments (Li et al., 2018; Moon et al., 2019; He et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                613,
+                489,
+                887
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/d12e7cca44f00ee904868f5217b83484b399a3b47894c985f6f6ab9b74485ba0.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 1: To be successful user simulators for conversational recommendation, representing a population of users, LLMs must fulfill a variety of tasks."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                537,
+                253,
+                857,
+                435
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To enable interactive evaluation, studies have introduced synthetic users. However, they are overly simplified representations of human users, being restricted to binary responses (e.g., yes or no) (Christakopoulou et al., 2016; Lei et al., 2020a) or holding ‘target’ items as if users and agents are playing guessing games (Sun and Zhang, 2018; Lei et al., 2020b; Guo et al., 2018). Other line of work restrict interactions to predetermined rules and templates (Zhang and Balog, 2020; Zhang et al., 2022). Essentially, these user simulators suffer from an inherent constraint: they are static (i.e., confined to a finite set of actions), not generative."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                514,
+                887,
+                725
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recently, large language models (LLMs) have demonstrated impressive proficiency in conversational tasks (Pan et al., 2023; Zhao et al., 2023), motivating a growing number of works to explore their capacity to simulate human behavior (Park et al., 2023; Argyle et al., 2023; Aher et al., 2023; Gao et al., 2023; Momennejad et al., 2023). Agents simulated by LLMs are generative; conditioned upon profiles and memories, these agents exhibit emergent behaviors that appear believable (Park et al., 2023; Qian et al., 2023; Gao et al., 2023). Studies have also explored the use of LLMs as user simulators for recommender systems (Wang et al., 2023a,b). An important question in each of these studies is to evaluate how closely these simulators represent humans in the task. While there are automatic evaluation protocols for replicating general human behavior (Aher et al., 2023; Momennejad et al., 2023), no protocol exists in the context of recommendation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                727,
+                887,
+                920
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>We release our code and datasets at https://github. com/granelle/naacl24-user-sim."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                894,
+                490,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1490"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers), pages 1490–1504 June 16-21, 2024 ©2024 Association for Computational Linguistics"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                946,
+                857,
+                986
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                489,
+                214
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In conversational recommendation, the requirements of user simulators are distinct from generalpurpose human simulators. The goal is to simulate a population of users, each with distinct preferences, in a way that these preferences collectively reflect the characteristics of human preferences. Real user preferences are highly granular and diverse, shaped by each individual’s particular set of traits, interaction history, and circumstances. Such uniqueness is reflected in conversational utterances among individuals, each mentioning distinct items, expressing various preferences, and making highly personalized recommendation requests. There are also population-level patterns in preferences, such as users preferring some items over others. Protocols in other domains are unsuitable for evaluating the requirements in conversational recommendation, since they do not consider the behaviors driven by personal preferences (Momennejad et al., 2023; Aher et al., 2023). Although some work considers the uniqueness of simulated individuals, evaluations are limited to manual case studies (Wang et al., 2023a; Park et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                217,
+                490,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We propose a new evaluation protocol for measuring the extent to which LLM-based simulators can represent users in conversational recommendation. This objective poses new challenges: First, we lack data that maps inputs to ground-truth outputs, such as demographics to survey outcomes (Santurkar et al., 2023). Second, our outcomes are freeform text, unlike previous work where behavioral outcomes are are choices or numerical values for ground truth comparison (Aher et al., 2023). Third, the infinite possibilities of conversational trajectories make the concept of ‘ground truth’ increasingly ambiguous as conversations unfold."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                593,
+                490,
+                803
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We tackle these challenges by decomposing evaluation into five independent tasks, each measuring a key property that a user simulator should exhibit. Each task prompts a simulator and stores the outcomes of a population of simulators. The outcomes can then be compared to the human data we curate from four different platforms. The tasks by themselves do not guarantee simulators to be perfect representations of human users, but rather, capture distortions in simulators, which is the systematic difference from humans (Aher et al., 2023)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                807,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                884,
+                148
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We demonstrate the effectiveness of these tasks by applying them to baseline simulators and revealing the distortions present in these simulators. We observe that simulators tend to favor mentioning popular items, correlate little with human preferences, exhibit lack of personalization in requests, and occasionally give incoherent feedback. We also identify methods to reduce the gap between simulators and humans, indicating that our evaluation protocol can guide future research in developing more realistic user simulators."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                149,
+                887,
+                325
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our work is summarized as follows:"
+                    }
+                ]
+            },
+            "bbox": [
+                527,
+                326,
+                801,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• We propose the first evaluation protocol for LLM-based user simulation in conversational recommendation. Our protocol allows automatic and reproducible evaluation through five tasks and real user datasets."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                351,
+                885,
+                431
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• By running our tasks, we show how simulators could differ from real users. Discrepancies include low item diversity, low correlation with human preference, lack of request personalization, and incoherent feedback."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                435,
+                887,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• We show that the gaps can be reduced through prompting and model selection strategies."
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                517,
+                884,
+                551
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Evaluation Tasks"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                569,
+                694,
+                586
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Here we first introduce our tasks and later explain the execution of these tasks in Section 3."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                594,
+                884,
+                627
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(T1) ItemsTalk: Choosing items to talk about. Often when users talk about recommendations, they mention items. Contexts may vary: to request similar items, to express preference on certain items, or to simply chat about an item (Li et al., 2018). We compare the distributions of items mentioned by simulators and real users."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                633,
+                887,
+                746
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(T2) BinPref: Expressing binary preference. Binary questions, such as ‘Did you enjoy this movie?’ are commonly observed in conversations (Li et al., 2018). While answers need not be binary, we fix the answers to binary in this task and examine how well simulators reflect human preferences."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                752,
+                887,
+                850
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(T3) OpenPref: Expressing open-ended preference. Open-ended utterances allow users to express detailed preferences, such as appreciating the cast of a movie while finding the plot uneventful (Xia et al., 2023). We examine whether simulators can express preferences on aspects of items (e.g., cast and plot), and whether the aspects and preferences are similar to those expressed by real users."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                856,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1491"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/6699a0cf8ac99c035d4bba8647dab4ae699312bf3cb9253121758e2867197cb6.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 1: Tasks overview. Prompts are partially displayed. See A.2 for full prompt descriptions. (DI: Demographic Information, IH: Interaction History, PP: Pickiness Personality)"
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Task</td><td rowspan=1 colspan=1>Baselines</td><td rowspan=1 colspan=1>Datasets</td><td rowspan=1 colspan=1>Example prompt</td></tr><tr><td rowspan=1 colspan=1>(T1) ItemsTalk</td><td rowspan=1 colspan=1>DI, IH</td><td rowspan=1 colspan=1>ReDial, Reddit, IMDB</td><td rowspan=1 colspan=1>A person mentions Concussion (2015) and Jerry Maguire(1996) in a conversation about movies and proceeds to mention2 more. What would these 2 movies be?</td></tr><tr><td rowspan=1 colspan=1>(T2) BinPref</td><td rowspan=1 colspan=1>DI, DI + PP</td><td rowspan=1 colspan=1>MovieLens</td><td rowspan=1 colspan=1>Pretend to be Ms. Guzman. You watched the movie Whiplash(2014). Did you like the movie? Answer Yes or No. Don&#x27;t sayanything else.</td></tr><tr><td rowspan=1 colspan=1>(T3) OpenPref</td><td rowspan=1 colspan=1>DI, DI + PP</td><td rowspan=1 colspan=1>IMDB</td><td rowspan=1 colspan=1>Pretend to be Mr. Li. You watched the movie The Bellboy(1960). What are your thoughts on this movie? Answer shouldnot exceed 809 characters.</td></tr><tr><td rowspan=1 colspan=1>(T4) RecRequest</td><td rowspan=1 colspan=1>Vanilla LLM</td><td rowspan=1 colspan=1>Reddit</td><td rowspan=1 colspan=1>Generate a movie recommendation request. Include the fol-lowing movies in your text: Oldboy (2003), Memento (2000).Length of the request is approximately 374 characters.</td></tr><tr><td rowspan=1 colspan=1>(T5) Feedback</td><td rowspan=1 colspan=1>Vanilla LLM</td><td rowspan=1 colspan=1>Reddit</td><td rowspan=1 colspan=1>In the following conversation ... If the recommendation is co-herent to your request, answer Accept. If the recommendationis incoherent to your request, answer Reject.</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                80,
+                878,
+                282
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                348,
+                489,
+                413
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(T4) RecRequest: Requesting recommendations. A need for recommendation is verbalized through requests. Requests can range from something general, such as ‘Recommend me a good movie,’ to a more personalized demand, such as ‘Recommend me a movie that involves a lawyer or a magician but does not contain action scenes.’ While related to preferences, requests stem from immediate demand, such as being in a mood for a certain movie. Given the vastness of tastes and circumstances, a wide variety of requests may emerge (He et al., 2023). We investigate whether requests generated by simulators are as diverse as those of real users."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                419,
+                490,
+                631
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(T5) Feedback: Giving feedback. To evaluate CRSs, simulators should be able to provide final feedback of whether the recommendation was successful (Wang et al., 2023b). (Real users may or may not provide explicit feedback, but they have a general impression of whether the recommendation was satisfactory.) Particularly, if recommendations and explanations are relevant to one’s requests and preferences, one should be likely to accept the recommendation. If irrelevant, one should reject them. We examine whether simulators can exhibit such coherent patterns of feedback generation."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                636,
+                490,
+                832
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Methods"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                112,
+                844,
+                228,
+                860
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our protocol treats the design choices of simulators as a black box. We only require that simulators should accept free-form natural language as input and generate language as output. As noted in the introduction, we consider the population of users, since recommender systems are tested against a large group of users. Importantly, our focus is not to replicate a fixed pool of users, but to generate a new group of users whose behavior characteristics resemble those of human users. Tasks should be zero-shot; simulators should not be trained or conditioned on our tasks, nor be informed about our evaluation metrics. This is to avoid simulators fitting to the tasks instead of performing well in generic situations."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                872,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                348,
+                887,
+                543
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Datasets We use real-world datasets to compare simulator outputs to human output. Dataset statistics are summarized in A.1. ReDial (Li et al., 2018) consists of multi-turn conversations, where one person plays the role of a movie seeker, and the other as a recommender. We use the seeker side of this dataset.<sup>2</sup> Reddit (He et al., 2023) consists of conversations in Reddit communities on movie recommendations. Users post requests for recommendations and other users comment on this post with movies, sometimes with explanations. Movie-Lens (Harper and Konstan, 2015) is a movie ratings dataset consisting of 25M ratings. IMDB is a movie review dataset from IMDB,<sup>3</sup>, aggregated per user. Each task uses different dataset(s), since the datasets are heterogeneous and are not applicable to every task (see Table 1). We only include movies up to the year 2021 to ensure that LLMs have knowledge about the movies."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                550,
+                887,
+                841
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup>The Mechanical Turk workers may differ from real users with genuine incentives. However, we assume the person playing as seeker bears insignificant difference from the real seeker, as the role requires less effort and expertise."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                856,
+                885,
+                907
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup>https://www.imdb.com/"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                906,
+                702,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1492"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                373,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Baselines We use prompt-based simulators as baselines, using OpenAI (OpenAI, 2021) models gpt-3.5-turbo, gpt-4, and text-davinci-003. The baselines can be used in any task, but for each task, we select the baselines that give the best insights (see Table 1). Vanilla LLM runs without any specialized prompts designed to induce variability in outputs. Instead, it relies solely on the inherent variability of LLM outputs.<sup>4</sup> DI (Demographic Information) is a method used by Aher et al. (2023) to simulate gender and racial diversity. We follow their method and sample from titles Mr. and Ms.,<sup>5</sup> and 500 most common surnames across five racial groups.<sup>6</sup> DI + PP (Pickiness Personality) adds a personality trait to demographic information, that is, pickiness toward movies. For each simulator, we randomly sample one of three pickiness levels: not picky, moderately picky, and extremely picky. IH (Interaction History) samples a set of interactions from a real user and prompts to act like this user. The interaction may be a subset of mentioned items (ReDial), mentioned items with timestamps (Reddit), or reviews of items (IMDB)."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                108,
+                490,
+                481
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Execution and evaluation For each task, we create a population of simulators, each given a taskspecific prompt. Example prompts are in Table 1 and all the prompts are in A.2."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                487,
+                490,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "ItemsTalk prompts the simulator to mention a certain number of items. Each prompt uses a single dataset entry to determine the number of items to mention and interaction history (for the IH baseline); the number of prompts equals the number of dataset entries. For evaluation, we compare the distribution of mentioned items between the simulator and the dataset (items in prompt are removed). The diversity of distribution is summarized by entropy: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { H ( X ) = - \\sum _ { i = 1 } ^ { n } p ( x _ { i } ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "log "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ( x _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ( x _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the probability that an item "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is mentioned."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                554,
+                490,
+                732
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "BinPref prompts the simulator to act as if one has interacted with an item, and asks whether one has positive opinions on it. We sample two groups of 200 movies from MovieLens: frequent "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\geq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "5000 ratings) and infrequent ( 500 ratings). This is to observe if the simulators reflect human preferences better on frequent movies. The distribution of average rating ranges from 1 to 5. For each movie, we run 100 simulators to output a binary preference and get the proportion of ‘Yes’ answers (i.e., positive rate). We compute the Pearson correlation coefficient between the average rating and positive rate."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                733,
+                489,
+                831
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                84,
+                887,
+                197
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "OpenPref prompts the simulator to assume one has interacted with a certain item, and asks one’s thoughts on it. Each prompt uses a review from IMDB to obtain target response length. After getting a collection of responses, we conduct aspectbased sentiment analysis with PyABSA (Yang et al., 2023). We compare the aspect and sentiment distributions of humans and simulators."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                198,
+                887,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "RecRequest prompts the simulator to generate a recommendation request containing a set of items. The reason we include the set of items is to evaluate only the capability to generate requests, and not items included in the request. In each prompt, the items and target length are determined by a real user request in the Reddit dataset; we obtain the same number of requests. We compare the diversity and granularity of synthetic and real requests by computing type-token ratio, word embeddings with Word2Vec (Mikolov et al., 2013), and sentence (request) embeddings with SBERT (Reimers and Gurevych, 2019). We use the cosine diversity of embeddings (Anderson et al., 2020):"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                326,
+                887,
+                554
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "1 - \\frac { 1 } { N } \\sum _ { i = 1 } ^ { N } \\frac { \\vec { s } _ { i } \\cdot \\hat { \\mu } } { \\lVert \\vec { s } _ { i } \\rVert \\cdot \\lVert \\hat { \\mu } \\rVert }",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/452261898c9f8ce4182f9bf1e73b56630fc2761dc91a847ee57117679c09ad9b.jpg"
+                }
+            },
+            "bbox": [
+                610,
+                563,
+                778,
+                605
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the number of embeddings, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\vec { s _ { i } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { t h }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "embedding, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\hat { \\mu }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the centroid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\hat { \\mu } = \\sum _ { i } \\vec { s _ { i } } / N } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                617,
+                882,
+                650
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Feedback prompts the simulator to provide feedback to request-recommendation pairs. For each request in the Reddit dataset, we sample: (1) a comment from this request (positive recommendation) (2) a random comment (negative recommendation). We formulate two sub-tasks. Accept/reject: simulators should reject negative recommendations. Comparison: simulators should prefer positive recommendations over negative ones."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                650,
+                887,
+                796
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Experiments"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                807,
+                657,
+                825
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We summarize our experiment results as follows."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                833,
+                877,
+                850
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 1: Simulators mention less diverse items compared to real users. Our first task, ItemsTalk, reveals that the distribution of items mentioned by simulators is heavily skewed toward popular items, in contrast to a more even distribution of items mentioned by humans (Figure 2). We observe the trend across all baselines and datasets, quantified by entropy (Table 2)."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                856,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup>The degree of variability can be adjusted by the temperature parameter, but we use the default temperature values across all LLMs."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                844,
+                489,
+                881
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>5</sup>There are more titles, but we use these two for simplicity."
+                    }
+                ]
+            },
+            "bbox": [
+                132,
+                881,
+                487,
+                895
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>6</sup>https://www.census.gov/topics/population/ genealogy/data/2010_surnames.html"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                894,
+                484,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1493"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/7c033cc5cefa807262b5d51727af3e219c4272739e67ebac8f4d4abfe4a39ffb.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 2: Entropy of mentioned items. Simulators yield lower entropy, indicating lower diversity. Prompting with interaction history enhances diversity."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Generator</td><td>IMDB</td><td>Reddit</td><td>ReDial</td></tr><tr><td>Human</td><td>12.61</td><td>11.73</td><td>9.71</td></tr><tr><td></td><td>Demographic information</td><td></td><td></td></tr><tr><td>gpt-3.5</td><td>4.79</td><td>3.97</td><td>4.00</td></tr><tr><td>gpt-4</td><td>5.29</td><td>4.78</td><td>4.18</td></tr><tr><td>text-davinci</td><td>6.42</td><td>6.69</td><td>6.66</td></tr><tr><td></td><td>Interaction history</td><td></td><td></td></tr><tr><td>gpt-3.5</td><td>7.96</td><td>7.14</td><td>7.68</td></tr><tr><td>gpt-4</td><td>8.59</td><td>9.50</td><td>9.03</td></tr><tr><td>text-davinci</td><td>10.79</td><td>9.97</td><td>8.63</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                156,
+                135,
+                442,
+                290
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/a4b306557ebd65d1e086b87d50db32a3fc96cf97dbbd227a353d4fd40f6168d4.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                119,
+                305,
+                327,
+                426
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/e050a847720023b61ce4a7eb917126ecbc788e3616f5566bd31921f043a3ecc4.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 2: Distribution of mentioned items (Reddit+IH). Items are sorted in descending frequency. Humans mention more diverse items (left) than simulators (right)."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                329,
+                305,
+                489,
+                428
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                502,
+                489,
+                567
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 2: Prompting with interaction history enhances item diversity. Comfortingly, prompting with interaction history yields much higher diversity than prompting with demographic information, and we even observe cases (gpt-4 and text-davinci-003) prompted with interaction history from Reddit and IMDB slightly exceed the diversity of humans in ReDial. This suggests that interaction history (‘trigger’ items) is a strong condition for generating diverse items."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                574,
+                490,
+                737
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 3: Simulators may poorly represent real user preferences. Our next task, BinPref, captures simulators failing to represent human preferences. In Figure 3, we sort items in decreasing average rating and plot the positive rate (proportion of simulators that answered ‘yes’ to whether they liked the movie). Positive rates remain constant regardless of human preferences, except gpt-4 + DI + PP, where the positive rate decreases as average rating decreases. Unexpectedly, higher item frequency (how well known is an item, measured by number of ratings) does not necessarily lead to better preference alignment (Table 3), despite LLMs likely being more exposed to these items during training. We show all the results in A.3.2."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                743,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/ce480ce7fe047cc3bdb87dff15753d53039d8bfa967343d33388731d9da41708.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                515,
+                83,
+                707,
+                171
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/920d38bd4a4c946942c260c74e110345faca70a401bd1b27e37cb84d41a73863.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                514,
+                177,
+                707,
+                281
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/4e0071d82252f19b93b05d4defb7bd721cf4ef23d7f66e8c0102ba53f22c7e50.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                710,
+                82,
+                892,
+                171
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/451216183c8b3610b9e8594174a836c91285c6d46c0e0bfbce39f2c21d254970.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 3: How well do simulators reflect human preferences? Most fail, except gpt-4 with pickiness (bottom right). The units for ratings and positive rates are different but included in the same plot to compare trends."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                710,
+                175,
+                892,
+                281
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/473c3d5d37d30174d28ce27e1212fa466f3bf74ff84d9507656811bec9f7c22e.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 3: Correlation coefficient between human and simulator preferences. Higher correlation is better, showing the effect of providing pickiness personality. ‘Undefined’ indicate undefined correlation; all simulators responded ‘yes’. P-values are less than 0.05."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Generator</td><td>Frequent items</td><td>Infrequent items</td></tr><tr><td></td><td colspan=\"2\">Demographic information</td></tr><tr><td>gpt-3.5</td><td>0.18</td><td>0.12</td></tr><tr><td>gpt-4</td><td>0.24</td><td>0.53</td></tr><tr><td>text-davinci</td><td>Undefined</td><td>0.29</td></tr><tr><td></td><td colspan=\"2\">Demographic information + Pickiness</td></tr><tr><td>gpt-3.5</td><td>0.45</td><td>0.36</td></tr><tr><td>gpt-4</td><td>0.75</td><td>0.76</td></tr><tr><td>text-davinci</td><td>0.49</td><td>0.64</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                524,
+                449,
+                868,
+                587
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                614,
+                887,
+                680
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 4: Adding pickiness personality improves preference alignment. Endowing simulators with varying levels of pickiness not only diversifies preferences but also improves correlation, sometimes yielding strong correlation (Table 3). This suggests that picky simulators can successfully discern low-rated movies. Without pickiness, correlations are low to moderate: simulators tend to be consistently optimistic—in one case (textdavinci-003 + DI), all the answers were ‘yes’."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                687,
+                889,
+                848
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 5: Simulators express preferences differently from real users. Model choice and prompting may mitigate the difference. Open-Pref reveals how simulators express preferences in a way different from humans (Table 4). First, simulators generate more sentiment-associated aspects than humans. Real users often express opinions in subtler ways, such as a movie being ‘suitable for background noise,’ rather than simply praising or criticizing explicit aspects (e.g., cast and plot) of the movie. Second, simulators have lower aspect entropy, even though they have more aspects. This indicates that it is predictable which aspects they will mention, e.g., mentioning the same aspects repeatedly. Finally, simulators are biased towards positive sentiment, resulting in low sentiment entropy, unless prompted to behave as picky users (Table 4 and Figure 4). The simulator closest to humans is gpt-4 + DI + PP, with similar aspect and sentiment statistics. Therefore, model choice and prompting strategies (e.g., adding pickiness) may enhance realism in simulator preference and expressions of preference."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                856,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1494"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d06ccce0357e6b34cdfea830e6fa7826be3feed7def794be4392cb6001a25201.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 4: Sentiments in open-ended responses."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                119,
+                84,
+                487,
+                246
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/ae55f9f61f26ec7c512638d7240cf1f2916f17d0383c321dfd192a79875c46b2.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 4: Aspects and sentiments in open-ended responses. Humans have low number of aspects but high aspect entropy and sentiment entropy."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Generator</td><td># aspects</td><td>Aspect entropy</td><td>Sentiment entropy</td></tr><tr><td>Human</td><td>85</td><td>5.85</td><td>1.19</td></tr><tr><td></td><td>Demographic information</td><td></td><td></td></tr><tr><td>gpt-3.5</td><td>71</td><td>4.86</td><td>0.29</td></tr><tr><td>gpt-4</td><td>97</td><td>5.57</td><td>1.11</td></tr><tr><td>text-davinci</td><td>194</td><td>5.63</td><td>0.18</td></tr><tr><td></td><td>Demographic information + Pickiness</td><td></td><td></td></tr><tr><td>gpt-3.5</td><td>101</td><td>5.20</td><td>1.09</td></tr><tr><td>gpt-4</td><td>97</td><td>5.59</td><td>1.34</td></tr><tr><td>text-davinci</td><td>232</td><td>5.47</td><td>0.48</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                121,
+                342,
+                452,
+                510
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                541,
+                490,
+                848
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 6: Simulators struggle to generate a diverse pool of personalized requests. RecRequest reveals that simulators generate less personalized requests than real users. The request diversity, mea-• Human: ‘Movies about alcoholism’, ‘Space movies?’, ‘Movies about redemption’, ‘Inspirational movies’, ‘Good biography movies’, ‘Impactful endings?’, ‘Growth mindset versus Fixed Mindset’, ‘Rock climbing movies’, ‘Movies about nihilism’"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                856,
+                490,
+                921
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d89842c6a172768b06799ada3990a2cd399853c11bdab1ccb6f06061e1f1e725.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 5: Diversity of requests per entropy level. Simulator requests are less diverse across all entropy levels."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                524,
+                84,
+                868,
+                249
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                526,
+                303,
+                872,
+                403
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• gpt-3.5-turbo: ‘Movie recommendation?’, ‘Need movie suggestions’, ‘Need movie recs!!’, ‘Need movie recommendations’, ‘Movie recs?’, ‘Movie recommendations?’"
+                    }
+                ]
+            },
+            "bbox": [
+                526,
+                410,
+                872,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• gpt-4: ‘Got recs?’"
+                    }
+                ]
+            },
+            "bbox": [
+                527,
+                485,
+                682,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• text-davinci-003: ‘Recommend a movie’, ‘Cheerful movies?’, ‘Recommend me!"
+                    }
+                ]
+            },
+            "bbox": [
+                526,
+                512,
+                868,
+                545
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Figure 6: Low-entropy requests generated by humans and simulators."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                564,
+                882,
+                594
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "sured by cosine diversity of sentence embeddings, are lower than humans across all models, with gpt-4 (the most diverse) generating 23% less diverse requests than humans (Table 6). Simulators have lower diversity across all entropy levels (taking words as variables), particularly in the lowest entropy level (Figure 5). For better understanding, we show low-entropy requests in Figure 6, where we see simulators struggling to make specific requests, while humans are specific even when text is short."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                612,
+                887,
+                774
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also measure the diversity of words and word embeddings (Table 6). Interestingly, simulators have lower word diversity and higher word embedding diversity: although simulators generate a semantically diverse range of vocabulary, they tend to reuse the same words. Upon manual inspection, we find that expressions such as ‘gripping,’ ‘mind-bending,’ ‘compelling,’ ‘keeps me on the edge of my seat’ are repeatedly used. These expressions can be applied to a general range of movies. Humans, in contrast, tend to express finergrained preferences, asking for movies that meet a specific criterion. We show in Table 5 how the requests differ, even when they contain the same set of movies. For example, many movies other than Taxi Driver (1976) or Joker (2019) can be ‘gripping psychological thrillers,’ but a more limited set of movies deal with ‘extreme loneliness or depression.’ Therefore, the low diversity of requests seems to arise from their generality; LLMs make generic requests, while humans are free to be more personal, and hence, diverse in the population level.<sup>7</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                776,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1495"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/98b61580afb25aebe76752989ef90616bb7747bbb4218310d56f4e88071488d1.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 5: Examples of recommendation requests. Even when humans and simulators include the same movies (orange), simulators tend to produce more general requests (green), repeating same expressions for different requests."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td rowspan=1 colspan=1>Human requests</td><td rowspan=1 colspan=1>gpt-3.5-turbo requests</td></tr><tr><td rowspan=1 colspan=1>Movies showing extreme loneliness or depression. I havewatched Taxi Driver (1976) and Joker (2019) and would liketo see more similar movies showing loneliness or depression.</td><td rowspan=1 colspan=1>Looking for a gripping psychological thriller similar to TaxiDriver (1976) or Joker (2019)? Seeking a movie that delvesinto the mind of complex characters?</td></tr><tr><td rowspan=1 colspan=1>Movies about conspiracies, lies, and finding the truth likeMemento (2000) and Fight Club (1999)?. Espcially ones thathave big plot twists.</td><td rowspan=1 colspan=1>Looking for mind-bending thrillers like Fight Club (1999)and Memento (2000). Any suggestions? Need gripping plotsthat leave me questioning reality!</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                82,
+                882,
+                199
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/59fa54d83cc7f809ae010692c99f54a8123b72388a4216ac72ea1ff5668bc305.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 6: Diversity of requests: word diversity (typetoken ratio) and embedding (cosine) diversities. Simulators reuse the same words across different requests, generating less personalized requests."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td>Generator</td><td>Word</td><td>Word emb.</td><td>Sentence emb.</td></tr><tr><td>Human</td><td>0.65</td><td>0.427</td><td>0.391</td></tr><tr><td>gpt-3.5</td><td>0.50</td><td>0.433</td><td>0.295</td></tr><tr><td>gpt-4</td><td>0.61</td><td>0.436</td><td>0.300</td></tr><tr><td>text-davinci</td><td>0.49</td><td>0.418</td><td>0.288</td></tr></table>",
+                "table_type": "simple_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                121,
+                331,
+                480,
+                410
+            ]
+        },
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/1dccef772129a825393fdcc85090d8161b1c556b3c21336547d2b93b4994ffd4.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 7: Feedback coherence (proportion of coherent feedback). Simulators are often coherent, but there is room for improvement."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td></td><td>Generator</td><td>Prop. coherent</td><td>Prop. neither</td></tr><tr><td>Items only</td><td>gpt-3.5 gpt-4</td><td>0.8264 0.9096</td><td>0.0087 0.0120</td></tr><tr><td rowspan=\"2\">Items +</td><td>text-davinci</td><td>0.8108</td><td>0</td></tr><tr><td>gpt-3.5</td><td>0.8039</td><td>0.0049</td></tr><tr><td rowspan=\"2\">explain</td><td>gpt-4</td><td>0.9047</td><td>0</td></tr><tr><td>text-davinci</td><td>0.6567</td><td>0</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                117,
+                481,
+                487,
+                586
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                110,
+                614,
+                490,
+                840
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 7: While simulators often give coherent feedback, there is room for improvement. For the accept/reject task, feedback is coherent when the simulator rejects negative or accepts positive recommendation. Feedback is incoherent when the simulator accepts negative recommendation. The case where the simulator rejects positive recommendation is controversial; a user may still reject a relevant recommendation for reasons external to the request. We leave this case as likely incoherent and focus evaluation on clearer cases. As in Figure 7, simulators are overall coherent, but sometimes give incoherent feedback, its proportion ranging from 3% (gpt-3.5-turbo) to 35% (textdavinci-003). Particularly, text-davinci-003 is biased towards optimistic feedback, i.e., accepting even if the recommendation is irrelevant. We also see that providing explanations encourages simulators accept relevant recommendation."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                847,
+                489,
+                881
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/55b4a171cacabe213d85ae75776f0d132bdedcfc09ca085234a636a1a6bed5a4.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 7: Feedback coherence (accept/reject task). ‘I stands for incoherent; ‘C’ stands for coherent. Recommendations contain only items (left column) or items with explanations (right column)."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                512,
+                262,
+                880,
+                441
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                530,
+                887,
+                804
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the comparison task, feedback is coherent when the simulator prefers positive recommendation over negative recommendation, and incoherent otherwise. We exclude cases where simulators respond ‘neither,’ and compute its proportion. We see in Table 7 that simulators are more often coherent than incoherent, and the proportion of ‘neither’ is negligible. Variations exist; coherence ranges from 65% (text-davinci-003) to 90% (gpt-4). Interestingly, with explanations, simulators become slightly less coherent. A possible reason is that explanations add persuasiveness to negative recommendations as well as positive, making it slightly trickier for simulators to distinguish the two."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                807,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>7</sup>We tried various prompts to generate more diverse requests, but there was no significant difference in the results."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                894,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1496"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/92a64ea463700eae3058d17ace8dd717f04aeab9039fd25f1181eb0f8ea96a01.jpg"
+                },
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 8: Example feedback from user simulator (gpt-3.5-turbo), given human request and recommendation."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                122,
+                84,
+                485,
+                291
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                353,
+                489,
+                466
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding 8: Simulators may not capture subtle nuances in requests, and thus reject relevant recommendations. Finally, we ask simulators why they have given such feedback. We manually inspect the responses and find that the reasons are rather compelling, based on accurate factual knowledge. Incoherence often arise due to missing subtle nuance of what users are asking for. For instance, in Figure 8, the simulator rejects Nightcrawler (2014) because the movie is not ‘about’ a loner main character, while the user asks for a movie ‘with’ a loner main character. More examples are in A.3.3. We leave a more thorough analysis of the classification of incoherent cases as future work."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                468,
+                490,
+                694
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5 Related Work"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                708,
+                272,
+                725
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "User simulation for recommendation Early work in conversational recommendation formulate bandit problems to efficiently update traditional models, focusing on item selection and expecting binary preference answers from synthetic users (Christakopoulou et al., 2016). Recent work considers more realistic conversations with flexibility in natural language, but still confines users to binary or multi-choice responses (Lei et al., 2020a,b). For evaluation, often a set of target items is predefined per user and the user rejects a recommendation unless the target item is mentioned, and a model is regarded superior if fewer turns are used to reach the target item (Guo et al., 2018; Sun and Zhang, 2018; Lei et al., 2020a,b). Alternatively, agendabased simulation use a state diagram of actions, and recommendation is successful when the conversation reaches the ‘complete’ state (Zhang and Balog, 2020; Zhang et al., 2022). However, user actions follow a fixed set of rules and utterance templates, which is unlikely with real users. Generative simulators, powered by LLMs, effectively avoids this problem, demonstrating more realistic conversation capabilities (Wang et al., 2023a,b; Zhang et al., 2023). However, it is still uncertain how realistic these simulators are compared to real users."
+                    }
+                ]
+            },
+            "bbox": [
+                110,
+                743,
+                492,
+                921
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                85,
+                887,
+                328
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "LLMs as human proxies There is increasing effort to substitute expensive human experiments with LLMs. In conversational recommendation, Wang et al. (2023b) prompts ChatGPT with target items, which results in users giving ‘hints’ toward specified items. Wang et al. (2023a) goes beyond conversation and introduces a simulation environment where users not only chat about recommendations, but also browse websites, search for items, and share opinions on social media. Non-verbal user behavior in recommendation is explored in Zhang et al. (2023). In other domains, Owoicho et al. (2023) and Wang et al. (2023c) explore LLMs as user simulators in conversational search; Hämäläinen et al. (2023) evaluates LLMs for generating synthetic user experience data in HCI; Aher et al. (2023) evaluates LLMs for replicating human behavior in social science experiments. Others create simulation environments where LLM agents interact with each other and generate realistic behaviors (Park et al., 2023; Gao et al., 2023; Qian et al., 2023). No work, to the best of our knowledge, introduces protocols for synthetic users in conversational recommendation."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                334,
+                887,
+                722
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "LLMs for recommendation Recent papers explore the use LLMs for recommendation (Hou et al., 2023; Li et al., 2023; Kang et al., 2023; Fan et al., 2023; Chen, 2023), but these work focus on LLMs as recommenders, not recommendation seekers, and are therefore orthogonal to our work."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                728,
+                887,
+                827
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Conclusion"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                843,
+                643,
+                858
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We introduce a new protocol for evaluating LLMs as user simulators for conversational recommendation. We design five evaluation tasks, where each task addresses an essential property for simulators to be realistic user proxies. By running the tasks on simulators, we show how the tasks effectively reveal discrepancies of simulators from real users. Our work aims to set a benchmark for evaluating simulators automatically, with future plans to enhance their realism."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                871,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1497"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                112,
+                85,
+                490,
+                197
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Limitations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                210,
+                221,
+                225
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our tasks provide necessary conditions, not sufficient conditions, for simulators to represent a group of real users. More tasks could be added to evaluate more properties, such as asking questions about recommendations, or dealing with evolving items (that are not in the training corpus of LLMs)."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                236,
+                490,
+                332
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While our approach is domain-agnostic, the datasets used in this paper are limited to movies. Different domains (e.g, e-commerce) may require domain-specific tasks and may produce different results. An important avenue for future work is to collect CRS datasets in various domains—most existing datasets are on movies or media content."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                334,
+                489,
+                445
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our observations on baseline simulators may not represent all possible simulators. In particular, we use OpenAI models, default temperature values, and simple prompt-based baselines. More analysis could be made with open-source models, various hyperparameters, and advanced simulators."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                447,
+                489,
+                543
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Ethics Statement"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                556,
+                267,
+                571
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our paper is primarily centered on CRS applications, but has broader implications in making artificial intelligence agents more closely aligned to real humans. As simulators exhibit more realistic behavior, the risks of misuse, deception, and overreliance on these simulators may arise. A possible way to mitigate these risks is to implement distinct markers on simulators. For instance, simulators should truthfully disclose that they are not humans. Finally, we stress that, while simulators are valuable tools for pre-deployment testing, they cannot fully replace human interactions. Ultimately, real user experiments are needed for final testing."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                582,
+                490,
+                790
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We use scientific artifacts. Redial is licensed under the CC BY 4.0 License. MovieLens states that the data may be used for research purposes under a set of conditions (e.g., citation), which this paper meets. We ask direct permission from the authors of the Reddit dataset. IMDB is available for non-commercial usage. PyABSA is under the MIT License. Word2Vec and SBERT are under the"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                793,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Apache License, Version 2.0."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                85,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Acknowledgements"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                111,
+                684,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This research was supported by a research grant from Cisco Systems, Inc."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                136,
+                884,
+                168
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "References"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                510,
+                195,
+                610,
+                210
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Gati V Aher, Rosa I Arriaga, and Adam Tauman Kalai. 2023. Using large language models to simulate multiple humans and replicate human subject studies. In ICML."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ashton Anderson, Lucas Maystre, Ian Anderson, Rishabh Mehrotra, and Mounia Lalmas. 2020. Algorithmic effects on the diversity of consumption on spotify. In WWW."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Lisa P Argyle, Ethan C Busby, Nancy Fulda, Joshua R Gubler, Christopher Rytting, and David Wingate. 2023. Out of one, many: Using language models to simulate human samples. Political Analysis, 31(3):337–351."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zheng Chen. 2023. Palr: Personalization aware llms for recommendation. arXiv preprint arXiv:2305.07622."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Konstantina Christakopoulou, Filip Radlinski, and Katja Hofmann. 2016. Towards conversational recommender systems. In KDD."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wenqi Fan, Zihuai Zhao, Jiatong Li, Yunqing Liu, Xiaowei Mei, Yiqi Wang, Jiliang Tang, and Qing Li. 2023. Recommender systems in the era of large language models (llms). arXiv preprint arXiv:2307.02046."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chen Gao, Xiaochong Lan, Zhihong Lu, Jinzhu Mao, Jinghua Piao, Huandong Wang, Depeng Jin, and Yong Li. 2023. S3: Social-network simulation system with large language model-empowered agents. arXiv preprint arXiv:2307.14984."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chongming Gao, Wenqiang Lei, Xiangnan He, Maarten de Rijke, and Tat-Seng Chua. 2021. Advances and challenges in conversational recommender systems: A survey. AI Open."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xiaoxiao Guo, Hui Wu, Yu Cheng, Steven Rennie, Gerald Tesauro, and Rogerio Feris. 2018. Dialog-based interactive image retrieval. NeurIPS."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Perttu Hämäläinen, Mikke Tavast, and Anton Kunnari. 2023. Evaluating large language models in generating synthetic hci research data: a case study. In CHI."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "F Maxwell Harper and Joseph A Konstan. 2015. The movielens datasets: History and context. ACM TIIS."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zhankui He, Zhouhang Xie, Rahul Jha, Harald Steck, Dawen Liang, Yesu Feng, Bodhisattwa Prasad Majumder, Nathan Kallus, and Julian McAuley. 2023. Large language models as zero-shot conversational recommenders. In CIKM."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                510,
+                217,
+                884,
+                268
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1498"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                929,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yupeng Hou, Junjie Zhang, Zihan Lin, Hongyu Lu, Ruobing Xie, Julian McAuley, and Wayne Xin Zhao. 2023. Large language models are zero-shot rankers for recommender systems. arXiv preprint arXiv:2305.08845."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wang-Cheng Kang, Jianmo Ni, Nikhil Mehta, Maheswaran Sathiamoorthy, Lichan Hong, Ed Chi, and Derek Zhiyuan Cheng. 2023. Do llms understand user preferences? evaluating llms on user rating prediction. arXiv preprint arXiv:2305.06474."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wenqiang Lei, Xiangnan He, Yisong Miao, Qingyun Wu, Richang Hong, Min-Yen Kan, and Tat-Seng Chua. 2020a. Estimation-action-reflection: Towards deep interaction between conversational and recommender systems. In WSDM."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wenqiang Lei, Gangyi Zhang, Xiangnan He, Yisong Miao, Xiang Wang, Liang Chen, and Tat-Seng Chua. 2020b. Interactive path reasoning on graph for conversational recommendation. In KDD."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Jinming Li, Wentao Zhang, Tian Wang, Guanglei Xiong, Alan Lu, and Gerard Medioni. 2023. Gpt4rec: A generative framework for personalized recommendation and user interests interpretation. arXiv preprint arXiv:2304.03879."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Raymond Li, Samira Ebrahimi Kahou, Hannes Schulz, Vincent Michalski, Laurent Charlin, and Chris Pal. 2018. Towards deep conversational recommendations. In NeurIPS."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013. Efficient estimation of word representations in vector space. arXiv preprint arXiv:1301.3781."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Ida Momennejad, Hosein Hasanbeig, Felipe Vieira, Hiteshi Sharma, Robert Osazuwa Ness, Nebojsa Jojic, Hamid Palangi, and Jonathan Larson. 2023. Evaluating cognitive maps and planning in large language models with cogeval. arXiv preprint arXiv:2309.15129."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Seungwhan Moon, Pararth Shah, Anuj Kumar, and Rajen Subba. 2019. Opendialkg: Explainable conversational reasoning with attention-based walks over knowledge graphs. In ACL."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "OpenAI. 2021. About openai."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Paul Owoicho, Ivan Sekulic, Mohammad Aliannejadi, Jeffrey Dalton, and Fabio Crestani. 2023. Exploiting simulated user feedback for conversational search: Ranking, rewriting, and beyond. In SIGIR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Wenbo Pan, Qiguang Chen, Xiao Xu, Wanxiang Che, and Libo Qin. 2023. A preliminary evaluation of chatgpt for zero-shot dialogue understanding. arXiv preprint arXiv:2304.04256."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Joon Sung Park, Joseph C O’Brien, Carrie J Cai, Meredith Ringel Morris, Percy Liang, and Michael S Bernstein. 2023. Generative agents: Interactive simulacra of human behavior. In UIST."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Chen Qian, Xin Cong, Cheng Yang, Weize Chen, Yusheng Su, Juyuan Xu, Zhiyuan Liu, and Maosong Sun. 2023. Communicative agents for software development. arXiv preprint arXiv:2307.07924."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Nils Reimers and Iryna Gurevych. 2019. Sentence-bert: Sentence embeddings using siamese bert-networks. EMNLP."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shibani Santurkar, Esin Durmus, Faisal Ladhak, Cinoo Lee, Percy Liang, and Tatsunori Hashimoto. 2023. Whose opinions do language models reflect? In ICML."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yueming Sun and Yi Zhang. 2018. Conversational recommender system. In SIGIR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Lei Wang, Jingsen Zhang, Xu Chen, Yankai Lin, Ruihua Song, Wayne Xin Zhao, and Ji-Rong Wen. 2023a. Recagent: A novel simulation paradigm for recommender systems. arXiv preprint arXiv:2306.02552."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Xiaolei Wang, Xinyu Tang, Wayne Xin Zhao, Jingyuan Wang, and Ji-Rong Wen. 2023b. Rethinking the evaluation for conversational recommendation in the era of large language models. In EMNLP."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Zhenduo Wang, Zhichao Xu, Qingyao Ai, and Vivek Srikumar. 2023c. An in-depth investigation of user response simulation for conversational search. arXiv preprint arXiv:2304.07944."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Yu Xia, Junda Wu, Tong Yu, Sungchul Kim, Ryan A Rossi, and Shuai Li. 2023. User-regulation deconfounded conversational recommender system with bandit feedback. In KDD."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Heng Yang, Chen Zhang, and Ke Li. 2023. Pyabsa: A modularized framework for reproducible aspectbased sentiment analysis. In CIKM."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Junjie Zhang, Yupeng Hou, Ruobing Xie, Wenqi Sun, Julian McAuley, Wayne Xin Zhao, Leyu Lin, and Ji-Rong Wen. 2023. Agentcf: Collaborative learning with autonomous language agents for recommender systems. arXiv preprint arXiv:2310.09233."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shuo Zhang and Krisztian Balog. 2020. Evaluating conversational recommender systems via user simulation. In KDD."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Shuo Zhang, Mu-Chun Wang, and Krisztian Balog. 2022. Analyzing and simulating user utterance reformulation in conversational recommender systems. In SIGIR."
+                            }
+                        ]
+                    },
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Weixiang Zhao, Yanyan Zhao, Xin Lu, Shilong Wang, Yanpeng Tong, and Bing Qin. 2023. Is chatgpt equipped with emotional dialogue capabilities? arXiv preprint arXiv:2304.09582."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                115,
+                85,
+                489,
+                152
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1499"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                941
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A Appendix"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                84,
+                238,
+                101
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.1 Dataset statistics"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                111,
+                297,
+                126
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The ReDial dataset contains 11, 348 conversations and 6, 925 movies. The dataset was collected until 2018, and hence, movies up to this year are mentioned. 1, 309 movies are used for ItemsTalk."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                133,
+                489,
+                197
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The original Reddit dataset contains 634, 392 conversations, 1, 669, 720 turns, 36, 247 users, and 5, 1203 movies. We process this dataset in the following way: remove posts after 2021, remove comments without movie mentions, remove requests that are not about movies, and sample one head comment for each request. The resulting dataset has 23, 167 requests, each with one comment. 9, 974 movies are used for ItemsTalk."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                198,
+                489,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The MovieLens dataset contains ratings of 62, 000 movies rated by 162, 000 users. We sample 200 movies rated by more than 5000 users (frequent movies) and 200 movies rated by less than 500 and more than 50 users (infrequent movies). While we also sample 300 movies without considering rating frequency, we observe that due to the long-tail distribution of frequencies, this random sampling result in movies with significantly lower frequencies (median: 5, mode: 1 appears 49/300 times). We nonetheless show the results."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                344,
+                490,
+                520
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The IMDB dataset originally consists of 1, 083 users and 22, 918 reviews. Each of 928 users has at least 11 movie reviews. 8, 138 movies are used for ItemsTalk."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                521,
+                489,
+                586
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2 Prompts"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                599,
+                233,
+                614
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Here we provide the full prompts for all the tasks."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                620,
+                485,
+                637
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2.1 ItemsTalk"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                648,
+                258,
+                663
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the demographic information (DI) simulator, we randomly sample a prefix and a surname and ask to generate the movies one wants to talk about as this person."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                668,
+                489,
+                733
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pretend to be {prefix} {surname}. You decide to talk about {target_num} movies. What would these {target_num} movies be? Reply as a list of <Title (yyyy)>. Say nothing else."
+                    }
+                ]
+            },
+            "bbox": [
+                149,
+                745,
+                453,
+                827
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The interaction history (IH) simulator has slight variations according to the dataset where the interaction histories are sampled."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                839,
+                489,
+                887
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "IMDB: 10 movies and the corresponding review titles from each user."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                889,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d08eb6b4780991e66d7c7f61048c5dac7b49cc807cab53c2f47ba377c7523275.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 9: ItemsTalk results for ReDial. Simulators are prompted with interaction history per ReDial conversation."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                531,
+                82,
+                862,
+                420
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A person leaves the following remarks on movies. . ."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                502,
+                847,
+                533
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "{movie 1}: {review title 1}"
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                535,
+                749,
+                551
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "{movie N}: {review title N} and proceeds to talk about {target_num} more movies. What would these {target_num} movies be? Reply as a list of <Title (yyyy)>. Say nothing else."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                564,
+                850,
+                649
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Reddit: one movie and the UTC time it was mentioned, from each request."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                659,
+                884,
+                692
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "At UTC time {time}, a person starts to talk about the movies {movies} and proceeds to talk about {target_num} more. What would these {target_num} movies be? Reply as a list of <Title (yyyy)>. Say nothing else."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                703,
+                850,
+                801
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "ReDial: 2 movies from the seeker side of each conversation."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                812,
+                884,
+                844
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A person mentions {movies} in a conversation about movies and proceeds to mention {target_num} more. What would these {target_num} movies be? Reply as a list of <Title (yyyy)>. Say nothing else."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                856,
+                850,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1500"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d2e37d2d5eecdbbb9fd45d0a5b35161094aab44a600dc35bb975b4185551951e.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 10: ItemsTalk results for Reddit. Simulators are prompted with interaction history per Reddit request."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                136,
+                82,
+                470,
+                417
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                149,
+                483,
+                452,
+                516
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Target number of items is the number of total movies in the entry, minus the number of movies used as interaction history."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                527,
+                489,
+                577
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2.2 BinPref"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                586,
+                243,
+                602
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We randomly sample a prefix and a surname for the demographic information (DI) simulator."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                606,
+                487,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pretend to be {prefix} {surname}. You watched the movie {movie}. Did you like the movie? Answer Yes or No. Don’t say anything else."
+                    }
+                ]
+            },
+            "bbox": [
+                149,
+                652,
+                455,
+                718
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We add a pickiness trait (DI + PP) by randomly selecting among the three levels of pickiness: extremely picky, moderately picky, and not picky."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                730,
+                490,
+                781
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pretend to be {prefix} {surname}. You are {pickiness} about movies. You watched the movie {movie}. Did you like the movie? Answer Yes or No. Don’t say anything else."
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                791,
+                455,
+                873
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2.3 OpenPref"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                884,
+                258,
+                900
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Similar to BinPref, we prompt the DI simulator"
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                904,
+                470,
+                920
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/4c04ea228ca2f8742e693bf6466e7530bdb4855afa006e0ea49da0dbe9889f7d.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 11: ItemsTalk results for IMDB. Simulators are prompted with interaction history per IMDB user."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                531,
+                82,
+                863,
+                422
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pretend to be {prefix} {surname}. You watched the movie {movie}. What are your thoughts on this movie? Answer should not exceed {review_len} characters."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                486,
+                850,
+                567
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "and the DI + PP simulator"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                575,
+                709,
+                590
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pretend to be {prefix} {surname}. You are {pickiness} about movies. You watched the movie {movie}. What are your thoughts on this movie? Answer should not exceed {review_len} characters."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                600,
+                850,
+                697
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Target review length is determined by the review length in the processed IMDB baseline, where one review is sampled per user."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                706,
+                885,
+                755
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2.4 RecRequest"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                762,
+                670,
+                778
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "From each Reddit request, we use the movie names mentioned and the length of the request to prompt the following."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                782,
+                884,
+                831
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Generate a movie recommendation request. Include (but do not request) the following movies in your text: {movies}. Make sure the length of the request is approximately {target_len} characters."
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                840,
+                852,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1501"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                519,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "table",
+            "content": {
+                "image_source": {
+                    "path": "images/17f48350a3ffc1d9db03ca7f4639366d6717818b250364b8bbd7bd73a673ae65.jpg"
+                },
+                "table_caption": [
+                    {
+                        "type": "text",
+                        "content": "Table 8: Correlation coefficient between human and simulator preferences. Movies are randomly sampled across all frequency levels, resulting in a sample with movies with very low frequencies."
+                    }
+                ],
+                "table_footnote": [],
+                "html": "<table><tr><td colspan=\"2\">Demographic information</td></tr><tr><td>gpt-3.5</td><td>0.27</td></tr><tr><td>gpt-4</td><td>0.29</td></tr><tr><td colspan=\"2\">Demographic information + Pickiness</td></tr><tr><td>gpt-3.5</td><td>0.32</td></tr><tr><td>gpt-4</td><td>0.44</td></tr></table>",
+                "table_type": "complex_table",
+                "table_nest_level": 1
+            },
+            "bbox": [
+                163,
+                149,
+                438,
+                242
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.2.5 Feedback"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                114,
+                262,
+                255,
+                278
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the accept/reject task, we sample one positive and one negative response (recommendation) per request and use the following prompt for each pair."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                281,
+                490,
+                331
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the following conversation, a USER asks for movie recommendations. Your task is to act like the USER by giving the following responses to the AGENT’s recommendation: If the recommendation is coherent to your request, answer Accept. If the recommendation is incoherent to your request, answer Reject. Simply answer Accept or Reject."
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                336,
+                455,
+                482
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "USER: {request}"
+                    }
+                ]
+            },
+            "bbox": [
+                151,
+                481,
+                284,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "AGENT: {response}"
+                    }
+                ]
+            },
+            "bbox": [
+                151,
+                498,
+                307,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "USER (answer Accept or Reject):"
+                    }
+                ]
+            },
+            "bbox": [
+                151,
+                514,
+                406,
+                530
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the comparison task, we use both the positive and negative responses of a request in a single prompt. To eliminate position bias, we randomly choose assign the responses to the AGENTs. That is, the positive response is assigned to either AGENT 1 or AGENT 2 with equal probability."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                537,
+                492,
+                634
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A USER asks for movie recommendation. AGENT 1 and AGENT 2 gives recommendations. Your task is to choose the AGENT that gives better recommendations. Simply answer AGENT 1 or AGENT 2. You HAVE to choose one."
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                639,
+                457,
+                736
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "USER: {request}"
+                    }
+                ]
+            },
+            "bbox": [
+                151,
+                737,
+                284,
+                752
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "AGENT 1’s response: {response}"
+                    }
+                ]
+            },
+            "bbox": [
+                149,
+                752,
+                403,
+                769
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "AGENT 2’s response: {response}"
+                    }
+                ]
+            },
+            "bbox": [
+                151,
+                769,
+                403,
+                784
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Which response is better?"
+                    }
+                ]
+            },
+            "bbox": [
+                151,
+                785,
+                347,
+                800
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(Reply AGENT 1 or AGENT 2)"
+                    }
+                ]
+            },
+            "bbox": [
+                151,
+                801,
+                393,
+                816
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For cases (20 cases for each configuration) where we ask to provide reasons, we add the following to the prompt."
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                824,
+                489,
+                873
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Provide a short reason (less than 40 words) for your response."
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                878,
+                453,
+                910
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/067b627b3a9edd5b83ef2d53d1d5614f38c477ea6b0145dc255155b7ef527f29.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                514,
+                83,
+                707,
+                171
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/c32954861b1ae7ee44e2197b123561aad6e649127a812206935ede251cfb29fe.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                710,
+                82,
+                892,
+                170
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6b4c474ea9eda50d6092d18e553e65bfa275567fcabadd48c115e660b25eb2b0.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                514,
+                177,
+                707,
+                281
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/67ec6a275011fd789baf2c928f6b1f6d6ec137b46638bf5133d08d5faa11d4fa.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 12: Preference trends of humans and simulators. See Table 8 for correlation coefficients."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                710,
+                177,
+                892,
+                280
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.3 More results"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                348,
+                662,
+                365
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.3.1 Results from ItemsTalk"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                369,
+                759,
+                385
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We compare the distributions of items mentioned by simulators and real users. We plot human and simulator distributions side-by-side per dataset: Re-Dial (Figure 9), Reddit (Figure 10), and IMDB (Figure 11). Note that the three human distributions within each figure is the same, but scaled differently according to the scale of different language models."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                388,
+                887,
+                518
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.3.2 Results from BinPref"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                527,
+                742,
+                543
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We compare the trends of average rating and positive rate (proportion of simulators that answered that they liked the movie). Results for items randomly sampled regardless of frequency levels are shown in Table 8 and Figure 12.<sup>8</sup> However, these movies often have very low frequency values (median: 5, mode: 1 appears 49/300 times); the average ratings of these movies may not reflect true user preferences. Plots for frequent items are shown in Figure 13 and infrequent items in Figure 14."
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                546,
+                887,
+                709
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A.3.3 More Feedback examples"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                509,
+                717,
+                774,
+                733
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We provide more examples generated by simulators, when asked to provide a reason for their feedback. All examples are from gpt-3.5-turbo."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                737,
+                887,
+                784
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In our first example, The human user asks for movies, and possibly even shows. However, the simulator rejects the relevant recommendation, saying that it is a show not a movie:"
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                785,
+                885,
+                851
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>8</sup>These experiments were conducted after we received our paper reviews. OpenAI’s configurations might have been updated or modified in the meantime. We did not obtain results for text-davinci-003, since by the time we ran these experiments, the model was deprecated."
+                    }
+                ]
+            },
+            "bbox": [
+                509,
+                858,
+                885,
+                920
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1502"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/232b26e923506bfed482a7572f5c9d14b0bf49152db70dda49f2a717204cc76a.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) gpt-3.5 + DI"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                119,
+                83,
+                344,
+                187
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/84d3daf8e0a0f97dc56680922fb9415f942ecda9f2017d311c9f82c5244f46e4.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(b) gpt-4 + DI"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                384,
+                83,
+                613,
+                187
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/676a84972bf53831efacfb4ab390338430e208372d6e75616cf937435ba19633.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(c) text-davinci + DI"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                652,
+                83,
+                878,
+                187
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/3b39b19c5002d47f8980f806410c36da935fadcbea3039e00df510847e879568.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(d) gpt-3.5 + DI + PP"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                121,
+                209,
+                344,
+                313
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/cc6a021491c6e60a7d5d7c393eccb49195e23c13cd59c86fe1a8a7c0da85431e.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(e) gpt-4 + DI + PP"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                384,
+                209,
+                613,
+                313
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/d04d3e2c41dbacdc0422b175df1ee4724069efd7ca6035decb6a6a0c6dedecda.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(f) text-davinci + DI + PP"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                653,
+                209,
+                878,
+                313
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/a37813c8db2ae831341fd0b736f99260fff212d11c888f8f49c2934e58f480f8.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 13: Preference trends of frequent movies"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                119,
+                373,
+                346,
+                480
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/a49dea2fbce8edbc74141f5de7238cd2a96f976133ebdc04a6da1b40b48ce184.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                384,
+                374,
+                613,
+                480
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/0345e332960d4357234e143f0ad8ebdfd06917416970b25f7c8919656f4f4075.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                652,
+                374,
+                878,
+                480
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/bb4c64820ff82317fa942940a785a2cf068fbe3a3f3ca67d6d67a908c39522f9.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(a) gpt-3.5 + DI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(d) gpt-3.5 + DI + PP"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                119,
+                501,
+                344,
+                606
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/fe725fe46a6014c3e509d0921697a2679eaaa4411a6ad823269b042795337b48.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(c) text-davinci + DI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(b) gpt-4 + DI"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(e) gpt-4 + DI + PP"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                384,
+                500,
+                613,
+                606
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/2be93d1fd2067aa8e025ea1fb5a1cc81023d47a79dc5bfb91f59e12ba852c0bf.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "(f) text-davinci + DI + PP"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Figure 14: Preference trends of infrequent movies"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                652,
+                500,
+                878,
+                606
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Request: Looking for a Murder Mystery Serial Killer movie. Recently watched the Bone Collector, Taking Lives and Copy Cat, if you have any recommendations, (even ones that were just fine, or even sub-par) I’d love to see them! Or even a show like Criminal Minds, where each episode is it’s own little movie."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                677,
+                490,
+                791
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Positive Rec: Not movie, but show called : La Mante"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                801,
+                490,
+                833
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Feedback: Reject. La Mante is recommended as a show, not a movie."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                844,
+                489,
+                876
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In another example, a list of relevant movies is recommended, while including the one that the human user has already watched. The simulator rejects the recommendation just because it includes this movie. (We alter certain words that could be perceived as offensive, although their original usage was intended positively.)"
+                    }
+                ]
+            },
+            "bbox": [
+                112,
+                888,
+                489,
+                920
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                507,
+                677,
+                885,
+                759
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Request: What are the most disturbing up movies on UK Netflix right now!. In the past there have been some great films on UK Netflix to mess with you, (antichrist, I saw the devil, the original oldboy, Ichi the killer, the human centipede, requiem for a dream etc.) But it seems there aren’t any good ones to find that I haven’t seen and that are still streaming! Most of these have been taken off now and I’m after something new but along similar lines... does anyone have any suggestions? Thanks in advance!"
+                    }
+                ]
+            },
+            "bbox": [
+                531,
+                775,
+                887,
+                921
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1503"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                521,
+                942
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                149,
+                85,
+                489,
+                134
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Positive Rec: It Follows (2014), Victoria (2015), Antichrist (2009)"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                143,
+                489,
+                177
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Feedback: Reject. Reason: Already mentioned and seen Antichrist in the past. Looking for something new but along similar lines."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                186,
+                490,
+                236
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, a user wants to be cheered up, wanting to be inspired for a better future. The simulator understood the mission, but chooses the negative recommendation (Love (2005), a romance movie) over the positive one (Trolls (2016), an animation about happiness). The reason is unclear."
+                    }
+                ]
+            },
+            "bbox": [
+                114,
+                246,
+                489,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Request: Movie about positively changing in the future. Hi, I got into some trouble recently with the law and in general have been reckless in my drug use. I fear the social and legal reprecussions. I’d like to watch something that reminds me good times can still be had in the future. I’d just like something to cheer me up, no comedies please."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                354,
+                489,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Positive Rec: Trolls (2016)"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                494,
+                359,
+                510
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Negative Rec: Love (2005)"
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                520,
+                361,
+                536
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Feedback: Love (2005). Love (2005) seems like a better recommendation as it may provide the user with a positive outlook on the future and remind them that good times can still be experienced even in difficult situations."
+                    }
+                ]
+            },
+            "bbox": [
+                136,
+                546,
+                490,
+                629
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "1504"
+                    }
+                ]
+            },
+            "bbox": [
+                480,
+                928,
+                522,
+                942
+            ]
+        }
+    ]
+]
