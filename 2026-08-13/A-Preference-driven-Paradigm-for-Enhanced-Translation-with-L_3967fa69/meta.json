@@ -4,5 +4,30 @@
  "title": "A-Preference-driven-Paradigm-for-Enhanced-Translation-with-L",
  "token": "sk-5WOIsMt5v...",
  "created_at": "2026-08-13 05:40:27",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3bb337a2-4269-4a8d-b58d-28fe5d30607a.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3bb337a2-4269-4a8d-b58d-28fe5d30607a.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:29:55",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "机器翻译",
+    "大语言模型",
+    "偏好学习",
+    "Plackett-Luce",
+    "SFT",
+    "MAPLE"
+   ],
+   "field": "机器翻译",
+   "innovations": [
+    "基于Plackett-Luce的偏好学习方法打破SFT性能瓶颈",
+    "引入偏好距离信息增强质量区分能力",
+    "构建并开源MAPLE多质量翻译偏好数据集"
+   ],
+   "benchmarks": [
+    "WMT22",
+    "FLORES-200"
+   ]
+  }
+ }
 }

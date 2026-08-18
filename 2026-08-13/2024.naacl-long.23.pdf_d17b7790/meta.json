@@ -3,5 +3,33 @@
  "batch_id": "d17b7790-abb7-4973-95b3-974e3a7c3d85",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-13 02:58:51",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/5fed3127-2796-4055-bb8f-4a029b34e18e.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/5fed3127-2796-4055-bb8f-4a029b34e18e.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:29:02",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "多模态幻觉",
+    "自反馈",
+    "模型修订",
+    "VL大模型",
+    "视觉接地",
+    "指令微调"
+   ],
+   "field": "多模态大模型幻觉缓解",
+   "innovations": [
+    "首个单模型自反馈引导迭代修订框架，无需额外修正器或奖励模型",
+    "用自然语言反馈作为细粒度视觉线索弥合视觉编码器接地不足",
+    "判别能力优于生成能力的实证：模型区分正确/错误响应比直接生成正确答案更容易"
+   ],
+   "benchmarks": [
+    "MMHal-Bench",
+    "POPE",
+    "GAVIE",
+    "MM-Vet",
+    "MMBench"
+   ]
+  }
+ }
 }

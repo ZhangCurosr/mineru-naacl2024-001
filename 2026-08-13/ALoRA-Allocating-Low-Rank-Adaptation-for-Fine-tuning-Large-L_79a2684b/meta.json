@@ -4,5 +4,34 @@
  "title": "ALoRA-Allocating-Low-Rank-Adaptation-for-Fine-tuning-Large-L",
  "token": "sk-JiEKTe0tT...",
  "created_at": "2026-08-13 05:40:36",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/e5ad2b9b-72c0-447c-a69e-a51b5986902d.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/e5ad2b9b-72c0-447c-a69e-a51b5986902d.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:06",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "参数高效微调",
+    "LoRA",
+    "低秩适配",
+    "神经架构搜索",
+    "rank分配",
+    "ALoRA",
+    "AB-LoRA"
+   ],
+   "field": "大语言模型参数高效微调",
+   "innovations": [
+    "提出AB-LoRA重要性评分方法，通过ablation对比准确评估每个LoRA rank的贡献度",
+    "提出ALoRA框架，以初始即满足预算的方式迭代剪枝低价值rank并将预算重新分配给关键模块",
+    "揭示了Q/K模块需更高rank、FFN模块需较少rank的LoRA分配有效模式"
+   ],
+   "benchmarks": [
+    "GLUE",
+    "SuperGLUE",
+    "SQuAD",
+    "E2E",
+    "MT-Bench"
+   ]
+  }
+ }
 }

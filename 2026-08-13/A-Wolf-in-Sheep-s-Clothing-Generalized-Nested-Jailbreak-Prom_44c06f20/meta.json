@@ -4,5 +4,32 @@
  "title": "A-Wolf-in-Sheep-s-Clothing-Generalized-Nested-Jailbreak-Prom",
  "token": "sk-JiEKTe0tT...",
  "created_at": "2026-08-13 05:40:41",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/c3681862-9a5d-431d-8b75-0f8aba5cb650.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/c3681862-9a5d-431d-8b75-0f8aba5cb650.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:04",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Jailbreak Attack",
+    "Large Language Models",
+    "Prompt Rewriting",
+    "Scenario Nesting",
+    "Safety Alignment",
+    "Adversarial Prompts"
+   ],
+   "field": "大模型安全与对齐",
+   "innovations": [
+    "提出ReNeLLM框架，将越狱攻击泛化为提示词改写与场景嵌套两步自动流程，无需白盒训练或梯度搜索",
+    "设计保语义的六类语言学改写函数与三类通用任务嵌套场景，大幅提升对抗提示的自然度与跨模型迁移性",
+    "通过注意力可视化揭示LLM防御失效源于安全优先级的偏移，并验证轻量级prompt级防御的有效性"
+   ],
+   "benchmarks": [
+    "Harmful Behaviors Dataset",
+    "KW-ASR",
+    "GPT-ASR",
+    "TCPS"
+   ]
+  }
+ }
 }

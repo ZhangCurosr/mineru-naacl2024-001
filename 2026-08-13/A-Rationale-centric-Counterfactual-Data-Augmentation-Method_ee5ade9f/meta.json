@@ -4,5 +4,30 @@
  "title": "A-Rationale-centric-Counterfactual-Data-Augmentation-Method",
  "token": "sk-45Ifw5Iq3...",
  "created_at": "2026-08-13 05:39:51",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3bf7dd49-a105-46cb-87f9-3a8317b5ce05.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3bf7dd49-a105-46cb-87f9-3a8317b5ce05.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:30:33",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "event coreference resolution",
+    "counterfactual data augmentation",
+    "causal debiasing",
+    "large language models",
+    "structural causal model"
+   ],
+   "field": "跨文档事件共指解析",
+   "innovations": [
+    "首次用 SCM 形式化跨文档 ECR 决策过程并识别虚假关联",
+    "提出 LLM-RCDA 方法，通过 TI+CI 双干预生成 rationale-centric 反事实数据去偏",
+    "首个全面评估主流 LLM 在跨文档 ECR 上性能的工作"
+   ],
+   "benchmarks": [
+    "ECB+",
+    "Football Coreference Corpus (FCC)",
+    "Gun Violence Corpus (GVC)"
+   ]
+  }
+ }
 }

@@ -4,5 +4,33 @@
  "title": "A-Likelihood-Ratio-Test-of-Genetic-Relationship-among-Langua",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 05:40:13",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/aee06959-152c-4d3d-80c3-7893e04e9ebe.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/aee06959-152c-4d3d-80c3-7893e04e9ebe.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:29:59",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "历史语言学",
+    "系统发育推断",
+    "似然比检验",
+    "不变位点",
+    "宏语系",
+    "多语言排列检验",
+    "计算方法语言学"
+   ],
+   "field": "计算历史语言学 / 语言系统发育",
+   "innovations": [
+    "提出基于不变位点比例的似然比检验以判定多语言组的遗传相关性",
+    "证明该检验在多语言组比较中可实现零假阳性，克服传统排列检验的缺陷",
+    "将分子系统发育的参数自助法移植至语言相关性统计检验"
+   ],
+   "benchmarks": [
+    "Nostratic macro-family (Drav-IE-Kart)",
+    "Macro-Mayan (May-MZ)",
+    "Austro-Asiatic (Mon-Khmer, Munda)",
+    "Indo-European, Dravidian, Mayan, Uto-Aztecan families"
+   ]
+  }
+ }
 }

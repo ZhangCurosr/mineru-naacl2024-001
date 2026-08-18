@@ -4,5 +4,29 @@
  "title": "An-Empirical-Study-of-Consistency-Regularization-for-End-to",
  "token": "sk-n7iJ0Z1Ol...",
  "created_at": "2026-08-13 03:49:36",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a3f06b96-c603-4a51-b51c-7369dc71c1ff.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a3f06b96-c603-4a51-b51c-7369dc71c1ff.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:36",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "end-to-end speech-to-text translation",
+    "consistency regularization",
+    "R-Drop",
+    "cross-modal consistency",
+    "zero-shot translation",
+    "speech translation"
+   ],
+   "field": "端到端语音翻译",
+   "innovations": [
+    "提出基于内模态一致性正则化的 SimRegCR 策略用于常规 E2E ST",
+    "提出基于跨模态一致性正则化的 SimZeroCR 策略用于零样本 E2E ST",
+    "实证揭示内模态正则化效应比显式模态桥接对常规 ST 更为关键"
+   ],
+   "benchmarks": [
+    "MuST-C"
+   ]
+  }
+ }
 }

@@ -3,5 +3,34 @@
  "batch_id": "bdcae404-b9c0-494d-94eb-e9eb3f1ba692",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-13 02:45:28",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/9a91f1a2-a2ab-4b76-9a3f-cd9b337d77ad.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/9a91f1a2-a2ab-4b76-9a3f-cd9b337d77ad.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:29:21",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "adversarial attack",
+    "text classification",
+    "vertical text",
+    "blackbox attack",
+    "Robustness",
+    "NLP security"
+   ],
+   "field": "文本对抗攻击与鲁棒性",
+   "innovations": [
+    "首次利用分类器无法识别垂直文本的缺陷设计对抗攻击",
+    "提出贪心词选择+竖向变换的攻击框架并验证人类可读性",
+    "引入chaff干扰字符增强攻击以对抗逆向防御"
+   ],
+   "benchmarks": [
+    "SST-2",
+    "AG News",
+    "CoLA",
+    "QNLI",
+    "Rotten Tomatoes",
+    "OLID"
+   ]
+  }
+ }
 }

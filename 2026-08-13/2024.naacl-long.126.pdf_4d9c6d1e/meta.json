@@ -3,5 +3,30 @@
  "batch_id": "4d9c6d1e-8c4d-4e16-a964-8c7d95c7b1cb",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 01:41:42",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/4fa2a8bd-9f79-443d-add0-f2d9c91a1e9b.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/4fa2a8bd-9f79-443d-add0-f2d9c91a1e9b.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:28:05",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "data labeling",
+    "annotator disagreement",
+    "perspectivist paradigm",
+    "inter-annotator agreement",
+    "ground truth",
+    "dataset documentation",
+    "model calibration"
+   ],
+   "field": "NLP数据标注与评估",
+   "innovations": [
+    "系统对比传统多数投票范式与视角主义范式在分歧归因上的根本假设差异",
+    "澄清统计bias与社会bias的混淆并提供保留minority opinion的理论依据",
+    "提出覆盖标注全流程的端到端实践建议框架并引入跨学科理论资源"
+   ],
+   "benchmarks": [
+    "No independent benchmarks; position paper synthesizing prior work"
+   ]
+  }
+ }
 }

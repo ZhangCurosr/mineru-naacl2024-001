@@ -4,5 +4,34 @@
  "title": "Automatic-Generation-of-Model-and-Data-Cards-A-Step-Towards",
  "token": "sk-Ir4JqYCnj...",
  "created_at": "2026-08-13 05:40:23",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/2167adf9-4246-4ca9-90a2-b74e284721b7.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/2167adf9-4246-4ca9-90a2-b74e284721b7.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:32:15",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "model cards",
+    "data cards",
+    "responsible AI",
+    "retrieval-augmented generation",
+    "LLM",
+    "automated documentation"
+   ],
+   "field": "负责任AI与文档化",
+   "innovations": [
+    "提出CARDGEN两步检索生成管线实现模型/数据卡片自动生成",
+    "构建CARDBENCH大规模数据集（4.8k模型卡片+1.4k数据卡片）",
+    "设计伪答案检索查询机制提升上下文检索精度"
+   ],
+   "benchmarks": [
+    "CARDBENCH",
+    "ROUGE-L",
+    "BERTScore",
+    "BARTScore",
+    "NLI",
+    "GPT-based faithfulness"
+   ]
+  }
+ }
 }

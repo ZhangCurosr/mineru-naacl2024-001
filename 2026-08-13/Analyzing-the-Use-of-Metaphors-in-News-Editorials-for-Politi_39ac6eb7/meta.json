@@ -4,5 +4,30 @@
  "title": "Analyzing-the-Use-of-Metaphors-in-News-Editorials-for-Politi",
  "token": "sk-nY8L7ieIq...",
  "created_at": "2026-08-13 05:40:29",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3a101bad-b1e0-4dda-a6bb-9bbaec815b3d.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3a101bad-b1e0-4dda-a6bb-9bbaec815b3d.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:58",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "隐喻识别",
+    "政治框架",
+    "说服力分析",
+    "意识形态",
+    "源域/目标域",
+    "MIPVU",
+    "本体类别"
+   ],
+   "field": "计算语言学与政治话语分析",
+   "innovations": [
+    "构建首个结合隐喻标注与意识形态说服力效果的社论文本数据集",
+    "揭示自由派与保守派读者对隐喻敏感性的系统性差异",
+    "基于本体类别的源/目标域效应分析框架"
+   ],
+   "benchmarks": [
+    "Webis-News-Editorials18"
+   ]
+  }
+ }
 }

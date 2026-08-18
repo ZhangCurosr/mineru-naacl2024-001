@@ -3,5 +3,30 @@
  "batch_id": "de2e080f-fa09-4807-a451-429edccf534e",
  "token": "sk-Ir4JqYCnj...",
  "created_at": "2026-08-13 02:46:06",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/5f254fd5-0d08-4fd8-94b5-e9cc04150cbe.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/5f254fd5-0d08-4fd8-94b5-e9cc04150cbe.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:28:03",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "文本摘要",
+    "知识蒸馏",
+    "大模型",
+    "可解释性",
+    "课程学习"
+   ],
+   "field": "抽象式文本摘要",
+   "innovations": [
+    "首次将LLM结构化推理链（方面-三元组）蒸馏到小模型摘要任务",
+    "双评分机制筛选高质量原理（语义相似度+LDA主题一致性）",
+    "三阶段课程学习实现从依赖LLM到自主生成的平滑过渡"
+   ],
+   "benchmarks": [
+    "CNN/DailyMail",
+    "XSum",
+    "ClinicalTrial"
+   ]
+  }
+ }
 }

@@ -4,5 +4,30 @@
  "title": "A-Symbolic-Framework-for-Evaluating-Mathematical-Reasoning-a",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-13 05:40:02",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/44775700-dfb1-4188-b8d3-7683d7b1c911.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/44775700-dfb1-4188-b8d3-7683d7b1c911.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:30:42",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "数学推理",
+    "泛化评估",
+    "符号引擎",
+    "Transformer",
+    "扰动分析",
+    "BERT",
+    "GPT"
+   ],
+   "field": "数学语言处理",
+   "innovations": [
+    "提出基于符号引擎的推导生成与扰动框架评估 OOD 泛化",
+    "设计四种语法/语义扰动类型（VR/EE/AR/EC）系统性分析模型弱点"
+   ],
+   "benchmarks": [
+    "Derivation Step Classification",
+    "Calculus Classification"
+   ]
+  }
+ }
 }

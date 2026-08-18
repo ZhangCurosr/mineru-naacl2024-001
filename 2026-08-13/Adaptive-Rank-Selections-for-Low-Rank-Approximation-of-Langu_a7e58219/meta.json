@@ -4,5 +4,10 @@
  "title": "Adaptive-Rank-Selections-for-Low-Rank-Approximation-of-Langu",
  "token": "sk-n7iJ0Z1Ol...",
  "created_at": "2026-08-13 03:49:37",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/7ee4ddc6-ad30-43f0-8571-713a32a0ed66.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/7ee4ddc6-ad30-43f0-8571-713a32a0ed66.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:38",
+  "chunks": 1
+ }
 }

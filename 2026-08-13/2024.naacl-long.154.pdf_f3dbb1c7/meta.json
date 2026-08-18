@@ -3,5 +3,32 @@
  "batch_id": "f3dbb1c7-7b67-4f2b-a5ea-dc486376c43b",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 02:59:46",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/5f254fd5-0d08-4fd8-94b5-e9cc04150cbe.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/5f254fd5-0d08-4fd8-94b5-e9cc04150cbe.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:28:19",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "文本摘要",
+    "知识蒸馏",
+    "大语言模型",
+    "课程学习",
+    "推理链",
+    "可解释AI",
+    "抽象摘要"
+   ],
+   "field": "文本摘要与知识蒸馏",
+   "innovations": [
+    "提出 TriSum 框架，首次将 LLM 的结构化 aspect-triple 推理链蒸馏至小模型用于抽象文本摘要",
+    "设计双重评分（语义相似度+LDA主题一致性）筛选高质量推理链，避免 LLM 惰性输出",
+    "三阶段课程学习策略（Singular-Concurrent-Joint）由简入繁渐进训练小模型"
+   ],
+   "benchmarks": [
+    "CNN/DailyMail",
+    "XSum",
+    "ClinicalTrial"
+   ]
+  }
+ }
 }

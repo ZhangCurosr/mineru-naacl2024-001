@@ -4,5 +4,10 @@
  "title": "Adjusting-Interpretable-Dimensions-in-Embedding-Space-with-H",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 05:40:20",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/bbe17e1f-f365-4d19-915c-54d4b559b360.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/bbe17e1f-f365-4d19-915c-54d4b559b360.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:37",
+  "chunks": 1
+ }
 }

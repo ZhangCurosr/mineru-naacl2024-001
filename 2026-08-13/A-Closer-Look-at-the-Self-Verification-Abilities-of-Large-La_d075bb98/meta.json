@@ -4,5 +4,29 @@
  "title": "A-Closer-Look-at-the-Self-Verification-Abilities-of-Large-La",
  "token": "sk-45Ifw5Iq3...",
  "created_at": "2026-08-13 05:39:48",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/d6d9eccc-842a-4f14-8412-10df396ad3ad.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/d6d9eccc-842a-4f14-8412-10df396ad3ad.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:30:05",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "self-verification",
+    "logical reasoning",
+    "logical fallacy",
+    "large language models",
+    "FALLACIES dataset",
+    "formal fallacy"
+   ],
+   "field": "大语言模型推理能力评估",
+   "innovations": [
+    "提出FALLACIES数据集，包含232种谬误类型和4640个推理步骤，层次化分类体系",
+    "揭示LLM自我验证能力不足，形式谬误识别显著弱于非形式谬误",
+    "发现提供谬误定义后多数模型性能反而下降的反直觉现象"
+   ],
+   "benchmarks": [
+    "FALLACIES"
+   ]
+  }
+ }
 }

@@ -4,5 +4,30 @@
  "title": "ARES-An-Automated-Evaluation-Framework-for-Retrieval-Augment",
  "token": "sk-dD4E81LFV...",
  "created_at": "2026-08-13 05:40:31",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/8a7a4e28-93a1-412c-add8-53145d6620d5.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/8a7a4e28-93a1-412c-add8-53145d6620d5.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:20",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "RAG评估",
+    "自动化评测",
+    "LLM-as-a-judge",
+    "预测驱动推理",
+    "检索增强生成"
+   ],
+   "field": "检索增强生成(RAG)系统评估",
+   "innovations": [
+    "首个为RAG各组件定制LM裁判的自动化评估框架，结合合成数据对比学习微调轻量级DeBERTa裁判",
+    "引入预测驱动推理(PPI)提供严格统计置信区间，仅需~150条人工标注实现高精度排名",
+    "weak/strong negative双策略合成数据构造，配合检索自洽性过滤提升裁判判别力"
+   ],
+   "benchmarks": [
+    "KILT(NQ, HotpotQA, FEVER, WoW)",
+    "SuperGLUE(MultiRC, ReCoRD)",
+    "AIS(WoW, CNN/DM)"
+   ]
+  }
+ }
 }

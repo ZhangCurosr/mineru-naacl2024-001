@@ -3,5 +3,31 @@
  "batch_id": "63139ea7-fcdd-4f5e-ba85-663af6ffb76b",
  "token": "sk-Ir4JqYCnj...",
  "created_at": "2026-08-13 02:58:57",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/8bc5e46e-bf5f-4f9d-bee9-58ae77aa8390.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/8bc5e46e-bf5f-4f9d-bee9-58ae77aa8390.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:28:59",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "后门防御",
+    "数据投毒",
+    "Product of Experts",
+    "Mixture of Experts",
+    "NLP安全",
+    "触发器检测",
+    "模型去偏"
+   ],
+   "field": "NLP安全与鲁棒性",
+   "innovations": [
+    "提出NPoE框架，将MoE集成嵌入PoE以同时防御多种后门触发器",
+    "改进伪开发集构建策略，引入检测污染率作为可靠性验证指标"
+   ],
+   "benchmarks": [
+    "SST-2",
+    "OffensEval",
+    "TREC COARSE"
+   ]
+  }
+ }
 }

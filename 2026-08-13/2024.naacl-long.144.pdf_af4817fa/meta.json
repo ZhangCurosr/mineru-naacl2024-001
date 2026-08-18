@@ -3,5 +3,33 @@
  "batch_id": "af4817fa-6094-41c8-b769-4bf7ed28c941",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 02:59:46",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/b167b61c-3a2a-455c-904d-af3691e0a439.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/b167b61c-3a2a-455c-904d-af3691e0a439.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:28:13",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Emergent Modularity",
+    "Mixture-of-Experts",
+    "Parameter-efficient Fine-tuning",
+    "LLM Generalization",
+    "Modular Neural Networks",
+    "Out-of-distribution"
+   ],
+   "field": "大语言模型微调与泛化",
+   "innovations": [
+    "提出EMoE：通过key向量聚类将预训练FFN零参数外部化为MoE结构以解锁emergent modularity",
+    "证明EMoE的收益来自微调阶段对负迁移神经元的屏蔽，而非推理时的稀疏激活",
+    "avg-k无参gate比learned gate更稳定，且EMoE微调后可合并回标准架构部署"
+   ],
+   "benchmarks": [
+    "GLUE",
+    "GLUE-X",
+    "Domainbed",
+    "MMLU",
+    "SuperGLUE (ATTEMPT multi-task)"
+   ]
+  }
+ }
 }

@@ -3,5 +3,26 @@
  "batch_id": "a77d577d-c3de-49fe-b55c-3660eb255dd0",
  "token": "sk-n7iJ0Z1Ol...",
  "created_at": "2026-08-13 01:40:51",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/6b7ead71-7b2f-4d19-bd5b-ce7c7509a7b4.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/6b7ead71-7b2f-4d19-bd5b-ce7c7509a7b4.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:27:46",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "NAACL",
+    "会议论文集",
+    "ARR",
+    "审稿流程",
+    "拉丁美洲语言"
+   ],
+   "field": "NLP 学术会议组织与出版",
+   "innovations": [
+    "NAACL 2024 采用 ARR 双阶段审稿机制，录用率 23.2%"
+   ],
+   "benchmarks": [
+    "NAACL 2024 会议统计"
+   ]
+  }
+ }
 }

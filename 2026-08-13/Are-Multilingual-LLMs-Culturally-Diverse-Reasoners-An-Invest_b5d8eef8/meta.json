@@ -4,5 +4,31 @@
  "title": "Are-Multilingual-LLMs-Culturally-Diverse-Reasoners-An-Invest",
  "token": "sk-Ir4JqYCnj...",
  "created_at": "2026-08-13 05:40:10",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/92e9417e-fa46-4776-89cb-7b39c5ebca15.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/92e9417e-fa46-4776-89cb-7b39c5ebca15.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:32:01",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "multilingual LLM",
+    "cultural common ground",
+    "proverb understanding",
+    "pragmatic reasoning",
+    "culture gap",
+    "cross-lingual evaluation",
+    "MAPS dataset"
+   ],
+   "field": "多语言文化与语用推理",
+   "innovations": [
+    "解耦多语言模型对谚语的 memorization 与 contextual reasoning 能力",
+    "定义并量化跨文化理解中的 culture gap",
+    "揭示负面问题推理中的 inverse scaling 与跨语言差距放大现象"
+   ],
+   "benchmarks": [
+    "MAPS (MulticulturAl Proverbs and Sayings)",
+    "Zh-En / En-Zh cross-cultural translation case study"
+   ]
+  }
+ }
 }

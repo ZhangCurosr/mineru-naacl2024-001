@@ -4,5 +4,33 @@
  "title": "An-Examination-of-the-Compositionality-of-Large-Generative-V",
  "token": "sk-JiEKTe0tT...",
  "created_at": "2026-08-13 05:40:38",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/cc3ce134-2642-4b53-ab4c-b23f1a4a68e8.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/cc3ce134-2642-4b53-ab4c-b23f1a4a68e8.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:31:35",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Vision-Language Model",
+    "Compositionality",
+    "Evaluation Benchmark",
+    "Syntactical Bias",
+    "VisualGPTScore",
+    "Large Language Model"
+   ],
+   "field": "视觉语言模型评估",
+   "innovations": [
+    "首次系统揭示GVLM组合推理评估中的语法偏见并提出量化指标SyntaxBias Score",
+    "构建去偏基准SADE，包含Content Challenge等新任务以消除句法偏好",
+    "在多模态组合推理benchmark上系统评估7个GVLM并揭示架构差异"
+   ],
+   "benchmarks": [
+    "SADE",
+    "Winoground",
+    "VL-CheckList",
+    "ARO",
+    "CREPE"
+   ]
+  }
+ }
 }

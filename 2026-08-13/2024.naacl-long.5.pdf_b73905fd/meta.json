@@ -3,5 +3,31 @@
  "batch_id": "b73905fd-9eea-499a-9955-155d5325baf6",
  "token": "sk-n7iJ0Z1Ol...",
  "created_at": "2026-08-13 02:45:16",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/97340841-fb66-4f94-afef-9dbc9b520b46.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/97340841-fb66-4f94-afef-9dbc9b520b46.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:29:50",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Emotion Recognition in Conversation",
+    "cross-modal knowledge distillation",
+    "multimodal fusion",
+    "shifting fusion",
+    "teacher-student distillation",
+    "MELD",
+    "IEMOCAP"
+   ],
+   "field": "对话情感识别",
+   "innovations": [
+    "首次将跨模态知识蒸馏应用于ERC，以文本为教师增强弱模态",
+    "提出响应蒸馏(Pearson相关)与特征蒸馏(KL散度)双路径",
+    "注意力驱动的移位融合机制实现学生反向支持教师"
+   ],
+   "benchmarks": [
+    "MELD",
+    "IEMOCAP"
+   ]
+  }
+ }
 }

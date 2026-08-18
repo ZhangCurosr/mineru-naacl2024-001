@@ -4,5 +4,35 @@
  "title": "A-Survey-of-Meaning-Representations-From-Theory-to-Practical",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 05:40:50",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/0b7fa7de-a486-400f-9be7-c68f130cad47.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/0b7fa7de-a486-400f-9be7-c68f130cad47.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:30:23",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Meaning Representation",
+    "Semantic Parsing",
+    "AMR",
+    "DRS",
+    "UCCA",
+    "SMATCH",
+    "Survey"
+   ],
+   "field": "语义表示与语义解析",
+   "innovations": [
+    "提出五维分类框架系统化对比八种MRF",
+    "首次横向盘点浅层与深层MR的完整生态",
+    "批判SMATCH评估范式并提出挑战集与神经度量替代方案"
+   ],
+   "benchmarks": [
+    "AMR 3.0",
+    "RST-DT",
+    "UCCA English",
+    "Parallel Meaning Bank",
+    "CoNLL SRL",
+    "MRP Shared Tasks"
+   ]
+  }
+ }
 }

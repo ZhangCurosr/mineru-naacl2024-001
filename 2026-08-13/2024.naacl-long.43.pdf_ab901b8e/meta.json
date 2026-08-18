@@ -3,5 +3,35 @@
  "batch_id": "ab901b8e-d803-4fe7-a13c-3bdb6b538f6d",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-13 02:45:32",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/f83b0478-8849-43a1-a175-8215b8fd9f28.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/f83b0478-8849-43a1-a175-8215b8fd9f28.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:29:36",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "keyword spotting",
+    "forced alignment",
+    "multilingual speech",
+    "phoneme-based modeling",
+    "contrastive learning",
+    "cross-lingual generalization",
+    "IPA"
+   ],
+   "field": "多语言语音处理",
+   "innovations": [
+    "提出音素-语音对比学习框架CLAP-IPA实现跨语言开放词汇关键词检测",
+    "从序列级对比训练中涌现零样本强制对齐能力并提出IPA-ALIGNER微调方法",
+    "构建115种语言超1000小时音素标注数据集IPAPACK"
+   ],
+   "benchmarks": [
+    "Libriphrase",
+    "MSWC-IPA",
+    "FLEURS-IPA",
+    "UCLA Phonetic Corpus",
+    "DORECO-IPA",
+    "TIMIT"
+   ]
+  }
+ }
 }

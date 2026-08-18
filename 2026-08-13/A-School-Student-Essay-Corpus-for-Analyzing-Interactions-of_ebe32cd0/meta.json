@@ -4,5 +4,31 @@
  "title": "A-School-Student-Essay-Corpus-for-Analyzing-Interactions-of",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 05:40:19",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/f282674e-b13a-45fa-af31-481c4c94fc18.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/f282674e-b13a-45fa-af31-481c4c94fc18.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 18:30:19",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "argument mining",
+    "automated essay scoring",
+    "school student essays",
+    "discourse modes",
+    "AdapterFusion",
+    "German corpus"
+   ],
+   "field": "教育NLP / 论证挖掘",
+   "innovations": [
+    "发布首个德语中小学议论文联合标注语料库",
+    "揭示论证结构与质量的多粒度交互规律",
+    "验证AdapterFusion在多结构级别融合中的有效性"
+   ],
+   "benchmarks": [
+    "FD-LEX corpus",
+    "mDeBERTaV3",
+    "AdapterFusion baseline"
+   ]
+  }
+ }
 }
