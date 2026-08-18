@@ -3,5 +3,29 @@
  "batch_id": "cf640b8e-3531-494b-8207-ac26d379af6b",
  "token": "sk-owp49a3rO...",
  "created_at": "2026-08-13 01:41:30",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/c2155244-a45b-4562-879f-79c52e2906da.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/c2155244-a45b-4562-879f-79c52e2906da.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:43:39",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "事件论元抽取",
+    "上下文学习",
+    "示例选择",
+    "行列式点过程",
+    "大语言模型"
+   ],
+   "field": "事件抽取与提示学习",
+   "innovations": [
+    "提出语义相似度-多样性-事件相关性三分量联合打分框架",
+    "设计自然语言描述的事件类型/角色评分器并以DPP统一融合",
+    "以少量示例实现超越全监督方法DyGIE++的EAE性能"
+   ],
+   "benchmarks": [
+    "ACE05",
+    "RAMS"
+   ]
+  }
+ }
 }

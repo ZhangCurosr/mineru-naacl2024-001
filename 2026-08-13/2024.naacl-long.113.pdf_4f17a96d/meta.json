@@ -3,5 +3,31 @@
  "batch_id": "4f17a96d-ebf7-4212-b5ff-c2b07faf247f",
  "token": "sk-7NOZt17oN...",
  "created_at": "2026-08-13 02:59:30",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/26bb28b4-ed52-4485-919b-9209e9bc2e53.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/26bb28b4-ed52-4485-919b-9209e9bc2e53.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:45:06",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Large Language Models",
+    "Emotional Support",
+    "Queer Youth",
+    "Mental Health",
+    "Prompt Engineering",
+    "Evaluation Benchmark",
+    "AI Alignment"
+   ],
+   "field": "情感计算与心理健康AI",
+   "innovations": [
+    "首个针对酷儿青少年情感支持的十维度评估量表",
+    "构建LGBTeen数据集并开源",
+    "提出可靠性/同理心/个性化三位一体的AI支持者蓝图"
+   ],
+   "benchmarks": [
+    "LGBTeen Dataset",
+    "Reddit r/LGBTeens"
+   ]
+  }
+ }
 }

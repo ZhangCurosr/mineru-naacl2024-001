@@ -3,5 +3,38 @@
  "batch_id": "75c7da80-4559-446e-a38d-8fb7d379cbd2",
  "token": "sk-n7iJ0Z1Ol...",
  "created_at": "2026-08-13 02:32:53",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3a03cd03-0a23-4177-8207-1c2536c6e4d5.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/3a03cd03-0a23-4177-8207-1c2536c6e4d5.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:45:59",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "prompt optimization",
+    "random sampling",
+    "separator",
+    "in-context learning",
+    "few-shot classification",
+    "LLM prompting"
+   ],
+   "field": "Prompt Engineering / In-Context Learning",
+   "innovations": [
+    "提出三种无需LLM的随机分隔符生成策略并证明其与自优化方法性能相当",
+    "建立强随机基线，揭示已有prompt优化方法的性能增益可能被高估",
+    "在分类和生成任务上验证随机分隔符的鲁棒性和跨seed稳定性"
+   ],
+   "benchmarks": [
+    "SST-2",
+    "SST-5",
+    "AGNews",
+    "GSM8K",
+    "DBPedia",
+    "TREC",
+    "MR",
+    "CR",
+    "MPQA",
+    "Subj"
+   ]
+  }
+ }
 }

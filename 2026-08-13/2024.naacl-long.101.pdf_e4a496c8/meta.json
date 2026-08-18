@@ -3,5 +3,29 @@
  "batch_id": "e4a496c8-3e24-48b7-9568-50f15190c745",
  "token": "sk-45Ifw5Iq3...",
  "created_at": "2026-08-13 02:59:24",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/c2155244-a45b-4562-879f-79c52e2906da.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/c2155244-a45b-4562-879f-79c52e2906da.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:43:47",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "In-context Learning",
+    "Event Argument Extraction",
+    "Determinantal Point Process",
+    "Example Selection",
+    "Prompt Engineering"
+   ],
+   "field": "事件抽取与上下文学习",
+   "innovations": [
+    "提出语义相似度+示例多样性+事件相关性三要素并整合入DPP核矩阵",
+    "设计事件类型与角色的自然语言描述评分器（event scorer）",
+    "用少量上下文示例即可超越部分全监督EAE方法"
+   ],
+   "benchmarks": [
+    "ACE05",
+    "RAMS"
+   ]
+  }
+ }
 }

@@ -3,5 +3,37 @@
  "batch_id": "4c0bb514-f836-4b3d-9534-4a347b42f0ab",
  "token": "sk-n7iJ0Z1Ol...",
  "created_at": "2026-08-13 02:32:47",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/354a77ab-2182-4415-9779-de69c520bd58.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/354a77ab-2182-4415-9779-de69c520bd58.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:44:07",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Universal Information Extraction",
+    "Information Extraction",
+    "Token Pair Linking",
+    "Structure Language Prompt",
+    "Named Entity Recognition",
+    "Relation Extraction"
+   ],
+   "field": "信息抽取",
+   "innovations": [
+    "仅用IS和NEXT两种通用关系统一所有IE任务的学习目标",
+    "引入结构化语言提示与Semi-Matrix BiLSTM显式建模span序列依赖"
+   ],
+   "benchmarks": [
+    "CoNLL03",
+    "ACE04",
+    "ACE05",
+    "CoNLL04",
+    "NYT",
+    "SciERC",
+    "Cadec",
+    "SemEval-14/15/16",
+    "CASIE",
+    "SAOKE"
+   ]
+  }
+ }
 }

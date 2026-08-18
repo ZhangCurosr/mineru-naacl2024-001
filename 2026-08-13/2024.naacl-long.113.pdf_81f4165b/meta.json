@@ -3,5 +3,30 @@
  "batch_id": "81f4165b-368f-41a1-86f8-f22322fb0795",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 01:41:38",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/26bb28b4-ed52-4485-919b-9209e9bc2e53.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/26bb28b4-ed52-4485-919b-9209e9bc2e53.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:45:17",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "情感支持",
+    "LLM评估",
+    "酷儿青少年",
+    "人机对话",
+    "偏见与对齐",
+    "提示工程"
+   ],
+   "field": "面向边缘群体的AI情感支持",
+   "innovations": [
+    "首个面向酷儿青少年的十维书面回复评估量表",
+    "LGBTeen大规模公开数据集与多模型基准评测",
+    "提出Identification+Assertion双组件改进蓝图"
+   ],
+   "benchmarks": [
+    "LGBTeen Dataset",
+    "r/LGBTeens Reddit子版块"
+   ]
+  }
+ }
 }

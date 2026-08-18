@@ -3,5 +3,33 @@
  "batch_id": "9509949f-9f6a-437b-afa4-d4c7066ce75c",
  "token": "sk-45Ifw5Iq3...",
  "created_at": "2026-08-13 02:45:20",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a21bc5a4-3fac-41cf-9b5b-07562eb103af.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a21bc5a4-3fac-41cf-9b5b-07562eb103af.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:48:01",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Solo Performance Prompting",
+    "认知协同",
+    "零样本提示",
+    "角色扮演",
+    "事实幻觉",
+    "多智能体自协作",
+    "LLM涌现能力"
+   ],
+   "field": "大语言模型提示工程与推理增强",
+   "innovations": [
+    "提出SPP单实例零样本提示框架，通过动态多角色自我协作同时提升知识事实准确性与推理能力",
+    "首次在GPT-4上验证认知协同能力的涌现性，小模型（GPT-3.5/Llama2）无法受益且存在early-termination风险",
+    "设计Trivia Creative Writing与Codenames Collaborative两个兼顾知识核查与协作推理的评估任务"
+   ],
+   "benchmarks": [
+    "Trivia Creative Writing",
+    "Codenames Collaborative",
+    "Logic Grid Puzzle",
+    "BigBench"
+   ]
+  }
+ }
 }

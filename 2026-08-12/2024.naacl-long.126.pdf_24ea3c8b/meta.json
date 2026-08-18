@@ -3,5 +3,32 @@
  "batch_id": "24ea3c8b-31f4-4b24-ba2f-9b68f2a8e242",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-12 16:13:08",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/4fa2a8bd-9f79-443d-add0-f2d9c91a1e9b.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/4fa2a8bd-9f79-443d-add0-f2d9c91a1e9b.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:42:59",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "标注分歧",
+    "视角主义",
+    "数据标注",
+    "软标签",
+    "模型校准",
+    "标注者建模",
+    "主观性NLP"
+   ],
+   "field": "NLP数据标注与评估",
+   "innovations": [
+    "系统定义'视角主义转向'并对比传统范式的假设差异",
+    "揭示'bias'概念在标注研究中的统计-社会混淆及其后果",
+    "提出从标注前设计到评估的全流程视角主义改进建议"
+   ],
+   "benchmarks": [
+    "NLI任务分歧建模",
+    "仇恨言论检测标注分歧",
+    "情感分析软标签训练"
+   ]
+  }
+ }
 }

@@ -3,5 +3,34 @@
  "batch_id": "ab2bcf05-d197-462c-a499-5deb797cc734",
  "token": "sk-Ir4JqYCnj...",
  "created_at": "2026-08-13 02:59:47",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/275e9bc3-8524-4a62-a798-d966ecac75ee.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/275e9bc3-8524-4a62-a798-d966ecac75ee.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:45:35",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "多模态语言模型",
+    "指令优化",
+    "零样本学习",
+    "跨模态对齐",
+    "上下文学习"
+   ],
+   "field": "多模态人工智能",
+   "innovations": [
+    "提出基于IAS评分的自主指令优化框架，实现多模态零样本免人工指令优化",
+    "设计Cross-Modal Alignment Attention增强图文特征融合",
+    "将ICL比较范式应用于指令质量优化"
+   ],
+   "benchmarks": [
+    "TextVQA",
+    "HatefulMemes",
+    "ScienceQA",
+    "Flickr30K",
+    "NoCaps",
+    "GQA",
+    "VizWiz"
+   ]
+  }
+ }
 }

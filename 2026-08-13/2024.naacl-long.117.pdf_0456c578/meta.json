@@ -3,5 +3,37 @@
  "batch_id": "0456c578-3793-40e6-b760-7c931fbc3ff4",
  "token": "sk-Ar06zcDAy...",
  "created_at": "2026-08-13 01:41:36",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/275e9bc3-8524-4a62-a798-d966ecac75ee.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/275e9bc3-8524-4a62-a798-d966ecac75ee.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:45:21",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "多模态语言模型",
+    "零样本学习",
+    "指令优化",
+    "跨模态对齐",
+    "上下文学习",
+    "自评估"
+   ],
+   "field": "多模态大模型推理优化",
+   "innovations": [
+    "提出AIO框架实现推理阶段自主指令优化，无需外部判别器",
+    "设计IAS自评估分数结合ICL对比排序提升零样本性能"
+   ],
+   "benchmarks": [
+    "TextVQA",
+    "HatefulMemes",
+    "ScienceQA",
+    "Flickr30K",
+    "NoCaps",
+    "GQA",
+    "VSR",
+    "IconQA",
+    "VizWiz",
+    "Visual Dialog"
+   ]
+  }
+ }
 }

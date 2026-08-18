@@ -3,5 +3,35 @@
  "batch_id": "8f51f0ca-2072-419f-8b55-4ea7991445c6",
  "token": "sk-Ir4JqYCnj...",
  "created_at": "2026-08-13 02:59:37",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/4fa2a8bd-9f79-443d-add0-f2d9c91a1e9b.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/4fa2a8bd-9f79-443d-add0-f2d9c91a1e9b.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:46:32",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "annotator disagreement",
+    "perspectivist paradigm",
+    "data labeling",
+    "soft label",
+    "inter-annotator agreement",
+    "model calibration",
+    "crowdsourcing",
+    "participatory design"
+   ],
+   "field": "NLP数据标注与公平性",
+   "innovations": [
+    "系统性对照传统地面真实值与视角主义两大标注范式",
+    "解构统计偏差与社会偏差的混淆并揭示人口统计因素的有限预测力",
+    "提出覆盖数据收集到评估的全链路实践建议与跨学科理论桥梁"
+   ],
+   "benchmarks": [
+    "DICES",
+    "POPQUORN",
+    "GoEmotions",
+    "NLI datasets",
+    "hate speech detection benchmarks"
+   ]
+  }
+ }
 }

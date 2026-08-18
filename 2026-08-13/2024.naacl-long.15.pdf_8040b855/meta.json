@@ -3,5 +3,32 @@
  "batch_id": "8040b855-3118-4493-bc24-54668baadf1d",
  "token": "sk-45Ifw5Iq3...",
  "created_at": "2026-08-13 02:58:50",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a21bc5a4-3fac-41cf-9b5b-07562eb103af.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a21bc5a4-3fac-41cf-9b5b-07562eb103af.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:48:37",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "LLM prompting",
+    "cognitive synergy",
+    "persona-based reasoning",
+    "hallucination reduction",
+    "emergent ability",
+    "multi-agent collaboration",
+    "zero-shot prompting"
+   ],
+   "field": "大语言模型提示方法与能力涌现",
+   "innovations": [
+    "提出SPP方法，通过单LLM动态识别多细粒度人格进行多轮自我协作，零样本同时提升知识与推理能力",
+    "首次发现认知协同能力仅在GPT-4级别模型中涌现，小模型无效甚至出现early-termination",
+    "设计新任务Trivia Creative Writing和Codenames Collaborative，填补同时评估知识+推理的benchmark空白"
+   ],
+   "benchmarks": [
+    "Trivia Creative Writing (N=5/10)",
+    "Codenames Collaborative",
+    "Logic Grid Puzzle (BigBench)"
+   ]
+  }
+ }
 }

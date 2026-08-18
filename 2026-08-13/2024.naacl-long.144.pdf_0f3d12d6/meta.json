@@ -3,5 +3,33 @@
  "batch_id": "0f3d12d6-a183-4df7-9549-9c16e42191c2",
  "token": "sk-n7iJ0Z1Ol...",
  "created_at": "2026-08-13 01:41:44",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/b167b61c-3a2a-455c-904d-af3691e0a439.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/b167b61c-3a2a-455c-904d-af3691e0a439.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:47:29",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Emergent Modularity",
+    "Mixture-of-Experts",
+    "Large Language Models",
+    "Domain Generalization",
+    "Parameter-Efficient Tuning",
+    "Negative Transfer"
+   ],
+   "field": "大语言模型模块化与泛化",
+   "innovations": [
+    "零参数涌现模块化外部化方法EMoE",
+    "揭示EMoE通过训练阶段掩码负迁移神经元提升泛化",
+    "微调后可合并回标准架构保持部署兼容"
+   ],
+   "benchmarks": [
+    "GLUE",
+    "GLUE-X",
+    "Domainbed",
+    "MMLU",
+    "ATTEMPT Multi-task"
+   ]
+  }
+ }
 }

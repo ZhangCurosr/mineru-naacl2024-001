@@ -3,5 +3,38 @@
  "batch_id": "9c76a8e6-c8c2-41ec-8f90-0bb5cbbfa603",
  "token": "sk-owp49a3rO...",
  "created_at": "2026-08-13 01:41:31",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/354a77ab-2182-4415-9779-de69c520bd58.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/354a77ab-2182-4415-9779-de69c520bd58.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:44:03",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Universal Information Extraction",
+    "Token Pair Linking",
+    "Structure Language Prompt",
+    "Named Entity Recognition",
+    "Relation Extraction",
+    "Event Extraction",
+    "Zero-shot Transfer"
+   ],
+   "field": "信息抽取与通用人工智能",
+   "innovations": [
+    "提出仅使用IS与NEXT两种通用关系统一所有IE任务，实现学习目标完全一致",
+    "设计结构语言提示将schema知识显式融入，并结合半矩阵BiLSTM建模span内序列依赖",
+    "通过统一的NEXT关系路径解码有效处理不连续NER、重叠事件与开放IE等复杂任务"
+   ],
+   "benchmarks": [
+    "CoNLL03",
+    "ACE04/05",
+    "NYT",
+    "SemEval-14/15/16",
+    "CADeC/CADeCD",
+    "Genia",
+    "SciERC",
+    "CASIE",
+    "SAOKE"
+   ]
+  }
+ }
 }

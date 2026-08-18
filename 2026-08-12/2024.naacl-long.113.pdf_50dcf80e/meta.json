@@ -3,5 +3,31 @@
  "batch_id": "50dcf80e-746b-4311-ade1-e6714da2e3d5",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-12 16:13:30",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/26bb28b4-ed52-4485-919b-9209e9bc2e53.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/26bb28b4-ed52-4485-919b-9209e9bc2e53.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:42:34",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "情感支持",
+    "LLM评估",
+    "Queer Youth",
+    "共情AI",
+    "prompt工程",
+    "心理健康"
+   ],
+   "field": "多模态情感计算与AI心理健康",
+   "innovations": [
+    "提出首个针对queer青少年情感支持的10维度评估量表",
+    "构建LGBTeen数据集（1000帖子×15模型组合）",
+    "证明Guided Supporter提示可显著提升安全性与共情质量"
+   ],
+   "benchmarks": [
+    "LGBTeen",
+    "APA Guidelines 2015",
+    "SHEFI 2022"
+   ]
+  }
+ }
 }

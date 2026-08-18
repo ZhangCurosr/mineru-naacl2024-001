@@ -3,5 +3,30 @@
  "batch_id": "334a0dff-20f9-4e40-a387-9cdc70d85f3c",
  "token": "sk-owp49a3rO...",
  "created_at": "2026-08-13 01:41:31",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a3f1293c-b791-4d3b-b769-944db87c44e0.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a3f1293c-b791-4d3b-b769-944db87c44e0.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:44:45",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "时序知识图谱",
+    "零样本学习",
+    "大语言模型",
+    "关系预测",
+    "知识图谱推理"
+   ],
+   "field": "时序知识图谱与零样本学习",
+   "innovations": [
+    "首次系统研究 TKGF 中的零样本关系学习问题，并提出 LLM 赋能的零样本关系学习框架 zrLLM",
+    "利用 LLM 生成关系丰富描述并提取固定语义表示，有效解决零样本关系表示缺失问题",
+    "设计关系历史学习器（RHL）捕捉 entity-agnostic 的时序模式，促进文本与图谱空间对齐"
+   ],
+   "benchmarks": [
+    "ACLED-zero",
+    "ICEWS21-zero",
+    "ICEWS22-zero"
+   ]
+  }
+ }
 }

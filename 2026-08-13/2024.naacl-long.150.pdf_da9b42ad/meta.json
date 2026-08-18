@@ -3,5 +3,32 @@
  "batch_id": "da9b42ad-8708-44ca-a8c7-15665e91aa70",
  "token": "sk-Ir4JqYCnj...",
  "created_at": "2026-08-13 02:46:05",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/eaf7dac4-451e-4f56-b3e3-04dca5b73a7c.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/eaf7dac4-451e-4f56-b3e3-04dca5b73a7c.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:48:00",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "discourse relation recognition",
+    "explicit to implicit transfer",
+    "label shift",
+    "connective prediction",
+    "PDTB",
+    "joint learning",
+    "domain adaptation"
+   ],
+   "field": "话语关系识别",
+   "innovations": [
+    "首次从语料库层面实证显式→隐式转换中连接词去除导致标签偏移现象",
+    "提出基于余弦相似度的标签偏移量化指标并按关系类别自适应过滤噪声样本",
+    "设计连接词恢复联合学习框架（Gumbel-Softmax采样）以端到端缓解标签偏移"
+   ],
+   "benchmarks": [
+    "PDTB 2.0",
+    "PDTB 3.0",
+    "GUM (DISRPT 2023)"
+   ]
+  }
+ }
 }

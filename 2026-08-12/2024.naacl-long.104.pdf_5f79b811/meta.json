@@ -3,5 +3,30 @@
  "batch_id": "5f79b811-8be7-454b-ab55-13baf337a505",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-12 16:13:59",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a3f1293c-b791-4d3b-b769-944db87c44e0.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/a3f1293c-b791-4d3b-b769-944db87c44e0.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:42:48",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Temporal Knowledge Graph Forecasting",
+    "Zero-Shot Relational Learning",
+    "Large Language Models",
+    "Knowledge Graph Embedding",
+    "Inductive Reasoning"
+   ],
+   "field": "时序知识图谱推理",
+   "innovations": [
+    "首次系统性研究 TKGF 中的零样本关系学习问题，定义形式化任务并构建专用基准",
+    "提出 zrLLM 框架：通过冻结 LLM（T5-11B）提取关系语义表示并投影到 TKGF 嵌入空间，无需微调 LLM 即可提升零样本泛化能力",
+    "设计关系历史学习器 RHL 与历史预测网络 HPN：利用 LLM 语义表示捕获时序关系模式，在推理时避免候选实体搜索即可推断关系历史"
+   ],
+   "benchmarks": [
+    "ACLED-zero",
+    "ICEWS21-zero",
+    "ICEWS22-zero"
+   ]
+  }
+ }
 }

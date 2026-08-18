@@ -3,5 +3,28 @@
  "batch_id": "50407511-4dc6-45d6-b3dc-80ce0a4b2135",
  "token": "sk-9BdnpHblK...",
  "created_at": "2026-08-13 02:46:10",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/49556ef9-d4e6-4f1e-839e-386e6aaf24cc.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/49556ef9-d4e6-4f1e-839e-386e6aaf24cc.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:46:48",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "跨语言摘要",
+    "少样本学习",
+    "可微分流水线",
+    "灾难性遗忘",
+    "反向翻译损失"
+   ],
+   "field": "跨语言自然语言生成",
+   "innovations": [
+    "通过软概率嵌入实现可微分的摘要-翻译级联流水线",
+    "引入反向翻译辅助损失约束中间摘要忠实度"
+   ],
+   "benchmarks": [
+    "CrossSum",
+    "WikiLingua"
+   ]
+  }
+ }
 }

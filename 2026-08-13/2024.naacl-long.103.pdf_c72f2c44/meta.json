@@ -3,5 +3,41 @@
  "batch_id": "c72f2c44-f0b2-4ca7-a392-6cd7a552fc21",
  "token": "sk-45Ifw5Iq3...",
  "created_at": "2026-08-13 02:59:24",
- "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/354a77ab-2182-4415-9779-de69c520bd58.zip"
+ "result_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-08-13/354a77ab-2182-4415-9779-de69c520bd58.zip",
+ "summarized": {
+  "model": "agnes-2.5-flash",
+  "at": "2026-08-18 17:44:08",
+  "chunks": 1,
+  "meta": {
+   "keywords": [
+    "Universal Information Extraction",
+    "Information Extraction",
+    "Token Pair Linking",
+    "Structure Language Prompt",
+    "Zero-shot Transfer",
+    "Named Entity Recognition",
+    "Relation Extraction",
+    "Event Extraction"
+   ],
+   "field": "信息抽取与知识获取",
+   "innovations": [
+    "仅用 IS 和 NEXT 两个通用关系统一全部 IE 任务的学习目标，消除任务间知识共享壁垒",
+    "结构语言提示将 schema 结构编码进 prompt，使模型获得一致的语义匹配上下文",
+    "Semi-Matrix BiLSTM 显式建模 Span 内部序列依赖，突破仅关注首尾 token 的局限"
+   ],
+   "benchmarks": [
+    "CoNLL03",
+    "ACE04",
+    "ACE05",
+    "CoNLL04",
+    "NYT",
+    "SciERC",
+    "SemEval-14/15/16",
+    "Cadec",
+    "Genia",
+    "CASIE",
+    "SAOKE"
+   ]
+  }
+ }
 }
